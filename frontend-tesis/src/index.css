@@ -1,0 +1,32 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  /* Tu paleta exacta de la imagen */
+  --color-kenth-bg: #1A1A1D;
+  --color-kenth-surface: #4E4E50;
+  --color-kenth-darkred: #6F2232;
+  --color-kenth-red: #950740;
+  --color-kenth-brightred: #C3073F;
+}
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-kenth-bg);
+    color: #ffffff;
+    font-family: "Segoe UI", sans-serif;
+    min-height: 100vh;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
