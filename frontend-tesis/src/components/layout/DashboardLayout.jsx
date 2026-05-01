@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import logoImg from '../../assets/logo-main.png';
+import Notification from '../ui/Notification';
 
-export default function DashboardLayout({ children }) {
-  // Estado para la barra lateral
-  const [sidebarExpandida, setSidebarExpandida] = useState(true);
+export default function DashboardLayout({ children, fullWidth = false }) {
+  // Estado para la barra lateral (Persistente con localStorage)
+  const [sidebarExpandida, setSidebarExpandida] = useState(() => {
+    const guardado = localStorage.getItem('sidebar_expandida');
+    return guardado !== null ? JSON.parse(guardado) : true;
+  });
+  
+  // Guardar estado en localStorage cada vez que cambie
+  useEffect(() => {
+    localStorage.setItem('sidebar_expandida', JSON.stringify(sidebarExpandida));
+  }, [sidebarExpandida]);
   
   // Estado para el menú desplegable del usuario
   const [menuUsuarioAbierto, setMenuUsuarioAbierto] = useState(false);
@@ -60,6 +70,41 @@ export default function DashboardLayout({ children }) {
     window.location.href = '/';
   };
 
+  const location = useLocation();
+
+  // Efecto para contraer el sidebar automáticamente SOLO si entramos al Tutor
+  // y no estaba ya contraído.
+  useEffect(() => {
+    if (location.pathname === '/dashboard/tutor' && sidebarExpandida) {
+      setSidebarExpandida(false);
+    }
+  }, [location.pathname]);
+
+  const NavItem = ({ to, icon, label, activeColor = "text-white" }) => {
+    const isActive = location.pathname === to;
+    
+    return (
+      <Link 
+        to={to} 
+        className={`
+          p-3 rounded-xl flex items-center gap-4 transition-all duration-200 justify-center
+          ${sidebarExpandida ? 'lg:justify-start' : 'lg:justify-center'}
+          ${isActive 
+            ? 'bg-kenth-surface/30 text-white shadow-inner font-bold' 
+            : `text-gray-400 hover:bg-kenth-surface/20 hover:text-white font-semibold`
+          }
+        `}
+      >
+        <div className={`w-6 h-6 shrink-0 flex items-center justify-center ${isActive ? activeColor : ''}`}>
+          {icon}
+        </div>
+        <span className={`hidden ${sidebarExpandida ? 'lg:block' : 'hidden'} truncate`}>
+          {label}
+        </span>
+      </Link>
+    );
+  };
+
   return (
     <div className="min-h-screen bg-kenth-bg text-white flex font-sans">
       
@@ -95,35 +140,41 @@ export default function DashboardLayout({ children }) {
         </div>
 
         {/* ICONS NAV */}
-        <nav className={`flex flex-col gap-4 w-full px-4 mt-2 lg:mt-0 ${sidebarExpandida ? 'lg:px-6' : ''}`}>
-          <Link to="/dashboard" className={`p-3 bg-kenth-surface/30 rounded-xl flex items-center gap-4 text-white hover:bg-kenth-surface/50 transition shadow-inner justify-center ${sidebarExpandida ? 'lg:justify-start' : 'lg:justify-center'}`}>
-            <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>
-            <span className={`font-semibold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Dashboard</span>
-          </Link>
-          <a href="#" className={`p-3 rounded-xl flex items-center gap-4 text-gray-400 hover:bg-kenth-surface/30 transition hover:text-white justify-center ${sidebarExpandida ? 'lg:justify-start' : 'lg:justify-center'}`}>
-            <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14v6" /></svg>
-            <span className={`font-semibold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Cursos</span>
-          </a>
-          <a href="#" className={`p-3 rounded-xl flex items-center gap-4 text-gray-400 hover:bg-kenth-surface/30 transition hover:text-white justify-center ${sidebarExpandida ? 'lg:justify-start' : 'lg:justify-center'}`}>
-            <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" /><path strokeLinecap="round" strokeLinejoin="round" d="M9 9h1v1H9z" /></svg>
-            <span className={`font-semibold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Recursos</span>
-          </a>
-          <a href="#" className={`p-3 rounded-xl flex items-center gap-4 text-gray-400 hover:bg-kenth-surface/30 transition hover:text-white justify-center ${sidebarExpandida ? 'lg:justify-start' : 'lg:justify-center'}`}>
-            <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
-            <span className={`font-semibold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Archivos</span>
-          </a>
+        <nav className={`flex flex-col gap-2 w-full px-4 mt-2 lg:mt-0 ${sidebarExpandida ? 'lg:px-6' : ''}`}>
+          <NavItem 
+            to="/dashboard" 
+            label="Dashboard" 
+            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>} 
+          />
+          
+          {/* Nota: Mi Ruta y Dashboard comparten URL por ahora, ambos se verán activos si la URL es /dashboard */}
+          <NavItem 
+            to="/dashboard" 
+            label="Mi Ruta" 
+            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l9-5-9-5-9 5 9 5z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /><path strokeLinecap="round" strokeLinejoin="round" d="M12 14v6" /></svg>} 
+          />
+
+          <NavItem 
+            to="/dashboard/tutor" 
+            label="Tutor KENTH" 
+            activeColor="text-blue-400"
+            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" /></svg>} 
+          />
           
           {(userRole === 'admin' || userRole === 'teacher') && (
-            <Link to="/dashboard/admin/knowledge" className={`p-3 rounded-xl flex items-center gap-4 text-kenth-brightred hover:bg-kenth-brightred/10 transition justify-center ${sidebarExpandida ? 'lg:justify-start' : 'lg:justify-center'}`}>
-              <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-              <span className={`font-semibold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Gestor IA</span>
-            </Link>
+            <NavItem 
+              to="/dashboard/admin/knowledge" 
+              label="Gestor IA" 
+              activeColor="text-kenth-brightred"
+              icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>} 
+            />
           )}
 
-          <Link to="/dashboard/profile" className={`p-3 rounded-xl flex items-center gap-4 text-gray-400 hover:bg-kenth-surface/30 transition hover:text-white justify-center ${sidebarExpandida ? 'lg:justify-start' : 'lg:justify-center'}`}>
-            <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-            <span className={`font-semibold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Ajustes</span>
-          </Link>
+          <NavItem 
+            to="/dashboard/profile" 
+            label="Ajustes" 
+            icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>} 
+          />
         </nav>
         
         {/* BOTÓN SALIR */}
@@ -204,10 +255,24 @@ export default function DashboardLayout({ children }) {
           </div>
         </header>
 
+        {/* Notificaciones Globales */}
+        <Notification />
+
         {/* CONTENIDO DEL DASHBOARD */}
-        <div className="p-6 lg:p-12 w-full flex-1 overflow-y-auto">
-          <div className="max-w-[1200px] mx-auto w-full">
-            {children}
+        <div className={`w-full flex-1 overflow-y-auto ${fullWidth ? 'p-0' : 'p-6 lg:p-12'}`}>
+          <div className={`${fullWidth ? 'w-full h-full' : 'max-w-[1200px] mx-auto w-full'}`}>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={location.pathname}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.25, ease: "easeOut" }}
+                className={fullWidth ? 'h-full w-full' : ''}
+              >
+                {children}
+              </motion.div>
+            </AnimatePresence>
           </div>
         </div>
 

@@ -17,7 +17,7 @@ retriever = vector_store.as_retriever(search_kwargs={"k": 3})
 buscador_web = DuckDuckGoSearchRun()
 
 # El cerebro lógico (llama3.2 de 3b es ideal aquí para que no se equivoque clasificando)
-llm_logico = ChatOllama(model="qwen3-vl:4b-instruct", temperature=0.2) 
+llm_logico = ChatOllama(model="llama3.2:3b", temperature=0.2) 
 # El cerebro con ojos
 llm_vision = ChatOllama(model="qwen3-vl:4b-instruct", temperature=0.1) 
 
@@ -43,14 +43,27 @@ def nodo_supervisor(state: EstadoAgente):
 
     print("👔 [SUPERVISOR]: Analizando la solicitud con IA...")
     
+    # 1. Formatear el historial para que el Supervisor tenga contexto
+    historial_formateado = ""
+    if state.get("historial"):
+        historial_formateado = "--- HISTORIAL RECIENTE ---\n"
+        ultimos_mensajes = state["historial"][-4:] # Últimos 4
+        for msg in ultimos_mensajes:
+            rol = "Alumno" if msg.get("role") == "user" else "KENTH"
+            historial_formateado += f"{rol}: {msg.get('content')}\n"
+        historial_formateado += "--------------------------\n"
+    
     prompt = (
-        "Eres un clasificador estricto para un curso de Mezcla y Masterización.\n"
+        "Eres un clasificador inteligente para un curso de Mezcla y Masterización.\n"
         "Clasifica la siguiente pregunta en UNA de estas tres categorías:\n"
         "1. 'internet': Si el usuario pide descargar algo, un link, un plugin externo (ej. Voxengo SPAN), o noticias actuales.\n"
         "2. 'teoria': Si el usuario pregunta sobre audio, ecualización, compresores, DAWs, o si dice 'qué es esto en la imagen'.\n"
-        "3. 'bloqueo': Si el usuario habla de cocina, videojuegos (Geometry Dash), política, o cualquier tema no musical.\n\n"
+        "3. 'bloqueo': Si el usuario habla de cocina, videojuegos, política, o cualquier tema no musical.\n\n"
+        "INSTRUCCIÓN CRÍTICA DE CONTEXTO: Antes de clasificar la pregunta como fuera de dominio ('bloqueo'), revisa el HISTORIAL RECIENTE. "
+        "Si la pregunta es corta o ambigua (ej. '¿y cómo uso eso?', '¿dónde está?'), asume que se refiere al tema musical que se está discutiendo en los mensajes anteriores y mándala a 'teoria'.\n\n"
+        f"{historial_formateado}"
         "RESPONDE ÚNICA Y EXCLUSIVAMENTE CON UNA DE LAS TRES PALABRAS (internet, teoria, o bloqueo). No digas nada más.\n"
-        f"Pregunta: {state['pregunta']}"
+        f"Pregunta a clasificar: {state['pregunta']}"
     )
     
     respuesta = llm_logico.invoke(prompt).content.strip().lower()
@@ -70,29 +83,69 @@ def nodo_rag(state: EstadoAgente):
     
     # 1. Búsqueda
     docs = retriever.invoke(state["pregunta"])
-    print("✅ [AGENTE RAG]: Paso 2 - Documentos encontrados. Preparando texto...")
+    print("✅ [AGENTE RAG]: Paso 2 - Documentos encontrados. Preparando texto con metadatos...")
     
-    # TRUCO DE OPTIMIZACIÓN: Si el PDF te devuelve 3 páginas, el modelo se ahoga. 
-    # Limitamos el contexto a los primeros 1500 caracteres para que sea un "snare" rápido y no un pad eterno.
-    texto_crudo = "\n\n".join(doc.page_content for doc in docs) if docs else "No hay contexto exacto, usa tu conocimiento."
-    teoria = texto_crudo[:1500] + "..." if len(texto_crudo) > 1500 else texto_crudo
+    # Formatear el contexto inyectando metadatos (si los hay)
+    texto_crudo = ""
+    for doc in docs:
+        meta = doc.metadata
+        # Extraer campos JSON si existen
+        if "modulo" in meta or "tema" in meta:
+            texto_crudo += f"[Módulo: {meta.get('modulo', 'N/A')} - Tema: {meta.get('tema', 'N/A')}]\n"
+            
+        texto_crudo += f"{doc.page_content}\n"
+        
+        recurso = meta.get("recurso_recomendado")
+        video = meta.get("url_video")
+        if recurso or video:
+            texto_crudo += f"-> RECURSOS EDUCATIVOS ASOCIADOS: "
+            if recurso: texto_crudo += f"[{recurso}] "
+            if video: texto_crudo += f"(Video: {video}) "
+        texto_crudo += "\n\n"
+
+    if not docs:
+        texto_crudo = "No hay contexto exacto, usa tu conocimiento."
+        
+    teoria = texto_crudo[:2000] + "..." if len(texto_crudo) > 2000 else texto_crudo
     
+    # 2. Formatear el historial reciente
+    historial_formateado = ""
+    if state.get("historial"):
+        historial_formateado = "--- HISTORIAL RECIENTE ---\n"
+        ultimos_mensajes = state["historial"][-4:] # Últimos 4 intercambios
+        for msg in ultimos_mensajes:
+            rol = "Alumno" if msg.get("role") == "user" else "KENTH (Tú)"
+            historial_formateado += f"{rol}: {msg.get('content')}\n"
+        historial_formateado += "--------------------------\n"
+
     instrucciones = (
-        "Eres KENTH, ingeniero de mezcla profesional.\n"
-        "REGLA DE VOCABULARIO: Di 'Ecualizador', 'Filtro Paso Alto/Bajo'. Nunca uses malas traducciones.\n"
-        "REGLA DE ORO: Sé extremadamente CONCISO y DIRECTO. Responde en MÁXIMO 1 PÁRRAFO CORTO. Evita largas explicaciones.\n"
+        "Eres KENTH, ingeniero de mezcla profesional y un TUTOR MENTOR.\n"
+        "Tu objetivo es enseñar, guiar y fomentar el pensamiento crítico, sin frustrar al alumno con puras preguntas.\n\n"
+        "REGLAS ESTRICTAS:\n"
+        "1. DIFERENCIAR TEORÍA DE PRÁCTICA:\n"
+        "   - Si la pregunta es TEÓRICA o el alumno pide un concepto (ej. '¿Qué es ecualización?', 'No entiendo'): DEBES EXPLICAR la teoría de forma clara y directa basándote en el material del curso. PROHIBIDO responder a una duda teórica con otra pregunta. Primero dale la base.\n"
+        "   - Si la pregunta es de APLICACIÓN PRÁCTICA (ej. '¿Cómo corto graves aquí?'): Usa el método Socrático. NO des la solución exacta (ej. 'corta en 200Hz'). Da una pista teórica y formula una pregunta que lo obligue a deducir la respuesta.\n"
+        "2. REGLA DEL 80/20: Tu respuesta debe ser 80% enseñanza/diagnóstico y 20% preguntas. NUNCA respondas únicamente con una pregunta suelta.\n"
+        "3. RECURSOS EDUCATIVOS: Si la Teoría del Curso incluye 'RECURSOS EDUCATIVOS ASOCIADOS' (videos o actividades), DEBES incluirlos de forma natural al final de tu respuesta (ej. 'Para profundizar en esto, te recomiendo revisar el recurso: [Nombre] o ver este video: [URL]'). NUNCA inventes URLs ni recursos que no estén en el contexto.\n"
+        "4. TONO DEL TUTOR: Mantén un tono alentador, profesional y analítico.\n"
+        "5. SÉ CONCISO: Evita largos discursos académicos.\n\n"
         f"--- TEORÍA DEL CURSO ---\n{teoria}\n------------------------\n"
+        f"{historial_formateado}"
     )
 
     if state["imagen"]:
         print("👀 [AGENTE RAG]: Paso 3 - Analizando imagen (Invocando a Qwen-Vision)...")
-        # PROMPT BLINDADO: Le damos permiso para rechazar la imagen si no es un plugin
+        # PROMPT BLINDADO SOCRÁTICO
         instrucciones_vision = (
-            "Eres KENTH, un ingeniero de mezcla profesional.\n"
+            "Eres KENTH, ingeniero de mezcla profesional y Tutor.\n"
             "El alumno ha adjuntado una imagen. Analízala cuidadosamente.\n\n"
-            "REGLA DE ORO: Si la imagen muestra una interfaz de un DAW, un plugin (Ecualizador, Compresor, etc.) o parámetros de mezcla, descríbelos y da retroalimentación técnica. SE EXTREMADAMENTE CONCISO Y DIRECTO. DA TU DIAGNÓSTICO EN MÁXIMO 1 PÁRRAFO CORTO y ve al grano.\n"
-            "SALIDA DE EMERGENCIA: Si la imagen es un micrófono, una guitarra, un paisaje, o CUALQUIER COSA que no sea un plugin de audio, simplemente responde: 'Esta imagen no parece ser de un software de mezcla. Por favor, sube una captura de tu DAW o plugin para poder ayudarte'. No inventes problemas ni repitas frases.\n\n"
+            "REGLAS ESTRICTAS:\n"
+            "1. REGLA DEL 80/20: Tu respuesta debe ser 80% diagnóstico de lo que observas en la imagen y 20% pregunta guía.\n"
+            "2. NO des la solución exacta (ej. 'baja los 500Hz'). Explica tu observación técnica y haz una pregunta (ej. 'Veo una acumulación en medios-bajos, ¿qué pasaría con la claridad si atenuamos ahí?').\n"
+            "3. TONO DEL TUTOR: Sé alentador, profesional y analítico.\n"
+            "4. SALIDA DE EMERGENCIA: Si la imagen NO es de mezcla o plugin, di: 'Esta imagen no parece de tu DAW o plugin. Sube una captura de tu mezcla para poder guiarte'.\n\n"
             f"--- TEORÍA DEL CURSO ---\n{teoria}\n------------------------\n"
+            f"{historial_formateado}\n"
             f"Pregunta del alumno: {state['pregunta']}"
         )
         
@@ -104,8 +157,8 @@ def nodo_rag(state: EstadoAgente):
         # Penalizamos repeticiones usando el parámetro nativo de Ollama (NO es OpenAI)
         respuesta = llm_vision.bind(options={"repeat_penalty": 1.5}).invoke(mensaje).content
     else:
-        print("🧠 [AGENTE RAG]: Paso 3 - Generando respuesta de texto (Invocando a Qwen, leyendo teoría...)")
-        respuesta = llm_logico.invoke(instrucciones + "\nPregunta: " + state["pregunta"]).content
+        print("🧠 [AGENTE RAG]: Paso 3 - Generando respuesta de texto (Invocando a Llama 3.2, leyendo teoría...)")
+        respuesta = llm_logico.invoke(instrucciones + "\nPregunta del alumno: " + state["pregunta"]).content
         
     print("🚀 [AGENTE RAG]: ¡Respuesta generada con éxito!")
     return {"respuesta_final": respuesta}

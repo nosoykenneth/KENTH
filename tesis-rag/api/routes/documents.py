@@ -11,9 +11,22 @@ from ingest import add_single_document, remove_single_document, get_indexed_docu
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
 DOCUMENTS_DIR = "./documentos"
+TEORIA_DIR = os.path.join(DOCUMENTS_DIR, "teoria")
+VIDEOS_DIR = os.path.join(DOCUMENTS_DIR, "videos")
 
-# Asegurar que el directorio de documentos exista al iniciar
-os.makedirs(DOCUMENTS_DIR, exist_ok=True)
+# Asegurar que los directorios existan al iniciar
+os.makedirs(TEORIA_DIR, exist_ok=True)
+os.makedirs(VIDEOS_DIR, exist_ok=True)
+
+def get_all_filepaths():
+    filepaths = []
+    if os.path.exists(TEORIA_DIR):
+        for f in os.listdir(TEORIA_DIR):
+            if f.endswith(".pdf"): filepaths.append(os.path.join(TEORIA_DIR, f))
+    if os.path.exists(VIDEOS_DIR):
+        for f in os.listdir(VIDEOS_DIR):
+            if f.endswith(".json"): filepaths.append(os.path.join(VIDEOS_DIR, f))
+    return filepaths
 
 # Estado en memoria para archivos que se están procesando
 # Formato: {"filename": "processing" | "error: detalle"}
@@ -28,34 +41,33 @@ class DocumentInfo(BaseModel):
 
 @router.get("/", response_model=List[DocumentInfo])
 def list_documents():
-    """Obtiene la lista de documentos PDF y su estado de indexación"""
+    """Obtiene la lista de documentos y su estado de indexación"""
     try:
         indexed_files = get_indexed_documents()
         files = []
-        for filename in os.listdir(DOCUMENTS_DIR):
-            if filename.endswith(".pdf"):
-                filepath = os.path.join(DOCUMENTS_DIR, filename)
-                size = os.path.getsize(filepath)
-                is_indexed = filename in indexed_files
-                
-                # Determinar el estado
-                status = "indexed" if is_indexed else "unindexed"
-                error_msg = None
-                
-                if filename in processing_status:
-                    if processing_status[filename] == "processing":
-                        status = "processing"
-                    else:
-                        status = "failed"
-                        error_msg = processing_status[filename]
-                
-                files.append(DocumentInfo(
-                    filename=filename, 
-                    size_bytes=size, 
-                    is_indexed=is_indexed,
-                    status=status,
-                    error_msg=error_msg
-                ))
+        for filepath in get_all_filepaths():
+            filename = os.path.basename(filepath)
+            size = os.path.getsize(filepath)
+            is_indexed = filename in indexed_files
+            
+            # Determinar el estado
+            status = "indexed" if is_indexed else "unindexed"
+            error_msg = None
+            
+            if filename in processing_status:
+                if processing_status[filename] == "processing":
+                    status = "processing"
+                else:
+                    status = "failed"
+                    error_msg = processing_status[filename]
+            
+            files.append(DocumentInfo(
+                filename=filename, 
+                size_bytes=size, 
+                is_indexed=is_indexed,
+                status=status,
+                error_msg=error_msg
+            ))
         return files
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
@@ -73,11 +85,14 @@ def run_add_single_document(filepath: str, filename: str):
 
 @router.post("/upload")
 def upload_document(background_tasks: BackgroundTasks, file: UploadFile = File(...)):
-    """Sube un nuevo documento PDF e inicia su vectorización individual en segundo plano"""
-    if not file.filename.endswith(".pdf"):
-        raise HTTPException(status_code=400, detail="Solo se permiten archivos PDF")
+    """Sube un nuevo documento e inicia su vectorización individual en segundo plano"""
+    if file.filename.endswith(".pdf"):
+        filepath = os.path.join(TEORIA_DIR, file.filename)
+    elif file.filename.endswith(".json"):
+        filepath = os.path.join(VIDEOS_DIR, file.filename)
+    else:
+        raise HTTPException(status_code=400, detail="Solo se permiten archivos PDF y JSON")
     
-    filepath = os.path.join(DOCUMENTS_DIR, file.filename)
     try:
         with open(filepath, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
@@ -91,13 +106,18 @@ def upload_document(background_tasks: BackgroundTasks, file: UploadFile = File(.
 
 @router.delete("/{filename}")
 def delete_document(background_tasks: BackgroundTasks, filename: str):
-    """Elimina un documento PDF de la carpeta y lo borra de la memoria de la IA"""
-    filepath = os.path.join(DOCUMENTS_DIR, filename)
-    if os.path.exists(filepath) and filename.endswith(".pdf"):
+    """Elimina un documento de la carpeta y lo borra de la memoria de la IA"""
+    filepath = None
+    if filename.endswith(".pdf"):
+        filepath = os.path.join(TEORIA_DIR, filename)
+    elif filename.endswith(".json"):
+        filepath = os.path.join(VIDEOS_DIR, filename)
+        
+    if filepath and os.path.exists(filepath):
         try:
             os.remove(filepath)
             # Borrar de la base vectorial en background
-            background_tasks.add_task(remove_single_document, filename)
+            background_tasks.add_task(remove_single_document, filepath)
             return {"success": True, "message": f"Archivo '{filename}' eliminado."}
         except Exception as e:
             raise HTTPException(status_code=500, detail=f"Error eliminando archivo: {str(e)}")
@@ -107,7 +127,7 @@ def run_process_all_documents():
     # Marcar todos los no indexados como procesando
     try:
         indexed_files = get_indexed_documents()
-        archivos = [f for f in os.listdir(DOCUMENTS_DIR) if f.endswith(".pdf")]
+        archivos = [os.path.basename(f) for f in get_all_filepaths()]
         for archivo in archivos:
             if archivo not in indexed_files:
                 processing_status[archivo] = "processing"

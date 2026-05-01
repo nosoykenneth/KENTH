@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import DashboardLayout from '../components/layout/DashboardLayout';
-import { getCourseContents } from '../services/courseService';
+import { getCourseContents, getMyCourses } from '../services/courseService';
 import MoodleRenderer from '../components/ui/MoodleRenderer';
-import OllamaChat from '../components/ai/OllamaChat';
+
 
 const HERRAMIENTAS_MOODLE = [
   { id: 'quiz', nombre: 'Cuestionario', icono: '✅', color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/20' },
@@ -15,9 +15,11 @@ const HERRAMIENTAS_MOODLE = [
 
 export default function CourseContentView() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [secciones, setSecciones] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState('');
+  const [courseName, setCourseName] = useState('Vista del Curso');
 
   const [visorActivo, setVisorActivo] = useState(null);
   const [chooserAbierto, setChooserAbierto] = useState(false);
@@ -70,9 +72,22 @@ export default function CourseContentView() {
 
   const fetchContenido = async () => {
     const token = localStorage.getItem('moodle_token');
+    const userid = localStorage.getItem('moodle_userid');
+    
     try {
+      // 1. Obtener contenidos
       const datos = await getCourseContents(token, id);
       setSecciones(datos);
+      
+      // 2. Obtener el nombre del curso buscando en la lista del usuario
+      if (userid) {
+        const misCursos = await getMyCourses(token, userid);
+        const cursoActual = misCursos.find(c => String(c.id) === String(id));
+        if (cursoActual) {
+          setCourseName(cursoActual.fullname);
+        }
+      }
+      
       setError('');
     } catch (err) { setError(err.message); }
     finally { setCargando(false); }
@@ -207,16 +222,24 @@ export default function CourseContentView() {
           </Link>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
             <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase drop-shadow">
-              Vista del Curso <span className="text-kenth-red">#{id}</span>
+              {courseName}
             </h1>
+            
+            {/* NUEVO: Botón de Ajustes para Profesores */}
+            {esProfesor && (
+              <button 
+                onClick={() => navigate(`/dashboard/course/${id}/settings`)}
+                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs uppercase tracking-widest"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                Configuración
+              </button>
+            )}
           </div>
           <div className="h-px bg-kenth-surface/30 w-full mb-6"></div>
         </div>
 
-        {/* NUEVO: El chat de IA aparece aquí */}
-        <div className="mb-8">
-          <OllamaChat />
-        </div>
+
 
         {cargando && (
           <div className="bg-[#2D2D30] rounded-[2rem] p-12 border border-kenth-surface/20 flex justify-center items-center">

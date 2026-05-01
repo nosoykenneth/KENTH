@@ -61,13 +61,11 @@ export default function DashboardCatalog() {
         )}
 
         {!cargando && !error && cursos.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cursos.map((curso, index) => (
+          <div className="flex flex-col gap-8">
+            {cursos.map((curso) => (
               <CourseCard 
                 key={curso.id} 
                 curso={curso} 
-                index={index} 
-                themeScheme={index % 2 === 0 ? "red" : "emerald"} 
               />
             ))}
           </div>

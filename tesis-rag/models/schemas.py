@@ -8,6 +8,7 @@ class EstadoAgente(TypedDict):
     pregunta: str
     imagen: str
     ruta: str # Aquí el supervisor guardará su decisión
+    historial: list # Almacena mensajes previos
     respuesta_final: str
 
 # ==========================================
@@ -18,3 +19,4 @@ class Consulta(BaseModel):
     contexto_leccion: str = ""
     imagen: str = ""
     usar_internet: bool = False # <--- AQUI ESTA TU NUEVO BOTÓN
+    session_id: str = ""
