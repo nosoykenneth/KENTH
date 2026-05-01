@@ -109,13 +109,23 @@ export default function AdminCommercialView() {
                   {/* OFERTA */}
                   <div className="space-y-2">
                     <label className="text-[9px] font-black uppercase tracking-widest text-kenth-subtext">Oferta ($)</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={course.commercial.offer_price}
-                      onChange={(e) => handleInputChange(course.id, 'offer_price', e.target.value)}
-                      className="w-full bg-kenth-bg border border-kenth-border p-3 rounded-2xl outline-none focus:border-kenth-brightred transition-all font-bold text-sm text-emerald-500"
-                    />
+                    <div className="relative">
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={course.commercial.offer_price}
+                        onChange={(e) => handleInputChange(course.id, 'offer_price', e.target.value)}
+                        className={`w-full bg-kenth-bg border p-3 rounded-2xl outline-none transition-all font-bold text-sm ${
+                          course.commercial.offer_price > 0 && course.commercial.offer_price < course.commercial.price
+                          ? 'border-emerald-500 text-emerald-500' 
+                          : 'border-kenth-border text-kenth-subtext'
+                        }`}
+                      />
+                      {course.commercial.offer_price > 0 && course.commercial.offer_price < course.commercial.price && (
+                        <div className="absolute -top-2 -right-2 bg-emerald-500 text-white text-[8px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">Activa</div>
+                      )}
+                    </div>
                   </div>
 
                   {/* VISIBILIDAD */}

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion'; 
 import logoImg from '../assets/logo-main.png';
@@ -6,6 +6,7 @@ import Logo from '../components/ui/Logo';
 import profileImg from '../assets/kenth-profile.jpg'; // Asegúrate de tener tu foto aquí
 import initialImg from '../assets/initial-image.png';
 import Navbar from '../components/layout/Navbar';
+import { getCommercialCatalog } from '../services/courseService';
 
 // Componente para envolver secciones con animación suave al hacer scroll
 const AnimatedSection = ({ children, className }) => (
@@ -138,6 +139,9 @@ function LandingPage() {
           </div>
         </AnimatedSection>
 
+        {/* NUEVA SECCIÓN 4: CATÁLOGO DINÁMICO (Regla 1) */}
+        <LandingCoursesSection />
+
       </main>
 
       {/* FOOTER */}
@@ -151,6 +155,72 @@ function LandingPage() {
       </footer>
 
     </div>
+  );
+}
+
+function LandingCoursesSection() {
+  const [courses, setCourses] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchCatalog = async () => {
+      try {
+        const data = await getCommercialCatalog();
+        setCourses(data.slice(0, 3)); // Mostrar máximo 3 en el landing
+      } catch (error) {
+        console.error("Error al cargar cursos en landing:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchCatalog();
+  }, []);
+
+  if (loading || courses.length === 0) return null;
+
+  return (
+    <AnimatedSection className="bg-kenth-surface/5">
+      <div className="text-center mb-16">
+        <span className="text-kenth-brightred font-black tracking-[0.3em] text-xs uppercase mb-4 block">Programas Disponibles</span>
+        <h2 className="text-4xl md:text-6xl font-black italic tracking-tighter uppercase">Formación de <span className="text-kenth-brightred">Élite</span></h2>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-6 max-w-7xl w-full">
+        {courses.map((curso, idx) => {
+          const hasOffer = curso.commercial?.offer_price > 0 && curso.commercial?.offer_price < curso.commercial?.price;
+          const finalPrice = hasOffer ? curso.commercial.offer_price : curso.commercial?.price;
+
+          return (
+            <motion.div 
+              key={curso.id}
+              whileHover={{ y: -10 }}
+              className="bg-kenth-card border border-kenth-border rounded-[2rem] overflow-hidden flex flex-col group"
+            >
+              <div className="aspect-video bg-kenth-surface/20 flex items-center justify-center relative">
+                 <span className="text-kenth-bg font-black text-6xl opacity-5 italic select-none">KENTH</span>
+                 {hasOffer && (
+                   <div className="absolute top-4 right-4 bg-emerald-500 text-white px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl">Oferta</div>
+                 )}
+              </div>
+              <div className="p-8 flex flex-col flex-1">
+                <h3 className="text-xl font-black uppercase tracking-tighter italic mb-4 group-hover:text-kenth-brightred transition-colors">{curso.fullname}</h3>
+                <div className="mt-auto flex items-center justify-between pt-6 border-t border-kenth-border">
+                  <div className="flex flex-col">
+                    <span className="text-[9px] text-kenth-subtext font-black uppercase tracking-widest">Inversión</span>
+                    <span className={`text-xl font-black italic ${hasOffer ? 'text-emerald-500' : 'text-white'}`}>${finalPrice}</span>
+                  </div>
+                  <Link to={`/checkout/${curso.id}`} className="bg-white text-black hover:bg-kenth-brightred hover:text-white px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-tighter italic transition-all">Comprar</Link>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+      
+      <div className="mt-16">
+        <Link to="/courses" className="text-kenth-subtext hover:text-white text-xs font-black uppercase tracking-[0.3em] transition-all border-b border-kenth-border hover:border-kenth-brightred pb-1">Ver Catálogo Completo</Link>
+      </div>
+    </AnimatedSection>
   );
 }
 
