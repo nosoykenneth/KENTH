@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import logoImg from '../assets/logo-main.png';
-import Logo from '../components/ui/Logo';
+import logoImg from '../../assets/logo-main.png';
+import Logo from '../../shared/components/ui/Logo';
 
 // IMPORTAMOS TUS FUNCIONES REALES
-import { login, getSiteInfo, helperDetermineRole } from '../services/authService';
+import { login, getSiteInfo, helperDetermineRole } from '../../shared/services/authService';
 
 export default function LoginView() {
   const [username, setUsername] = useState('');

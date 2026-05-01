@@ -1,6 +1,6 @@
 import React from 'react';
-import logoMain from '../../assets/logo-main.png';
-import logoMainBlack from '../../assets/logo-main-black.png';
+import logoMain from '../../../assets/logo-main.png';
+import logoMainBlack from '../../../assets/logo-main-black.png';
 
 export default function Logo({ className = "h-8 md:h-12" }) {
   return (

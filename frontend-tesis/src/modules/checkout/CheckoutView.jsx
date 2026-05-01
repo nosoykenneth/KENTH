@@ -2,14 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { getPublicCourse, initiatePaymentIntent, generatePayPhoneLink } from '../services/courseService';
-import { showNotification } from '../components/ui/Notification';
-import Logo from '../components/ui/Logo';
-import Navbar from '../components/layout/Navbar';
-import Notification from '../components/ui/Notification';
+import { getPublicCourse, initiatePaymentIntent, generatePayPhoneLink } from '../../shared/services/courseService';
+import { showNotification } from '../../shared/components/ui/Notification';
+import Logo from '../../shared/components/ui/Logo';
+import Navbar from '../../shared/components/layout/Navbar';
+import Notification from '../../shared/components/ui/Notification';
 
 export default function CheckoutView() {
-  const { id } = useParams();
+  const { courseId: id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
