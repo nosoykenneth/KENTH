@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import logoImg from '../assets/logo-main.png';
-import Logo from '../components/ui/Logo';
-import { getMyCourses } from '../services/courseService';
-import ThemeToggle from '../components/ui/ThemeToggle';
 import Navbar from '../components/layout/Navbar';
+import { getCommercialCatalog } from '../services/courseService';
 
 const AnimatedSection = ({ children, className }) => (
   <motion.section
@@ -24,42 +21,23 @@ export default function PublicCoursesView() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Para la vista pública, intentamos cargar los cursos. 
-    // Si no hay token, usaremos una lista de fallback o un mensaje.
-    const token = localStorage.getItem('moodle_token');
-    const userid = localStorage.getItem('moodle_userid');
-
-    if (token && userid) {
-      getMyCourses(token, userid)
-        .then(data => setCursos(data))
-        .catch(() => setCursos([]))
-        .finally(() => setLoading(false));
-    } else {
-      // Simulación de cursos para usuarios no logueados (Vista de marketing)
-      setTimeout(() => {
-        setCursos([
-          {
-            id: 'public-1',
-            fullname: 'Mezcla y Masterización Profesional',
-            summary: 'Domina las herramientas de la industria y eleva tu sonido al siguiente nivel.',
-            img: null
-          },
-          {
-            id: 'public-2',
-            fullname: 'Producción de R&B Moderno',
-            summary: 'Aprende las técnicas de composición y arreglo que definen el género hoy.',
-            img: null
-          }
-        ]);
+    const fetchCatalog = async () => {
+      try {
+        setLoading(true);
+        const data = await getCommercialCatalog();
+        setCursos(data);
+      } catch (error) {
+        console.error("Error al cargar catálogo público:", error);
+        setCursos([]);
+      } finally {
         setLoading(false);
-      }, 800);
-    }
+      }
+    };
+    fetchCatalog();
   }, []);
 
   return (
     <div className="min-h-screen bg-kenth-bg text-kenth-text font-sans selection:bg-kenth-brightred selection:text-white">
-      
-      {/* HEADER UNIFICADO */}
       <Navbar />
 
       <main className="pt-20">
@@ -81,64 +59,74 @@ export default function PublicCoursesView() {
             </p>
           </div>
 
-          {/* GRID DE CURSOS */}
           <div className="w-full max-w-7xl px-6 grid grid-cols-1 md:grid-cols-2 gap-10">
             {loading ? (
                <div className="col-span-full flex justify-center py-20">
                   <div className="w-16 h-16 border-4 border-kenth-brightred/20 border-t-kenth-brightred rounded-full animate-spin"></div>
                </div>
+            ) : cursos.length === 0 ? (
+               <div className="col-span-full text-center py-20 border border-dashed border-kenth-border rounded-3xl bg-kenth-surface/5">
+                 <p className="text-kenth-subtext font-bold uppercase tracking-widest text-xs">No hay programas disponibles en este momento.</p>
+               </div>
             ) : (
-              cursos.map((curso, idx) => (
-                <motion.div 
-                  key={curso.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  transition={{ delay: idx * 0.1 }}
-                  className="group relative bg-kenth-card rounded-[2.5rem] overflow-hidden border border-kenth-border hover:border-kenth-brightred/30 transition-all duration-500 shadow-2xl"
-                >
-                  <div className="aspect-video bg-kenth-surface/20 relative overflow-hidden">
-                    {/* Placeholder de imagen con estilo */}
-                    <div className="absolute inset-0 bg-gradient-to-br from-kenth-darkred/20 to-black/60 flex items-center justify-center">
-                      <span className="text-kenth-bg font-black text-9xl opacity-10 select-none italic">KENTH</span>
-                    </div>
-                    
-                    {/* Badge de categoría */}
-                    <div className="absolute top-6 left-6 bg-kenth-brightred text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
-                      {idx === 0 ? 'Best Seller' : 'Nuevo'}
-                    </div>
-                  </div>
+              cursos.map((curso, idx) => {
+                const hasOffer = curso.commercial?.offer_price > 0 && curso.commercial?.offer_price < curso.commercial?.price;
+                const finalPrice = hasOffer ? curso.commercial.offer_price : curso.commercial?.price;
 
-                  <div className="p-10 flex flex-col gap-4">
-                    <h3 className="text-3xl font-black uppercase tracking-tighter italic leading-none group-hover:text-kenth-brightred transition-colors">
-                      {curso.fullname}
-                    </h3>
-                    <p className="text-kenth-subtext font-medium line-clamp-2 leading-relaxed">
-                      {curso.summary || 'Aprende las bases y técnicas avanzadas para destacar en la industria musical actual.'}
-                    </p>
-                    
-                    <div className="mt-6 flex items-center justify-between border-t border-kenth-border pt-8">
-                       <div className="flex flex-col">
-                          <span className="text-[10px] text-kenth-subtext font-bold uppercase tracking-widest">Inversión única</span>
-                          <span className="text-2xl font-black italic text-kenth-text">$20.00</span>
-                       </div>
-                       <Link 
-                         to={`/checkout/${curso.id}`} 
-                         className="bg-kenth-text text-kenth-bg hover:bg-kenth-brightred hover:text-white px-8 py-4 rounded-2xl font-black uppercase tracking-tighter italic transition-all duration-300 shadow-xl"
-                       >
-                         Comprar
-                       </Link>
+                return (
+                  <motion.div 
+                    key={curso.id}
+                    initial={{ opacity: 0, y: 30 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: idx * 0.1 }}
+                    className="group relative bg-kenth-card rounded-[2.5rem] overflow-hidden border border-kenth-border hover:border-kenth-brightred/30 transition-all duration-500 shadow-2xl"
+                  >
+                    <div className="aspect-video bg-kenth-surface/20 relative overflow-hidden">
+                      <div className="absolute inset-0 bg-gradient-to-br from-kenth-darkred/20 to-black/60 flex items-center justify-center">
+                        <span className="text-kenth-bg font-black text-9xl opacity-10 select-none italic">KENTH</span>
+                      </div>
+                      <div className="absolute top-6 left-6 bg-kenth-brightred text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
+                        {hasOffer ? 'Oferta Especial' : (idx === 0 ? 'Best Seller' : 'Academy')}
+                      </div>
                     </div>
-                  </div>
-                  
-                  {/* Overlay decorativo al hover */}
-                  <div className="absolute inset-0 border-2 border-kenth-brightred/0 group-hover:border-kenth-brightred/20 rounded-[2.5rem] transition-all pointer-events-none" />
-                </motion.div>
-              ))
+
+                    <div className="p-10 flex flex-col gap-4">
+                      <h3 className="text-3xl font-black uppercase tracking-tighter italic leading-none group-hover:text-kenth-brightred transition-colors">
+                        {curso.fullname}
+                      </h3>
+                      <p className="text-kenth-subtext font-medium line-clamp-2 leading-relaxed">
+                        {curso.commercial?.summary || 'Domina las herramientas de la industria y eleva tu sonido al siguiente nivel.'}
+                      </p>
+                      <div className="mt-6 flex items-center justify-between border-t border-kenth-border pt-8">
+                         <div className="flex flex-col">
+                            <span className="text-[10px] text-kenth-subtext font-bold uppercase tracking-widest">Inversión única</span>
+                            <div className="flex items-center gap-2">
+                              {hasOffer && (
+                                <span className="text-sm font-bold text-kenth-subtext line-through opacity-50">
+                                  ${curso.commercial.price}
+                                </span>
+                              )}
+                              <span className={`text-2xl font-black italic ${hasOffer ? 'text-emerald-500' : 'text-kenth-text'}`}>
+                                ${finalPrice}
+                              </span>
+                            </div>
+                         </div>
+                         <Link 
+                           to={`/checkout/${curso.id}`} 
+                           className="bg-kenth-text text-kenth-bg hover:bg-kenth-brightred hover:text-white px-8 py-4 rounded-2xl font-black uppercase tracking-tighter italic transition-all duration-300 shadow-xl"
+                         >
+                           Comprar
+                         </Link>
+                      </div>
+                    </div>
+                    <div className="absolute inset-0 border-2 border-kenth-brightred/0 group-hover:border-kenth-brightred/20 rounded-[2.5rem] transition-all pointer-events-none" />
+                  </motion.div>
+                );
+              })
             )}
           </div>
         </AnimatedSection>
 
-        {/* CTA FINAL */}
         <AnimatedSection className="bg-gradient-to-t from-kenth-red/10 to-transparent">
            <div className="text-center">
               <h2 className="text-4xl md:text-6xl font-black mb-8 italic uppercase tracking-tighter">¿Listo para transformar <br /> tu sonido?</h2>

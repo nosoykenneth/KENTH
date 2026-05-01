@@ -279,11 +279,11 @@ export const generatePayPhoneLink = async (formData, courseName, courseId) => {
 };
 
 // ==========================================
-// 11. OBTENER CATÁLOGO COMERCIAL COMPLETO (ADMIN)
+// 11. OBTENER CATÁLOGO COMERCIAL COMPLETO (PÚBLICO/ADMIN)
 // ==========================================
-export const getCommercialCatalog = async (token) => {
-  if (!token) throw new Error('Se requiere sesión activa.');
-  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_commercial.php?token=${token}`;
+export const getCommercialCatalog = async (token = null) => {
+  // Ahora el endpoint GET es público, el token solo se usa para ver cursos ocultos si eres admin
+  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_commercial.php${token ? `?token=${token}` : ''}`;
   
   try {
     const response = await fetch(url);
@@ -319,25 +319,22 @@ export const updateCommercialData = async (token, courseId, commercialData) => {
 };
 
 // ==========================================
-// 13. OBTENER INFO PÚBLICA DE UN CURSO (DINÁMICO)
+// 13. OBTENER INFO PÚBLICA DE UN CURSO (DINÁMICO - REGLA 1)
 // ==========================================
 export const getPublicCourse = async (courseId) => {
   const url = `/moodle_api/proyecto_curso/api_persistente/tesis_commercial.php?courseid=${courseId}`;
   
   try {
     const response = await fetch(url);
-    const commercialResult = await response.json();
+    const result = await response.json();
     
-    return {
-      id: courseId,
-      fullname: "Curso de Producción KENTH",
-      summary: "Aprende con la metodología socrática aplicada al audio.",
-      price: commercialResult.data?.price || 49.99,
-      offer_price: commercialResult.data?.offer_price || 0,
-      is_visible: commercialResult.data?.is_visible ?? true
-    };
+    if (!result.success) throw new Error(result.error);
+
+    // Moodle nos devuelve la data comercial y básica del curso
+    return result.data;
   } catch (error) {
     console.error('Error en getPublicCourse:', error);
+    // Fallback de seguridad por si falla la API
     return {
       id: courseId,
       fullname: "Curso KENTH",

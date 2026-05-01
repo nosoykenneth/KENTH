@@ -108,7 +108,10 @@ export default function CheckoutView() {
             btnHorizontal: true,
             btnCard: true,
             createOrder: function (actions) {
-              const finalAmount = Math.round((course?.price || 49.99) * 100);
+              const hasOffer = course?.offer_price > 0 && course?.offer_price < course?.price;
+              const priceToUse = hasOffer ? course.offer_price : (course?.price || 49.99);
+              const finalAmount = Math.round(priceToUse * 100);
+              
               return actions.prepare({
                 amount: finalAmount,
                 amountWithoutTax: finalAmount,
@@ -188,7 +191,16 @@ export default function CheckoutView() {
                 <div className="pt-8 border-t border-kenth-border flex justify-between items-end">
                   <div className="flex flex-col">
                     <span className="text-xs font-bold uppercase text-kenth-subtext tracking-widest mb-1">Precio Final</span>
-                    <span className="text-6xl font-black italic text-kenth-text">${course?.price || '49.99'}</span>
+                    <div className="flex items-center gap-4">
+                      {course?.offer_price > 0 && course?.offer_price < course?.price && (
+                        <span className="text-2xl font-bold text-kenth-subtext line-through opacity-50 decoration-kenth-brightred decoration-2">
+                          ${course.price}
+                        </span>
+                      )}
+                      <span className={`text-6xl font-black italic ${course?.offer_price > 0 ? 'text-emerald-500' : 'text-kenth-text'}`}>
+                        ${(course?.offer_price > 0 && course?.offer_price < course?.price) ? course.offer_price : (course?.price || '49.99')}
+                      </span>
+                    </div>
                   </div>
                 </div>
               </motion.div>
