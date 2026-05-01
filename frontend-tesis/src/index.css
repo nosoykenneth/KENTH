@@ -54,12 +54,12 @@
     color: var(--kenth-text-primary);
     font-family: "Segoe UI", sans-serif;
     min-height: 100vh;
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
   }
 
-  /* Universal transition for theme-aware elements */
+  /* Mantenemos solo las transiciones de color para el tema, sin tocar la opacidad
+     para evitar conflictos con Framer Motion (doble animación/ghosting) */
   body *, body ::before, body ::after {
-    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease, opacity 0.5s ease;
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease;
   }
 
   #root {

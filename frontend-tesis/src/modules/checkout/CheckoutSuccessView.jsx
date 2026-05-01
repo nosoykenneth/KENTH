@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Navbar from '../components/layout/Navbar';
+import Navbar from '../../shared/components/layout/Navbar';
 
 export default function CheckoutSuccessView() {
   const [searchParams] = useSearchParams();

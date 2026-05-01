@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion'; 
-import logoImg from '../assets/logo-main.png';
-import Logo from '../components/ui/Logo';
-import profileImg from '../assets/kenth-profile.jpg'; // Asegúrate de tener tu foto aquí
-import initialImg from '../assets/initial-image.png';
-import Navbar from '../components/layout/Navbar';
-import { getCommercialCatalog } from '../services/courseService';
+import logoImg from '../../assets/logo-main.png';
+import Logo from '../../shared/components/ui/Logo';
+import profileImg from '../../assets/kenth-profile.jpg';
+import initialImg from '../../assets/initial-image.png';
+import Navbar from '../../shared/components/layout/Navbar';
+import { getCommercialCatalog } from '../../shared/services/courseService';
 
 // Componente para envolver secciones con animación suave al hacer scroll
 const AnimatedSection = ({ children, className }) => (
