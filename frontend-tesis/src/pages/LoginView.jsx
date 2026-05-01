@@ -144,7 +144,7 @@ export default function LoginView() {
         
         {/* Footer del Login */}
         <p className="text-center text-gray-500 text-xs mt-8 font-bold tracking-widest uppercase">
-          KENTH Courses © {new Date().getFullYear()}
+          KENTH Academy © {new Date().getFullYear()}
         </p>
 
       </div>

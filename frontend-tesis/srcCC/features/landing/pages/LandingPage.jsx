@@ -128,7 +128,7 @@ function LandingPage() {
 
       {/* FOOTER - Se muestra al final, snap-start también */}
       <footer className="h-[20vh] flex flex-col items-center justify-center snap-start bg-black text-gray-600 text-sm border-t border-kenth-surface/20">
-        <p className="uppercase tracking-widest font-bold mb-2">KENTH courses &copy; {new Date().getFullYear()}</p>
+        <p className="uppercase tracking-widest font-bold mb-2">KENTH Academy &copy; {new Date().getFullYear()}</p>
         <div className="flex gap-6">
           <a href="#" className="hover:text-white transition">Instagram</a>
           <a href="#" className="hover:text-white transition">YouTube</a>

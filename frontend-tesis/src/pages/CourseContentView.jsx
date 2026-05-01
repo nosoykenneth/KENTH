@@ -42,7 +42,7 @@ export default function CourseContentView() {
       const token = localStorage.getItem('moodle_token');
       if (!token || !id) return;
       try {
-        const respuesta = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_role.php?token=${token}&courseid=${id}`);
+        const respuesta = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_role.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(id)}`);
         const data = await respuesta.json();
         setEsProfesor(data.esProfesor);
       } catch (error) { setEsProfesor(false); }

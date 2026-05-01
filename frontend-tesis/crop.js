@@ -5,8 +5,8 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 async function crop() {
-    const input = path.join(__dirname, 'src/assets/KENTHcoursesblanco.png');
-    const output = path.join(__dirname, 'src/assets/logo_recortado.png');
+    const input = 'D:/ESPE/MIC/ACTIVITIES/LOGOS/KENTHacademy.png';
+    const output = path.join(__dirname, 'src/assets/logo-main.png');
     try {
         await sharp(input)
             .trim()

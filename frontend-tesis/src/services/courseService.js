@@ -1,33 +1,44 @@
 /**
  * courseService.js
- * Servicio para gestionar la comunicación con la API de Moodle de Kenth Courses.
+ * Servicio para gestionar la comunicación con la API de Moodle de KENTH Academy.
  */
 
 // ==========================================
-// 1. OBTENER EL CONTENIDO COMPLETO DE UN CURSO
+// 1. OBTENER EL CONTENIDO COMPLETO DE UN CURSO (PROXIED PARA SEGURIDAD)
 // ==========================================
-export const getCourseContents = async (token, courseId) => {
-  if (!token) throw new Error('No hay sesión activa (token ausente).');
+export const getCourseContents = async (token, secureCourseId) => {
+  if (!token) throw new Error('No hay sesión activa.');
   
-  // ¡CORREGIDO! Ahora tiene el prefijo /moodle_api para que el proxy de Vite lo deje pasar
-  const url = `/moodle_api/webservice/rest/server.php?wstoken=${token}&wsfunction=core_course_get_contents&moodlewsrestformat=json&courseid=${courseId}`;
+  // Usamos el proxy seguro para no exponer el ID numérico al llamar a Moodle
+  const url = `/moodle_api/proyecto_curso/api_persistente/sec_contenidos.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(secureCourseId)}`;
   
   try {
     const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Error HTTP: ${response.status}`);
-    }
-
     const data = await response.json();
     
-    if (data.exception) {
-      throw new Error(data.message || 'Error al obtener el contenido del curso.');
-    }
-
+    if (data.error) throw new Error(data.error);
     return data;
   } catch (error) {
     console.error('Error en getCourseContents:', error);
     throw error;
+  }
+};
+
+// ==========================================
+// 1.1 OBTENER TODAS LAS CATEGORÍAS (LISTA COMPLETA)
+// ==========================================
+export const getCategories = async (token) => {
+  if (!token) throw new Error('Se requiere token.');
+  const url = `/moodle_api/webservice/rest/server.php?wstoken=${token}&wsfunction=core_course_get_categories&moodlewsrestformat=json`;
+  
+  try {
+    const response = await fetch(url, { method: 'POST' });
+    const data = await response.json();
+    if (data.exception) throw new Error(data.message);
+    return data;
+  } catch (err) {
+    console.error('Error en getCategories:', err);
+    throw err;
   }
 };
 
@@ -108,59 +119,20 @@ export const executeModuleAction = async (token, action, cmid) => {
 };
 
 // ==========================================
-// 5.1 OBTENER TODAS LAS CATEGORÍAS DISPONIBLES
+// 5. OBTENER MIS CURSOS (CATÁLOGO) CON SEGURIDAD (IDs FIRMADOS)
 // ==========================================
-export const getCategories = async (token) => {
-  if (!token) throw new Error('Se requiere token para obtener categorías.');
-  const url = `/moodle_api/webservice/rest/server.php?wstoken=${token}&wsfunction=core_course_get_categories&moodlewsrestformat=json`;
-  
+export const getMyCourses = async (token) => {
+  if (!token) throw new Error('Se requiere sesión activa.');
+
+  const url = `/moodle_api/proyecto_curso/api_persistente/secure_lista.php?token=${encodeURIComponent(token)}`;
+
   try {
-    const response = await fetch(url, { method: 'POST' });
+    const response = await fetch(url);
     const data = await response.json();
-    if (data.exception) throw new Error(data.message);
+
+    if (data.error) throw new Error(data.error);
+
     return data;
-  } catch (err) {
-    console.error('Error en getCategories:', err);
-    throw err;
-  }
-};
-
-// ==========================================
-// 5. OBTENER MIS CURSOS (CATÁLOGO) Y SUS CATEGORÍAS
-// ==========================================
-export const getMyCourses = async (token, userid) => {
-  if (!token || !userid) throw new Error('Se requiere sesión y ID de usuario activo.');
-
-  const urlCursos = `/moodle_api/webservice/rest/server.php?wstoken=${token}&wsfunction=core_enrol_get_users_courses&moodlewsrestformat=json&userid=${userid}`;
-  const urlCategorias = `/moodle_api/webservice/rest/server.php?wstoken=${token}&wsfunction=core_course_get_categories&moodlewsrestformat=json`;
-
-  try {
-    // 1. Obtener los cursos
-    const responseCursos = await fetch(urlCursos, { method: 'POST' });
-    const cursos = await responseCursos.json();
-
-    if (cursos.exception) throw new Error(cursos.message || 'Error al obtener tus cursos.');
-
-    // 2. Obtener las categorías (sin detener el flujo si falla)
-    let categorias = [];
-    try {
-       const resCategorias = await fetch(urlCategorias, { method: 'POST' });
-       const dataCategorias = await resCategorias.json();
-       if (!dataCategorias.exception) {
-           categorias = dataCategorias;
-       }
-    } catch (catErr) {
-       console.warn('No se pudieron cargar las categorías, usando fallback.');
-    }
-
-    // 3. Cruzar los datos: Inyectar el nombre de la categoría en cada curso
-    return cursos.map(curso => {
-      const categoria = categorias.find(cat => cat.id === curso.category);
-      return {
-        ...curso,
-        categoryname: categoria ? categoria.name : 'CURSO' // Fallback si no encuentra la categoría
-      };
-    });
   } catch (error) {
     console.error('Error en getMyCourses:', error);
     throw error;
@@ -174,7 +146,7 @@ export const getCourseSettings = async (token, courseId) => {
   if (!token) throw new Error('No hay sesión activa.');
 
   // EL SECRETO: Añadir &t=${Date.now()} al final para destruir el caché del navegador
-  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_course_settings.php?token=${token}&courseid=${courseId}&action=get&t=${Date.now()}`;
+  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_course_settings.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(courseId)}&action=get&t=${Date.now()}`;
 
   try {
     const response = await fetch(url);
