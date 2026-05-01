@@ -5,10 +5,12 @@ export default function MoodleRenderer({ modulo }) {
   const [htmlContent, setHtmlContent] = useState('');
   const [cargando, setCargando] = useState(false);
   const [enIntento, setEnIntento] = useState(false);
+  const [iframeCargando, setIframeCargando] = useState(true);
 
   useEffect(() => {
     // Resetear intento si se cambia de modulo
     setEnIntento(false);
+    setIframeCargando(true);
     // Solo hacemos fetch si es contenido de texto (Page/Label)
     if (['page', 'label'].includes(modulo.modname)) {
       const fetchData = async () => {
@@ -35,7 +37,16 @@ export default function MoodleRenderer({ modulo }) {
     case 'page':
     case 'label':
       return (
-        <div className="prose prose-invert prose-rose max-w-none animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="prose prose-invert prose-rose max-w-none animate-in fade-in slide-in-from-bottom-4 duration-500 relative min-h-[100px]">
+          {cargando && !htmlContent && (
+            <div className="flex items-center gap-3 text-kenth-brightred animate-pulse py-4">
+              <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <span className="text-xs font-bold uppercase tracking-tighter">Recuperando contenido...</span>
+            </div>
+          )}
           <div dangerouslySetInnerHTML={{ __html: htmlContent || modulo.description || '' }} />
         </div>
       );
@@ -94,10 +105,20 @@ export default function MoodleRenderer({ modulo }) {
               </button>
             ) : (
               <div className="w-full bg-[#1e1e20] rounded-2xl border border-kenth-surface/50 overflow-hidden h-[600px] relative animate-in fade-in zoom-in-95 duration-500 shadow-inner">
+                {iframeCargando && (
+                  <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#1e1e20] text-orange-400 gap-4">
+                    <svg className="animate-spin h-10 w-10" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span className="font-bold tracking-widest uppercase text-[10px] animate-pulse">Cargando cuestionario seguro...</span>
+                  </div>
+                )}
                 <iframe 
                   name="moodle_view_iframe"
-                  src={`/moodle_api/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
-                  className="w-full h-full absolute inset-0 border-none bg-[#1e1e20]"
+                  onLoad={() => setIframeCargando(false)}
+                  src={`/moodle_api/proyecto_curso/api_persistente/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
+                  className={`w-full h-full absolute inset-0 border-none bg-[#1e1e20] transition-opacity duration-500 ${iframeCargando ? 'opacity-0' : 'opacity-100'}`}
                   allow="fullscreen *; microphone *; camera *"
                   title="Motor de Cuestionario Nivel Dios"
                 />
@@ -184,10 +205,20 @@ export default function MoodleRenderer({ modulo }) {
             {/* 3. EL IFRAME (El pozo profundo): Le damos 50px extras hacia abajo. 
                  H5P dibujará el video, luego los controles, y el "cachito negro" caerá
                  en esos 50px invisibles, siendo devorado por el overflow-hidden del marco. */}
+            {iframeCargando && (
+              <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#1e1e20] text-indigo-400 gap-4">
+                <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <span className="font-bold tracking-widest uppercase text-xs animate-pulse">Sincronizando contenido H5P...</span>
+              </div>
+            )}
             <iframe
               name="moodle_view_iframe"
-              src={`/moodle_api/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
-              className="absolute top-0 left-0 w-full border-none bg-transparent"
+              onLoad={() => setIframeCargando(false)}
+              src={`/moodle_api/proyecto_curso/api_persistente/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
+              className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-700 ${iframeCargando ? 'opacity-0' : 'opacity-100'}`}
               style={{ height: 'calc(100% + 50px)' }}
               allow="fullscreen *; microphone *; camera *"
               scrolling="no" 

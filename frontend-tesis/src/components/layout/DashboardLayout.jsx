@@ -1,18 +1,62 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import logoImg from '../../assets/logo-main.png';
 
 export default function DashboardLayout({ children }) {
-  // Estado para la barra lateral (abierta por defecto en PC)
+  // Estado para la barra lateral
   const [sidebarExpandida, setSidebarExpandida] = useState(true);
   
-  // Estado para el menú desplegable del usuario (cerrado por defecto)
+  // Estado para el menú desplegable del usuario
   const [menuUsuarioAbierto, setMenuUsuarioAbierto] = useState(false);
+
+  // Estados dinámicos para el usuario (Nombre y Foto)
+  const [userName, setUserName] = useState('Usuario');
+  const [userAvatar, setUserAvatar] = useState('https://i.pravatar.cc/150?img=5'); // Fallback por si falla
+  const [userRole, setUserRole] = useState('student');
+  
+  useEffect(() => {
+    const cargarDatosUsuario = () => {
+      const nombre = localStorage.getItem('moodle_userfullname');
+
+      if (nombre) setUserName(nombre);
+      
+      const rol = localStorage.getItem('moodle_rol');
+      if (rol) setUserRole(rol);
+
+      let picUrl = localStorage.getItem('moodle_userpictureurl');
+      const token = localStorage.getItem('moodle_token');
+      
+      // Magia: Moodle requiere el token en la URL de la imagen para dejarte verla desde React
+      if (picUrl && token && !picUrl.includes('token=')) {
+        picUrl += picUrl.includes('?') ? `&token=${token}` : `?token=${token}`;
+      }
+      
+      if (picUrl) setUserAvatar(picUrl);
+    };
+
+    cargarDatosUsuario(); // Cargar al montar el componente
+
+    // Escuchar si el perfil se actualiza desde ProfileSettingsView
+    window.addEventListener('perfilActualizado', cargarDatosUsuario);
+    return () => window.removeEventListener('perfilActualizado', cargarDatosUsuario);
+  }, []);
+
+  const getInitials = (name) => {
+  if (!name) return "K";
+  const parts = name.trim().split(' ');
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+  }
+  return parts[0][0].toUpperCase();
+};
   
   const handleLogout = (e) => {
     e.preventDefault();
     localStorage.removeItem('moodle_token');
     localStorage.removeItem('moodle_rol');
+    localStorage.removeItem('moodle_userfullname');
+    localStorage.removeItem('moodle_userid');
+    localStorage.removeItem('moodle_userpictureurl');
     window.location.href = '/';
   };
 
@@ -37,7 +81,7 @@ export default function DashboardLayout({ children }) {
           />
         </div>
 
-        {/* BOTÓN HAMBURGUESA (Alineado perfectamente con los iconos) */}
+        {/* BOTÓN HAMBURGUESA */}
         <div className={`hidden lg:flex w-full px-4 mb-4 ${sidebarExpandida ? 'justify-center lg:px-6' : 'justify-center'}`}>
            <button 
              onClick={() => setSidebarExpandida(!sidebarExpandida)}
@@ -68,6 +112,14 @@ export default function DashboardLayout({ children }) {
             <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
             <span className={`font-semibold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Archivos</span>
           </a>
+          
+          {(userRole === 'admin' || userRole === 'teacher') && (
+            <Link to="/dashboard/admin/knowledge" className={`p-3 rounded-xl flex items-center gap-4 text-kenth-brightred hover:bg-kenth-brightred/10 transition justify-center ${sidebarExpandida ? 'lg:justify-start' : 'lg:justify-center'}`}>
+              <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
+              <span className={`font-semibold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Gestor IA</span>
+            </Link>
+          )}
+
           <Link to="/dashboard/profile" className={`p-3 rounded-xl flex items-center gap-4 text-gray-400 hover:bg-kenth-surface/30 transition hover:text-white justify-center ${sidebarExpandida ? 'lg:justify-start' : 'lg:justify-center'}`}>
             <svg className="w-6 h-6 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
             <span className={`font-semibold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Ajustes</span>
@@ -86,10 +138,8 @@ export default function DashboardLayout({ children }) {
       {/* ÁREA PRINCIPAL */}
       <main className="flex-1 flex flex-col min-w-0 h-screen">
         
-        {/* TOP NAVBAR (Limpia, sin botón hamburguesa extra) */}
         <header className="h-20 shrink-0 flex justify-between items-center px-6 lg:px-10 border-b border-kenth-surface/30 relative z-30">
-          
-          <div></div> {/* Espaciador para mantener el buscador y el avatar a la derecha */}
+          <div></div> 
           
           <div className="flex items-center gap-6 ml-auto">
             
@@ -100,10 +150,10 @@ export default function DashboardLayout({ children }) {
                 className="flex items-center gap-3 cursor-pointer hover:bg-kenth-surface/20 px-3 py-1.5 rounded-full transition"
               >
                 <div className="w-8 h-8 rounded-full bg-kenth-surface overflow-hidden border-2 border-kenth-surface/50">
-                  <img src="https://i.pravatar.cc/150?img=5" alt="user avatar" className="w-full h-full object-cover" />
+                  <img src={userAvatar} alt="user avatar" className="w-full h-full object-cover" />
                 </div>
                 <span className="font-semibold text-sm">
-                  {localStorage.getItem('moodle_userfullname') || 'Administrador Usuario'}
+                  {userName}
                 </span>
                 <svg className={`w-4 h-4 text-gray-400 transition-transform duration-300 ${menuUsuarioAbierto ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
@@ -164,4 +214,4 @@ export default function DashboardLayout({ children }) {
       </main>
     </div>
   );
-}
+} 

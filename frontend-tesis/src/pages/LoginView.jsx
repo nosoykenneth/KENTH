@@ -30,6 +30,12 @@ export default function LoginView() {
       // ¡NUEVO! Guardamos el ID del usuario para poder pedir sus cursos después
       localStorage.setItem('moodle_userid', siteInfo.userid);
       
+      let picUrl = siteInfo.userpictureurl || '';
+      if (picUrl && !picUrl.includes('token=')) {
+        picUrl += picUrl.includes('?') ? `&token=${token}` : `?token=${token}`;
+      }
+      localStorage.setItem('moodle_userpictureurl', picUrl);
+      
       // 4. Determinamos el rol temporalmente usando tu helper
       const role = helperDetermineRole(username);
       localStorage.setItem('moodle_rol', role);
