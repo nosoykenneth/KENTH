@@ -59,8 +59,8 @@ export default function ProfileSettingsView() {
     const file = e.target.files[0];
     if (file) {
       // Validación básica (opcional, pero recomendada)
-      if (file.size > 5 * 1024 * 1024) { // 5MB
-        showNotification('error', 'La imagen es demasiado grande. Máximo 5MB.');
+      if (file.size > 1024 * 1024 * 1024) { // 1GB
+        showNotification('error', 'La imagen es demasiado grande. Máximo 1GB.');
         return;
       }
 
@@ -135,12 +135,12 @@ export default function ProfileSettingsView() {
   return (
     <DashboardLayout>
       <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <h1 className="text-4xl md:text-5xl font-extrabold text-white mb-2 uppercase tracking-tighter italic">
+        <h1 className="text-4xl md:text-5xl font-extrabold text-kenth-text mb-2 uppercase tracking-tighter italic">
           Ajustes de <span className="text-kenth-brightred">Perfil</span>
         </h1>
-        <p className="text-gray-400 mb-8 font-medium">Gestiona tu identidad en la plataforma de mezcla y masterización.</p>
+        <p className="text-kenth-subtext mb-8 font-medium">Gestiona tu identidad en la plataforma de mezcla y masterización.</p>
 
-        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#1e1e20] p-6 md:p-10 rounded-[2rem] border border-kenth-surface/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
+        <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-kenth-card p-6 md:p-10 rounded-[2rem] border border-kenth-border shadow-[0_20px_50px_rgba(0,0,0,0.1)]">
           
           {/* SECCIÓN DE LA FOTO (Ocupa 2 columnas al principio) */}
           <div className="md:col-span-2 flex flex-col items-center justify-center mb-4">
@@ -149,16 +149,16 @@ export default function ProfileSettingsView() {
               <div className="absolute -inset-1 bg-gradient-to-r from-kenth-brightred to-kenth-red rounded-full blur opacity-25 group-hover:opacity-60 transition duration-500"></div>
               
               {/* Avatar */}
-              <div className="relative w-32 h-32 rounded-full bg-[#2D2D30] border-4 border-kenth-surface/50 overflow-hidden shadow-2xl">
+              <div className="relative w-32 h-32 rounded-full bg-kenth-surface/20 border-4 border-kenth-border overflow-hidden shadow-2xl">
                 <img src={avatarPreview} alt="Tu Avatar" className="w-full h-full object-cover" />
                 
                 {/* Overlay Oscuro on Hover */}
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <div className="absolute inset-0 bg-kenth-bg/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                   <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </div>
               </div>
             </div>
-            <p className="text-xs text-gray-500 mt-4 uppercase tracking-widest font-bold">Clic para cambiar foto</p>
+            <p className="text-xs text-kenth-subtext mt-4 uppercase tracking-widest font-bold">Clic para cambiar foto</p>
             
             {/* Input de archivo invisible */}
             <input 
@@ -172,10 +172,10 @@ export default function ProfileSettingsView() {
 
           {/* EL RESTO DE TUS CAMPOS NORMALES */}
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">Nombre</label>
+            <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Nombre</label>
             <input 
               type="text" 
-              className="w-full bg-[#2D2D30] text-white border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner"
+              className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner"
               value={formData.firstname}
               onChange={(e) => setFormData({...formData, firstname: e.target.value})}
               required
@@ -183,10 +183,10 @@ export default function ProfileSettingsView() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">Apellido</label>
+            <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Apellido</label>
             <input 
               type="text" 
-              className="w-full bg-[#2D2D30] text-white border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner"
+              className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner"
               value={formData.lastname}
               onChange={(e) => setFormData({...formData, lastname: e.target.value})}
               required
@@ -194,10 +194,10 @@ export default function ProfileSettingsView() {
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">Correo Electrónico</label>
+            <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Correo Electrónico</label>
             <input 
               type="email" 
-              className="w-full bg-[#2D2D30] text-white border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner"
+              className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner"
               value={formData.email}
               onChange={(e) => setFormData({...formData, email: e.target.value})}
               required
@@ -205,21 +205,21 @@ export default function ProfileSettingsView() {
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">Ciudad</label>
+            <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Ciudad</label>
             <input 
               type="text" 
-              className="w-full bg-[#2D2D30] text-white border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner"
+              className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner"
               value={formData.city}
               onChange={(e) => setFormData({...formData, city: e.target.value})}
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">País (Código ISO: EC, ES, US...)</label>
+            <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">País (Código ISO: EC, ES, US...)</label>
             <input 
               type="text" 
               maxLength="2"
-              className="w-full bg-[#2D2D30] text-white border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all uppercase shadow-inner placeholder:text-gray-600"
+              className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all uppercase shadow-inner placeholder:text-kenth-subtext"
               placeholder="Ej: EC"
               value={formData.country}
               onChange={(e) => setFormData({...formData, country: e.target.value})}
@@ -227,10 +227,10 @@ export default function ProfileSettingsView() {
           </div>
 
           <div className="space-y-2 md:col-span-2">
-            <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">Biografía / Experiencia Musical</label>
+            <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Biografía / Experiencia Musical</label>
             <textarea 
               rows="5"
-              className="w-full bg-[#2D2D30] text-white border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all resize-none shadow-inner leading-relaxed"
+              className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all resize-none shadow-inner leading-relaxed"
               value={formData.description}
               onChange={(e) => setFormData({...formData, description: e.target.value})}
             />
@@ -240,7 +240,7 @@ export default function ProfileSettingsView() {
             <button 
               type="submit" 
               disabled={saving}
-              className="w-full bg-kenth-brightred hover:bg-white hover:text-kenth-bg text-white font-black py-4 md:py-5 rounded-2xl transition-all duration-500 shadow-xl shadow-kenth-brightred/20 uppercase tracking-tighter italic flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden relative"
+              className="w-full bg-kenth-brightred hover:bg-kenth-text hover:text-kenth-bg text-kenth-bg font-black py-4 md:py-5 rounded-2xl transition-all duration-500 shadow-xl shadow-kenth-brightred/20 uppercase tracking-tighter italic flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden relative"
             >
               <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
               

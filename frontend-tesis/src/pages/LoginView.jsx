@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import logoImg from '../assets/logo-main.png';
+import Logo from '../components/ui/Logo';
 
 // IMPORTAMOS TUS FUNCIONES REALES
 import { login, getSiteInfo, helperDetermineRole } from '../services/authService';
@@ -11,6 +12,8 @@ export default function LoginView() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || '/dashboard';
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -40,8 +43,8 @@ export default function LoginView() {
       const role = helperDetermineRole(username);
       localStorage.setItem('moodle_rol', role);
 
-      // 5. Redirigimos al dashboard (asegúrate de que la ruta sea la correcta)
-      navigate('/dashboard');
+      // 5. Redirigimos al destino original o al dashboard
+      navigate(from, { replace: true });
 
     } catch (err) {
       // AQUÍ ESTÁ LA MAGIA: Si Moodle se queja, te mostrará su QUEJA EXACTA, no un invento mío.
@@ -57,28 +60,28 @@ export default function LoginView() {
   };
 
   return (
-    <div className="min-h-screen bg-kenth-bg flex flex-col justify-center items-center font-sans p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-kenth-bg flex flex-col justify-center items-center font-sans p-4 relative overflow-hidden animate-kenth-blur">
       
       {/* Luces de fondo estilo estudio */}
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-kenth-darkred/20 rounded-full blur-[120px] pointer-events-none"></div>
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-black/50 rounded-full blur-[100px] pointer-events-none"></div>
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-kenth-brightred/10 rounded-full blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-kenth-surface/10 rounded-full blur-[100px] pointer-events-none"></div>
 
       <div className="w-full max-w-md z-10">
         
         {/* LOGO */}
-        <div className="flex justify-center mb-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="flex justify-center mb-8 animate-kenth-slide">
           <Link to="/">
-            <img src={logoImg} alt="KENTH Logo" className="h-12 md:h-16 w-auto object-contain hover:scale-105 transition-transform" />
+            <Logo className="h-12 md:h-16" />
           </Link>
         </div>
 
         {/* CAJA DE LOGIN */}
-        <div className="bg-[#1e1e20]/90 backdrop-blur-xl border border-kenth-surface/30 p-8 md:p-10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-in fade-in slide-in-from-bottom-8 duration-700">
+        <div className="bg-kenth-card/90 backdrop-blur-xl border border-kenth-border p-8 md:p-10 rounded-[2rem] shadow-[0_20px_50px_rgba(0,0,0,0.1)] animate-kenth-pop">
           
-          <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tighter italic text-center">
+          <h2 className="text-3xl font-black text-kenth-text mb-2 uppercase tracking-tighter italic text-center">
             Bienvenido
           </h2>
-          <p className="text-gray-400 text-center mb-8 text-sm">
+          <p className="text-kenth-subtext text-center mb-8 text-sm">
             Inicia sesión para acceder a tu estudio virtual.
           </p>
 
@@ -93,28 +96,28 @@ export default function LoginView() {
           <form onSubmit={handleLogin} className="space-y-5">
             
             <div className="space-y-2">
-              <label className="text-xs font-black uppercase tracking-widest text-gray-500 ml-2">Usuario o Correo</label>
+              <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Usuario o Correo</label>
               <input 
                 type="text" 
                 required
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full bg-[#2D2D30] text-white border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner placeholder:text-gray-600"
+                className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner placeholder:text-kenth-subtext"
                 placeholder="ejemplo@correo.com"
               />
             </div>
 
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-2">
-                <label className="text-xs font-black uppercase tracking-widest text-gray-500">Contraseña</label>
-                <a href="#" className="text-xs text-gray-400 hover:text-kenth-brightred transition-colors">¿Olvidaste tu clave?</a>
+                <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext">Contraseña</label>
+                <a href="#" className="text-xs text-kenth-subtext hover:text-kenth-brightred transition-colors">¿Olvidaste tu clave?</a>
               </div>
               <input 
                 type="password" 
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#2D2D30] text-white border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner placeholder:text-gray-600"
+                className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner placeholder:text-kenth-subtext"
                 placeholder="••••••••"
               />
             </div>
@@ -123,13 +126,13 @@ export default function LoginView() {
               <button 
                 type="submit" 
                 disabled={loading}
-                className="w-full bg-kenth-brightred hover:bg-white hover:text-kenth-bg text-white font-black py-4 rounded-2xl transition-all duration-500 shadow-xl shadow-kenth-brightred/20 uppercase tracking-tighter italic flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden relative"
+                className="w-full bg-kenth-brightred hover:bg-kenth-text hover:text-kenth-bg text-kenth-bg font-black py-4 rounded-2xl transition-all duration-500 shadow-xl shadow-kenth-brightred/20 uppercase tracking-tighter italic flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden relative"
               >
                 <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
                 <span className="relative z-10 flex items-center gap-2">
                   {loading ? (
                     <>
-                      <svg className="animate-spin h-5 w-5 text-white group-hover:text-kenth-bg" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                      <svg className="animate-spin h-5 w-5 text-kenth-bg group-hover:text-kenth-bg" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                       Entrando...
                     </>
                   ) : (
@@ -143,7 +146,7 @@ export default function LoginView() {
         </div>
         
         {/* Footer del Login */}
-        <p className="text-center text-gray-500 text-xs mt-8 font-bold tracking-widest uppercase">
+        <p className="text-center text-kenth-subtext text-xs mt-8 font-bold tracking-widest uppercase">
           KENTH Academy © {new Date().getFullYear()}
         </p>
 

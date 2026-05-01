@@ -31,7 +31,7 @@ export default function CourseCard({ curso }) {
   return (
     <div 
       onClick={manejarNavegacion}
-      className="group relative w-full h-64 md:h-80 rounded-[2rem] overflow-hidden border border-kenth-surface/30 cursor-pointer shadow-2xl hover:scale-[1.01] transition-all duration-500"
+      className="group relative w-full h-64 md:h-80 rounded-[2rem] overflow-hidden border border-kenth-border cursor-pointer shadow-2xl hover:scale-[1.01] transition-all duration-500"
     >
       {/* Imagen de Fondo con Overlay */}
       {imageUrl ? (
@@ -67,7 +67,7 @@ export default function CourseCard({ curso }) {
           </h2>
           
           {curso.shortname && (
-            <p className="text-gray-300 text-sm md:text-lg font-medium italic mt-2 opacity-80 group-hover:opacity-100 transition-opacity">
+            <p className="text-white text-sm md:text-lg font-medium italic mt-2 opacity-80 group-hover:opacity-100 transition-opacity drop-shadow-lg">
               {curso.shortname}
             </p>
           )}

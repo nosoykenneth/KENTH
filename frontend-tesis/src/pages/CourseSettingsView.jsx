@@ -205,12 +205,12 @@ export default function CourseSettingsView() {
         {/* Cabecera */}
         <div className="flex items-center justify-between mb-10">
           <div>
-            <h1 className="text-4xl font-black text-white uppercase tracking-tight">Ajustes del Curso</h1>
-            <p className="text-gray-400 font-medium">Personaliza la apariencia y metadatos de tu curso.</p>
+            <h1 className="text-4xl font-black text-kenth-text uppercase tracking-tight">Ajustes del Curso</h1>
+            <p className="text-kenth-subtext font-medium">Personaliza la apariencia y metadatos de tu curso.</p>
           </div>
           <button
             onClick={() => navigate(`/dashboard/course/${id}`)}
-            className="text-gray-400 hover:text-white transition flex items-center gap-2 font-bold text-sm uppercase tracking-widest"
+            className="text-kenth-subtext hover:text-kenth-text transition flex items-center gap-2 font-bold text-sm uppercase tracking-widest"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
             Volver
@@ -220,32 +220,32 @@ export default function CourseSettingsView() {
         <form onSubmit={handleSubmit} className="flex flex-col gap-8">
 
           {/* SECCIÓN 1: GENERAL */}
-          <div className="bg-kenth-surface/20 rounded-3xl p-8 border border-kenth-surface/30">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <div className="bg-kenth-card rounded-3xl p-8 border border-kenth-border shadow-sm">
+            <h2 className="text-xl font-bold text-kenth-text mb-6 flex items-center gap-3">
               <span className="w-8 h-8 bg-blue-500/20 rounded-lg flex items-center justify-center text-blue-400 text-sm font-black">01</span>
               Información General
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Nombre Completo</label>
+                <label className="text-xs font-black text-kenth-subtext uppercase tracking-widest ml-1">Nombre Completo</label>
                 <input
                   type="text"
                   name="fullname"
                   value={formData.fullname}
                   onChange={handleInputChange}
-                  className="bg-black/40 border border-kenth-surface/50 rounded-xl p-3 text-white focus:outline-none focus:border-kenth-brightred transition shadow-inner"
+                  className="bg-kenth-surface/10 border border-kenth-border rounded-xl p-3 text-kenth-text focus:outline-none focus:border-kenth-brightred transition shadow-inner"
                   required
                 />
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Nombre Corto</label>
+                <label className="text-xs font-black text-kenth-subtext uppercase tracking-widest ml-1">Nombre Corto</label>
                 <input
                   type="text"
                   name="shortname"
                   value={formData.shortname}
                   onChange={handleInputChange}
-                  className="bg-black/40 border border-kenth-surface/50 rounded-xl p-3 text-white focus:outline-none focus:border-kenth-brightred transition shadow-inner"
+                  className="bg-kenth-surface/10 border border-kenth-border rounded-xl p-3 text-kenth-text focus:outline-none focus:border-kenth-brightred transition shadow-inner"
                   required
                 />
               </div>
@@ -253,24 +253,24 @@ export default function CourseSettingsView() {
 
             <div className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Visibilidad</label>
+                <label className="text-xs font-black text-kenth-subtext uppercase tracking-widest ml-1">Visibilidad</label>
                 <select
                   name="visible"
                   value={formData.visible}
                   onChange={handleInputChange}
-                  className="bg-black/40 border border-kenth-surface/50 rounded-xl p-3 text-white focus:outline-none focus:border-kenth-brightred transition shadow-inner"
+                  className="bg-kenth-surface/10 border border-kenth-border rounded-xl p-3 text-kenth-text focus:outline-none focus:border-kenth-brightred transition shadow-inner"
                 >
                   <option value={1} className="bg-kenth-bg">Mostrar curso</option>
                   <option value={0} className="bg-kenth-bg">Ocultar curso</option>
                 </select>
               </div>
               <div className="flex flex-col gap-2">
-                <label className="text-xs font-black text-gray-500 uppercase tracking-widest ml-1">Categoría</label>
+                <label className="text-xs font-black text-kenth-subtext uppercase tracking-widest ml-1">Categoría</label>
                 <select
                   name="category"
                   value={formData.category}
                   onChange={handleInputChange}
-                  className="bg-black/40 border border-kenth-surface/50 rounded-xl p-3 text-white focus:outline-none focus:border-kenth-brightred transition shadow-inner"
+                  className="bg-kenth-surface/10 border border-kenth-border rounded-xl p-3 text-kenth-text focus:outline-none focus:border-kenth-brightred transition shadow-inner"
                 >
                   {categories.map(cat => (
                     <option key={cat.id} value={cat.id} className="bg-kenth-bg">
@@ -283,8 +283,8 @@ export default function CourseSettingsView() {
           </div>
 
           {/* SECCIÓN 2: APARIENCIA */}
-          <div className="bg-kenth-surface/20 rounded-3xl p-8 border border-kenth-surface/30">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <div className="bg-kenth-card rounded-3xl p-8 border border-kenth-border shadow-sm">
+            <h2 className="text-xl font-bold text-kenth-text mb-6 flex items-center gap-3">
               <span className="w-8 h-8 bg-kenth-brightred/20 rounded-lg flex items-center justify-center text-kenth-brightred text-sm font-black">02</span>
               Imagen de Portada
             </h2>
@@ -314,12 +314,12 @@ export default function CourseSettingsView() {
               </div>
 
               <div className="flex-1 w-full text-center md:text-left">
-                <p className="text-gray-400 text-sm mb-4">La imagen se estirará para cubrir la tarjeta del curso. Haz clic en la miniatura para ajustar la posición vertical.</p>
+                <p className="text-kenth-subtext text-sm mb-4">La imagen se estirará para cubrir la tarjeta del curso. Haz clic en la miniatura para ajustar la posición vertical.</p>
                 <div className="flex flex-wrap gap-4 justify-center md:justify-start">
                   <button
                     type="button"
                     onClick={() => fileInputRef.current.click()}
-                    className="bg-kenth-surface/40 hover:bg-kenth-surface/60 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition flex items-center gap-2 border border-kenth-surface/50 shadow-lg"
+                    className="bg-kenth-surface/10 hover:bg-kenth-surface/20 text-kenth-text px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition flex items-center gap-2 border border-kenth-border shadow-sm"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                     Subir Nueva Foto
@@ -328,7 +328,7 @@ export default function CourseSettingsView() {
                     <button
                       type="button"
                       onClick={() => setShowReposition(true)}
-                      className="bg-white/5 hover:bg-white/10 text-white px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition flex items-center gap-2 border border-white/10"
+                      className="bg-kenth-surface/5 hover:bg-kenth-surface/10 text-kenth-text px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-widest transition flex items-center gap-2 border border-kenth-border shadow-sm"
                     >
                       Ajustar Posición
                     </button>
@@ -340,8 +340,8 @@ export default function CourseSettingsView() {
           </div>
 
           {/* SECCIÓN 3: DESCRIPCIÓN */}
-          <div className="bg-kenth-surface/20 rounded-3xl p-8 border border-kenth-surface/30">
-            <h2 className="text-xl font-bold text-white mb-6 flex items-center gap-3">
+          <div className="bg-kenth-card rounded-3xl p-8 border border-kenth-border shadow-sm">
+            <h2 className="text-xl font-bold text-kenth-text mb-6 flex items-center gap-3">
               <span className="w-8 h-8 bg-emerald-500/20 rounded-lg flex items-center justify-center text-emerald-400 text-sm font-black">03</span>
               Descripción del Curso
             </h2>
@@ -349,7 +349,7 @@ export default function CourseSettingsView() {
               name="summary"
               value={formData.summary}
               onChange={handleInputChange}
-              className="w-full bg-black/40 border border-kenth-surface/50 rounded-2xl p-4 text-white focus:outline-none focus:border-kenth-brightred transition shadow-inner min-h-[150px] font-light text-sm"
+              className="w-full bg-kenth-surface/10 border border-kenth-border rounded-2xl p-4 text-kenth-text focus:outline-none focus:border-kenth-brightred transition shadow-inner min-h-[150px] font-light text-sm"
               placeholder="Describe de qué trata el curso..."
             />
           </div>
@@ -374,24 +374,24 @@ export default function CourseSettingsView() {
 
         {/* MODAL DE REPOSICIONAMIENTO */}
         {showReposition && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/90 backdrop-blur-sm animate-in fade-in duration-300">
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8 bg-black/80 backdrop-blur-sm animate-in fade-in duration-300">
             {/* 1. Modal extra ancho (max-w-7xl) para igualar el aspecto de "Billboard" del Dashboard */}
-            <div className="w-full max-w-7xl bg-kenth-bg border border-kenth-surface/50 rounded-[3rem] overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.8)]">
+            <div className="w-full max-w-7xl bg-kenth-card border border-kenth-border rounded-[3rem] overflow-hidden shadow-[0_25px_80px_rgba(0,0,0,0.2)]">
 
-              <div className="p-6 md:p-8 border-b border-kenth-surface/30 flex justify-between items-center">
+              <div className="p-6 md:p-8 border-b border-kenth-border flex justify-between items-center bg-kenth-surface/5">
                 <div>
-                  <h3 className="text-2xl font-black text-white uppercase tracking-tighter">Ajustar Posición</h3>
-                  <p className="text-gray-400 text-sm">Arrastra la imagen hacia arriba o abajo para encuadrarla.</p>
+                  <h3 className="text-2xl font-black text-kenth-text uppercase tracking-tighter">Ajustar Posición</h3>
+                  <p className="text-kenth-subtext text-sm">Arrastra la imagen hacia arriba o abajo para encuadrarla.</p>
                 </div>
-                <button onClick={() => setShowReposition(false)} className="p-2 hover:bg-white/10 rounded-full transition">
-                  <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                <button onClick={() => setShowReposition(false)} className="p-2 hover:bg-kenth-surface/10 rounded-full transition text-kenth-subtext hover:text-kenth-text">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
               </div>
 
               <div className="p-6 md:p-10 flex flex-col items-center">
                 {/* Previsualización EXACTA de la CourseCard */}
                 <div
-                  className="group relative w-full h-64 md:h-80 rounded-[2rem] overflow-hidden border border-kenth-surface/30 cursor-ns-resize shadow-2xl select-none"
+                  className="group relative w-full h-64 md:h-80 rounded-[2rem] overflow-hidden border border-kenth-border cursor-ns-resize shadow-2xl select-none"
                   onMouseDown={handleMouseDown}
                 >
                   {/* Imagen de Fondo */}
@@ -426,7 +426,7 @@ export default function CourseSettingsView() {
                       </h2>
 
                       {formData.shortname && (
-                        <p className="text-gray-300 text-sm md:text-lg font-medium italic mt-2 opacity-80">
+                        <p className="text-kenth-text text-sm md:text-lg font-medium italic mt-2 opacity-80">
                           {formData.shortname}
                         </p>
                       )}
@@ -461,12 +461,12 @@ export default function CourseSettingsView() {
                     onChange={(e) => setFormData(prev => ({ ...prev, pos_y: parseInt(e.target.value) }))}
                     className="flex-1 h-2 bg-kenth-surface/50 rounded-lg appearance-none cursor-pointer accent-kenth-brightred"
                   />
-                  <span className="text-white font-black w-12 text-right">{formData.pos_y}%</span>
+                  <span className="text-kenth-text font-black w-12 text-right">{formData.pos_y}%</span>
                 </div>
 
                 <button
                   onClick={() => setShowReposition(false)}
-                  className="mt-10 bg-white text-black px-12 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-kenth-brightred hover:text-white transition shadow-xl"
+                  className="mt-10 bg-kenth-brightred text-white px-12 py-4 rounded-2xl font-black text-sm uppercase tracking-widest hover:bg-red-600 transition shadow-xl active:scale-95"
                 >
                   Confirmar Encuadre
                 </button>

@@ -35,7 +35,7 @@ export default function MoodleRenderer({ modulo }) {
     case 'page':
     case 'label':
       return (
-        <div className="prose prose-invert prose-rose max-w-none animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="prose dark:prose-invert prose-rose max-w-none animate-in fade-in slide-in-from-bottom-4 duration-500">
           <div dangerouslySetInnerHTML={{ __html: htmlContent || modulo.description || '' }} />
         </div>
       );
@@ -43,12 +43,12 @@ export default function MoodleRenderer({ modulo }) {
     case 'assign':
     case 'forum':
       return (
-        <div className="bg-[#2D2D30] p-8 rounded-3xl border border-kenth-surface/20 relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 zoom-in-95 duration-500">
+        <div className="bg-kenth-card p-8 rounded-3xl border border-kenth-border relative overflow-hidden animate-in fade-in slide-in-from-bottom-4 zoom-in-95 duration-500">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-emerald-500 to-indigo-500"></div>
-          <h3 className="text-3xl font-extrabold text-white mb-6 uppercase flex items-center gap-4">
+          <h3 className="text-3xl font-extrabold text-kenth-text mb-6 uppercase flex items-center gap-4">
              {modulo.modname === 'assign' ? '📝 Tarea Asignada' : '💬 Foro de Discusión'}
           </h3>
-          <div className="prose prose-invert prose-indigo max-w-none text-gray-300">
+          <div className="prose dark:prose-invert prose-indigo max-w-none text-kenth-subtext">
              <div dangerouslySetInnerHTML={{ __html: modulo.description || 'No hay instrucciones para esta actividad.' }} />
           </div>
         </div>
@@ -56,20 +56,20 @@ export default function MoodleRenderer({ modulo }) {
 
     case 'quiz':
       return (
-        <div className="bg-[#2D2D30] rounded-3xl border border-orange-500/30 overflow-hidden relative shadow-2xl animate-in fade-in duration-500">
+        <div className="bg-kenth-card rounded-3xl border border-orange-500/30 overflow-hidden relative shadow-2xl animate-in fade-in duration-500">
           <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-orange-400 to-rose-500"></div>
           <div className="p-8 md:p-12 flex flex-col items-center text-center">
             <div className="w-20 h-20 bg-orange-400/10 rounded-full flex items-center justify-center mb-6 border border-orange-500/20 shadow-[0_0_30px_rgba(251,146,60,0.2)]">
                <svg className="w-10 h-10 text-orange-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
             </div>
             
-            <h3 className="text-3xl font-extrabold text-white mb-4 uppercase tracking-wider">{modulo.name}</h3>
+            <h3 className="text-3xl font-extrabold text-kenth-text mb-4 uppercase tracking-wider">{modulo.name}</h3>
             
-            <div className="prose prose-invert prose-orange max-w-2xl mx-auto mb-8 text-gray-300">
+            <div className="prose dark:prose-invert prose-orange max-w-2xl mx-auto mb-8 text-kenth-subtext">
                <div dangerouslySetInnerHTML={{ __html: modulo.description || '<p>Este es un cuestionario automatizado de evaluación continua. Haz clic en el botón inferior para abrir el entorno seguro de examen.</p>' }} />
             </div>
             
-            <div className="bg-[#1e1e20] w-full max-w-lg p-6 rounded-2xl border border-kenth-surface/50 mb-8 flex flex-col md:flex-row justify-around gap-4 text-sm font-bold text-gray-400">
+            <div className="bg-kenth-bg/50 w-full max-w-lg p-6 rounded-2xl border border-kenth-border mb-8 flex flex-col md:flex-row justify-around gap-4 text-sm font-bold text-kenth-subtext">
                <div className="flex flex-col items-center">
                   <span className="text-orange-400 text-2xl mb-1 mt-1">
                     <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -115,8 +115,8 @@ export default function MoodleRenderer({ modulo }) {
             <svg className="w-12 h-12 text-sky-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
           </div>
           <div>
-            <h3 className="text-2xl font-bold text-white mb-2">{modulo.name}</h3>
-            <p className="text-gray-400 max-w-md mx-auto">Este es un recurso externo. Al hacer clic, serás redirigido a la página de destino en una pestaña segura.</p>
+            <h3 className="text-2xl font-bold text-kenth-text mb-2">{modulo.name}</h3>
+            <p className="text-kenth-subtext max-w-md mx-auto">Este es un recurso externo. Al hacer clic, serás redirigido a la página de destino en una pestaña segura.</p>
           </div>
           <a 
             href={urlItem?.fileurl || modulo.url} 
@@ -132,12 +132,12 @@ export default function MoodleRenderer({ modulo }) {
 
     case 'folder':
       return (
-        <div className="bg-[#2D2D30] rounded-3xl border border-kenth-surface/50 overflow-hidden shadow-2xl animate-in fade-in duration-500">
-           <div className="bg-[#1e1e20] p-6 border-b border-white/5 flex items-center gap-4">
+        <div className="bg-kenth-card rounded-3xl border border-kenth-border overflow-hidden shadow-2xl animate-in fade-in duration-500">
+           <div className="bg-kenth-bg/40 p-6 border-b border-kenth-border flex items-center gap-4">
               <svg className="w-8 h-8 text-amber-500" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" /></svg>
               <div>
-                <h3 className="text-xl font-bold text-white">Directorio Físico</h3>
-                <p className="text-xs text-gray-500 tracking-wider uppercase">Archivos Adjuntos</p>
+                <h3 className="text-xl font-bold text-kenth-text">Directorio Físico</h3>
+                <p className="text-xs text-kenth-subtext tracking-wider uppercase">Archivos Adjuntos</p>
               </div>
            </div>
            <div className="p-2 md:p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -146,19 +146,19 @@ export default function MoodleRenderer({ modulo }) {
                    key={idx} 
                    href={`${file.fileurl.replace('http://localhost/', '/moodle_api/')}&token=${miToken}`} 
                    download={file.filename}
-                   className="group p-4 bg-[#1a1a1c] border border-white/5 hover:border-amber-500/50 rounded-xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(245,158,11,0.1)]"
+                   className="group p-4 bg-kenth-surface/10 border border-kenth-border hover:border-amber-500/50 rounded-xl flex items-center gap-4 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(245,158,11,0.1)]"
                  >
                     <div className="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center shrink-0">
                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                     </div>
                     <div className="truncate">
-                      <p className="text-sm font-bold text-white truncate group-hover:text-amber-400 transition">{file.filename}</p>
-                      <p className="text-[10px] text-gray-500 uppercase">{file.mimetype || 'Archivo'}</p>
+                      <p className="text-sm font-bold text-kenth-text truncate group-hover:text-amber-400 transition">{file.filename}</p>
+                      <p className="text-[10px] text-kenth-subtext uppercase">{file.mimetype || 'Archivo'}</p>
                     </div>
                  </a>
               ))}
               {(!modulo.contents || modulo.contents.length === 0) && (
-                 <div className="col-span-full text-center text-gray-500 py-6 italic">Carpeta vacía</div>
+                 <div className="col-span-full text-center text-kenth-subtext py-6 italic">Carpeta vacía</div>
               )}
            </div>
         </div>
@@ -170,10 +170,10 @@ export default function MoodleRenderer({ modulo }) {
     case 'h5pactivity':
     case 'hvp':
       return (
-        <div className="w-full h-full flex justify-center items-center p-4 md:p-8 bg-[#1e1e20]">
+        <div className="w-full h-full flex justify-center items-center p-4 md:p-8 bg-kenth-bg">
           
           {/* El marco visible: Le damos el tamaño exacto del video + la barra útil */}
-          <div className="relative w-full max-w-[950px] rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.8)] bg-[#1e1e20]">
+          <div className="relative w-full max-w-[950px] rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.8)] bg-kenth-bg">
             
             {/* 1. EL ESPACIO DEL VIDEO: 16:9 exacto */}
             <div style={{ paddingTop: '56.25%' }}></div>
@@ -201,10 +201,10 @@ export default function MoodleRenderer({ modulo }) {
     case 'resource':
       const fileRes = modulo.contents?.[0];
       return (
-        <div className="bg-[#2D2D30] max-w-xl mx-auto p-8 rounded-3xl border border-kenth-surface/20 flex flex-col items-center text-center shadow-2xl animate-in fade-in duration-500">
+        <div className="bg-kenth-card max-w-xl mx-auto p-8 rounded-3xl border border-kenth-border flex flex-col items-center text-center shadow-2xl animate-in fade-in duration-500">
            <svg className="w-16 h-16 text-teal-400 mb-6 drop-shadow-[0_0_15px_rgba(45,212,191,0.4)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-           <h3 className="text-2xl font-bold text-white mb-2">{modulo.name}</h3>
-           <p className="text-gray-400 mb-8">{fileRes?.filename}</p>
+           <h3 className="text-2xl font-bold text-kenth-text mb-2">{modulo.name}</h3>
+           <p className="text-kenth-subtext mb-8">{fileRes?.filename}</p>
            
            <a 
               href={fileRes ? `${fileRes.fileurl.replace('http://localhost/', '/moodle_api/')}&token=${miToken}` : '#'} 
@@ -218,10 +218,10 @@ export default function MoodleRenderer({ modulo }) {
 
     default:
       return (
-        <div className="p-10 text-center border-2 border-dashed border-white/10 rounded-3xl bg-[#1e1e20]">
-          <svg className="w-12 h-12 text-gray-600 mx-auto mb-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" /></svg>
-          <h3 className="text-xl font-bold text-gray-300 mb-2">Construcción Nativa Pendiente</h3>
-          <p className="text-gray-500">Este módulo (<span className="text-white font-mono">{modulo.modname}</span>) será rediseñado nativamente en iteraciones futuras.</p>
+        <div className="p-10 text-center border-2 border-dashed border-kenth-border rounded-3xl bg-kenth-bg/20">
+          <svg className="w-12 h-12 text-kenth-subtext/40 mx-auto mb-4" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" /></svg>
+          <h3 className="text-xl font-bold text-kenth-subtext mb-2">Construcción Nativa Pendiente</h3>
+          <p className="text-kenth-subtext">Este módulo (<span className="text-kenth-text font-mono">{modulo.modname}</span>) será rediseñado nativamente en iteraciones futuras.</p>
         </div>
       );
   }
