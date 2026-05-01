@@ -139,7 +139,7 @@ function LandingPage() {
 
       {/* FOOTER */}
       <footer className="min-h-[20vh] flex flex-col items-center justify-center snap-start bg-black text-gray-600 text-xs md:text-sm border-t border-kenth-surface/20 p-8">
-        <p className="uppercase tracking-widest font-bold mb-4">KENTH courses &copy; {new Date().getFullYear()}</p>
+        <p className="uppercase tracking-widest font-bold mb-4">KENTH academy &copy; {new Date().getFullYear()}</p>
         <div className="flex gap-6">
           <a href="#" className="hover:text-white transition">Instagram</a>
           <a href="#" className="hover:text-white transition">YouTube</a>
