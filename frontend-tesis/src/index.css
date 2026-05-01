@@ -1,13 +1,43 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+:root {
+  --kenth-bg: #1A1A1D;
+  --kenth-surface: #4E4E50;
+  --kenth-text-primary: #ffffff;
+  --kenth-text-secondary: rgba(255, 255, 255, 0.6);
+  --kenth-card: rgba(255, 255, 255, 0.05);
+  --kenth-border: rgba(255, 255, 255, 0.1);
+  --kenth-darkred: #6F2232;
+  --kenth-red: #950740;
+  --kenth-brightred: #C3073F;
+  --kenth-footer: #000000;
+}
+
+.light {
+  --kenth-bg: #F5F5F7;
+  --kenth-surface: #D1D1D6;
+  --kenth-text-primary: #1A1A1D;
+  --kenth-text-secondary: #48484A;
+  --kenth-card: #ffffff;
+  --kenth-border: rgba(0, 0, 0, 0.08);
+  --kenth-darkred: #C3073F;
+  --kenth-red: #950740;
+  --kenth-brightred: #6F2232;
+  --kenth-footer: #E5E5E7;
+}
+
 @theme {
-  /* Tu paleta exacta de la imagen */
-  --color-kenth-bg: #1A1A1D;
-  --color-kenth-surface: #4E4E50;
-  --color-kenth-darkred: #6F2232;
-  --color-kenth-red: #950740;
-  --color-kenth-brightred: #C3073F;
+  --color-kenth-bg: var(--kenth-bg);
+  --color-kenth-surface: var(--kenth-surface);
+  --color-kenth-darkred: var(--kenth-darkred);
+  --color-kenth-red: var(--kenth-red);
+  --color-kenth-brightred: var(--kenth-brightred);
+  --color-kenth-text: var(--kenth-text-primary);
+  --color-kenth-subtext: var(--kenth-text-secondary);
+  --color-kenth-card: var(--kenth-card);
+  --color-kenth-border: var(--kenth-border);
+  --color-kenth-footer: var(--kenth-footer);
 }
 
 @layer base {
@@ -20,13 +50,114 @@
   }
 
   body {
-    background-color: var(--color-kenth-bg);
-    color: #ffffff;
+    background-color: var(--kenth-bg);
+    color: var(--kenth-text-primary);
     font-family: "Segoe UI", sans-serif;
     min-height: 100vh;
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease;
+  }
+
+  /* Universal transition for theme-aware elements */
+  body *, body ::before, body ::after {
+    transition: background-color 0.5s ease, color 0.5s ease, border-color 0.5s ease, box-shadow 0.5s ease, opacity 0.5s ease;
   }
 
   #root {
     min-height: 100vh;
   }
 }
+
+/* --- LOGO TRANSITION --- */
+.kenth-logo-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.kenth-logo-dark {
+  opacity: 1;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.kenth-logo-light {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
+}
+
+.light .kenth-logo-dark {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.light .kenth-logo-light {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* --- ANIMACIONES PREMIUM --- */
+@keyframes kenth-pop-in {
+  0% { transform: scale(0.95) translateY(20px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes kenth-fade-blur {
+  0% { opacity: 0; backdrop-filter: blur(0px); }
+  100% { opacity: 1; backdrop-filter: blur(12px); }
+}
+
+@keyframes kenth-slide-up {
+  0% { transform: translateY(100px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+.animate-kenth-pop {
+  animation: kenth-pop-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-kenth-blur {
+  animation: kenth-fade-blur 0.4s ease-out forwards;
+}
+
+.animate-kenth-slide {
+  animation: kenth-slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes kenth-rgb-hue {
+  from { filter: hue-rotate(0deg); }
+  to { filter: hue-rotate(360deg); }
+}
+
+.animate-kenth-rgb-hue {
+  animation: kenth-rgb-hue 5s linear infinite;
+}
+
+@keyframes kenth-brand-pulse {
+  0%   { color: var(--kenth-brightred); filter: drop-shadow(0 0 2px var(--kenth-brightred)); }
+  50%  { color: var(--kenth-red); filter: drop-shadow(0 0 5px var(--kenth-brightred)); }
+  100% { color: var(--kenth-brightred); filter: drop-shadow(0 0 2px var(--kenth-brightred)); }
+}
+
+
+@keyframes kenth-brand-shift {
+  0%   { stop-color: var(--kenth-darkred); }
+  50%  { stop-color: var(--kenth-brightred); }
+  100% { stop-color: var(--kenth-darkred); }
+}
+
+.brand-stop-1 { animation: kenth-brand-shift 4s infinite linear; }
+.brand-stop-2 { animation: kenth-brand-shift 4s infinite linear -2s; }
+
+
+
+
+
+
+
+.delay-150 { animation-delay: 150ms; }
+.delay-300 { animation-delay: 300ms; }
+.delay-500 { animation-delay: 500ms; }
+

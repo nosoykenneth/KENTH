@@ -164,6 +164,31 @@ export const getCourseSettings = async (token, courseId) => {
 };
 
 // ==========================================
+// 6.1 PREPARAR PAGO PAYPHONE
+// ==========================================
+export const preparePayPhonePayment = async (payPhoneToken, orderDetails) => {
+  const url = 'https://pay.payphonetodoesposible.com/api/button/Prepare';
+  
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${payPhoneToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(orderDetails)
+    });
+
+    if (!response.ok) throw new Error('Error al preparar el pago con PayPhone');
+    
+    return await response.json();
+  } catch (error) {
+    console.error('Error en preparePayPhonePayment:', error);
+    throw error;
+  }
+};
+
+// ==========================================
 // 7. ACTUALIZAR AJUSTES DE UN CURSO
 // ==========================================
 export const updateCourseSettings = async (token, courseId, settingsData) => {
@@ -190,5 +215,133 @@ export const updateCourseSettings = async (token, courseId, settingsData) => {
   } catch (error) {
     console.error('Error en updateCourseSettings:', error);
     throw error;
+  }
+};
+
+// ==========================================
+// 8. INICIAR INTENCIÓN DE PAGO (GUEST SUPPORTED)
+// ==========================================
+export const initiatePaymentIntent = async (token, courseId, gateway, userInfo = null) => {
+  // Ahora permitimos el inicio sin token para el flujo de invitados
+  
+  // Simulamos una latencia de red de pasarela
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  console.log(`Iniciando pago para el curso ${courseId} vía ${gateway}...`);
+  
+  // Si es invitado, logueamos los datos que se enviarán como metadata
+  if (userInfo) {
+    console.log("Metadata de Invitado:", userInfo);
+  }
+
+  // Mock de respuesta exitosa de la pasarela
+  return {
+    success: true,
+    transactionId: `SANDBOX_${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
+    checkoutUrl: gateway === 'paypal' ? 'https://www.sandbox.paypal.com' : 'https://payphone.sandbox.com'
+  };
+};
+
+// ==========================================
+// 10. GENERAR LINK DE PAGO PAYPHONE (VÍA PROXY PHP PARA EVITAR CORS)
+// ==========================================
+export const generatePayPhoneLink = async (formData, courseName, courseId) => {
+  const url = "/moodle_api/proyecto_curso/api_persistente/api_payphone_proxy.php";
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        courseName: courseName,
+        courseId: courseId,
+        email: formData?.email,
+        firstname: formData?.firstname,
+        lastname: formData?.lastname
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+        // Volcado completo para ver qué rayos está enviando PayPhone
+        const errorMsg = JSON.stringify(data);
+        throw new Error(errorMsg);
+    }
+
+    return data.url || data.paymentUrl || data.payPhoneUri;
+  } catch (error) {
+    console.error("Error en generatePayPhoneLink:", error);
+    throw error;
+  }
+};
+
+// ==========================================
+// 11. OBTENER CATÁLOGO COMERCIAL COMPLETO (ADMIN)
+// ==========================================
+export const getCommercialCatalog = async (token) => {
+  if (!token) throw new Error('Se requiere sesión activa.');
+  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_commercial.php?token=${token}`;
+  
+  try {
+    const response = await fetch(url);
+    const result = await response.json();
+    if (!result.success) throw new Error(result.error);
+    return result.data;
+  } catch (error) {
+    console.error('Error en getCommercialCatalog:', error);
+    throw error;
+  }
+};
+
+// ==========================================
+// 12. ACTUALIZAR DATA COMERCIAL (ADMIN)
+// ==========================================
+export const updateCommercialData = async (token, courseId, commercialData) => {
+  if (!token) throw new Error('Se requiere sesión activa.');
+  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_commercial.php?token=${token}`;
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ courseid: courseId, ...commercialData })
+    });
+    const result = await response.json();
+    if (!result.success) throw new Error(result.error);
+    return result;
+  } catch (error) {
+    console.error('Error en updateCommercialData:', error);
+    throw error;
+  }
+};
+
+// ==========================================
+// 13. OBTENER INFO PÚBLICA DE UN CURSO (DINÁMICO)
+// ==========================================
+export const getPublicCourse = async (courseId) => {
+  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_commercial.php?courseid=${courseId}`;
+  
+  try {
+    const response = await fetch(url);
+    const commercialResult = await response.json();
+    
+    return {
+      id: courseId,
+      fullname: "Curso de Producción KENTH",
+      summary: "Aprende con la metodología socrática aplicada al audio.",
+      price: commercialResult.data?.price || 49.99,
+      offer_price: commercialResult.data?.offer_price || 0,
+      is_visible: commercialResult.data?.is_visible ?? true
+    };
+  } catch (error) {
+    console.error('Error en getPublicCourse:', error);
+    return {
+      id: courseId,
+      fullname: "Curso KENTH",
+      price: 49.99
+    };
   }
 };

@@ -13,6 +13,12 @@ import DashboardCatalog from './pages/DashboardCatalog';
 import AdminKnowledgeView from './pages/admin/AdminKnowledgeView';
 import TutorView from './pages/TutorView';
 import CourseSettingsView from './pages/CourseSettingsView';
+import PricingView from './pages/PricingView';
+import PublicCoursesView from './pages/PublicCoursesView';
+import CheckoutView from './pages/CheckoutView';
+import CheckoutSuccessView from './pages/CheckoutSuccessView';
+import AdminCommercialView from './pages/AdminCommercialView';
+
 
 // Componente para proteger las rutas del Dashboard (Solo usuarios logueados)
 const ProtectedRoute = ({ children }) => {
@@ -30,8 +36,8 @@ function App() {
         
         {/* Rutas Públicas */}
         <Route path="/" element={<LandingPage />} />
-        
-        
+        <Route path="/pricing" element={<PricingView />} />
+        <Route path="/courses" element={<PublicCoursesView />} />
           <Route path="/login" element={<LoginView />} /> 
         
 
@@ -39,6 +45,10 @@ function App() {
         
         {/* Catálogo de cursos principal */}
         <Route path="/dashboard" element={<ProtectedRoute><DashboardCatalog /></ProtectedRoute>} />
+        
+        {/* Checkout de Pago (Ahora Público para ver el resumen antes de loguearse) */}
+        <Route path="/checkout/:id" element={<CheckoutView />} />
+        <Route path="/checkout-success" element={<CheckoutSuccessView />} />
         
         {/* Vista interna de un curso específico (La pesada con H5P) */}
         <Route 
@@ -80,12 +90,21 @@ function App() {
           } 
         />
 
-        {/* Vista Admin del RAG */}
         <Route 
           path="/dashboard/admin/knowledge" 
           element={
             <ProtectedRoute>
               <AdminKnowledgeView />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Vista Admin del Catálogo Comercial */}
+        <Route 
+          path="/dashboard/admin/catalog" 
+          element={
+            <ProtectedRoute>
+              <AdminCommercialView />
             </ProtectedRoute>
           } 
         />

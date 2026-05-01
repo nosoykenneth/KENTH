@@ -37,10 +37,10 @@ export default function DashboardCatalog() {
   return (
     <DashboardLayout>
       <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-white uppercase drop-shadow mb-2">
+        <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-kenth-text uppercase drop-shadow mb-2">
           Bienvenido, <span className="text-kenth-brightred">{nombreUsuario.split(' ')[0]}</span>
         </h1>
-        <p className="text-gray-400 mb-10 font-medium">Selecciona un curso para continuar con tu progreso.</p>
+        <p className="text-kenth-subtext mb-10 font-medium">Selecciona un curso para continuar con tu progreso.</p>
         
         {cargando && (
           <div className="flex justify-center items-center py-20">
@@ -49,14 +49,14 @@ export default function DashboardCatalog() {
         )}
 
         {error && (
-          <div className="bg-red-900/20 border-l-4 border-kenth-brightred p-6 rounded-r-xl">
-             <p className="text-red-200 font-bold font-sans">Ha ocurrido un problema: {error}</p>
+          <div className="bg-red-500/10 border-l-4 border-kenth-brightred p-6 rounded-r-xl">
+             <p className="text-red-500 font-bold font-sans">Ha ocurrido un problema: {error}</p>
           </div>
         )}
 
         {!cargando && !error && cursos.length === 0 && (
-          <div className="text-center py-20 border-2 border-dashed border-gray-700/50 rounded-3xl">
-            <p className="text-gray-400 font-bold tracking-widest uppercase">No estás inscrito en ningún curso todavía.</p>
+          <div className="text-center py-20 border-2 border-dashed border-kenth-border rounded-3xl">
+            <p className="text-kenth-subtext font-bold tracking-widest uppercase">No estás inscrito en ningún curso todavía.</p>
           </div>
         )}
 

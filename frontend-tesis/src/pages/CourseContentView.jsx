@@ -221,7 +221,7 @@ export default function CourseContentView() {
             Volver al Catálogo
           </Link>
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-white uppercase drop-shadow">
+            <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-kenth-text uppercase drop-shadow">
               {courseName}
             </h1>
             
@@ -229,7 +229,7 @@ export default function CourseContentView() {
             {esProfesor && (
               <button 
                 onClick={() => navigate(`/dashboard/course/${id}/settings`)}
-                className="bg-white/5 hover:bg-white/10 text-white border border-white/10 px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs uppercase tracking-widest"
+                className="bg-kenth-surface/10 hover:bg-kenth-surface/20 text-kenth-text border border-kenth-border px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs uppercase tracking-widest"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 Configuración
@@ -242,7 +242,7 @@ export default function CourseContentView() {
 
 
         {cargando && (
-          <div className="bg-[#2D2D30] rounded-[2rem] p-12 border border-kenth-surface/20 flex justify-center items-center">
+          <div className="bg-kenth-card rounded-[2rem] p-12 border border-kenth-border flex justify-center items-center">
             <svg className="animate-spin h-10 w-10 text-kenth-brightred" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
           </div>
         )}
@@ -261,10 +261,10 @@ export default function CourseContentView() {
               return (
                 <div
                   key={seccion.id}
-                  className={`bg-[#1e1e20] rounded-[1rem] p-6 border border-kenth-surface/20 relative transition-all duration-300 ${tieneMenuAbierto ? 'z-40 shadow-2xl' : 'z-10'}`}
+                  className={`bg-kenth-card rounded-[1rem] p-6 border border-kenth-border relative transition-all duration-300 ${tieneMenuAbierto ? 'z-40 shadow-2xl' : 'z-10'}`}
                 >
                   <div className="absolute inset-0 overflow-hidden rounded-[1rem] pointer-events-none">
-                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full blur-[50px]"></div>
+                    <div className="absolute -top-10 -right-10 w-32 h-32 bg-kenth-surface/10 rounded-full blur-[50px]"></div>
                   </div>
 
                   <div className="relative z-10 flex items-center gap-3 mb-2 group/titulo">
@@ -279,7 +279,7 @@ export default function CourseContentView() {
                             if (e.key === 'Enter') guardarNombreSeccion(seccion.id, secIdx);
                             if (e.key === 'Escape') setEditandoSeccionId(null);
                           }}
-                          className="flex-1 bg-[#2D2D30] text-white font-bold text-xl border-b-2 border-kenth-brightred px-2 py-1 outline-none focus:bg-[#1A1A1D] transition-colors"
+                          className="flex-1 bg-kenth-surface/10 text-kenth-text font-bold text-xl border-b-2 border-kenth-brightred px-2 py-1 outline-none transition-colors"
                         />
                         <button onClick={() => guardarNombreSeccion(seccion.id, secIdx)} className="bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white p-2 rounded-lg transition" title="Guardar (Enter)">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
@@ -290,7 +290,7 @@ export default function CourseContentView() {
                       </div>
                     ) : (
                       <>
-                        <h2 className="text-2xl font-bold text-white">{seccion.name || `Tema ${seccion.section}`}</h2>
+                        <h2 className="text-2xl font-bold text-kenth-text">{seccion.name || `Tema ${seccion.section}`}</h2>
 
                         {esProfesor && (
                           <button
@@ -307,7 +307,7 @@ export default function CourseContentView() {
                       </>
                     )}
                   </div>
-                  {seccion.summary && <div className="text-gray-400 text-sm mb-4 relative z-10" dangerouslySetInnerHTML={{ __html: seccion.summary }}></div>}
+                  {seccion.summary && <div className="text-kenth-subtext text-sm mb-4 relative z-10" dangerouslySetInnerHTML={{ __html: seccion.summary }}></div>}
 
                   <div className="flex flex-col gap-1 mt-4 relative z-10">
 
@@ -315,7 +315,7 @@ export default function CourseContentView() {
                       <div className="flex justify-center py-2 group/insert">
                         <button
                           onClick={() => { setSeccionDestinoId(seccion.section); setChooserAbierto(true); }}
-                          className="w-10 h-10 rounded-full border-2 border-dashed border-gray-700 hover:border-kenth-brightred text-gray-500 hover:text-kenth-brightred flex items-center justify-center transition-all opacity-30 group-hover/insert:opacity-100 hover:!opacity-100 hover:scale-110 bg-[#1e1e20]"
+                          className="w-10 h-10 rounded-full border-2 border-dashed border-kenth-border hover:border-kenth-brightred text-kenth-subtext hover:text-kenth-brightred flex items-center justify-center transition-all opacity-30 group-hover/insert:opacity-100 hover:!opacity-100 hover:scale-110 bg-kenth-bg"
                           title="Agregar recurso al inicio"
                         >
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
@@ -335,7 +335,7 @@ export default function CourseContentView() {
                             onDrop={esProfesor ? (e) => handleDrop(e, mod, secIdx) : undefined}
                             onDragEnd={() => { setDraggedMod(null); setDropIndicator(null); }}
                             className={`
-                                    bg-[#2D2D30] p-4 rounded-lg flex items-center gap-4 border transition-all duration-200 group/card relative
+                                    bg-kenth-surface/5 p-4 rounded-lg flex items-center gap-4 border border-kenth-border/50 transition-all duration-200 group/card relative
                                     ${mod.url ? 'cursor-pointer hover:border-kenth-brightred/50 hover:-translate-y-0.5 shadow-md' : 'border-transparent'}
                                     ${mod.visible === 0 ? 'opacity-40 grayscale' : ''}
                                     ${draggedMod?.mod.id === mod.id ? 'opacity-20 scale-[0.98]' : ''}
@@ -349,7 +349,7 @@ export default function CourseContentView() {
                               <div className="absolute bottom-[-2px] left-0 w-full h-[3px] bg-indigo-500 rounded-full shadow-[0_0_10px_#6366f1] z-50 pointer-events-none"></div>
                             )}
                             {esProfesor && (
-                              <div className="cursor-grab active:cursor-grabbing text-gray-600 hover:text-gray-300 transition opacity-0 group-hover/card:opacity-100 flex-shrink-0" title="Arrastrar para mover">
+                              <div className="cursor-grab active:cursor-grabbing text-kenth-subtext hover:text-kenth-text transition opacity-0 group-hover/card:opacity-100 flex-shrink-0" title="Arrastrar para mover">
                                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><circle cx="9" cy="5" r="1.5" /><circle cx="15" cy="5" r="1.5" /><circle cx="9" cy="12" r="1.5" /><circle cx="15" cy="12" r="1.5" /><circle cx="9" cy="19" r="1.5" /><circle cx="15" cy="19" r="1.5" /></svg>
                               </div>
                             )}
@@ -357,10 +357,10 @@ export default function CourseContentView() {
                             <div className="flex items-center gap-4 flex-1 min-w-0" onClick={() => mod.url && setVisorActivo(mod)}>
                               <img src={mod.modicon} alt={mod.modname} className={`w-8 h-8 rounded flex-shrink-0 ${mod.visible === 0 ? 'opacity-50' : ''}`} />
                               <div className="flex flex-col flex-1 min-w-0">
-                                <span className={`font-semibold text-white transition truncate ${mod.url && 'group-hover/card:text-kenth-brightred'} ${mod.visible === 0 ? 'line-through text-gray-400' : ''}`}>
+                                <span className={`font-semibold text-kenth-text transition truncate ${mod.url && 'group-hover/card:text-kenth-brightred'} ${mod.visible === 0 ? 'line-through text-kenth-subtext' : ''}`}>
                                   {mod.name} {mod.visible === 0 && <span className="text-xs text-red-500 ml-2 no-underline tracking-widest">(Oculto a estudiantes)</span>}
                                 </span>
-                                <span className="text-[10px] text-gray-500 uppercase tracking-widest font-bold">{mod.modplural}</span>
+                                <span className="text-[10px] text-kenth-subtext uppercase tracking-widest font-bold">{mod.modplural}</span>
                               </div>
                             </div>
 
@@ -368,7 +368,7 @@ export default function CourseContentView() {
                               <div className="relative flex-shrink-0">
                                 <button
                                   onClick={(e) => { e.stopPropagation(); setMenuActivo(menuActivo === mod.id ? null : mod.id); }}
-                                  className={`p-2 rounded-lg transition ${menuActivo === mod.id ? 'text-white bg-white/10' : 'text-gray-500 hover:text-white hover:bg-white/10 opacity-0 group-hover/card:opacity-100'}`}
+                                  className={`p-2 rounded-lg transition ${menuActivo === mod.id ? 'text-kenth-text bg-kenth-surface/20' : 'text-kenth-subtext hover:text-kenth-text hover:bg-kenth-surface/10 opacity-0 group-hover/card:opacity-100'}`}
                                 >
                                   <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="5" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="12" cy="19" r="2" /></svg>
                                 </button>
@@ -376,21 +376,21 @@ export default function CourseContentView() {
                                 {menuActivo === mod.id && (
                                   <div
                                     onClick={(e) => e.stopPropagation()}
-                                    className="absolute right-0 top-12 w-48 bg-[#1e1e20] border border-kenth-surface/50 rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.6)] z-[70] py-2 animate-in fade-in zoom-in-95 duration-200"
+                                    className="absolute right-0 top-12 w-48 bg-kenth-card border border-kenth-border rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.2)] z-[70] py-2 animate-in fade-in zoom-in-95 duration-200"
                                   >
-                                    <button onClick={() => abrirEdicion(mod)} className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-3 transition">
-                                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                                    <button onClick={() => abrirEdicion(mod)} className="w-full text-left px-4 py-2.5 text-sm text-kenth-subtext hover:bg-kenth-surface/10 hover:text-kenth-text flex items-center gap-3 transition">
+                                      <svg className="w-4 h-4 text-kenth-subtext" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                       Editar ajustes
                                     </button>
-                                    <button onClick={() => ejecutarAccion(mod.visible !== 0 ? 'hide' : 'show', mod.id, secIdx)} className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-3 transition">
-                                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d={mod.visible !== 0 ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.879L21 21" : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"} /></svg>
+                                    <button onClick={() => ejecutarAccion(mod.visible !== 0 ? 'hide' : 'show', mod.id, secIdx)} className="w-full text-left px-4 py-2.5 text-sm text-kenth-subtext hover:bg-kenth-surface/10 hover:text-kenth-text flex items-center gap-3 transition">
+                                      <svg className="w-4 h-4 text-kenth-subtext/60" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d={mod.visible !== 0 ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.879L21 21" : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"} /></svg>
                                       {mod.visible !== 0 ? 'Ocultar' : 'Mostrar'}
                                     </button>
-                                    <button onClick={() => ejecutarAccion('duplicate', mod.id, secIdx)} className="w-full text-left px-4 py-2.5 text-sm text-gray-300 hover:bg-white/5 hover:text-white flex items-center gap-3 transition">
-                                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
+                                    <button onClick={() => ejecutarAccion('duplicate', mod.id, secIdx)} className="w-full text-left px-4 py-2.5 text-sm text-kenth-subtext hover:bg-kenth-surface/10 hover:text-kenth-text flex items-center gap-3 transition">
+                                      <svg className="w-4 h-4 text-kenth-subtext/60" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg>
                                       Duplicar
                                     </button>
-                                    <div className="h-px bg-kenth-surface/30 my-1"></div>
+                                    <div className="h-px bg-kenth-border my-1"></div>
                                     <button onClick={() => { if (window.confirm('¿Eliminar recurso permanentemente?')) ejecutarAccion('delete', mod.id, secIdx); }} className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-3 transition">
                                       <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
                                       Borrar
@@ -423,11 +423,11 @@ export default function CourseContentView() {
                                 ${dropIndicator?.id === `empty-${seccion.id}` ? 'border-indigo-500 bg-indigo-500/5 text-indigo-300' : 'border-gray-700/30 bg-transparent'}
                               `}
                       >
-                        <span>Este tema no tiene contenido aún.</span>
+                        <span className="text-kenth-subtext">Este tema no tiene contenido aún.</span>
                         {esProfesor && (
                           <button
                             onClick={() => { setSeccionDestinoId(seccion.section); setChooserAbierto(true); }}
-                            className="bg-kenth-brightred/10 text-kenth-brightred px-4 py-2 rounded-lg text-xs font-bold uppercase border border-kenth-brightred/20 hover:bg-kenth-brightred hover:text-white transition-all"
+                            className="bg-kenth-brightred/10 text-kenth-brightred px-4 py-2 rounded-lg text-xs font-bold uppercase border border-kenth-brightred/20 hover:bg-kenth-brightred hover:text-white transition-all shadow-sm"
                           >
                             + Crear primer recurso
                           </button>
@@ -444,17 +444,17 @@ export default function CourseContentView() {
 
       {esProfesor && chooserAbierto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#1e1e20] w-full max-w-4xl rounded-2xl flex flex-col border border-kenth-surface/50 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-            <div className="p-6 border-b border-kenth-surface/30 flex justify-between items-center bg-[#2D2D30]">
-              <h2 className="text-xl font-bold text-white uppercase tracking-wider">Añadir recurso (Tema {seccionDestinoId})</h2>
-              <button onClick={() => setChooserAbierto(false)} className="text-gray-400 hover:text-white bg-white/5 p-2 rounded-lg transition">
+          <div className="bg-kenth-card w-full max-w-4xl rounded-2xl flex flex-col border border-kenth-border overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.2)]">
+            <div className="p-6 border-b border-kenth-border flex justify-between items-center bg-kenth-surface/5">
+              <h2 className="text-xl font-bold text-kenth-text uppercase tracking-wider">Añadir recurso (Tema {seccionDestinoId})</h2>
+              <button onClick={() => setChooserAbierto(false)} className="text-kenth-subtext hover:text-kenth-text bg-kenth-surface/10 p-2 rounded-lg transition">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
               </button>
             </div>
             <div className="p-6 max-h-[70vh] overflow-y-auto">
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 {HERRAMIENTAS_MOODLE.map((herramienta) => (
-                  <button
+                   <button
                     key={herramienta.id}
                     onClick={() => {
                       setHerramientaAvanzada(herramientaAvanzada === herramienta.id ? herramienta.id + ' ' : herramienta.id); // Forzar re-render si es la misma
@@ -462,10 +462,10 @@ export default function CourseContentView() {
                       setStudioCargando(true);
                       setStudioAbierto(true);
                     }}
-                    className="group flex flex-col items-center justify-center p-6 bg-[#2D2D30] border border-kenth-surface/30 hover:border-kenth-brightred rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(225,29,72,0.15)]"
+                    className="group flex flex-col items-center justify-center p-6 bg-kenth-surface/5 border border-kenth-border hover:border-kenth-brightred rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(225,29,72,0.1)]"
                   >
                     <div className={`w-14 h-14 rounded-full ${herramienta.bg} ${herramienta.color} border ${herramienta.border} flex items-center justify-center text-2xl mb-3 transition-transform group-hover:scale-110`}>{herramienta.icono}</div>
-                    <span className="text-sm font-semibold text-gray-300 group-hover:text-white">{herramienta.nombre}</span>
+                    <span className="text-sm font-semibold text-kenth-subtext group-hover:text-kenth-text">{herramienta.nombre}</span>
                   </button>
                 ))}
               </div>
@@ -476,20 +476,20 @@ export default function CourseContentView() {
 
       {esProfesor && studioAbierto && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/95 p-2 md:p-6 backdrop-blur-md animate-in fade-in duration-300">
-          <div className="bg-[#1e1e20] w-full h-full max-w-[1400px] max-h-[900px] rounded-2xl flex flex-col border border-indigo-500/30 overflow-hidden shadow-[0_0_80px_rgba(79,70,229,0.2)]">
-            <div className="p-4 flex justify-between items-center border-b border-indigo-500/30 bg-gradient-to-r from-[#1e1e20] to-indigo-900/20">
+          <div className="bg-kenth-card w-full h-full max-w-[1400px] max-h-[900px] rounded-2xl flex flex-col border border-indigo-500/30 overflow-hidden shadow-[0_0_80px_rgba(79,70,229,0.2)]">
+            <div className="p-4 flex justify-between items-center border-b border-indigo-500/30 bg-kenth-bg">
               <div className="flex items-center gap-3">
                 <svg className="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                <h2 className="text-white font-bold text-lg tracking-wider uppercase">Moodle Studio</h2>
+                <h2 className="text-kenth-text font-bold text-lg tracking-wider uppercase">Moodle Studio</h2>
                 <span className="bg-indigo-600 text-white text-[10px] uppercase font-bold py-1 px-2 rounded-full">{herramientaAvanzada === '__edit__' ? 'Editando' : 'Creando'}</span>
               </div>
-              <button onClick={() => { setStudioAbierto(false); window.__kenth_edit_cmid = null; fetchContenido(); }} className="text-gray-400 hover:text-white bg-red-500/10 hover:bg-red-500/80 px-4 py-2 rounded-lg transition font-bold text-xs tracking-widest uppercase flex items-center gap-2">
+              <button onClick={() => { setStudioAbierto(false); window.__kenth_edit_cmid = null; fetchContenido(); }} className="text-kenth-subtext hover:text-white bg-red-500/10 hover:bg-red-500 px-4 py-2 rounded-lg transition font-bold text-xs tracking-widest uppercase flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> Cerrar
               </button>
             </div>
-            <div className="flex-1 w-full bg-[#1e1e20] relative overflow-hidden">
+            <div className="flex-1 w-full bg-kenth-bg relative overflow-hidden">
               {studioCargando && (
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#1e1e20] text-indigo-400 gap-4 animate-in fade-in duration-300">
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-kenth-bg text-indigo-400 gap-4 animate-in fade-in duration-300">
                   <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -505,7 +505,7 @@ export default function CourseContentView() {
                     ? `/moodle_api/proyecto_curso/api_persistente/tesis_studio.php?token=${localStorage.getItem('moodle_token')}&courseid=${id}&modname=__edit__&cmid=${window.__kenth_edit_cmid || 0}`
                     : `/moodle_api/proyecto_curso/api_persistente/tesis_studio.php?token=${localStorage.getItem('moodle_token')}&courseid=${id}&modname=${herramientaAvanzada}&section=${seccionDestinoId}`
                 }
-                className={`w-full h-full absolute inset-0 border-none transition-opacity duration-700 ${studioCargando ? 'opacity-0' : 'opacity-100'}`}
+                className={`w-full h-full absolute inset-0 border-none transition-opacity duration-700 bg-kenth-bg ${studioCargando ? 'opacity-0' : 'opacity-100'}`}
                 allow="fullscreen *; geolocation *; microphone *; camera *; midi *; encrypted-media *; autoplay *"
               />
             </div>
@@ -514,25 +514,42 @@ export default function CourseContentView() {
       )}
 
       {visorActivo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 md:p-10 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#1e1e20] w-full h-full max-w-6xl rounded-2xl flex flex-col border border-kenth-surface/50 overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-            <div className="p-4 flex justify-between items-center border-b border-kenth-surface/30 bg-[#2D2D30]">
-              <div className="flex items-center gap-3">
-                <img src={visorActivo.modicon} alt="icon" className="w-6 h-6" />
-                <h2 className="text-white font-bold text-lg">{visorActivo.name}</h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-2 md:p-10 animate-kenth-blur">
+          <div className="bg-kenth-card w-full h-full max-w-6xl rounded-[2.5rem] flex flex-col border border-kenth-border overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.6)] animate-kenth-pop">
+            {/* Cabecera del Visor - Estilo Glassmorphism */}
+            <div className="p-5 flex justify-between items-center border-b border-kenth-border bg-kenth-surface/5 backdrop-blur-xl relative">
+              <div className="flex items-center gap-4">
+                <div className="w-10 h-10 bg-kenth-surface/10 rounded-2xl flex items-center justify-center p-2 border border-kenth-border shadow-inner">
+                  <img src={visorActivo.modicon} alt="icon" className="w-full h-full object-contain" />
+                </div>
+                <div>
+                  <h2 className="text-kenth-text font-black text-xl tracking-tight uppercase leading-none">{visorActivo.name}</h2>
+                  <p className="text-[10px] text-kenth-brightred font-black tracking-widest uppercase mt-1 opacity-80">Recurso Interactivo</p>
+                </div>
               </div>
-              <button onClick={() => setVisorActivo(null)} className="text-gray-400 hover:text-white bg-red-500/10 hover:bg-red-500/80 px-4 py-2 rounded-lg transition font-bold text-sm tracking-widest uppercase flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> Cerrar Visor
+              <button 
+                onClick={() => setVisorActivo(null)} 
+                className="group relative overflow-hidden bg-kenth-surface/10 hover:bg-kenth-brightred text-kenth-subtext hover:text-white px-6 py-2.5 rounded-2xl transition-all duration-300 font-black text-[10px] tracking-widest uppercase flex items-center gap-3 border border-kenth-border hover:border-kenth-brightred hover:shadow-[0_0_20px_rgba(225,29,72,0.4)]"
+              >
+                <span className="relative z-10 flex items-center gap-2">
+                  <svg className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> 
+                  Cerrar Recurso
+                </span>
               </button>
             </div>
+
+            {/* Contenedor del Contenido */}
             <div
-              className={`flex-1 w-full bg-[#1e1e20] relative ${['h5pactivity', 'hvp'].includes(visorActivo?.modname)
+              className={`flex-1 w-full bg-kenth-bg relative scrollbar-hide ${['h5pactivity', 'hvp'].includes(visorActivo?.modname)
                   ? 'p-0 overflow-hidden min-h-0'
-                  : 'p-4 md:p-8 overflow-y-auto min-h-0'
+                  : 'p-4 md:p-10 overflow-y-auto min-h-0'
                 }`}
             >
               <MoodleRenderer modulo={visorActivo} />
             </div>
+            
+            {/* Barra Inferior Decorativa */}
+            <div className="h-1 w-full bg-gradient-to-r from-transparent via-kenth-brightred/50 to-transparent" />
           </div>
         </div>
       )}

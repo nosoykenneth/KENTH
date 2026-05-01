@@ -95,7 +95,7 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null }) {
           className="flex-1 overflow-y-auto p-4 flex flex-col gap-6 scrollbar-thin scrollbar-thumb-kenth-surface scrollbar-track-transparent"
         >
           {historial.length === 0 && !cargando && (
-            <div className="flex flex-col items-center justify-center h-full text-center text-gray-500 gap-4 animate-in fade-in duration-700">
+            <div className="flex flex-col items-center justify-center h-full text-center text-kenth-subtext gap-4 animate-in fade-in duration-700">
                <div className="w-20 h-20 bg-kenth-surface/20 rounded-full flex items-center justify-center">
                  <svg className="w-10 h-10 text-kenth-brightred/40" fill="none" stroke="currentColor" strokeWidth={1} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
                </div>
@@ -108,8 +108,8 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null }) {
               <div className={`flex flex-col gap-2 max-w-[85%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
                 <div className={`rounded-2xl p-4 shadow-lg ${
                   msg.role === 'user' 
-                    ? 'bg-kenth-brightred/10 border border-kenth-brightred/20 text-white rounded-br-sm' 
-                    : 'bg-kenth-surface/20 border border-kenth-surface/30 text-gray-200 rounded-bl-sm'
+                    ? 'bg-kenth-brightred text-white rounded-br-sm shadow-kenth-brightred/20' 
+                    : 'bg-kenth-card border border-kenth-border text-kenth-text rounded-bl-sm'
                 }`}>
                   {msg.role === 'assistant' && (
                     <div className="flex items-center gap-2 mb-2 text-kenth-brightred text-[10px] font-bold uppercase tracking-tighter">
@@ -138,14 +138,14 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null }) {
                    <div className="w-2 h-2 bg-kenth-brightred rounded-full animate-bounce [animation-delay:0.2s]"></div>
                    <div className="w-2 h-2 bg-kenth-brightred rounded-full animate-bounce [animation-delay:0.4s]"></div>
                  </div>
-                 <span className="text-xs text-gray-400 italic font-medium">Analizando contexto socrático...</span>
+                 <span className="text-xs text-kenth-subtext italic font-medium">Analizando contexto socrático...</span>
               </div>
             </div>
           )}
         </div>
 
         {/* Área de Input Flotante estilo WhatsApp/ChatGPT */}
-        <div className="p-4 bg-transparent border-t border-kenth-surface/10">
+        <div className="p-4 bg-transparent border-t border-kenth-border">
           <div className="w-full flex flex-col gap-3">
             
             {/* Previsualización Imagen */}
@@ -158,17 +158,17 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null }) {
               </div>
             )}
 
-            <div className="flex items-end gap-3 bg-kenth-surface/30 p-2 rounded-[1.5rem] border border-kenth-surface/50 shadow-inner focus-within:border-kenth-brightred/50 transition-all">
+            <div className="flex items-end gap-3 bg-kenth-card p-2 rounded-[1.5rem] border border-kenth-border shadow-inner focus-within:border-kenth-brightred/50 transition-all">
               <button 
                 onClick={() => fileInputRef.current.click()}
-                className="p-3 text-gray-400 hover:text-white transition rounded-full hover:bg-white/5"
+                className="p-3 text-kenth-subtext hover:text-kenth-text transition rounded-full hover:bg-kenth-surface/10"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" /></svg>
               </button>
               <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden" />
               
               <textarea 
-                className="flex-1 bg-transparent text-white border-none focus:ring-0 p-2 text-sm max-h-32 resize-none scrollbar-none"
+                className="flex-1 bg-transparent text-kenth-text border-none focus:ring-0 p-2 text-sm max-h-32 resize-none scrollbar-none"
                 placeholder="Pregunta algo sobre tu mezcla..."
                 value={pregunta}
                 onChange={(e) => setPregunta(e.target.value)}
@@ -183,7 +183,7 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null }) {
 
               <button 
                 onClick={() => setUsarInternet(!usarInternet)}
-                className={`p-3 transition rounded-full ${usarInternet ? 'text-kenth-brightred bg-kenth-brightred/10' : 'text-gray-500 hover:text-gray-300'}`}
+                className={`p-3 transition rounded-full ${usarInternet ? 'text-kenth-brightred bg-kenth-brightred/10' : 'text-kenth-subtext hover:text-kenth-text'}`}
                 title="Buscar en la web"
               >
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9" /></svg>
@@ -197,7 +197,7 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null }) {
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 12h14M12 5l7 7-7 7" /></svg>
               </button>
             </div>
-            <p className="text-[10px] text-gray-600 text-center uppercase tracking-widest font-bold">Tutor Socrático KENTH v1.0 • Impulsado por Ollama</p>
+            <p className="text-[10px] text-kenth-subtext/40 text-center uppercase tracking-widest font-bold">Tutor Socrático KENTH v1.0 • Impulsado por Ollama</p>
           </div>
         </div>
     </div>

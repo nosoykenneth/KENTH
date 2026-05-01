@@ -50,8 +50,8 @@ export default function Notification() {
             backdrop-blur-2xl border p-4 rounded-[1.5rem] shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5)]
             flex items-center gap-4 relative overflow-hidden group
             ${notification.type === 'success' 
-              ? 'bg-[#061a14] border-emerald-500/50 text-emerald-400' 
-              : 'bg-[#1a0606] border-red-500/50 text-red-400'
+              ? 'bg-emerald-500/10 border-emerald-500/50 text-emerald-600 dark:text-emerald-400 dark:bg-[#061a14]' 
+              : 'bg-red-500/10 border-red-500/50 text-red-600 dark:text-red-400 dark:bg-[#1a0606]'
             }
           `}>
             {/* Brillo dinámico de fondo */}
