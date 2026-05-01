@@ -13,6 +13,11 @@ export default defineConfig({
         target: 'http://localhost',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/moodle_api/, '')
+      },
+      '/rag_api': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/rag_api/, '')
       }
     }
   }

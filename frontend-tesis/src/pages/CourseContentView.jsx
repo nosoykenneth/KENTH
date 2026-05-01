@@ -23,6 +23,7 @@ export default function CourseContentView() {
   const [chooserAbierto, setChooserAbierto] = useState(false);
   const [studioAbierto, setStudioAbierto] = useState(false);
   const [herramientaAvanzada, setHerramientaAvanzada] = useState('');
+  const [studioCargando, setStudioCargando] = useState(true);
 
   const [seccionDestinoId, setSeccionDestinoId] = useState(1);
   const [esProfesor, setEsProfesor] = useState(false);
@@ -39,7 +40,7 @@ export default function CourseContentView() {
       const token = localStorage.getItem('moodle_token');
       if (!token || !id) return;
       try {
-        const respuesta = await fetch(`/moodle_api/tesis_role.php?token=${token}&courseid=${id}`);
+        const respuesta = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_role.php?token=${token}&courseid=${id}`);
         const data = await respuesta.json();
         setEsProfesor(data.esProfesor);
       } catch (error) { setEsProfesor(false); }
@@ -93,7 +94,7 @@ export default function CourseContentView() {
     setSecciones(nuevasSecciones);
 
     try {
-      await fetch(`/moodle_api/tesis_actions.php?token=${token}&action=${action}&cmid=${cmid}`);
+      await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=${action}&cmid=${cmid}`);
       if (action === 'duplicate') fetchContenido();
     } catch (e) {
       console.error('Error en background', e);
@@ -121,7 +122,7 @@ export default function CourseContentView() {
 
     const token = localStorage.getItem('moodle_token');
     try {
-      const response = await fetch(`/moodle_api/tesis_actions.php?token=${token}&action=rename_section&sectionid=${sectionId}&name=${encodeURIComponent(nuevoNombreSeccion)}`);
+      const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=rename_section&sectionid=${sectionId}&name=${encodeURIComponent(nuevoNombreSeccion)}`);
       const resData = await response.json();
       if (!resData.success) {
         console.error("Error desde Moodle:", resData.error);
@@ -188,7 +189,7 @@ export default function CourseContentView() {
     const paramBefore = beforeCmId ? `&beforecmid=${beforeCmId}` : '';
 
     try {
-      await fetch(`/moodle_api/tesis_actions.php?token=${token}&action=move&cmid=${sourceMod.id}&targetsection=${targetSectionId}${paramBefore}`);
+      await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=move&cmid=${sourceMod.id}&targetsection=${targetSectionId}${paramBefore}`);
     } catch (e) {
       console.error('Error al mover en Moodle:', e);
       fetchContenido();
@@ -433,8 +434,9 @@ export default function CourseContentView() {
                   <button
                     key={herramienta.id}
                     onClick={() => {
-                      setHerramientaAvanzada(herramienta.id);
+                      setHerramientaAvanzada(herramientaAvanzada === herramienta.id ? herramienta.id + ' ' : herramienta.id); // Forzar re-render si es la misma
                       setChooserAbierto(false);
+                      setStudioCargando(true);
                       setStudioAbierto(true);
                     }}
                     className="group flex flex-col items-center justify-center p-6 bg-[#2D2D30] border border-kenth-surface/30 hover:border-kenth-brightred rounded-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_10px_20px_rgba(225,29,72,0.15)]"
@@ -462,15 +464,25 @@ export default function CourseContentView() {
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> Cerrar
               </button>
             </div>
-            <div className="flex-1 w-full bg-[#1e1e20] relative">
+            <div className="flex-1 w-full bg-[#1e1e20] relative overflow-hidden">
+              {studioCargando && (
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-[#1e1e20] text-indigo-400 gap-4 animate-in fade-in duration-300">
+                  <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  <span className="font-bold tracking-widest uppercase text-xs animate-pulse">Iniciando entorno Moodle Studio...</span>
+                </div>
+              )}
               <iframe
                 name="moodle_studio_iframe"
+                onLoad={() => setStudioCargando(false)}
                 src={
                   herramientaAvanzada === '__edit__'
-                    ? `/moodle_api/tesis_studio.php?token=${localStorage.getItem('moodle_token')}&courseid=${id}&modname=__edit__&cmid=${window.__kenth_edit_cmid || 0}`
-                    : `/moodle_api/tesis_studio.php?token=${localStorage.getItem('moodle_token')}&courseid=${id}&modname=${herramientaAvanzada}&section=${seccionDestinoId}`
+                    ? `/moodle_api/proyecto_curso/api_persistente/tesis_studio.php?token=${localStorage.getItem('moodle_token')}&courseid=${id}&modname=__edit__&cmid=${window.__kenth_edit_cmid || 0}`
+                    : `/moodle_api/proyecto_curso/api_persistente/tesis_studio.php?token=${localStorage.getItem('moodle_token')}&courseid=${id}&modname=${herramientaAvanzada}&section=${seccionDestinoId}`
                 }
-                className="w-full h-full absolute inset-0 border-none"
+                className={`w-full h-full absolute inset-0 border-none transition-opacity duration-700 ${studioCargando ? 'opacity-0' : 'opacity-100'}`}
                 allow="fullscreen *; geolocation *; microphone *; camera *; midi *; encrypted-media *; autoplay *"
               />
             </div>

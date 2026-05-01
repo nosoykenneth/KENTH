@@ -37,7 +37,7 @@ export const getCourseContents = async (token, courseId) => {
 export const getUserProfile = async (token) => {
   if (!token) throw new Error('No hay sesión activa.');
 
-  const url = `/moodle_api/tesis_profile.php?token=${token}&action=get`;
+  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=get`;
 
   try {
     const response = await fetch(url);
@@ -60,7 +60,7 @@ export const getUserProfile = async (token) => {
 export const updateUserProfile = async (token, profileData) => {
   if (!token) throw new Error('No hay sesión activa.');
 
-  const url = `/moodle_api/tesis_profile.php?token=${token}&action=update`;
+  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=update`;
 
   try {
     const response = await fetch(url, {
@@ -90,7 +90,7 @@ export const updateUserProfile = async (token, profileData) => {
 export const executeModuleAction = async (token, action, cmid) => {
   if (!token) throw new Error('No hay sesión activa.');
 
-  const url = `/moodle_api/tesis_actions.php?token=${token}&action=${action}&cmid=${cmid}`;
+  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=${action}&cmid=${cmid}`;
 
   try {
     const response = await fetch(url);

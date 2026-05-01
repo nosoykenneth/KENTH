@@ -10,6 +10,7 @@ import CourseContentView from './pages/CourseContentView';
 import ProfileSettingsView from './pages/ProfileSettingsView';
 import LoginView from './pages/LoginView';
 import DashboardCatalog from './pages/DashboardCatalog';
+import AdminKnowledgeView from './pages/admin/AdminKnowledgeView';
 
 // Componente para proteger las rutas del Dashboard (Solo usuarios logueados)
 const ProtectedRoute = ({ children }) => {
@@ -53,6 +54,16 @@ function App() {
           element={
             <ProtectedRoute>
               <ProfileSettingsView />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Vista Admin del RAG */}
+        <Route 
+          path="/dashboard/admin/knowledge" 
+          element={
+            <ProtectedRoute>
+              <AdminKnowledgeView />
             </ProtectedRoute>
           } 
         />
