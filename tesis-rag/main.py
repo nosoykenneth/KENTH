@@ -1,5 +1,9 @@
 from fastapi import FastAPI
-from api.routes import chat, documents
+from api.routes import chat, documents, chat_sessions
+from services.db_service import init_db
+
+# Inicializar base de datos
+init_db()
 
 app = FastAPI(
     title="KENTH AI - RAG System",
@@ -10,6 +14,7 @@ app = FastAPI(
 # Incluir las rutas
 app.include_router(chat.router)
 app.include_router(documents.router)
+app.include_router(chat_sessions.router)
 
 if __name__ == "__main__":
     import uvicorn

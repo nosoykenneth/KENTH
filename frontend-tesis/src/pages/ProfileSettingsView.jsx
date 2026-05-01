@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import DashboardLayout from '../components/layout/DashboardLayout';
+import { showNotification } from '../components/ui/Notification';
 
 export default function ProfileSettingsView() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState({ type: '', text: '' });
   
   // Estado para la previsualización visual de la foto
   const [avatarPreview, setAvatarPreview] = useState('https://i.pravatar.cc/150?img=5'); // Fallback inicial
@@ -60,7 +60,7 @@ export default function ProfileSettingsView() {
     if (file) {
       // Validación básica (opcional, pero recomendada)
       if (file.size > 5 * 1024 * 1024) { // 5MB
-        setMessage({ type: 'error', text: 'La imagen es demasiado grande. Máximo 5MB.' });
+        showNotification('error', 'La imagen es demasiado grande. Máximo 5MB.');
         return;
       }
 
@@ -90,7 +90,6 @@ export default function ProfileSettingsView() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
-    setMessage({ type: '', text: '' });
 
     try {
       const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=update`, {
@@ -101,7 +100,7 @@ export default function ProfileSettingsView() {
       const res = await response.json();
 
       if (res.success) {
-        setMessage({ type: 'success', text: '¡Perfil sincronizado con éxito!' });
+        showNotification('success', '¡Perfil sincronizado con éxito!');
         
         // Actualizar el nombre en el header
         localStorage.setItem('moodle_userfullname', res.newfullname);
@@ -114,10 +113,10 @@ export default function ProfileSettingsView() {
         // Disparamos el evento para que el Navbar se entere del cambio (Nombre y Foto)
         window.dispatchEvent(new Event('perfilActualizado')); 
       } else {
-        setMessage({ type: 'error', text: res.error || 'Hubo un error al guardar' });
+        showNotification('error', res.error || 'Hubo un error al guardar');
       }
     } catch (err) {
-      setMessage({ type: 'error', text: 'Error de conexión con el servidor' });
+      showNotification('error', 'Error de conexión con el servidor');
     } finally {
       setSaving(false);
     }
@@ -140,18 +139,6 @@ export default function ProfileSettingsView() {
           Ajustes de <span className="text-kenth-brightred">Perfil</span>
         </h1>
         <p className="text-gray-400 mb-8 font-medium">Gestiona tu identidad en la plataforma de mezcla y masterización.</p>
-
-        {/* Mensaje de éxito o error */}
-        {message.text && (
-          <div className={`p-4 rounded-xl mb-6 font-bold flex items-center gap-3 animate-in fade-in ${message.type === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/30' : 'bg-red-500/10 text-red-400 border border-red-500/30'}`}>
-            {message.type === 'success' ? (
-               <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" /></svg>
-            ) : (
-               <svg className="w-5 h-5 shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-            )}
-            {message.text}
-          </div>
-        )}
 
         <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-[#1e1e20] p-6 md:p-10 rounded-[2rem] border border-kenth-surface/20 shadow-[0_20px_50px_rgba(0,0,0,0.3)]">
           

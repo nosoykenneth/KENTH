@@ -52,3 +52,69 @@ export const askOllama = async (token, prompt, courseContext = '', imageBase64 =
     throw error;
   }
 };
+
+/**
+ * API DIRECTA A FASTAPI (Para soportar sesiones sin modificar Moodle PHP)
+ */
+const RAG_API_URL = '/rag_api';
+
+export const askOllamaDirect = async (prompt, courseContext = '', imageBase64 = '', usarInternet = false, sessionId = '') => {
+  try {
+    const payload = {
+      pregunta: prompt,
+      contexto_leccion: courseContext,
+      imagen: imageBase64,
+      usar_internet: usarInternet,
+      session_id: sessionId
+    };
+
+    const response = await fetch(`${RAG_API_URL}/chat`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al contactar con FastAPI directamente');
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error en askOllamaDirect:', error);
+    throw error;
+  }
+};
+
+export const getChatSessions = async (userId) => {
+  const response = await fetch(`${RAG_API_URL}/chat-sessions/user/${userId}`);
+  if (!response.ok) throw new Error('Error fetching sessions');
+  const data = await response.json();
+  return data.chats;
+};
+
+export const createChatSession = async (userId, title) => {
+  const response = await fetch(`${RAG_API_URL}/chat-sessions/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, title })
+  });
+  if (!response.ok) throw new Error('Error creating session');
+  const data = await response.json();
+  return data.chat;
+};
+
+export const getChatMessages = async (sessionId) => {
+  const response = await fetch(`${RAG_API_URL}/chat-sessions/${sessionId}/messages`);
+  if (!response.ok) throw new Error('Error fetching messages');
+  const data = await response.json();
+  return data.messages;
+};
+
+export const deleteChatSession = async (sessionId) => {
+  const response = await fetch(`${RAG_API_URL}/chat-sessions/${sessionId}`, { method: 'DELETE' });
+  if (!response.ok) throw new Error('Error deleting session');
+  return response.json();
+};

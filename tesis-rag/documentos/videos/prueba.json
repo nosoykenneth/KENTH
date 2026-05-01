@@ -1,0 +1,20 @@
+[
+    {
+        "id": "M4_S4.1_01",
+        "modulo": 4,
+        "submodulo": "4.1",
+        "titulo": "Filtros y Frecuencia de Corte",
+        "contenido": "Un filtro es un dispositivo capaz de atenuar frecuencias en relación con otras a partir de una Frecuencia de Corte (FC). La FC es el punto donde la señal ha caído -3 dB.",
+        "recurso": "Diagrama de Bode",
+        "url_video": "https://tu-moodle.edu.ec/mod/h5pactivity/view.php?id=10&time=120"
+    },
+    {
+        "id": "M4_S4.2_01",
+        "modulo": 4,
+        "submodulo": "4.2",
+        "titulo": "Método Robin Hood",
+        "contenido": "Regla para gestionar el headroom: si añades energía en una frecuencia, debes robar (atenuar) en otras que no sirvan para compensar el nivel total.",
+        "recurso": "Analizador de Q Constante vs Proporcional",
+        "url_video": "https://tu-moodle.edu.ec/mod/h5pactivity/view.php?id=10&time=450"
+    }
+]

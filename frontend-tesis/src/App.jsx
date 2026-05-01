@@ -11,6 +11,8 @@ import ProfileSettingsView from './pages/ProfileSettingsView';
 import LoginView from './pages/LoginView';
 import DashboardCatalog from './pages/DashboardCatalog';
 import AdminKnowledgeView from './pages/admin/AdminKnowledgeView';
+import TutorView from './pages/TutorView';
+import CourseSettingsView from './pages/CourseSettingsView';
 
 // Componente para proteger las rutas del Dashboard (Solo usuarios logueados)
 const ProtectedRoute = ({ children }) => {
@@ -47,6 +49,16 @@ function App() {
             </ProtectedRoute>
           } 
         />
+        
+        {/* Vista de ajustes de curso */}
+        <Route 
+          path="/dashboard/course/:id/settings" 
+          element={
+            <ProtectedRoute>
+              <CourseSettingsView />
+            </ProtectedRoute>
+          } 
+        />
 
         {/* Vista de ajustes de perfil */}
         <Route 
@@ -54,6 +66,16 @@ function App() {
           element={
             <ProtectedRoute>
               <ProfileSettingsView />
+            </ProtectedRoute>
+          } 
+        />
+
+        {/* Vista del Tutor IA */}
+        <Route 
+          path="/dashboard/tutor" 
+          element={
+            <ProtectedRoute>
+              <TutorView />
             </ProtectedRoute>
           } 
         />
