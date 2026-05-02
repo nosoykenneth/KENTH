@@ -10,11 +10,10 @@ export default defineConfig({
   server: {
     proxy: {
       '/moodle_api': {
-        target: 'http://127.0.0.1',
+        target: 'http://localhost',
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/moodle_api/, '')
       },
-
       '/rag_api': {
         target: 'http://localhost:8000',
         changeOrigin: true,
