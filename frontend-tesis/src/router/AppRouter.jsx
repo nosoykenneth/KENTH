@@ -30,6 +30,9 @@ import CourseSettingsView from '../modules/academy/CourseSettingsView';
 import AdminCommercialView from '../modules/admin/AdminCommercialView';
 import AdminKnowledgeView from '../modules/admin/AdminKnowledgeView';
 
+// Onboarding
+import OnboardingWizard from '../modules/onboarding/OnboardingWizard';
+
 const AppRouter = () => {
   return (
     <BrowserRouter>
@@ -47,8 +50,14 @@ const AppRouter = () => {
 
           {/* Rutas Híbridas: Checkout accesible para todos */}
           <Route path="/checkout/:courseId" element={<CheckoutView />} />
-          <Route path="/checkout/success" element={<CheckoutSuccessView />} />
+          <Route path="/checkout-success" element={<CheckoutSuccessView />} />
         </Route>
+
+        {/* RUTA DE ONBOARDING: Protegida pero fuera del AcademyLayout para ser FullScreen */}
+        <Route element={<PrivateRoute />}>
+           <Route path="/onboarding" element={<OnboardingWizard />} />
+        </Route>
+
 
         {/* GRUPO PRIVADO (Protegido por PrivateRoute + AcademyLayout) */}
         <Route element={<PrivateRoute />}>

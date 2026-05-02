@@ -135,6 +135,13 @@ def nodo_rag(state: EstadoAgente):
 
     if state["imagen"]:
         print("👀 [AGENTE RAG]: Paso 3 - Analizando imagen (Invocando a Qwen-Vision)...")
+        
+        # LIMPIEZA: Si la imagen viene con el prefijo "data:image/...;base64,", se lo quitamos
+        # porque Ollama/LangChain esperan el string base64 puro.
+        imagen_limpia = state["imagen"]
+        if "," in imagen_limpia:
+            imagen_limpia = imagen_limpia.split(",")[1]
+
         # PROMPT BLINDADO SOCRÁTICO
         instrucciones_vision = (
             "Eres KENTH, ingeniero de mezcla profesional y Tutor.\n"
@@ -150,7 +157,7 @@ def nodo_rag(state: EstadoAgente):
         )
         
         mensaje = [HumanMessage(content=[
-            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{state['imagen']}"}},
+            {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{imagen_limpia}"}},
             {"type": "text", "text": instrucciones_vision}
         ])]
         

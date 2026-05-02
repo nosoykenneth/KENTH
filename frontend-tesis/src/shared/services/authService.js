@@ -1,34 +1,61 @@
 const API_BASE_URL = '/moodle_api/webservice/rest/server.php';
-const LOGIN_URL = '/moodle_api/login/token.php';
+const LOGIN_URL = '/moodle_api/proyecto_curso/api_persistente/tesis_login.php';
+const ONBOARDING_URL = '/moodle_api/proyecto_curso/api_persistente/api_onboarding_process.php';
 const SERVICE_NAME = 'api_tesis';
 
 /**
- * Autentica un usuario contra el endpoint login/token.php de Moodle.
+ * Autentica un usuario contra el interceptor personalizado que detecta Onboarding.
  * @param {string} username - Nombre de usuario
  * @param {string} password - Contraseña
- * @returns {Promise<Object>} Retorna el token o arroja un error con el mensaje de Moodle
+ * @returns {Promise<Object>} Retorna {token, requiresOnboarding} o arroja un error
  */
 export const login = async (username, password) => {
-  const params = new URLSearchParams({
-    username: username,
-    password: password,
-    service: SERVICE_NAME
+  const formData = new FormData();
+  formData.append('username', username);
+  formData.append('password', password);
+  formData.append('service', SERVICE_NAME);
+
+  const response = await fetch(LOGIN_URL, {
+    method: 'POST',
+    body: formData
   });
 
-  const response = await fetch(`${LOGIN_URL}?${params.toString()}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  });
 
   const data = await response.json();
   
-  if (data.error) {
-    throw new Error(data.error);
+  if (!data.success) {
+    throw new Error(data.error || "Error de autenticación");
   }
   
-  return data.token;
+  return {
+    token: data.token,
+    requiresOnboarding: data.requiresOnboarding,
+    fullname: data.fullname,
+    userid: data.userid
+  };
+};
+
+/**
+ * Envía los datos de personalización del perfil al finalizar el Wizard.
+ */
+export const completeOnboarding = async (token, userData) => {
+  const params = new URLSearchParams({
+    token: token,
+    firstname: userData.firstname,
+    lastname: userData.lastname,
+    password: userData.password,
+    photo: userData.photo // Base64
+  });
+
+  const response = await fetch(`${ONBOARDING_URL}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  });
+
+  const data = await response.json();
+  if (!data.success) throw new Error(data.error);
+  return data;
 };
 
 /**
