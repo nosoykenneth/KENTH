@@ -10,16 +10,15 @@ const SERVICE_NAME = 'api_tesis';
  * @returns {Promise<Object>} Retorna {token, requiresOnboarding} o arroja un error
  */
 export const login = async (username, password) => {
-  const formData = new FormData();
-  formData.append('username', username);
-  formData.append('password', password);
-  formData.append('service', SERVICE_NAME);
-
-  const response = await fetch(LOGIN_URL, {
-    method: 'POST',
-    body: formData
+  const params = new URLSearchParams({
+    username: username,
+    password: password,
+    service: SERVICE_NAME
   });
 
+  const response = await fetch(`${LOGIN_URL}?${params.toString()}`, {
+    method: 'POST'
+  });
 
   const data = await response.json();
   
@@ -44,7 +43,7 @@ export const completeOnboarding = async (token, userData) => {
     firstname: userData.firstname,
     lastname: userData.lastname,
     password: userData.password,
-    photo: userData.photo // Base64
+    pictureData: userData.pictureData || ''
   });
 
   const response = await fetch(`${ONBOARDING_URL}`, {
@@ -53,8 +52,19 @@ export const completeOnboarding = async (token, userData) => {
     body: params.toString()
   });
 
-  const data = await response.json();
-  if (!data.success) throw new Error(data.error);
+  const raw = await response.text();
+  let data;
+
+  try {
+    data = JSON.parse(raw);
+  } catch {
+    throw new Error(`Respuesta inválida del servidor: ${raw}`);
+  }
+
+  if (!data.success) {
+    throw new Error(data.error || 'Error al completar onboarding');
+  }
+
   return data;
 };
 

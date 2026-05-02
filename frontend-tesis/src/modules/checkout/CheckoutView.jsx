@@ -2,11 +2,20 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
-import { getPublicCourse, initiatePaymentIntent, getMyCourses, getUserProfile } from '../../shared/services/courseService';
+import {
+  getPublicCourse,
+  initiatePaymentIntent,
+  getMyCourses,
+  getUserProfile,
+  checkGuestEnrollmentByEmail
+} from '../../shared/services/courseService';
 import { showNotification } from '../../shared/components/ui/Notification';
 import Notification from '../../shared/components/ui/Notification';
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
 export default function CheckoutView() {
+
   const { courseId: id } = useParams();
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
@@ -15,6 +24,15 @@ export default function CheckoutView() {
   const [status, setStatus] = useState('idle'); // idle, processing, success, error
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [userProfile, setUserProfile] = useState(null);
+  const [guestEnrollmentCheck, setGuestEnrollmentCheck] = useState({
+    checking: false,
+    checked: false,
+    exists: false,
+    isEnrolled: false,
+    fullname: '',
+    checkedEmail: ''
+  });
+
 
   // CLIENT IDs (Sandbox)
   const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "test";
@@ -27,8 +45,7 @@ export default function CheckoutView() {
   });
 
   const formDataRef = useRef(formData);
-  const payphoneInitializedRef = useRef(false);
-  const payphoneScriptRef = useRef(null);
+
 
   // Sincronizar la ref con el estado para que sea accesible desde callbacks asíncronos
   useEffect(() => {
@@ -42,7 +59,7 @@ export default function CheckoutView() {
     const fetchCourseAndEnrollment = async () => {
       try {
         setLoading(true);
-        
+
         // Cargar info del curso
         const data = await getPublicCourse(id);
         setCourse(data);
@@ -53,7 +70,7 @@ export default function CheckoutView() {
             // Cargar perfil para tener datos de email/nombre
             const profile = await getUserProfile(token);
             setUserProfile(profile);
-            
+
             // Sincronizar formData para consistencia (aunque no se muestre el form)
             setFormData({
               firstname: profile.firstname || '',
@@ -98,25 +115,98 @@ export default function CheckoutView() {
   };
 
   const canRenderPayphoneButton = () => {
-    if (token) return true;
-    const p = getEffectiveProfile();
-    return !!(p.firstname && p.lastname && p.email && p.email.includes('@'));
-  };
+  if (loading || isEnrolled) return false;
+  if (token) return true;
+
+  return (
+    formData.firstname.trim() &&
+    formData.lastname.trim() &&
+    emailRegex.test(formData.email) &&
+    !guestEnrollmentCheck.isEnrolled &&
+    !guestEnrollmentCheck.checking
+  );
+};
+
 
   const validateGuestData = () => {
     if (!token) {
       const currentData = formDataRef.current;
+
       if (!currentData.firstname || !currentData.lastname || !currentData.email) {
         showNotification('error', 'Por favor, completa tus datos para enviarte el acceso.');
         return false;
       }
-      if (!currentData.email.includes('@')) {
+
+      if (!emailRegex.test(currentData.email)) {
         showNotification('error', 'Ingresa un correo electrónico válido.');
         return false;
       }
+
+      if (guestEnrollmentCheck.isEnrolled) {
+        showNotification('error', 'Este correo ya está matriculado en este curso.');
+        return false;
+      }
+
+      if (guestEnrollmentCheck.checking) {
+        showNotification('error', 'Estamos verificando el correo. Intenta de nuevo en un momento.');
+        return false;
+      }
     }
+
     return true;
   };
+
+  useEffect(() => {
+    if (token) return;
+
+    const email = formData.email.trim();
+    const firstname = formData.firstname.trim();
+    const lastname = formData.lastname.trim();
+
+    if (!firstname || !lastname || !emailRegex.test(email)) {
+      setGuestEnrollmentCheck({
+        checking: false,
+        checked: false,
+        exists: false,
+        isEnrolled: false,
+        fullname: '',
+        checkedEmail: ''
+      });
+
+      return;
+    }
+
+    const timeout = setTimeout(async () => {
+      try {
+        setGuestEnrollmentCheck(prev => ({ ...prev, checking: true }));
+
+        const result = await checkGuestEnrollmentByEmail(id, email);
+
+        setGuestEnrollmentCheck({
+          checking: false,
+          checked: true,
+          exists: result.exists,
+          isEnrolled: result.isEnrolled,
+          fullname: result.fullname || '',
+          checkedEmail: email
+        });
+
+      } catch (error) {
+        console.error('Error verificando matrícula del invitado:', error);
+        setGuestEnrollmentCheck({
+          checking: false,
+          checked: false,
+          exists: false,
+          isEnrolled: false,
+          fullname: '',
+          checkedEmail: ''
+        });
+
+      }
+    }, 500);
+
+    return () => clearTimeout(timeout);
+  }, [formData.email, formData.firstname, formData.lastname, id, token]);
 
   const handleSuccessFlow = async (gateway, transactionId) => {
     setProcessing(true);
@@ -142,144 +232,88 @@ export default function CheckoutView() {
     }
   };
 
-  useEffect(() => {
-    if (loading || isEnrolled) return;
+  const isPayphoneBlocked = !token && (
+    !formData.firstname.trim() ||
+    !formData.lastname.trim() ||
+    !emailRegex.test(formData.email) ||
+    guestEnrollmentCheck.isEnrolled ||
+    guestEnrollmentCheck.checking
+  );
 
-    const container = document.getElementById("pp-button");
-    if (!container) return;
-
-    const readyForPayphone = canRenderPayphoneButton();
-
-    // Si no está listo, limpiamos el contenedor y reseteamos inicialización
-    if (!readyForPayphone) {
-      container.innerHTML = "";
-      payphoneInitializedRef.current = false;
+  const handlePayphoneRedirect = async () => {
+    if (!isGuestEmailApproved) {
+      if (guestEnrollmentCheck.checking) {
+        showNotification('error', 'Estamos verificando el correo. Espera un momento.');
+      } else if (guestEnrollmentCheck.isEnrolled) {
+        showNotification('error', 'Este correo ya está matriculado en este curso.');
+      } else {
+        showNotification('error', 'Completa y valida tus datos antes de continuar.');
+      }
       return;
     }
 
-    // Evitar reinicializar varias veces
-    if (payphoneInitializedRef.current) return;
 
-    const initButton = () => {
-      const currentContainer = document.getElementById("pp-button");
-      if (!currentContainer || !window.payphone) return;
+    try {
+      setProcessing(true);
+      setStatus('processing');
 
-      currentContainer.innerHTML = "";
+      const clientTxId = `KENTH-${Date.now()}`;
+      localStorage.setItem('kenth_client_tx', clientTxId);
 
-      try {
-        window.payphone.Button({
-          token: import.meta.env.VITE_PAYPHONE_TOKEN,
-          btnHorizontal: true,
-          btnCard: true,
-          createOrder: async function (actions) {
-            const clientTxId = `KENTH-${Date.now()}`;
-            localStorage.setItem('kenth_client_tx', clientTxId);
+      const effectiveProfile = getEffectiveProfile();
 
-            const BACKEND_BASE = "http://localhost/proyecto_curso/api_persistente";
-            const REGISTER_URL = `${BACKEND_BASE}/api_register_intent.php`;
+      // 1. Registrar intención local
+      const registerResponse = await fetch('/moodle_api/proyecto_curso/api_persistente/api_register_intent.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientTransactionId: clientTxId,
+          course_id: id,
+          email: effectiveProfile.email,
+          firstname: effectiveProfile.firstname,
+          lastname: effectiveProfile.lastname
+        })
+      });
 
-            const effectiveProfile = getEffectiveProfile();
+      const registerData = await registerResponse.json();
 
-            const payload = {
-              clientTransactionId: clientTxId,
-              course_id: id,
-              email: effectiveProfile.email,
-              firstname: effectiveProfile.firstname,
-              lastname: effectiveProfile.lastname
-            };
-
-            console.log("PAYLOAD REGISTER_INTENT:", payload);
-
-            if (!payload.course_id || !payload.email || !payload.firstname || !payload.lastname) {
-              showNotification('error', 'Completa tus datos antes de pagar.');
-              throw new Error("Datos incompletos para PayPhone.");
-            }
-
-            const registerResponse = await fetch(REGISTER_URL, {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify(payload)
-            });
-
-            const registerData = await registerResponse.json();
-            console.log("REGISTER_INTENT RESPONSE:", registerData);
-
-            if (!registerData.success) {
-              showNotification('error', registerData.error || 'No se pudo registrar la intención de pago.');
-              throw new Error(registerData.error || "Register intent falló.");
-            }
-
-            const hasOffer = course?.offer_price > 0 && course?.offer_price < course?.price;
-            const priceToUse = hasOffer ? course.offer_price : (course?.price || 49.99);
-            const finalAmount = Math.round(priceToUse * 100);
-
-            return actions.prepare({
-              amount: finalAmount,
-              amountWithoutTax: finalAmount,
-              amountWithTax: 0,
-              tax: 0,
-              currency: "USD",
-              clientTransactionId: clientTxId,
-              storeId: import.meta.env.VITE_PAYPHONE_STORE_ID,
-              reference: course?.fullname
-                ? `Matrícula: ${course.fullname.substring(0, 20)}`
-                : "Matrícula KENTH",
-              responseUrl: "http://localhost:5173/checkout-success",
-              cancellationUrl: "http://localhost:5173/checkout"
-            });
-          },
-          onComplete: async function () {
-            console.log("✅ Pago capturado.");
-            setStatus('success');
-          }
-        }).render("#pp-button");
-
-        payphoneInitializedRef.current = true;
-      } catch (error) {
-        console.error("Error al inyectar PayPhone:", error);
-        payphoneInitializedRef.current = false;
-      }
-    };
-
-    if (!window.payphone) {
-      const existingScript = document.querySelector('script[data-payphone-sdk="true"]');
-
-      if (existingScript) {
-        existingScript.remove();
+      if (!registerData.success) {
+        throw new Error(registerData.error || 'No se pudo registrar la intención de pago.');
       }
 
-      const script = document.createElement("script");
-      script.src = `https://pay.payphonetodoesposible.com/api/button/js?appId=${import.meta.env.VITE_PAYPHONE_APP_ID}`;
-      script.async = true;
-      script.setAttribute("data-payphone-sdk", "true");
-      script.onload = () => setTimeout(initButton, 150);
-      document.body.appendChild(script);
-      payphoneScriptRef.current = script;
-    } else {
-      setTimeout(initButton, 150);
+      // 2. Pedir URL de PayPhone a tu backend
+      const prepareResponse = await fetch('/moodle_api/proyecto_curso/api_persistente/api_prepare_payphone.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          clientTransactionId: clientTxId,
+          course_id: id,
+          email: effectiveProfile.email,
+          firstname: effectiveProfile.firstname,
+          lastname: effectiveProfile.lastname,
+          course_name: course?.fullname || 'Curso KENTH',
+          amount: (course?.offer_price > 0 && course?.offer_price < course?.price)
+            ? course.offer_price
+            : (course?.price || 49.99)
+        })
+      });
+
+      const prepareData = await prepareResponse.json();
+
+      if (!prepareData.success || !prepareData.payUrl) {
+        throw new Error(prepareData.error || 'No se pudo generar el enlace de pago.');
+      }
+
+      window.location.href = prepareData.payUrl;
+    } catch (error) {
+      console.error(error);
+      showNotification('error', error.message || 'Error al iniciar el pago.');
+      setStatus('idle');
+      setProcessing(false);
     }
+  };
 
-    return () => {
-      // Solo limpiar el contenedor, no destruir el SDK global a lo loco
-      const currentContainer = document.getElementById("pp-button");
-      if (currentContainer) {
-        currentContainer.innerHTML = "";
-      }
-      payphoneInitializedRef.current = false;
-    };
-  }, [
-    loading,
-    isEnrolled,
-    id,
-    token,
-    userProfile,
-    course?.fullname,
-    course?.offer_price,
-    course?.price,
-    formData.firstname,
-    formData.lastname,
-    formData.email
-  ]);
+
 
   if (loading) {
     return (
@@ -289,7 +323,23 @@ export default function CheckoutView() {
     );
   }
 
-  const isFormValid = token ? true : (formData.firstname && formData.lastname && formData.email.includes('@'));
+
+
+
+  const normalizedEmail = formData.email.trim().toLowerCase();
+
+  const isGuestEmailApproved =
+    token ||
+    (
+      formData.firstname.trim() &&
+      formData.lastname.trim() &&
+      emailRegex.test(normalizedEmail) &&
+      guestEnrollmentCheck.checked &&
+      !guestEnrollmentCheck.checking &&
+      guestEnrollmentCheck.checkedEmail === normalizedEmail &&
+      !guestEnrollmentCheck.isEnrolled
+    );
+
 
   return (
     <PayPalScriptProvider options={{
@@ -349,6 +399,15 @@ export default function CheckoutView() {
                         const next = { ...formData, firstname: val };
                         setFormData(next);
                         localStorage.setItem('kenth_guest_data', JSON.stringify(next));
+                        setGuestEnrollmentCheck({
+                          checking: false,
+                          checked: false,
+                          exists: false,
+                          isEnrolled: false,
+                          fullname: '',
+                          checkedEmail: ''
+                        });
+
                       }}
                       className="w-full bg-kenth-bg border border-kenth-border p-4 rounded-2xl outline-none focus:border-kenth-brightred transition-all"
                     />
@@ -361,6 +420,15 @@ export default function CheckoutView() {
                         const next = { ...formData, lastname: val };
                         setFormData(next);
                         localStorage.setItem('kenth_guest_data', JSON.stringify(next));
+                        setGuestEnrollmentCheck({
+                          checking: false,
+                          checked: false,
+                          exists: false,
+                          isEnrolled: false,
+                          fullname: '',
+                          checkedEmail: ''
+                        });
+
                       }}
                       className="w-full bg-kenth-bg border border-kenth-border p-4 rounded-2xl outline-none focus:border-kenth-brightred transition-all"
                     />
@@ -374,8 +442,28 @@ export default function CheckoutView() {
                         const next = { ...formData, email: val };
                         setFormData(next);
                         localStorage.setItem('kenth_guest_data', JSON.stringify(next));
+                        setGuestEnrollmentCheck({
+                          checking: false,
+                          checked: false,
+                          exists: false,
+                          isEnrolled: false,
+                          fullname: '',
+                          checkedEmail: ''
+                        });
+
                       }}
                     />
+                    {!token && guestEnrollmentCheck.checking && (
+                      <p className="md:col-span-2 text-xs text-kenth-subtext font-bold uppercase tracking-widest">
+                        Verificando matrícula...
+                      </p>
+                    )}
+
+                    {!token && guestEnrollmentCheck.isEnrolled && (
+                      <div className="md:col-span-2 bg-amber-500/10 border border-amber-500/20 text-amber-400 p-4 rounded-2xl text-sm font-bold">
+                        Este correo ya está matriculado en este curso. No puedes volver a comprarlo con esta dirección.
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
@@ -409,16 +497,21 @@ export default function CheckoutView() {
                     <h3 className="text-xl font-black uppercase tracking-tighter italic mb-8">Confirmar Compra</h3>
 
                     <div className="space-y-6">
-                      <div className="relative w-full">
-                        <div id="pp-button" className="w-full min-h-[60px] flex items-center justify-center transition-all"></div>
+                      <div className="w-full">
+                        <button
+                          type="button"
+                          onClick={handlePayphoneRedirect}
+                          disabled={!isGuestEmailApproved}
+                          className={`w-full h-[60px] rounded-2xl font-black uppercase tracking-widest text-sm transition-all
+                            ${!isGuestEmailApproved
+                              ? 'bg-orange-500/30 text-white/50 cursor-not-allowed'
+                              : 'bg-orange-500 hover:bg-orange-400 text-white shadow-[0_10px_30px_rgba(249,115,22,0.35)]'}`}
+                        >
 
-                        {!isFormValid && (
-                          <div
-                            className="absolute inset-0 z-10 cursor-pointer"
-                            onClick={() => showNotification('error', 'Por favor, completa tus datos arriba para habilitar el pago.')}
-                          ></div>
-                        )}
+                          Pagar con tarjeta de crédito
+                        </button>
                       </div>
+
 
                       <div className="relative py-4">
                         <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-kenth-border"></div></div>

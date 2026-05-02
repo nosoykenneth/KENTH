@@ -14,7 +14,7 @@ export default function OnboardingWizard() {
   const [formData, setFormData] = useState({
     firstname: localStorage.getItem('moodle_userfullname')?.split(' ')[0] || '',
     lastname: localStorage.getItem('moodle_userfullname')?.split(' ').slice(1).join(' ') || '',
-    photo: '',
+    pictureData: '',
     password: '',
     confirmPassword: ''
   });
@@ -31,7 +31,7 @@ export default function OnboardingWizard() {
 
       const reader = new FileReader();
       reader.onloadend = () => {
-        setFormData({ ...formData, photo: reader.result });
+        setFormData(prev => ({ ...prev, pictureData: reader.result }));
       };
       reader.readAsDataURL(file);
     }
@@ -52,9 +52,16 @@ export default function OnboardingWizard() {
     const token = localStorage.getItem('moodle_token');
 
     try {
-      await completeOnboarding(token, formData);
+      const res = await completeOnboarding(token, formData);
+
       localStorage.setItem('moodle_requires_onboarding', '0');
       localStorage.setItem('moodle_userfullname', `${formData.firstname} ${formData.lastname}`);
+
+      if (res?.newpictureurl) {
+        localStorage.setItem('moodle_userpictureurl', res.newpictureurl);
+        window.dispatchEvent(new Event('perfilActualizado'));
+      }
+
       navigate('/dashboard', { replace: true });
     } catch (err) {
       setError(err.message);
@@ -73,19 +80,19 @@ export default function OnboardingWizard() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-indigo-400/60 ml-2">Nombre</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={formData.firstname}
-                onChange={(e) => setFormData({...formData, firstname: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, firstname: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-indigo-500 transition-all text-white font-bold"
               />
             </div>
             <div className="space-y-2">
               <label className="text-[10px] font-black uppercase tracking-widest text-indigo-400/60 ml-2">Apellido</label>
-              <input 
-                type="text" 
+              <input
+                type="text"
                 value={formData.lastname}
-                onChange={(e) => setFormData({...formData, lastname: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, lastname: e.target.value })}
                 className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-indigo-500 transition-all text-white font-bold"
               />
             </div>
@@ -99,7 +106,7 @@ export default function OnboardingWizard() {
       subtitle: "Una imagen ayuda a tus tutores y compañeros a reconocerte.",
       content: (
         <div className="flex flex-col items-center space-y-6">
-          <div 
+          <div
             className="relative group cursor-pointer"
             onClick={() => fileInputRef.current.click()}
           >
@@ -110,18 +117,18 @@ export default function OnboardingWizard() {
               ) : (
                 <svg className="w-12 h-12 text-white/20" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" /></svg>
               )}
-              
+
               <div className="absolute inset-0 bg-indigo-600/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <svg className="w-8 h-8 text-white" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
               </div>
             </div>
           </div>
-          <input 
-            type="file" 
+          <input
+            type="file"
             ref={fileInputRef}
-            className="hidden" 
-            onChange={handlePhotoChange} 
-            accept="image/png, image/jpeg, image/jpg" 
+            className="hidden"
+            onChange={handlePhotoChange}
+            accept="image/png, image/jpeg, image/jpg"
           />
           <p className="text-xs text-white/40 font-black uppercase tracking-widest">Haz clic en el círculo para subir foto</p>
         </div>
@@ -135,20 +142,20 @@ export default function OnboardingWizard() {
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-indigo-400/60 ml-2">Nueva Contraseña</label>
-            <input 
-              type="password" 
+            <input
+              type="password"
               value={formData.password}
-              onChange={(e) => setFormData({...formData, password: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               placeholder="••••••••"
               className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-indigo-500 transition-all text-white font-bold"
             />
           </div>
           <div className="space-y-2">
             <label className="text-[10px] font-black uppercase tracking-widest text-indigo-400/60 ml-2">Confirmar Contraseña</label>
-            <input 
-              type="password" 
+            <input
+              type="password"
               value={formData.confirmPassword}
-              onChange={(e) => setFormData({...formData, confirmPassword: e.target.value})}
+              onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               placeholder="••••••••"
               className="w-full bg-white/5 border border-white/10 p-4 rounded-2xl outline-none focus:border-indigo-500 transition-all text-white font-bold"
             />
@@ -172,7 +179,7 @@ export default function OnboardingWizard() {
         </div>
 
         <div className="bg-[#0f0f0f] border border-white/5 rounded-[2.5rem] p-8 md:p-12 shadow-2xl relative">
-          
+
           {/* Progress Bar */}
           <div className="flex gap-2 mb-12">
             {[1, 2, 3].map((s) => (
@@ -190,14 +197,14 @@ export default function OnboardingWizard() {
             >
               <header className="mb-10">
                 <span className="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-2 block">Paso {step} de 3</span>
-                <h2 className="text-4xl font-black text-white uppercase tracking-tighter italic">{steps[step-1].title}</h2>
-                <p className="text-white/40 mt-2 font-medium">{steps[step-1].subtitle}</p>
+                <h2 className="text-4xl font-black text-white uppercase tracking-tighter italic">{steps[step - 1].title}</h2>
+                <p className="text-white/40 mt-2 font-medium">{steps[step - 1].subtitle}</p>
               </header>
 
-              {steps[step-1].content}
+              {steps[step - 1].content}
 
               {error && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="mt-6 bg-red-500/10 border border-red-500/20 text-red-400 p-4 rounded-2xl text-xs font-bold flex items-center gap-3"
@@ -209,7 +216,7 @@ export default function OnboardingWizard() {
 
               <footer className="mt-12 flex justify-between items-center gap-4">
                 {step > 1 ? (
-                  <button 
+                  <button
                     onClick={() => setStep(step - 1)}
                     className="text-white/40 hover:text-white font-bold text-xs uppercase tracking-widest transition-colors px-6 py-4"
                   >
@@ -217,7 +224,7 @@ export default function OnboardingWizard() {
                   </button>
                 ) : <div />}
 
-                <button 
+                <button
                   onClick={step === 3 ? handleFinish : () => setStep(step + 1)}
                   disabled={loading}
                   className="bg-white text-black hover:bg-indigo-500 hover:text-white px-10 py-5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl active:scale-95 disabled:opacity-50 flex items-center gap-3 group"

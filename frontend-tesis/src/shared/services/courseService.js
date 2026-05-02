@@ -342,3 +342,16 @@ export const getPublicCourse = async (courseId) => {
     };
   }
 };
+
+export const checkGuestEnrollmentByEmail = async (courseId, email) => {
+  const url = `/moodle_api/proyecto_curso/api_persistente/api_check_guest_enrollment.php?course_id=${encodeURIComponent(courseId)}&email=${encodeURIComponent(email)}`;
+
+  const response = await fetch(url);
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error(data.error || 'No se pudo verificar la matrícula.');
+  }
+
+  return data;
+};
