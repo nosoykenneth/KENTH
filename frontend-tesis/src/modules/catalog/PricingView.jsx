@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Navbar from '../../shared/components/layout/Navbar';
 import { getCommercialCatalog } from '../../shared/services/courseService';
 
 const AnimatedSection = ({ children, className }) => (
@@ -36,9 +35,7 @@ export default function PricingView() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-kenth-bg text-kenth-text font-sans selection:bg-kenth-brightred selection:text-white">
-      <Navbar />
-
+    <div className="w-full bg-kenth-bg text-kenth-text font-sans selection:bg-kenth-brightred selection:text-white">
       <main className="pt-20">
         <AnimatedSection>
           <div className="text-center mb-16 px-4">
@@ -130,10 +127,6 @@ export default function PricingView() {
           </div>
         </AnimatedSection>
       </main>
-
-      <footer className="py-12 flex flex-col items-center justify-center bg-kenth-footer text-kenth-subtext text-xs md:text-sm border-t border-kenth-border">
-        <p className="uppercase tracking-widest font-bold mb-4 italic">KENTH Academy &copy; {new Date().getFullYear()}</p>
-      </footer>
     </div>
   );
 }

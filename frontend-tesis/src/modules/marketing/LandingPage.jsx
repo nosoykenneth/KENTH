@@ -1,11 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion'; 
-import logoImg from '../../assets/logo-main.png';
-import Logo from '../../shared/components/ui/Logo';
 import profileImg from '../../assets/kenth-profile.jpg';
 import initialImg from '../../assets/initial-image.png';
-import Navbar from '../../shared/components/layout/Navbar';
 import { getCommercialCatalog } from '../../shared/services/courseService';
 
 // Componente para envolver secciones con animación suave al hacer scroll
@@ -23,11 +20,8 @@ const AnimatedSection = ({ children, className }) => (
 
 function LandingPage() {
   return (
-    // Contenedor principal con el "imán" de scroll activado
-    <div className="h-screen overflow-y-auto overflow-x-hidden snap-y snap-mandatory scroll-smooth bg-kenth-bg text-kenth-text font-sans">
-
-      {/* HEADER / NAVEGACIÓN UNIFICADA */}
-      <Navbar />
+    // Contenedor principal sin Navbar ni Footer propios, el MarketingLayout se encarga
+    <div className="w-full bg-kenth-bg text-kenth-text font-sans selection:bg-kenth-brightred selection:text-white">
 
       <main className="w-full">
 
@@ -139,20 +133,10 @@ function LandingPage() {
           </div>
         </AnimatedSection>
 
-        {/* NUEVA SECCIÓN 4: CATÁLOGO DINÁMICO (Regla 1) */}
+        {/* SECCIÓN 4: CATÁLOGO DINÁMICO */}
         <LandingCoursesSection />
 
       </main>
-
-      {/* FOOTER */}
-      <footer className="min-h-[20vh] flex flex-col items-center justify-center snap-start bg-kenth-footer text-kenth-subtext text-xs md:text-sm border-t border-kenth-border p-8">
-        <p className="uppercase tracking-widest font-bold mb-4">KENTH Academy &copy; {new Date().getFullYear()}</p>
-        <div className="flex gap-6">
-          <a href="#" className="hover:text-white transition">Instagram</a>
-          <a href="#" className="hover:text-white transition">YouTube</a>
-          <a href="#" className="hover:text-white transition">Spotify</a>
-        </div>
-      </footer>
 
     </div>
   );

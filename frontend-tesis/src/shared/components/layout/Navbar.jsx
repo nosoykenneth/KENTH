@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import Logo from '../ui/Logo';
 import ThemeToggle from '../ui/ThemeToggle';
+import UserMenu from './UserMenu';
 
 export default function Navbar() {
   const location = useLocation();
@@ -35,9 +36,12 @@ export default function Navbar() {
         <ThemeToggle />
         
         {token ? (
-          <Link to="/dashboard" className="bg-kenth-text text-kenth-bg px-5 py-2 md:px-6 md:py-2.5 rounded-full transition shadow-lg hover:bg-kenth-brightred hover:text-white font-black italic tracking-tighter">
-            Mi Estudio
-          </Link>
+          <div className="flex items-center gap-4">
+            <UserMenu />
+            <Link to="/dashboard" className="bg-kenth-text text-kenth-bg px-5 py-2 md:px-6 md:py-2.5 rounded-full transition shadow-lg hover:bg-kenth-brightred hover:text-white font-black italic tracking-tighter">
+              Mi Estudio
+            </Link>
+          </div>
         ) : (
           <Link to="/login" className="bg-kenth-brightred text-white px-5 py-2 md:px-6 md:py-2.5 rounded-full transition shadow-lg shadow-kenth-brightred/20 hover:bg-white hover:text-kenth-bg font-black italic tracking-tighter">
             Acceder

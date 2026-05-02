@@ -21,17 +21,17 @@ export default function LoginView() {
     setError('');
 
     try {
-      // 1. Usamos TU función de login (que ya pasa por el proxy a api_tesis)
-      const token = await login(username, password);
+      // 1. Usamos TU función de login (que ya pasa por el interceptor de onboarding)
+      const { token, requiresOnboarding, userid, fullname } = await login(username, password);
       
-      // 2. Guardamos el token
+      // 2. Guardamos el token y estado de onboarding
       localStorage.setItem('moodle_token', token);
+      localStorage.setItem('moodle_requires_onboarding', requiresOnboarding ? '1' : '0');
 
       // 3. Usamos TU función para obtener la info del sitio y del usuario
       const siteInfo = await getSiteInfo(token);
-      localStorage.setItem('moodle_userfullname', siteInfo.fullname);
-      // ¡NUEVO! Guardamos el ID del usuario para poder pedir sus cursos después
-      localStorage.setItem('moodle_userid', siteInfo.userid);
+      localStorage.setItem('moodle_userfullname', fullname || siteInfo.fullname);
+      localStorage.setItem('moodle_userid', userid || siteInfo.userid);
       
       let picUrl = siteInfo.userpictureurl || '';
       if (picUrl && !picUrl.includes('token=')) {
@@ -43,8 +43,12 @@ export default function LoginView() {
       const role = helperDetermineRole(username);
       localStorage.setItem('moodle_rol', role);
 
-      // 5. Redirigimos al destino original o al dashboard
-      navigate(from, { replace: true });
+      // 5. Redirección condicional: ¿Necesita Onboarding?
+      if (requiresOnboarding) {
+        navigate('/onboarding', { replace: true });
+      } else {
+        navigate(from, { replace: true });
+      }
 
     } catch (err) {
       // AQUÍ ESTÁ LA MAGIA: Si Moodle se queja, te mostrará su QUEJA EXACTA, no un invento mío.
@@ -62,6 +66,17 @@ export default function LoginView() {
   return (
     <div className="min-h-screen bg-kenth-bg flex flex-col justify-center items-center font-sans p-4 relative overflow-hidden animate-kenth-blur">
       
+      {/* BOTÓN REGRESAR */}
+      <button 
+        onClick={() => navigate('/')}
+        className="absolute top-6 left-6 md:top-10 md:left-10 flex items-center gap-2 text-kenth-subtext hover:text-kenth-text transition-all font-bold text-xs md:text-sm uppercase tracking-[0.2em] group z-20"
+      >
+        <div className="w-8 h-8 rounded-full border border-kenth-border flex items-center justify-center group-hover:border-kenth-brightred group-hover:bg-kenth-brightred/10 transition-all">
+          <svg className="w-4 h-4 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" /></svg>
+        </div>
+        <span className="hidden sm:inline">Regresar</span>
+      </button>
+
       {/* Luces de fondo estilo estudio */}
       <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-kenth-brightred/10 rounded-full blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-kenth-surface/10 rounded-full blur-[100px] pointer-events-none"></div>

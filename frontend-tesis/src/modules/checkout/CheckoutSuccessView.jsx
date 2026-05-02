@@ -1,104 +1,136 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Navbar from '../../shared/components/layout/Navbar';
 
 export default function CheckoutSuccessView() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
+  const hasVerifiedRef = useRef(false);
 
   const transactionId = searchParams.get('id');
   const clientTransactionId = searchParams.get('clientTransactionId');
 
   useEffect(() => {
     const confirmEnrollment = async () => {
-      if (!clientTransactionId && !transactionId) return;
+      const id = searchParams.get('id');
+      const clientTxId =
+        searchParams.get('clientTransactionId') ||
+        localStorage.getItem('kenth_client_tx');
+
+      console.log("Verificando pago en backend:", {
+        id,
+        clientTransactionId: clientTxId
+      });
+
+      if (!id) {
+        console.error("No se encontró ID de transacción para verificar.");
+        setLoading(false);
+        return;
+      }
+
+      if (hasVerifiedRef.current) {
+        return;
+      }
+
+      hasVerifiedRef.current = true;
 
       try {
-        // Llamamos al webhook manualmente para asegurar la matrícula en entorno local
-        // ya que PayPhone no puede alcanzar nuestro 'localhost' por sí solo.
-        const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/api_webhook_pagos.php`, {
+        const BACKEND_BASE = "http://localhost/proyecto_curso/api_persistente";
+        const SYNC_URL = `${BACKEND_BASE}/api_webhook_pagos.php`;
+
+        const response = await fetch(SYNC_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            status: 'Approved',
-            clientTransactionId: clientTransactionId,
-            payphoneId: transactionId
+            id,
+            transactionId: id,
+            clientTransactionId: clientTxId
           })
         });
 
         const data = await response.json();
-        console.log("Resultado de Matrícula:", data);
-        
+        console.log("Respuesta backend:", data);
+
         if (data.success) {
-            // NOTIFICAMOS A LA VENTANA PRINCIPAL
-            if (window.opener) {
-                window.opener.postMessage('payphone-success', '*');
-            }
-            
-            // Esperamos un segundo para que el usuario vea el check verde y cerramos
-            setTimeout(() => {
-                setLoading(false);
-                // Si no hay opener (entró directo), redirigimos normalmente
-                if (!window.opener) {
-                    const token = localStorage.getItem('moodle_token');
-                    navigate(token ? '/dashboard' : '/login', { 
-                        state: { message: '¡Bienvenido! Tu pago fue exitoso.' } 
-                    });
-                }
-            }, 2000);
+          if (window.opener) {
+            window.opener.postMessage('payphone-success', '*');
+          }
+
+          setTimeout(() => {
+            setLoading(false);
+            localStorage.removeItem('kenth_guest_data');
+            localStorage.removeItem('kenth_client_tx');
+
+            const token = localStorage.getItem('moodle_token');
+            navigate(token ? '/dashboard' : '/login', {
+              state: { message: '¡Pago verificado! Tu acceso ha sido enviado a tu correo.' }
+            });
+          }, 4000);
+        } else {
+          console.error("Error en validación backend:", data.error);
+          setLoading(false);
         }
 
       } catch (error) {
-        console.error("Error confirmando matrícula:", error);
+        console.error("Error de conexión con el backend:", error);
         setLoading(false);
       }
     };
 
     confirmEnrollment();
-  }, [transactionId, clientTransactionId, navigate]);
+  }, []);
 
   return (
-    <div className="min-h-screen bg-kenth-bg text-kenth-text flex flex-col items-center justify-center p-6 overflow-hidden">
-      <Navbar />
-      
-      <motion.div 
+    <div className="w-full min-h-[80vh] bg-kenth-bg text-kenth-text flex flex-col items-center justify-center p-6 overflow-hidden">
+      <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         className="text-center max-w-xl relative"
       >
-        {/* Decoración de fondo */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-kenth-brightred/10 blur-[120px] rounded-full -z-10" />
 
-        <div className="w-24 h-24 bg-emerald-500 rounded-[2rem] flex items-center justify-center text-white mx-auto mb-10 shadow-[0_20px_50px_rgba(16,185,129,0.3)] rotate-12">
-          <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
+        <div className={`w-24 h-24 ${loading ? 'bg-kenth-brightred' : 'bg-emerald-500'} rounded-[2rem] flex items-center justify-center text-white mx-auto mb-10 shadow-[0_20px_50px_rgba(16,185,129,0.3)] rotate-12 transition-colors duration-500`}>
+          {loading ? (
+            <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+          ) : (
+            <svg className="w-12 h-12" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          )}
         </div>
 
         <h1 className="text-5xl md:text-7xl font-black uppercase italic tracking-tighter mb-6 leading-none">
-          ¡Transacción <br />
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-600">Completada!</span>
+          {loading ? (
+            <>Validando <br /><span className="text-kenth-brightred">Transacción...</span></>
+          ) : (
+            <>¡Transacción <br /><span className="text-emerald-500">Confirmada!</span></>
+          )}
         </h1>
 
         <p className="text-kenth-subtext text-lg mb-12 font-medium">
-          Tu pago ha sido procesado por PayPhone. <br />
-          ID de Transacción: <span className="text-kenth-text font-mono bg-kenth-surface/10 px-2 py-1 rounded">{transactionId || 'N/A'}</span>
+          {loading
+            ? "Estamos sincronizando tu pago con PayPhone para activar tu curso."
+            : "Tu pago ha sido procesado con éxito. Redirigiéndote a tu aula virtual..."
+          }
+          <br />
+          <span className="text-xs opacity-50 block mt-4 uppercase tracking-widest font-black">
+            ID: {transactionId || clientTransactionId || 'Buscando...'}
+          </span>
         </p>
 
         <div className="space-y-4">
-           <p className="text-xs font-black uppercase tracking-[0.3em] text-kenth-brightred animate-pulse">
-             Sincronizando con tu Aula Virtual...
-           </p>
-           <div className="w-48 h-1 bg-kenth-border mx-auto rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: "100%" }}
-                transition={{ duration: 6, ease: "linear" }}
-                className="h-full bg-kenth-brightred"
-              />
-           </div>
+          <p className="text-[10px] font-black uppercase tracking-[0.3em] text-kenth-brightred animate-pulse">
+            {loading ? "No cierres esta ventana" : "Sincronización Exitosa"}
+          </p>
+          <div className="w-48 h-1 bg-kenth-border mx-auto rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: loading ? "70%" : "100%" }}
+              transition={{ duration: loading ? 10 : 0.5, ease: "easeOut" }}
+              className={`h-full ${loading ? 'bg-kenth-brightred' : 'bg-emerald-500'}`}
+            />
+          </div>
         </div>
       </motion.div>
     </div>

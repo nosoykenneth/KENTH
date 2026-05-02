@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import Navbar from '../../shared/components/layout/Navbar';
-import { getCommercialCatalog } from '../../shared/services/courseService';
+import { getCommercialCatalog, getMyCourses } from '../../shared/services/courseService';
 
 const AnimatedSection = ({ children, className }) => (
   <motion.section
@@ -18,14 +17,27 @@ const AnimatedSection = ({ children, className }) => (
 
 export default function PublicCoursesView() {
   const [cursos, setCursos] = useState([]);
+  const [userCourses, setUserCourses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const token = localStorage.getItem('moodle_token');
 
   useEffect(() => {
-    const fetchCatalog = async () => {
+    const fetchCatalogAndUserCourses = async () => {
       try {
         setLoading(true);
+        // Cargar catálogo público
         const data = await getCommercialCatalog();
         setCursos(data);
+
+        // Si hay token, cargar cursos del usuario para validar posesión
+        if (token) {
+          try {
+            const misCursos = await getMyCourses(token);
+            setUserCourses(misCursos);
+          } catch (e) {
+            console.error("Error al cargar cursos del usuario:", e);
+          }
+        }
       } catch (error) {
         console.error("Error al cargar catálogo público:", error);
         setCursos([]);
@@ -33,13 +45,11 @@ export default function PublicCoursesView() {
         setLoading(false);
       }
     };
-    fetchCatalog();
-  }, []);
+    fetchCatalogAndUserCourses();
+  }, [token]);
 
   return (
-    <div className="min-h-screen bg-kenth-bg text-kenth-text font-sans selection:bg-kenth-brightred selection:text-white">
-      <Navbar />
-
+    <div className="w-full bg-kenth-bg text-kenth-text font-sans selection:bg-kenth-brightred selection:text-white">
       <main className="pt-20">
         <AnimatedSection>
           <div className="text-center mb-16 px-4">
@@ -72,6 +82,10 @@ export default function PublicCoursesView() {
               cursos.map((curso, idx) => {
                 const hasOffer = curso.commercial?.offer_price > 0 && curso.commercial?.offer_price < curso.commercial?.price;
                 const finalPrice = hasOffer ? curso.commercial.offer_price : curso.commercial?.price;
+                
+                // Validar si el usuario ya tiene este curso
+                // Ambos IDs (uc.id y curso.id) son ahora IDs firmados por el backend
+                const yaLoTiene = userCourses.some(uc => String(uc.id) === String(curso.id));
 
                 return (
                   <motion.div 
@@ -86,7 +100,7 @@ export default function PublicCoursesView() {
                         <span className="text-kenth-bg font-black text-9xl opacity-10 select-none italic">KENTH</span>
                       </div>
                       <div className="absolute top-6 left-6 bg-kenth-brightred text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg">
-                        {hasOffer ? 'Oferta Especial' : (idx === 0 ? 'Best Seller' : 'Academy')}
+                        {yaLoTiene ? 'Adquirido' : (hasOffer ? 'Oferta Especial' : (idx === 0 ? 'Best Seller' : 'Academy'))}
                       </div>
                     </div>
 
@@ -101,22 +115,39 @@ export default function PublicCoursesView() {
                          <div className="flex flex-col">
                             <span className="text-[10px] text-kenth-subtext font-bold uppercase tracking-widest">Inversión única</span>
                             <div className="flex items-center gap-2">
-                              {hasOffer && (
-                                <span className="text-sm font-bold text-kenth-subtext line-through opacity-50">
-                                  ${curso.commercial.price}
-                                </span>
+                              {yaLoTiene ? (
+                                <span className="text-emerald-500 font-black italic text-xl">PROPIEDAD</span>
+                              ) : (
+                                <>
+                                  {hasOffer && (
+                                    <span className="text-sm font-bold text-kenth-subtext line-through opacity-50">
+                                      ${curso.commercial.price}
+                                    </span>
+                                  )}
+                                  <span className={`text-2xl font-black italic ${hasOffer ? 'text-emerald-500' : 'text-kenth-text'}`}>
+                                    ${finalPrice}
+                                  </span>
+                                </>
                               )}
-                              <span className={`text-2xl font-black italic ${hasOffer ? 'text-emerald-500' : 'text-kenth-text'}`}>
-                                ${finalPrice}
-                              </span>
                             </div>
                          </div>
-                         <Link 
-                           to={`/checkout/${curso.id}`} 
-                           className="bg-kenth-text text-kenth-bg hover:bg-kenth-brightred hover:text-white px-8 py-4 rounded-2xl font-black uppercase tracking-tighter italic transition-all duration-300 shadow-xl"
-                         >
-                           Comprar
-                         </Link>
+                         
+                         {yaLoTiene ? (
+                           <Link 
+                            to={`/dashboard/course/${curso.id}`} 
+                            className="bg-emerald-600 text-white hover:bg-emerald-500 px-8 py-4 rounded-2xl font-black uppercase tracking-tighter italic transition-all duration-300 shadow-xl flex items-center gap-2"
+                           >
+                             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path strokeLinecap="round" strokeLinejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                             Entrar
+                           </Link>
+                         ) : (
+                           <Link 
+                             to={`/checkout/${curso.id}`} 
+                             className="bg-kenth-text text-kenth-bg hover:bg-kenth-brightred hover:text-white px-8 py-4 rounded-2xl font-black uppercase tracking-tighter italic transition-all duration-300 shadow-xl"
+                           >
+                             Comprar
+                           </Link>
+                         )}
                       </div>
                     </div>
                     <div className="absolute inset-0 border-2 border-kenth-brightred/0 group-hover:border-kenth-brightred/20 rounded-[2.5rem] transition-all pointer-events-none" />
@@ -130,16 +161,12 @@ export default function PublicCoursesView() {
         <AnimatedSection className="bg-gradient-to-t from-kenth-red/10 to-transparent">
            <div className="text-center">
               <h2 className="text-4xl md:text-6xl font-black mb-8 italic uppercase tracking-tighter">¿Listo para transformar <br /> tu sonido?</h2>
-              <Link to="/login" className="bg-kenth-brightred hover:bg-white text-white hover:text-kenth-bg px-12 py-6 rounded-full font-black text-xl transition-all duration-500 shadow-2xl shadow-kenth-brightred/20 uppercase italic tracking-tighter inline-block">
-                Comenzar ahora
+              <Link to={token ? "/dashboard" : "/login"} className="bg-kenth-brightred hover:bg-white text-white hover:text-kenth-bg px-12 py-6 rounded-full font-black text-xl transition-all duration-500 shadow-2xl shadow-kenth-brightred/20 uppercase italic tracking-tighter inline-block">
+                {token ? 'Ir a mi estudio' : 'Comenzar ahora'}
               </Link>
            </div>
         </AnimatedSection>
       </main>
-
-      <footer className="py-12 flex flex-col items-center justify-center bg-kenth-footer text-kenth-subtext text-xs md:text-sm border-t border-kenth-border">
-        <p className="uppercase tracking-widest font-bold mb-4 italic">KENTH Academy &copy; {new Date().getFullYear()}</p>
-      </footer>
     </div>
   );
 }

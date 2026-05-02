@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useLocation, useOutlet } from 'react-router-dom';
+import { Link, useLocation, useOutlet, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import logoImg from '../assets/logo-main.png';
 import Logo from '../shared/components/ui/Logo';
 import Notification from '../shared/components/ui/Notification';
 import ThemeToggle from '../shared/components/ui/ThemeToggle';
+import UserMenu from '../shared/components/layout/UserMenu';
 
 const AssistantIcon = ({ isActive }) => {
   return (
@@ -53,6 +53,7 @@ const NavItem = ({ to, icon, label, activeColor = "text-kenth-brightred", isRGB 
 export default function AcademyLayout() {
   const location = useLocation();
   const outlet = useOutlet();
+  const navigate = useNavigate();
 
   const [sidebarExpandida, setSidebarExpandida] = useState(() => {
     const guardado = localStorage.getItem('sidebar_expandida');
@@ -63,44 +64,8 @@ export default function AcademyLayout() {
     localStorage.setItem('sidebar_expandida', JSON.stringify(sidebarExpandida));
   }, [sidebarExpandida]);
   
-  const [menuUsuarioAbierto, setMenuUsuarioAbierto] = useState(false);
-  const [userName, setUserName] = useState(() => localStorage.getItem('moodle_userfullname') || 'Usuario');
-  const [userAvatar, setUserAvatar] = useState(() => {
-    let picUrl = localStorage.getItem('moodle_userpictureurl') || 'https://i.pravatar.cc/150?img=5';
-    const token = localStorage.getItem('moodle_token');
-    if (picUrl && token && !picUrl.includes('token=') && picUrl.includes('http')) {
-      picUrl += picUrl.includes('?') ? `&token=${token}` : `?token=${token}`;
-    }
-    return picUrl;
-  });
   const [userRole, setUserRole] = useState(() => localStorage.getItem('moodle_rol') || 'student');
   
-  useEffect(() => {
-    const cargarDatosUsuario = () => {
-      const nombre = localStorage.getItem('moodle_userfullname');
-      if (nombre) setUserName(nombre);
-      let picUrl = localStorage.getItem('moodle_userpictureurl');
-      const token = localStorage.getItem('moodle_token');
-      if (picUrl && token && !picUrl.includes('token=')) {
-        picUrl += picUrl.includes('?') ? `&token=${token}` : `?token=${token}`;
-      }
-      if (picUrl) setUserAvatar(picUrl);
-    };
-    cargarDatosUsuario();
-    window.addEventListener('perfilActualizado', cargarDatosUsuario);
-    return () => window.removeEventListener('perfilActualizado', cargarDatosUsuario);
-  }, []);
-
-  const handleLogout = (e) => {
-    e.preventDefault();
-    localStorage.removeItem('moodle_token');
-    localStorage.removeItem('moodle_rol');
-    localStorage.removeItem('moodle_userfullname');
-    localStorage.removeItem('moodle_userid');
-    localStorage.removeItem('moodle_userpictureurl');
-    window.location.href = '/';
-  };
-
   useEffect(() => {
     if (location.pathname === '/dashboard/tutor' && sidebarExpandida) {
       setSidebarExpandida(false);
@@ -132,9 +97,14 @@ export default function AcademyLayout() {
           <NavItem to="/dashboard/profile" label="Ajustes" sidebarExpandida={sidebarExpandida} icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>} />
         </nav>
         <div className="mt-auto p-4 w-full">
-          <button onClick={handleLogout} className={`w-full flex items-center gap-3 rounded-xl text-kenth-brightred hover:bg-kenth-surface/20 transition group cursor-pointer justify-center ${sidebarExpandida ? 'lg:px-4 py-3 lg:justify-start' : 'p-3 lg:justify-center'}`}>
-            <svg className="w-6 h-6 shrink-0 text-kenth-brightred group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-            <span className={`font-bold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Salir</span>
+          <button 
+            onClick={() => navigate('/')} 
+            className={`w-full flex items-center gap-3 rounded-xl text-white hover:bg-kenth-surface/20 transition group cursor-pointer justify-center ${sidebarExpandida ? 'lg:px-4 py-3 lg:justify-start' : 'p-3 lg:justify-center'}`}
+          >
+            <svg className="w-6 h-6 shrink-0 text-white group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 12l8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
+            </svg>
+            <span className={`font-bold hidden ${sidebarExpandida ? 'lg:block' : 'hidden'}`}>Regresar</span>
           </button>
         </div>
       </aside>
@@ -142,31 +112,7 @@ export default function AcademyLayout() {
         <header className="h-20 shrink-0 flex justify-between items-center px-6 lg:px-10 border-b border-kenth-border relative z-30 bg-kenth-bg/80 backdrop-blur-md">
           <div /> 
           <div className="flex items-center gap-6 ml-auto">
-            <div className="relative">
-              <div onClick={() => setMenuUsuarioAbierto(!menuUsuarioAbierto)} className="flex items-center gap-3 cursor-pointer hover:bg-kenth-surface/20 px-3 py-1.5 rounded-full transition">
-                <div className="w-8 h-8 rounded-full bg-kenth-surface overflow-hidden border-2 border-kenth-surface/50">
-                  <img src={userAvatar} alt="user avatar" className="w-full h-full object-cover" />
-                </div>
-                <span className="font-semibold text-sm text-kenth-text">{userName}</span>
-                <svg className={`w-4 h-4 text-kenth-subtext transition-transform duration-300 ${menuUsuarioAbierto ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" /></svg>
-              </div>
-              {menuUsuarioAbierto && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setMenuUsuarioAbierto(false)}></div>
-                  <div className="absolute right-0 mt-2 w-48 bg-kenth-card border border-kenth-border rounded-xl shadow-[0_15px_40px_rgba(0,0,0,0.2)] z-50 py-2 animate-kenth-pop">
-                    <Link to="/dashboard/profile" onClick={() => setMenuUsuarioAbierto(false)} className="w-full text-left px-4 py-2.5 text-sm text-kenth-subtext hover:bg-kenth-surface/10 hover:text-kenth-text flex items-center gap-3 transition">
-                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" /></svg>
-                      Editar Perfil
-                    </Link>
-                    <div className="h-px bg-kenth-border my-1"></div>
-                    <button onClick={handleLogout} className="w-full text-left px-4 py-2.5 text-sm text-red-400 hover:bg-red-500/10 hover:text-red-300 flex items-center gap-3 transition">
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                      Cerrar Sesión
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+            <UserMenu />
             <ThemeToggle />
             <div className="relative hidden sm:block">
               <input type="text" placeholder="Buscar" className="bg-kenth-surface/10 border border-kenth-border rounded-full py-2 pl-4 pr-10 text-sm text-kenth-text focus:outline-none focus:border-kenth-brightred w-64 transition" />
