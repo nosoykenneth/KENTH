@@ -1,0 +1,140 @@
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M04",
+  "module_order": 4,
+  "module_title": "Filtros y ecualizacion",
+  "module_slug": "filtros-ecualizacion",
+  "short_description": "Modulo sobre filtros y ecualizacion dentro del proceso de mezcla.",
+  "learning_scope": "Delimita el uso tecnico y musical de filtros y ecualizadores segun el temario oficial.",
+  "doc_type": "resource_location_map",
+  "source_origin": "course",
+  "filename": "M04_mapa_recursos.json",
+  "version": "0.4",
+  "status": "curated_pending_source_check",
+  "curation_source": "depuracion_autoral_m04",
+  "purpose": "Mapa minimo de localizacion oficial del Modulo 4. Por ahora no contiene ubicaciones aprobadas porque aun no existen recursos propios validados.",
+  "official_locations": [],
+  "removed_legacy_locations": [
+    {
+      "location_id": "M04_LEGACY_LOC_001",
+      "previous_resource_title": "Apunte Filtros 2022 V1.pdf",
+      "previous_resource_type": "pdf",
+      "previous_filename": "Apunte Filtros 2022 V1.pdf",
+      "previous_query_topics": ["frecuencia de corte", "pendiente", "tipologias de filtro", "fase"],
+      "source_origin": "legacy_unverified",
+      "source_basis": "legacy_unverified_from_draft",
+      "include_in_official_rag": false,
+      "reason_removed": "Recurso no confirmado como corpus oficial propio.",
+      "requires_validation": true
+    },
+    {
+      "location_id": "M04_LEGACY_LOC_002",
+      "previous_resource_title": "Apunte Ecualizadores 2020 V1.pdf",
+      "previous_resource_type": "pdf",
+      "previous_filename": "Apunte Ecualizadores 2020 V1.pdf",
+      "previous_query_topics": ["ecualizadores", "q constante", "q proporcional", "eq sustractiva", "eq tonal"],
+      "source_origin": "legacy_unverified",
+      "source_basis": "legacy_unverified_from_draft",
+      "include_in_official_rag": false,
+      "reason_removed": "Recurso no confirmado como corpus oficial propio.",
+      "requires_validation": true
+    },
+    {
+      "location_id": "M04_LEGACY_LOC_003",
+      "previous_resource_title": "Clase 11 - Mezcla.md",
+      "previous_resource_type": "transcript_markdown",
+      "previous_filename": "Clase 11 - Mezcla.md",
+      "previous_query_topics": ["pendiente", "q", "analizador", "shelving", "fase lineal", "ringing", "layering"],
+      "source_origin": "legacy_unverified",
+      "source_basis": "legacy_unverified_from_draft",
+      "include_in_official_rag": false,
+      "reason_removed": "Transcripcion no confirmada como corpus oficial propio.",
+      "requires_validation": true
+    },
+    {
+      "location_id": "M04_LEGACY_LOC_004",
+      "previous_resource_title": "Clase 12 - Mezcla.md",
+      "previous_resource_type": "transcript_markdown",
+      "previous_filename": "Clase 12 - Mezcla.md",
+      "previous_query_topics": ["uso de filtros", "filtro invertido", "filtrado en mezcla", "contexto de mezcla"],
+      "source_origin": "legacy_unverified",
+      "source_basis": "legacy_unverified_from_draft",
+      "include_in_official_rag": false,
+      "reason_removed": "Transcripcion no confirmada como corpus oficial propio.",
+      "requires_validation": true
+    },
+    {
+      "location_id": "M04_LEGACY_LOC_005",
+      "previous_resource_title": "Clase 13 - Mezcla.md",
+      "previous_resource_type": "transcript_markdown",
+      "previous_filename": "Clase 13 - Mezcla.md",
+      "previous_query_topics": ["eq correctiva", "eq tonal", "curvas simetricas", "curvas asimetricas"],
+      "source_origin": "legacy_unverified",
+      "source_basis": "legacy_unverified_from_draft",
+      "include_in_official_rag": false,
+      "reason_removed": "Transcripcion no confirmada como corpus oficial propio.",
+      "requires_validation": true
+    },
+    {
+      "location_id": "M04_LEGACY_LOC_006",
+      "previous_resource_title": "Clase 14 - Mezcla.md",
+      "previous_resource_type": "transcript_markdown",
+      "previous_filename": "Clase 14 - Mezcla.md",
+      "previous_query_topics": ["modelado analogico", "ssl", "pultec", "potenciometros", "eq clasicos"],
+      "source_origin": "legacy_unverified",
+      "source_basis": "legacy_unverified_from_draft",
+      "include_in_official_rag": false,
+      "reason_removed": "Transcripcion no confirmada como corpus oficial propio.",
+      "requires_validation": true
+    },
+    {
+      "location_id": "M04_LEGACY_LOC_007",
+      "previous_resource_title": "Listado de plugins gratuitos para analisis de senales, y otros extras.txt",
+      "previous_resource_type": "tool_list",
+      "previous_filename": "Listado de plugins gratuitos para analisis de senales, y otros extras.txt",
+      "previous_query_topics": ["plugins gratuitos", "herramientas", "eq", "analisis"],
+      "source_origin": "legacy_unverified",
+      "source_basis": "legacy_unverified_from_draft",
+      "include_in_official_rag": false,
+      "reason_removed": "Listado no validado como recurso oficial del Modulo 4.",
+      "requires_validation": true
+    },
+    {
+      "location_id": "M04_LEGACY_LOC_008",
+      "previous_resource_title": "Leer.pdf",
+      "previous_resource_type": "pdf",
+      "previous_filename": "Leer.pdf",
+      "previous_query_topics": ["plantilla", "plugins", "herramientas de modificacion espectral"],
+      "source_origin": "legacy_unverified",
+      "source_basis": "legacy_unverified_from_draft",
+      "include_in_official_rag": false,
+      "reason_removed": "Inventario o plantilla no confirmado como recurso oficial del Modulo 4.",
+      "requires_validation": true
+    }
+  ],
+  "minimum_future_shape": {
+    "description": "Cuando existan recursos propios validados, cada ubicacion oficial deberia usar este esquema minimo.",
+    "required_fields": [
+      "location_id",
+      "query_topics",
+      "resource_id",
+      "resource_title",
+      "resource_type",
+      "filename",
+      "lesson_id",
+      "lesson_title",
+      "page",
+      "start_time",
+      "end_time",
+      "url",
+      "status",
+      "source_origin",
+      "requires_validation"
+    ]
+  },
+  "notes": [
+    "El mapa oficial queda sin ubicaciones aprobadas hasta crear o validar recursos propios.",
+    "Los elementos removidos se conservan solo como trazabilidad documental; no deben usarse como fuente oficial ni indexarse.",
+    "No agregar paginas, minutos ni URLs hasta tener evidencia directa."
+  ]
+}

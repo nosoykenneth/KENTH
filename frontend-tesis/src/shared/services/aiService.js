@@ -60,6 +60,12 @@ const RAG_API_URL = '/rag_api';
 
 export const askOllamaDirect = async (prompt, courseContext = '', imageBase64 = '', usarInternet = false, sessionId = '') => {
   try {
+    console.log('[AI DEBUG] Enviando consulta RAG', {
+      hasImage: Boolean(imageBase64),
+      imageLength: imageBase64 ? imageBase64.length : 0,
+      hasSession: Boolean(sessionId)
+    });
+
     const payload = {
       pregunta: prompt,
       contexto_leccion: courseContext,

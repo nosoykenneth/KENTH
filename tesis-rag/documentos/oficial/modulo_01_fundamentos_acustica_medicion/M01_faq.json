@@ -1,0 +1,178 @@
+﻿{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M01",
+  "module_order": 1,
+  "module_title": "Fundamentos fisicos, acustica y medicion",
+  "module_slug": "fundamentos-fisicos-acustica-medicion",
+  "short_description": "Modulo base sobre fundamentos fisicos, acustica y medicion aplicados al audio.",
+  "learning_scope": "Delimita los conceptos fisicos, acusticos y de medicion que sostienen las decisiones tecnicas del curso.",
+  "doc_type": "faq",
+  "source_origin": "course",
+  "filename": "M01_faq.json",
+  "version": "0.2",
+  "status": "draft_author_review",
+  "curation_source": "borrador_autoral_m01",
+  "items": [
+    {
+      "faq_id": "M01_FAQ_001",
+      "question": "Frecuencia y tono son lo mismo?",
+      "canonical_answer": "No conviene tratarlos como equivalentes perfectos. En este modulo, la frecuencia se trabaja como una magnitud fisica medible, mientras que el tono se aborda como una percepcion. Esta distincion ayuda a evitar confundir descripcion tecnica con experiencia auditiva.",
+      "short_answer": "No. Frecuencia y tono se relacionan, pero no son exactamente lo mismo.",
+      "stable_answer": "El modulo distingue entre la magnitud fisica de la frecuencia y la percepcion auditiva del tono.",
+      "pending_validation_notes": [
+        "Validar la formulacion exacta del curso sobre percepcion de tono.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Distincion entre fisica y percepcion",
+      "learning_objective": "Separar fenomenos fisicos y perceptuales.",
+      "tags": ["frecuencia", "tono", "psicoacustica"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que frecuencia y tono son sinonimos perfectos."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_002",
+      "question": "Para que sirve entender la longitud de onda en mezcla o monitoreo?",
+      "canonical_answer": "Sirve para relacionar la senal con el espacio fisico en el que se escucha. En este modulo, la longitud de onda ayuda a interpretar por que ciertas frecuencias interactuan de forma mas evidente con las dimensiones de una sala y con la posicion de escucha.",
+      "short_answer": "Ayuda a entender como ciertas frecuencias interactuan con la sala y el espacio.",
+      "stable_answer": "La longitud de onda conecta el comportamiento de la senal con el entorno fisico de escucha.",
+      "pending_validation_notes": [
+        "Validar si el curso desarrolla ejemplos concretos de sala y longitud de onda.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Relacion entre senal y espacio",
+      "learning_objective": "Conectar fundamentos fisicos con escucha en sala.",
+      "tags": ["longitud_de_onda", "sala", "acustica"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No reducir la longitud de onda a una formula memorizada sin contexto."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_003",
+      "question": "Un oscilograma ya me muestra todo lo importante de una señal?",
+      "canonical_answer": "No. Un oscilograma ayuda a observar la señal en el tiempo, pero no reemplaza una lectura espectral cuando la pregunta tiene que ver con contenido frecuencial. En este modulo se insiste en distinguir entre dominio temporal y dominio frecuencial.",
+      "short_answer": "No. El oscilograma muestra la señal en el tiempo, no todo su contenido espectral.",
+      "stable_answer": "Ver la forma de onda no equivale a comprender por completo el espectro de la señal.",
+      "pending_validation_notes": [
+        "Validar el nivel exacto de detalle con que el curso compara oscilograma y analizador.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Representaciones de la señal",
+      "learning_objective": "Distinguir dominio temporal y frecuencial.",
+      "tags": ["oscilograma", "fft", "espectro"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que mirar la forma de onda basta para diagnosticar todo."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_004",
+      "question": "Si una mezcla se ve plana en el analizador, ya está bien balanceada?",
+      "canonical_answer": "No necesariamente. Una lectura visual puede ser util, pero no debe convertirse en criterio unico. El modulo insiste en que una grafica espectral debe interpretarse junto con la escucha, la distribucion del espectro y el contexto de la mezcla.",
+      "short_answer": "No. Una grafica util no reemplaza la escucha ni el contexto.",
+      "stable_answer": "La medicion visual complementa, pero no sustituye, la interpretacion auditiva.",
+      "pending_validation_notes": [
+        "Validar como el curso formula la relacion entre espectro visual y percepcion.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Interpretacion de analizadores",
+      "learning_objective": "Evitar depender solo de la visualizacion espectral.",
+      "tags": ["fft", "analizador", "balance_espectral"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que una mezcla correcta debe verse plana por definicion."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_005",
+      "question": "Por que la sala importa tanto si mis monitores son buenos?",
+      "canonical_answer": "Porque la escucha final no depende solo del monitor, sino tambien del entorno en el que ese monitor trabaja. Reflexiones, acumulaciones y cancelaciones en la sala pueden alterar de forma importante lo que el estudiante percibe como balance real.",
+      "short_answer": "Porque la sala modifica lo que realmente escuchas, incluso con buenos monitores.",
+      "stable_answer": "La calidad del monitor no elimina por si sola los problemas acusticos del entorno.",
+      "pending_validation_notes": [
+        "Validar ejemplos del curso sobre reflexiones tempranas y modos de sala.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Acustica aplicada",
+      "learning_objective": "Entender la influencia de la sala sobre la escucha.",
+      "tags": ["sala", "monitoreo", "reflexiones", "modos"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No vender un monitor como solucion total del entorno de escucha."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_006",
+      "question": "Da igual como coloque mis monitores si ya suenan bien?",
+      "canonical_answer": "No conviene asumir eso. La posicion relativa de los monitores, la altura de escucha, la cercania a superficies y la geometria general de monitoreo pueden modificar la percepcion del balance y de la imagen. El modulo lo trabaja como criterio basico de escucha fiable.",
+      "short_answer": "No. La posicion de los monitores influye en lo que percibes.",
+      "stable_answer": "La geometria de escucha afecta la interpretacion del audio.",
+      "pending_validation_notes": [
+        "Validar recomendaciones exactas de angulo, altura y desacople antes de volverlas doctrina cerrada.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Posicion de escucha",
+      "learning_objective": "Reconocer la importancia del posicionamiento de monitoreo.",
+      "tags": ["monitores", "sweet_spot", "escucha"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No convertir una referencia geometrica en regla universal sin contexto."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_007",
+      "question": "Los auriculares reemplazan completamente a los monitores?",
+      "canonical_answer": "No conviene presentarlos como equivalentes perfectos. En este modulo se usan para mostrar que distintos medios de escucha entregan informacion distinta, especialmente en relacion con espacio, sala y traduccion. Eso no obliga a prohibirlos, pero si a reconocer sus limites.",
+      "short_answer": "No son equivalentes perfectos; cada medio de escucha tiene limites.",
+      "stable_answer": "Auriculares y monitores no entregan exactamente la misma informacion de escucha.",
+      "pending_validation_notes": [
+        "Validar si el curso recomienda practicas concretas de uso combinado.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Comparacion de medios de escucha",
+      "learning_objective": "Reconocer limites y utilidades de distintos entornos de escucha.",
+      "tags": ["auriculares", "monitores", "traduccion"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que es imposible trabajar con auriculares en cualquier circunstancia.",
+        "No decir que auriculares y monitores son lo mismo."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_008",
+      "question": "Llenar la sala de espuma resuelve por completo los problemas acusticos?",
+      "canonical_answer": "No conviene asumirlo. El modulo sugiere que el tratamiento acustico no debe simplificarse a una sola solucion ni a una cobertura indiscriminada de superficies. Primero hay que entender que problema se quiere controlar y como ese problema se manifiesta en la escucha.",
+      "short_answer": "No. El tratamiento acustico no se resuelve solo llenando la sala de espuma.",
+      "stable_answer": "El control acustico requiere criterio, no una solucion unica aplicada sin diagnostico.",
+      "pending_validation_notes": [
+        "Validar si el curso desarrolla metodos concretos de diagnostico de reflexiones o resonancias.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Tratamiento acustico basico",
+      "learning_objective": "Evitar soluciones simplistas de acondicionamiento.",
+      "tags": ["tratamiento_acustico", "sala", "reflexiones"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No vender la espuma como solucion total sin contexto."
+      ],
+      "requires_validation": true
+    }
+  ]
+}

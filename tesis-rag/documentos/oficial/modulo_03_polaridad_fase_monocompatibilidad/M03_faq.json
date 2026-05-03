@@ -1,0 +1,179 @@
+﻿{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M03",
+  "module_order": 3,
+  "module_title": "Polaridad, fase y monocompatibilidad",
+  "module_slug": "polaridad-fase-monocompatibilidad",
+  "short_description": "Modulo sobre relaciones entre polaridad, fase y compatibilidad mono dentro del proceso de mezcla.",
+  "learning_scope": "Delimita el analisis de polaridad, fase, suma de señales y traduccion mono.",
+  "doc_type": "faq",
+  "source_origin": "course",
+  "filename": "M03_faq.json",
+  "version": "0.2",
+  "status": "draft_author_review",
+  "curation_source": "borrador_autoral_m03",
+  "items": [
+    {
+      "faq_id": "M03_FAQ_001",
+      "question": "Polaridad y fase son lo mismo?",
+      "canonical_answer": "No conviene tratarlas como lo mismo. En este modulo se separa la inversion de polaridad de los problemas de relacion de fase entre señales. Aunque ambos conceptos pueden afectar la suma, no deben usarse como sinonimos.",
+      "short_answer": "No. Polaridad y fase se relacionan, pero no son equivalentes.",
+      "stable_answer": "El modulo distingue inversion de polaridad y relacion de fase como conceptos diferentes.",
+      "pending_validation_notes": [
+        "Validar la formulacion exacta del curso para distinguir ambos terminos.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Distincion conceptual basica",
+      "learning_objective": "Evitar el uso indistinto de polaridad y fase.",
+      "tags": ["polaridad", "fase", "suma_de_senales"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que invertir polaridad siempre corrige un problema de fase.",
+        "No presentar ambos terminos como equivalentes."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_002",
+      "question": "Si invierto la polaridad ya resolvi el problema?",
+      "canonical_answer": "No necesariamente. Invertir polaridad puede modificar la forma en que dos señales se suman, pero no debe tratarse como una solucion universal. Primero conviene identificar si el problema realmente corresponde a polaridad, a relacion temporal entre señales o a otra causa.",
+      "short_answer": "No siempre. Primero hay que entender que tipo de problema existe.",
+      "stable_answer": "La inversion de polaridad es una prueba o decision contextual, no una correccion automatica.",
+      "pending_validation_notes": [
+        "Validar en el material propio del curso cuando se recomienda usar inversion de polaridad.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Diagnostico de problemas de suma",
+      "learning_objective": "Evitar usar inversion de polaridad como reflejo automatico.",
+      "tags": ["polaridad", "diagnostico", "suma"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No llamar al boton de polaridad una solucion universal."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_003",
+      "question": "Que significa que dos señales se cancelan?",
+      "canonical_answer": "En este modulo se trata la cancelacion como una reduccion o perdida parcial de informacion cuando dos señales relacionadas se suman de manera poco favorable. No conviene explicarla como desaparicion total en todos los casos ni en todo el espectro.",
+      "short_answer": "Suele implicar perdida parcial al sumar señales relacionadas, no siempre desaparicion total.",
+      "stable_answer": "La cancelacion debe evaluarse como efecto de suma entre señales relacionadas.",
+      "pending_validation_notes": [
+        "Validar si el curso desarrolla cancelacion total, parcial o filtro peine con ejemplos propios.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Suma y cancelacion",
+      "learning_objective": "Interpretar la cancelacion con cautela.",
+      "tags": ["cancelacion", "suma_de_senales", "fase"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No afirmar que cualquier perdida de cuerpo significa cancelacion total.",
+        "No generalizar el efecto a todo el espectro sin evidencia."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_004",
+      "question": "Por que debo revisar la mezcla en mono?",
+      "canonical_answer": "Porque la revision en mono ayuda a detectar si decisiones estereo o relaciones entre señales comprometen la traduccion de elementos importantes. No significa que la mezcla deba sonar igual en mono y en estereo, sino que conviene comprobar que siga funcionando.",
+      "short_answer": "Para verificar que la mezcla siga siendo funcional cuando se suma a mono.",
+      "stable_answer": "La revision en mono es una comprobacion tecnica util de traduccion.",
+      "pending_validation_notes": [
+        "Validar que nivel de exigencia establece el curso sobre revision mono.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Traduccion mono",
+      "learning_objective": "Entender la utilidad de revisar en mono.",
+      "tags": ["mono", "monocompatibilidad", "traduccion"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que una mezcla correcta debe sonar identica en mono y estereo."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_005",
+      "question": "Si algo suena mas ancho en estereo, significa que esta mejor?",
+      "canonical_answer": "No necesariamente. Una mayor sensacion de amplitud puede ser deseable, pero debe evaluarse junto con la estabilidad del centro, la suma de señales y la traduccion mono. El modulo prioriza revisar si esa amplitud conserva utilidad dentro de la mezcla.",
+      "short_answer": "No. Mas ancho no implica automaticamente mejor.",
+      "stable_answer": "La amplitud debe juzgarse junto con suma, estabilidad y traduccion mono.",
+      "pending_validation_notes": [
+        "Validar si el curso incluye ejemplos propios de widening, duplicacion o delays cortos.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Imagen estereo",
+      "learning_objective": "Evitar equiparar amplitud con calidad.",
+      "tags": ["imagen_estereo", "mono", "traduccion"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No recomendar ensanchamiento como mejora universal."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_006",
+      "question": "Puedo confiar solo en un correlometro o medidor?",
+      "canonical_answer": "No conviene depender solo de la lectura visual. Un medidor puede aportar indicios utiles, pero el diagnostico debe completarse con escucha, contexto de mezcla y verificacion mono cuando corresponda.",
+      "short_answer": "No. El medidor ayuda, pero no reemplaza la escucha y el contexto.",
+      "stable_answer": "La medicion visual complementa, pero no sustituye, la escucha contextual.",
+      "pending_validation_notes": [
+        "Validar en el material propio del curso que herramientas de medicion se nombran realmente.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Lectura de medidores",
+      "learning_objective": "Evitar dependencia exclusiva de herramientas visuales.",
+      "tags": ["medicion", "correlacion", "mono"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No convertir una lectura visual en veredicto automatico."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_007",
+      "question": "Cuando debo sospechar un problema de fase o suma?",
+      "canonical_answer": "Conviene sospecharlo cuando dos señales relacionadas cambian demasiado al sumarse, cuando un elemento pierde solidez al pasar a mono o cuando una decision estereo altera de forma poco estable el resultado. Aun asi, el tutor debe pedir contexto antes de cerrar el diagnostico.",
+      "short_answer": "Cuando la suma cambia demasiado el resultado o la mezcla pierde estabilidad en mono.",
+      "stable_answer": "Los problemas de suma deben interpretarse desde cambios audibles entre señales relacionadas y su traduccion.",
+      "pending_validation_notes": [
+        "Validar ejemplos oficiales del curso para diagnostico.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Deteccion de problemas",
+      "learning_objective": "Reconocer señales de alerta sin sobrediagnosticar.",
+      "tags": ["fase", "suma", "mono", "diagnostico"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No atribuir cualquier diferencia tonal a fase sin mas contexto."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_008",
+      "question": "Monocompatibilidad significa mezclar todo en mono?",
+      "canonical_answer": "No. Monocompatibilidad no significa renunciar al trabajo estereo, sino comprobar que la mezcla mantenga una traduccion funcional cuando se reduce a mono. Es una verificacion de estabilidad, no una obligacion de mezclar todo como si fuera mono.",
+      "short_answer": "No. Es una verificacion de traduccion, no una prohibicion del estereo.",
+      "stable_answer": "La monocompatibilidad busca conservar funcionalidad al colapsar a mono.",
+      "pending_validation_notes": [
+        "Validar la definicion exacta del curso sobre monocompatibilidad.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Criterio operativo",
+      "learning_objective": "Entender que mono es prueba de traduccion, no formato obligatorio.",
+      "tags": ["monocompatibilidad", "mono", "estereo"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que mezclar bien equivale a mezclar siempre en mono."
+      ],
+      "requires_validation": true
+    }
+  ]
+}

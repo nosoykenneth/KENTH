@@ -61,3 +61,17 @@ export const indexKnowledgeBase = async () => {
     throw error;
   }
 };
+
+export const rebuildKnowledgeBase = async () => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/rebuild`, {
+      method: 'POST',
+    });
+    const data = await response.json();
+    if (!response.ok) throw new Error(data.detail || 'Error al iniciar rebuild');
+    return data;
+  } catch (error) {
+    console.error('Error en rebuildKnowledgeBase:', error);
+    throw error;
+  }
+};

@@ -1,0 +1,25 @@
+﻿{
+    "course_id":  "mezcla_masterizacion_kenth",
+    "module_id":  "M01",
+    "module_order":  1,
+    "module_title":  "Fundamentos fisicos, acustica y medicion",
+    "module_slug":  "fundamentos-fisicos-acustica-medicion",
+    "short_description":  "Modulo introductorio sobre fenomenos fisicos del sonido, comportamiento acustico basico y herramientas iniciales de medicion.",
+    "learning_scope":  "Establece bases para interpretar frecuencia, tono, longitud de onda, acustica de sala, monitoreo y analisis espectral antes de entrar a decisiones de mezcla.",
+    "doc_type":  "resource_location_map",
+    "source_origin":  "course",
+    "filename":  "M01_mapa_recursos.json",
+    "version":  "0.1",
+    "status":  "draft_pending_authoring",
+    "curation_source":  "estructura_base_curso",
+    "requires_validation":  true,
+    "purpose":  "Skeleton base de localizacion documental. No contiene ubicaciones aprobadas.",
+    "official_locations":  [
+
+                           ],
+    "notes":  [
+                  "Agregar ubicaciones solo con paginas, minutos, URLs o recursos validados.",
+                  "No usar como fuente teorica."
+              ]
+}
+

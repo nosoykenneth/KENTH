@@ -1,0 +1,179 @@
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M04",
+  "module_order": 4,
+  "module_title": "Filtros y ecualizacion",
+  "module_slug": "filtros-ecualizacion",
+  "short_description": "Modulo sobre filtros y ecualizacion dentro del proceso de mezcla.",
+  "learning_scope": "Delimita el uso tecnico y musical de filtros y ecualizadores segun el temario oficial.",
+  "doc_type": "common_errors",
+  "source_origin": "course",
+  "filename": "M04_errores_comunes.json",
+  "version": "0.3",
+  "status": "curated_pending_source_check",
+  "curation_source": "borrador_autoral_m04",
+  "purpose": "Borrador de observaciones pedagogicas para orientar retroalimentacion del tutor IA. No representa todavia una rubrica final.",
+  "errors": [
+    {
+      "error_id": "M04_ERR_001",
+      "title": "Interpretar el grafico del filtro como un corte absoluto",
+      "description": "El estudiante puede asumir que la curva visual del filtro equivale a una eliminacion inmediata de frecuencias. Esta observacion debe tratarse como una oportunidad para revisar la lectura de filtros.",
+      "detectable_signals": [
+        "Describe el filtro como si eliminara todo a partir de una frecuencia.",
+        "Pregunta por que todavia se escucha informacion cerca del punto marcado."
+      ],
+      "tutor_response_rule": "Aclarar que la visualizacion es una referencia y pedir contexto si el estudiante necesita interpretar un ajuste concreto.",
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar la formulacion exacta de frecuencia de corte antes de usar ejemplos numericos."
+      ],
+      "tags": ["frecuencia_de_corte", "filtros", "analizador"],
+      "requires_validation": true
+    },
+    {
+      "error_id": "M04_ERR_002",
+      "title": "Usar Q y pendiente como si fueran el mismo parametro",
+      "description": "El estudiante puede mezclar conceptos de selectividad, ancho de banda y rapidez de atenuacion. El tutor debe separar los terminos sin asumir que el plugin del alumno usa una interfaz clara.",
+      "detectable_signals": [
+        "Pregunta si subir Q cambia directamente la caida del filtro.",
+        "Usa Q, slope o pendiente como sinonimos."
+      ],
+      "tutor_response_rule": "Distinguir Q, ancho de banda y pendiente; pedir captura si la interfaz del plugin puede generar confusion.",
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar definiciones contra guia o apunte oficial del modulo."
+      ],
+      "tags": ["q", "pendiente", "eq"],
+      "requires_validation": true
+    },
+    {
+      "error_id": "M04_ERR_003",
+      "title": "Elegir pendientes extremas sin justificar la decision",
+      "description": "El estudiante puede asociar una pendiente mas abrupta con una limpieza automaticamente mejor. La retroalimentacion debe pedir una razon tecnica y no convertir una pendiente especifica en prohibicion universal.",
+      "detectable_signals": [
+        "Propone una pendiente muy abrupta como valor por defecto.",
+        "Relaciona pendiente extrema con mayor calidad sin explicar el problema."
+      ],
+      "tutor_response_rule": "Pedir justificacion tecnica y recordar que las pendientes deben evaluarse por contexto.",
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar efectos especificos sobre fase, transientes, overshoot o ringing antes de afirmarlos.",
+        "Validar cualquier ejemplo numerico como 24 dB/octava o 48 dB/octava."
+      ],
+      "tags": ["pendiente", "fase", "filtros"],
+      "requires_validation": true
+    },
+    {
+      "error_id": "M04_ERR_004",
+      "title": "Tratar fase lineal como solucion universal",
+      "description": "El estudiante puede asumir que la fase lineal siempre es la opcion mas segura. El tutor debe presentar esta herramienta como una decision contextual con posibles ventajas y costos.",
+      "detectable_signals": [
+        "Quiere aplicar fase lineal en todos los casos.",
+        "Asume que evitar rotacion de fase elimina cualquier efecto colateral."
+      ],
+      "tutor_response_rule": "Responder con cautela y pedir contexto de uso antes de recomendar o descartar fase lineal.",
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar explicacion oficial sobre latencia y pre-ringing."
+      ],
+      "tags": ["fase_lineal", "pre_ringing", "latencia"],
+      "requires_validation": true
+    },
+    {
+      "error_id": "M04_ERR_005",
+      "title": "Asumir que una curva shelving resuelve por si sola problemas de fase",
+      "description": "El estudiante puede oponer shelving y filtros de corte como si una curva fuera automaticamente segura frente a la otra. Esta observacion debe mantenerse prudente hasta validar la fuente.",
+      "detectable_signals": [
+        "Propone shelving como forma de mantener fases intactas.",
+        "Contrapone shelving y HPF/LPF sin explicar el objetivo de la curva."
+      ],
+      "tutor_response_rule": "Evitar respuestas absolutas; explicar que la decision depende de la curva, el contexto y la evidencia del curso.",
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar como se explica shelving y fase en la fuente oficial."
+      ],
+      "tags": ["shelving", "fase", "eq"],
+      "requires_validation": true
+    },
+    {
+      "error_id": "M04_ERR_006",
+      "title": "Confiar solo en la interfaz de una herramienta",
+      "description": "El estudiante puede tomar los numeros o marcas visuales de un plugin como garantia absoluta. La observacion pedagogica es orientar a validar con escucha, contexto y medicion cuando corresponda.",
+      "detectable_signals": [
+        "Pide valores exactos basados solo en la interfaz.",
+        "Asume que la lectura visual coincide siempre con la accion real."
+      ],
+      "tutor_response_rule": "Usar la interfaz como referencia, no como sustituto de escucha o verificacion.",
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar ejemplos concretos sobre modelado analogico antes de mencionar marcas o desviaciones numericas."
+      ],
+      "tags": ["modelado_analogico", "gui", "escucha"],
+      "requires_validation": true
+    },
+    {
+      "error_id": "M04_ERR_007",
+      "title": "Intentar resolver todos los problemas con mas bandas de EQ",
+      "description": "El estudiante puede acumular intervenciones de ecualizacion sin revisar si el problema viene de la fuente, el arreglo, la captura o el balance general.",
+      "detectable_signals": [
+        "Describe una cadena de muchas correcciones estrechas.",
+        "Busca corregir con EQ problemas que podrian venir de la fuente o del contexto."
+      ],
+      "tutor_response_rule": "Preguntar por la fuente del problema antes de sugerir nuevas bandas de EQ.",
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar si esta observacion sera parte de la rubrica final del modulo."
+      ],
+      "tags": ["eq_correctiva", "fuente", "captura"],
+      "requires_validation": true
+    },
+    {
+      "error_id": "M04_ERR_008",
+      "title": "Decidir el timbre final solo en modo solo",
+      "description": "El estudiante puede juzgar una fuente aislada sin comprobar como funciona dentro de la mezcla. El tutor debe llevar la pregunta hacia la intencion y el contexto.",
+      "detectable_signals": [
+        "Pregunta si un instrumento suena bien aislado.",
+        "No menciona relacion con otros elementos de la mezcla."
+      ],
+      "tutor_response_rule": "Preguntar si la decision busca corregir un problema o construir un color dentro de la mezcla.",
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar si la escucha en contexto sera criterio explicito de evaluacion."
+      ],
+      "tags": ["eq_tonal", "contexto", "mezcla"],
+      "requires_validation": true
+    },
+    {
+      "error_id": "M04_ERR_009",
+      "title": "Compensar cambios entre capas solo con mas graves",
+      "description": "Si una capa pierde cuerpo al filtrarse, el estudiante puede intentar compensar con ganancia. El tutor debe pedir mas contexto y sugerir revisar suma, fase o alineacion antes de diagnosticar.",
+      "detectable_signals": [
+        "Indica que al filtrar capas pierde cuerpo o pegada.",
+        "Propone realzar graves sin revisar la relacion entre capas."
+      ],
+      "tutor_response_rule": "Pedir audio, captura o descripcion suficiente; no diagnosticar definitivamente sin evidencia.",
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar si layering y herramientas de verificacion forman parte del alcance final de M04."
+      ],
+      "tags": ["layering", "fase", "graves"],
+      "requires_validation": true
+    },
+    {
+      "error_id": "M04_ERR_010",
+      "title": "Confundir un criterio de trabajo con una herramienta",
+      "description": "Si se conserva el nombre Metodo Robin Hood en el curso, el estudiante podria interpretarlo como plugin o parametro. El tutor debe aclarar que seria un criterio pedagogico, no una herramienta tecnica.",
+      "detectable_signals": [
+        "Pregunta donde esta el plugin o parametro asociado al Metodo Robin Hood.",
+        "Busca activar el metodo dentro de una herramienta."
+      ],
+      "tutor_response_rule": "Aclarar que se trata de un criterio de trabajo solo si el nombre fue validado como parte del curso.",
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar si el nombre Metodo Robin Hood aparece literalmente en fuentes oficiales."
+      ],
+      "tags": ["metodo_robin_hood", "headroom", "eq_sustractiva"],
+      "requires_validation": true
+    }
+  ]
+}

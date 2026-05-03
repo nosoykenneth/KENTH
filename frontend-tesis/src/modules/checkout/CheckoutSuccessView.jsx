@@ -114,9 +114,8 @@ export default function CheckoutSuccessView() {
       >
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-kenth-brightred/10 blur-[120px] rounded-full -z-10" />
 
-        <div className={`w-24 h-24 ${
-          isVerifying ? 'bg-kenth-brightred' : isConfirmed ? 'bg-emerald-500' : 'bg-yellow-500'
-        } rounded-[2rem] flex items-center justify-center text-white mx-auto mb-10 shadow-[0_20px_50px_rgba(16,185,129,0.3)] rotate-12 transition-colors duration-500`}>
+        <div className={`w-24 h-24 ${isVerifying ? 'bg-kenth-brightred' : isConfirmed ? 'bg-emerald-500' : 'bg-yellow-500'
+          } rounded-[2rem] flex items-center justify-center text-white mx-auto mb-10 shadow-[0_20px_50px_rgba(16,185,129,0.3)] rotate-12 transition-colors duration-500`}>
           {isVerifying ? (
             <div className="w-10 h-10 border-4 border-white/20 border-t-white rounded-full animate-spin" />
           ) : isConfirmed ? (
@@ -156,8 +155,8 @@ export default function CheckoutSuccessView() {
             {isVerifying
               ? 'No cierres esta ventana'
               : isConfirmed
-              ? 'Sincronización Exitosa'
-              : 'Revisión Requerida'}
+                ? 'Sincronización Exitosa'
+                : 'Revisión Requerida'}
           </p>
 
           <div className="w-48 h-1 bg-kenth-border mx-auto rounded-full overflow-hidden">
@@ -165,13 +164,12 @@ export default function CheckoutSuccessView() {
               initial={{ width: 0 }}
               animate={{ width: isVerifying ? "70%" : "100%" }}
               transition={{ duration: isVerifying ? 8 : 0.6, ease: "easeOut" }}
-              className={`h-full ${
-                isVerifying
+              className={`h-full ${isVerifying
                   ? 'bg-kenth-brightred'
                   : isConfirmed
-                  ? 'bg-emerald-500'
-                  : 'bg-yellow-500'
-              }`}
+                    ? 'bg-emerald-500'
+                    : 'bg-yellow-500'
+                }`}
             />
           </div>
         </div>

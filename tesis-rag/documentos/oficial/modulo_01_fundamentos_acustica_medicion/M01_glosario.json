@@ -1,0 +1,197 @@
+﻿{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M01",
+  "module_order": 1,
+  "module_title": "Fundamentos fisicos, acustica y medicion",
+  "module_slug": "fundamentos-fisicos-acustica-medicion",
+  "short_description": "Modulo base sobre fundamentos fisicos, acustica y medicion aplicados al audio.",
+  "learning_scope": "Delimita los conceptos fisicos, acusticos y de medicion que sostienen las decisiones tecnicas del curso.",
+  "doc_type": "glossary",
+  "source_origin": "course",
+  "filename": "M01_glosario.json",
+  "version": "0.2",
+  "status": "draft_author_review",
+  "curation_source": "borrador_autoral_m01",
+  "terms": [
+    {
+      "term_id": "M01_TERM_001",
+      "term": "Frecuencia",
+      "abbreviation": "Hz",
+      "definition": "Magnitud fisica usada para describir cuantas veces se repite un ciclo en un intervalo de tiempo.",
+      "stable_definition": "La frecuencia pertenece a la descripcion fisica de la señal y no debe confundirse automaticamente con tono.",
+      "pending_validation_notes": [
+        "Validar formulacion exacta del curso."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Fundamentos fisicos",
+      "tags": ["frecuencia", "senal", "hz"],
+      "common_confusion": "Usarla como sinonimo exacto de tono.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_002",
+      "term": "Tono",
+      "abbreviation": "",
+      "definition": "Percepcion auditiva relacionada con la altura aparente de un sonido.",
+      "stable_definition": "El tono se trabaja como percepcion y no como magnitud fisica identica a la frecuencia.",
+      "pending_validation_notes": [
+        "Validar hasta que punto el curso introduce factores perceptuales asociados."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Percepcion auditiva",
+      "tags": ["tono", "percepcion", "psicoacustica"],
+      "common_confusion": "Confundirlo con el valor fisico medido en Hz.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_003",
+      "term": "Periodo",
+      "abbreviation": "T",
+      "definition": "Tiempo que tarda una señal periodica en completar un ciclo.",
+      "stable_definition": "Ayuda a relacionar una señal con su frecuencia dentro del dominio temporal.",
+      "pending_validation_notes": [
+        "Validar si el curso presenta explicitamente la relacion con frecuencia."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Fundamentos fisicos",
+      "tags": ["periodo", "tiempo", "senal"],
+      "common_confusion": "Tratarlo como dato aislado sin relacion con la frecuencia.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_004",
+      "term": "Longitud de onda",
+      "abbreviation": "Lambda",
+      "definition": "Distancia fisica que ocupa un ciclo de una onda en un medio dado.",
+      "stable_definition": "Sirve para relacionar la señal con el espacio fisico y con el comportamiento acustico de una sala.",
+      "pending_validation_notes": [
+        "Validar la formulacion exacta y los ejemplos del curso."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Fundamentos fisicos",
+      "tags": ["longitud_de_onda", "acustica", "sala"],
+      "common_confusion": "Reducirla a una formula sin uso practico.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_005",
+      "term": "Armonicos",
+      "abbreviation": "",
+      "definition": "Componentes relacionados con una frecuencia fundamental que contribuyen a la estructura de un sonido.",
+      "stable_definition": "Ayudan a entender por que un sonido complejo no se describe solo por una frecuencia unica.",
+      "pending_validation_notes": [
+        "Validar el nivel de formalidad con que el curso distingue armonicos e inarmonicos."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Estructura espectral",
+      "tags": ["armonicos", "fundamental", "espectro"],
+      "common_confusion": "Pensar que todo sonido complejo es simplemente ruido.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_006",
+      "term": "Ruido blanco",
+      "abbreviation": "",
+      "definition": "Señal de ruido usada como referencia de distribucion espectral.",
+      "stable_definition": "Debe interpretarse como una referencia tecnica util, no solo como una sensacion auditiva.",
+      "pending_validation_notes": [
+        "Validar la formulacion exacta del curso sobre energia y percepcion."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Referencias espectrales",
+      "tags": ["ruido_blanco", "espectro", "medicion"],
+      "common_confusion": "Confundir su distribucion tecnica con una percepcion plana.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_007",
+      "term": "Ruido rosa",
+      "abbreviation": "",
+      "definition": "Señal de ruido usada como referencia espectral en comparacion con otras distribuciones.",
+      "stable_definition": "Puede servir como apoyo para explicar relacion entre distribucion energetica y percepcion.",
+      "pending_validation_notes": [
+        "Validar si el curso lo define con una pendiente exacta o con descripcion mas general."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Referencias espectrales",
+      "tags": ["ruido_rosa", "espectro", "medicion"],
+      "common_confusion": "Llamarlo plano sin explicar el marco de referencia.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_008",
+      "term": "FFT",
+      "abbreviation": "Fast Fourier Transform",
+      "definition": "Procedimiento de analisis usado para observar una señal desde una representacion frecuencial.",
+      "stable_definition": "Es una herramienta de analisis util, pero su lectura depende de parametros y de contexto.",
+      "pending_validation_notes": [
+        "Validar hasta que punto el curso profundiza en resolucion, ventanas y configuracion."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Medicion",
+      "tags": ["fft", "analizador", "espectro"],
+      "common_confusion": "Tomar la grafica como verdad suficiente sin escucha.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_009",
+      "term": "Oscilograma",
+      "abbreviation": "",
+      "definition": "Representacion visual de una señal en el dominio temporal.",
+      "stable_definition": "Muestra comportamiento en el tiempo, no todo el contenido espectral de la señal.",
+      "pending_validation_notes": [
+        "Validar si el curso usa este termino o uno equivalente."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Medicion",
+      "tags": ["oscilograma", "tiempo", "senal"],
+      "common_confusion": "Creer que ya contiene toda la informacion del espectro.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_010",
+      "term": "Reflexiones tempranas",
+      "abbreviation": "",
+      "definition": "Reflexiones iniciales del sonido en la sala que modifican la escucha de la fuente directa.",
+      "stable_definition": "Son parte del comportamiento acustico que puede alterar la interpretacion del balance y la imagen.",
+      "pending_validation_notes": [
+        "Validar el nivel de detalle con que el curso las desarrolla."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Acustica de sala",
+      "tags": ["reflexiones", "sala", "escucha"],
+      "common_confusion": "Minimizar su efecto por concentrarse solo en el monitor.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_011",
+      "term": "Modo de sala",
+      "abbreviation": "",
+      "definition": "Comportamiento resonante asociado a la relacion entre frecuencias y dimensiones del recinto.",
+      "stable_definition": "Ayuda a explicar por que ciertas zonas de la sala acumulan o debilitan energia.",
+      "pending_validation_notes": [
+        "Validar si el curso distingue tipos de modos o solo su impacto general."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Acustica de sala",
+      "tags": ["modos", "sala", "resonancia"],
+      "common_confusion": "Pensar que todo problema grave se resuelve solo cambiando de monitor.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_012",
+      "term": "Sweet spot",
+      "abbreviation": "",
+      "definition": "Zona de escucha donde la relacion geometrica con los monitores favorece una percepcion mas estable.",
+      "stable_definition": "Se usa como referencia practica de posicion de escucha, no como garantia absoluta de escucha perfecta.",
+      "pending_validation_notes": [
+        "Validar recomendaciones exactas de geometria antes de volverlas doctrina cerrada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Monitoreo",
+      "tags": ["sweet_spot", "monitores", "escucha"],
+      "common_confusion": "Pensar que basta con encontrar esa posicion para eliminar todos los problemas de la sala.",
+      "requires_validation": true
+    }
+  ]
+}

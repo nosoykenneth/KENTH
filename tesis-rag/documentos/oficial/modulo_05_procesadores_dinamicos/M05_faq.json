@@ -1,0 +1,19 @@
+﻿{
+    "course_id":  "mezcla_masterizacion_kenth",
+    "module_id":  "M05",
+    "module_order":  5,
+    "module_title":  "Procesadores dinamicos",
+    "module_slug":  "procesadores-dinamicos",
+    "short_description":  "Modulo sobre control de dinamica mediante procesadores como compresores, expansores, gates y limitadores.",
+    "learning_scope":  "Delimita el uso de procesadores dinamicos para controlar envolvente, rango dinamico y estabilidad de la mezcla.",
+    "source_origin":  "course",
+    "version":  "0.1",
+    "status":  "draft_pending_authoring",
+    "curation_source":  "estructura_base_curso",
+    "requires_validation":  true,
+    "doc_type":  "faq",
+    "filename":  "M05_faq.json",
+    "items":  [
+
+              ]
+}

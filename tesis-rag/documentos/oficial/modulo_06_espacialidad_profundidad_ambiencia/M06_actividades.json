@@ -1,0 +1,20 @@
+﻿{
+    "course_id":  "mezcla_masterizacion_kenth",
+    "module_id":  "M06",
+    "module_order":  6,
+    "module_title":  "Espacialidad, profundidad y ambiencia",
+    "module_slug":  "espacialidad-profundidad-ambiencia",
+    "short_description":  "Modulo sobre construccion de espacio, profundidad, paneo y ambiencia en mezcla.",
+    "learning_scope":  "Delimita decisiones de imagen estereo, profundidad, reverberacion, delay y percepcion espacial.",
+    "source_origin":  "course",
+    "version":  "0.1",
+    "status":  "draft_pending_authoring",
+    "curation_source":  "estructura_base_curso",
+    "requires_validation":  true,
+    "doc_type":  "activities",
+    "filename":  "M06_actividades.json",
+    "purpose":  "Skeleton base para actividades Moodle del modulo. No contiene actividades finales.",
+    "activities":  [
+
+                   ]
+}

@@ -1,0 +1,269 @@
+﻿{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M02",
+  "module_order": 2,
+  "module_title": "Estructura de ganancia y flujo de senal",
+  "module_slug": "estructura-ganancia-flujo-senal",
+  "short_description": "Modulo sobre tipos de nivel, referencia en decibeles, headroom, gain staging y organizacion del flujo de senal en el DAW.",
+  "learning_scope": "Establece bases para controlar niveles a lo largo de la cadena de audio, evitar clipping, conservar headroom y comprender el ruteo tecnico dentro de la mezcla.",
+  "doc_type": "faq",
+  "source_origin": "course",
+  "filename": "M02_faq.json",
+  "version": "0.1",
+  "status": "curated_pending_source_check",
+  "curation_source": "borrador_autoral_m02",
+  "items": [
+    {
+      "faq_id": "M02_FAQ_001",
+      "question": "Que diferencia hay entre nivel de microfono, instrumento, linea y amplificacion?",
+      "canonical_answer": "En este modulo se distinguen varios niveles de señal que no deben tratarse como equivalentes. El nivel de microfono suele ser bajo y requiere preamplificacion. El nivel de instrumento se asocia a entradas de alta impedancia. El nivel de linea corresponde a una señal ya acondicionada para procesamiento o transferencia entre equipos. El nivel de amplificacion pertenece a la etapa que alimenta altavoces.",
+      "short_answer": "Son etapas distintas de la cadena y no conviene conectarlas como si fueran iguales.",
+      "stable_answer": "Microfono, instrumento, linea y amplificacion describen niveles y contextos diferentes de señal.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere fijar ejemplos de voltaje o impedancia en esta respuesta.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Tipos de nivel",
+      "learning_objective": "Distinguir niveles de señal segun su etapa de uso.",
+      "tags": ["nivel_microfono", "nivel_instrumento", "nivel_linea", "amplificacion"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que una salida de linea puede conectarse a una entrada de microfono sin mas contexto.",
+        "No inventar cifras tecnicas si aun no fueron fijadas como oficiales."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_002",
+      "question": "Que significa que el dB no sea una unidad absoluta?",
+      "canonical_answer": "El modulo presenta el decibel como una relacion y no como una magnitud absoluta por si sola. Por eso su significado depende de la referencia usada. En audio aparecen referencias distintas segun el contexto, como dBu, dBV o dBFS.",
+      "short_answer": "dB por si solo no basta; siempre depende de una referencia.",
+      "stable_answer": "El decibel expresa una relacion, no una medida absoluta independiente.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere incluir aqui formulas logaritmicas o reservarlas para apoyo.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Decibeles referenciados",
+      "learning_objective": "Comprender que el significado del dB depende de su referencia.",
+      "tags": ["db", "dbu", "dbv", "dbfs"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No usar dB como si significara siempre lo mismo en todos los entornos.",
+        "No mezclar referencias analogicas y digitales sin aclararlo."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_003",
+      "question": "Que diferencia hay entre dBu, dBV y dBFS?",
+      "canonical_answer": "En el marco del modulo, dBu y dBV se usan como referencias de voltaje en contexto analogico o electrico, mientras que dBFS se usa en audio digital y toma como referencia el maximo codificable del sistema.",
+      "short_answer": "dBu y dBV son referencias de voltaje; dBFS pertenece al entorno digital.",
+      "stable_answer": "No conviene tratar dBu, dBV y dBFS como etiquetas intercambiables.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere fijar definiciones mas formales o ejemplos operativos concretos.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Referencias de nivel",
+      "learning_objective": "Distinguir referencias analogicas y digitales de nivel.",
+      "tags": ["dbu", "dbv", "dbfs", "referencia"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que +4 dBu equivale directamente a un valor unico de dBFS sin contexto.",
+        "No mezclar entorno digital y analogico como si fueran una sola escala."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_004",
+      "question": "Por que duplicar potencia no da lo mismo que duplicar voltaje?",
+      "canonical_answer": "El brief del modulo remarca una intuicion practica importante: duplicar potencia se asocia a +3 dB, mientras que duplicar voltaje se asocia a +6 dB. La idea no es memorizar formulas aisladas, sino entender que no toda duplicacion produce el mismo resultado segun la variable que se este comparando.",
+      "short_answer": "Porque potencia y voltaje no se relacionan del mismo modo dentro del calculo en decibeles.",
+      "stable_answer": "Duplicar potencia y duplicar voltaje no implican el mismo cambio en dB.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere dejar esta respuesta solo como intuicion operativa o con mayor detalle matematico.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Matematica basica del dB",
+      "learning_objective": "Evitar simplificaciones incorrectas sobre la lectura en decibeles.",
+      "tags": ["db", "potencia", "voltaje", "matematica"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No reducir toda la teoria del dB a una regla universal sin indicar la referencia.",
+        "No mezclar aqui potencia, voltaje y loudness percibido como si fueran lo mismo."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_005",
+      "question": "Que significa gain staging?",
+      "canonical_answer": "Gain staging se trabaja en este modulo como la gestion de niveles a lo largo de toda la cadena de audio. El objetivo es alejar la señal del piso de ruido, evitar chocar con el clipping y conservar headroom suficiente para procesar con estabilidad tecnica.",
+      "short_answer": "Es ordenar niveles a lo largo de la cadena sin quedarse corto ni saturar.",
+      "stable_answer": "Gain staging no es un gesto aislado, sino una forma de controlar la señal en cada etapa.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere dejar ejemplos nominales concretos como parte de la definicion.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Estructura de ganancia",
+      "learning_objective": "Comprender el control de niveles como proceso continuo.",
+      "tags": ["gain_staging", "headroom", "clipping", "cadena_de_audio"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No reducir gain staging a bajar el fader del canal.",
+        "No hablar de un unico valor correcto universal para toda señal."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_006",
+      "question": "Que es headroom?",
+      "canonical_answer": "En este modulo, el headroom se entiende como el margen operativo disponible antes de llegar al recorte. No se trata solo de espacio sobrante, sino de una condicion practica para trabajar con seguridad y permitir que la cadena de audio procese la señal sin clipping innecesario.",
+      "short_answer": "Es el margen util antes del recorte.",
+      "stable_answer": "Headroom es espacio operativo real, no solo un numero libre en el medidor.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere diferenciar aqui entre headroom analogico, digital y nominal de plugins.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Margen operativo",
+      "learning_objective": "Entender el valor tecnico del headroom en la cadena de señal.",
+      "tags": ["headroom", "clipping", "nivel"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que mas headroom siempre implica mejor mezcla por si solo.",
+        "No fijar una cifra unica para todo caso sin validacion."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_007",
+      "question": "Puedo bajar el fader para corregir una saturacion de plugins?",
+      "canonical_answer": "No conviene asumir que bajar el fader resolvera una saturacion previa en la cadena. El material enfatiza que muchos plugins de insercion operan antes del fader del canal, de modo que si la señal ya entra demasiado fuerte al plugin, mover el fader al final no corrige esa distorsion.",
+      "short_answer": "No necesariamente. Si la saturacion ocurre antes del fader, bajarlo no la corrige.",
+      "stable_answer": "Para corregir una saturacion previa, primero hay que revisar el nivel antes del plugin.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere introducir aqui PFL y AFL de forma explicita o reservarlo para glosario.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Faders y clipping",
+      "learning_objective": "Distinguir nivel de entrada a proceso y nivel final de canal.",
+      "tags": ["fader", "clip_gain", "plugin", "clipping"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que el fader nunca sirve para controlar nivel; el problema aqui es la saturacion previa.",
+        "No diagnosticar sin diferenciar entrada, inserto y salida."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_008",
+      "question": "Por que conviene usar clip gain o trim antes de los plugins?",
+      "canonical_answer": "El modulo propone clip gain o trim como primeras herramientas para ajustar el nivel antes de la cadena de procesamiento. Esto ayuda a que la señal entre a los plugins en una zona mas controlada y evita tomar decisiones engañosas solo por diferencias de volumen.",
+      "short_answer": "Porque corrigen el nivel antes de la cadena, no al final.",
+      "stable_answer": "Clip gain o trim ayudan a establecer una entrada mas razonable a los procesos.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere incluir aqui el atajo visual de la forma de onda o dejarlo fuera.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Control de entrada",
+      "learning_objective": "Ajustar nivel antes del procesamiento.",
+      "tags": ["clip_gain", "trim", "ganancia_entrada", "plugins"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No convertir un atajo visual en regla tecnica cerrada sin validacion.",
+        "No asumir que todo DAW presenta clip gain del mismo modo."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_009",
+      "question": "Que diferencia hay entre procesos en serie y efectos en paralelo?",
+      "canonical_answer": "En este modulo se distingue entre procesos insertados en serie, que afectan la señal dentro de su ruta principal, y efectos en paralelo, que suelen manejarse mediante envios auxiliares y se suman a la señal original en otra ruta.",
+      "short_answer": "Serie modifica la ruta principal; paralelo suma una ruta adicional.",
+      "stable_answer": "Procesos y efectos no se organizan igual dentro del flujo de señal.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere fijar reverb como ejemplo tipico o dejarlo solo como caso frecuente.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Flujo de senal",
+      "learning_objective": "Distinguir inserciones y envios auxiliares.",
+      "tags": ["serie", "paralelo", "insert", "aux", "envios"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que todo efecto debe ir siempre en paralelo.",
+        "No usar serie y paralelo como etiquetas esteticas sin explicar su diferencia tecnica."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_010",
+      "question": "Que es la ley de panorama o pan law?",
+      "canonical_answer": "La ley de panorama se trabaja en este modulo como una compensacion de ganancia que el sistema aplica cuando una señal mono se coloca en el centro, para evitar que el resultado parezca indebidamente mas fuerte al sonar por dos altavoces.",
+      "short_answer": "Es la compensacion que evita que el centro se vuelva artificialmente mas fuerte.",
+      "stable_answer": "Pan law ayuda a mantener equilibrio al panoramizar señales mono.",
+      "pending_validation_notes": [
+        "Validar si el curso fijara valores concretos como -3 dB, -4.5 dB o -6 dB como parte doctrinal.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Panoramizacion",
+      "learning_objective": "Comprender por que el centro requiere compensacion.",
+      "tags": ["pan_law", "panorama", "centro", "ganancia"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No presentar una sola pan law como universalmente correcta.",
+        "No recomendar cambiarla a mitad de mezcla sin advertir consecuencias."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_011",
+      "question": "Si el DAW trabaja en 32 o 64 bit float, por que sigue importando el headroom?",
+      "canonical_answer": "El modulo advierte que el margen interno del motor de audio no elimina la necesidad de trabajar con criterio de nivel. Aunque el entorno flotante puede tolerar ciertos excesos internos, el clipping sigue importando en etapas de conversion, salida y comportamiento nominal de procesos o emulaciones.",
+      "short_answer": "Porque el margen interno no vuelve irrelevante el nivel operativo real.",
+      "stable_answer": "Tener motor flotante no significa que ya no importe el headroom.",
+      "pending_validation_notes": [
+        "Validar hasta donde el curso quiere desarrollar la diferencia entre motor interno y DAC.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Headroom digital",
+      "learning_objective": "Evitar falsas seguridades por trabajar en floating point.",
+      "tags": ["64_bit_float", "32_bit_float", "headroom", "dac"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que floating point hace imposible el clipping en cualquier etapa.",
+        "No simplificar todo a 'el DAW aguanta' sin hablar de conversion y flujo real."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M02_FAQ_012",
+      "question": "Todos los plugins analogicos modelados calibran igual?",
+      "canonical_answer": "No conviene asumirlo. El brief del modulo marca como idea fuerte que no todos los plugins modelados trabajan con la misma calibracion nominal. Por eso, no es seguro tratar una referencia como universal sin revisar el comportamiento concreto del proceso o del plugin.",
+      "short_answer": "No. No conviene asumir una calibracion unica para todos.",
+      "stable_answer": "La calibracion nominal puede variar entre plugins o emulaciones.",
+      "pending_validation_notes": [
+        "Validar que ejemplos concretos se dejaran oficialmente, como LA-2A o TLA-100A.",
+        "No convertir una referencia comun como -18 dBFS en dogma universal sin validacion."
+      ],
+      "brand_or_model_mentions": ["LA-2A", "TLA-100A"],
+      "topic": "Calibracion nominal",
+      "learning_objective": "Evitar suposiciones rigidas sobre emulaciones analogicas.",
+      "tags": ["plugins_analogicos", "calibracion", "nominal", "vu"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que 0 VU equivale siempre al mismo valor de dBFS en todos los plugins.",
+        "No usar marcas como recomendacion general sin necesidad."
+      ],
+      "requires_validation": true
+    }
+  ]
+}

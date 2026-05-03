@@ -1,0 +1,20 @@
+﻿{
+    "course_id":  "mezcla_masterizacion_kenth",
+    "module_id":  "M08",
+    "module_order":  8,
+    "module_title":  "Masterizacion y optimizacion comercial",
+    "module_slug":  "masterizacion-optimizacion-comercial",
+    "short_description":  "Modulo sobre preparacion final, control tecnico y optimizacion comercial del master.",
+    "learning_scope":  "Delimita criterios de traduccion, nivel, limitacion, entrega y revision final para distribucion.",
+    "source_origin":  "course",
+    "version":  "0.1",
+    "status":  "draft_pending_authoring",
+    "curation_source":  "estructura_base_curso",
+    "requires_validation":  true,
+    "doc_type":  "activities",
+    "filename":  "M08_actividades.json",
+    "purpose":  "Skeleton base para actividades Moodle del modulo. No contiene actividades finales.",
+    "activities":  [
+
+                   ]
+}

@@ -1,6 +1,7 @@
 import sqlite3
 import os
 import uuid
+import json
 from datetime import datetime
 
 DB_PATH = "./bd_chat/chats.db"
@@ -35,6 +36,32 @@ def init_db():
             FOREIGN KEY (chat_id) REFERENCES chats (id) ON DELETE CASCADE
         )
     """)
+    # AUDIT FIX #5: Tabla de trazas RAG por mensaje del asistente.
+    # Persiste ruta, evidence_level y fuentes para auditar calidad del retrieval.
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS message_traces (
+            id TEXT PRIMARY KEY,
+            message_id TEXT NOT NULL,
+            ruta TEXT,
+            evidence_level TEXT,
+            fuentes_json TEXT,
+            trace_json TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (message_id) REFERENCES messages (id) ON DELETE CASCADE
+        )
+    """)
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS interaction_traces (
+            id TEXT PRIMARY KEY,
+            session_id TEXT,
+            trace_json TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    cursor.execute("PRAGMA table_info(message_traces)")
+    trace_columns = [row["name"] for row in cursor.fetchall()]
+    if "trace_json" not in trace_columns:
+        cursor.execute("ALTER TABLE message_traces ADD COLUMN trace_json TEXT")
     conn.commit()
     conn.close()
 
@@ -89,3 +116,61 @@ def get_chat_messages(chat_id: str) -> list:
     rows = cursor.fetchall()
     conn.close()
     return [dict(row) for row in rows]
+
+
+def save_trace(
+    message_id: str,
+    ruta: str = "",
+    evidence_level: str = "",
+    fuentes: list = None,
+    trace_data: dict = None,
+    trace_id: str = None
+):
+    """Persiste la traza RAG asociada a un mensaje del asistente."""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("PRAGMA table_info(message_traces)")
+        trace_columns = [row["name"] for row in cursor.fetchall()]
+        if "trace_json" not in trace_columns:
+            cursor.execute("ALTER TABLE message_traces ADD COLUMN trace_json TEXT")
+        trace_id = trace_id or str(uuid.uuid4())
+        created_at = datetime.now().isoformat()
+        fuentes_json = json.dumps(fuentes or [], ensure_ascii=False)
+        trace_json = json.dumps(trace_data or {}, ensure_ascii=False)
+        cursor.execute(
+            """
+            INSERT INTO message_traces
+            (id, message_id, ruta, evidence_level, fuentes_json, trace_json, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            (trace_id, message_id, ruta, evidence_level, fuentes_json, trace_json, created_at)
+        )
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[TRACE] Error guardando traza: {e}")
+
+
+def save_interaction_trace(trace_id: str, session_id: str = "", trace_data: dict = None):
+    """Guarda una traza evaluable por interaccion, incluso si no hay chat persistido."""
+    try:
+        conn = get_connection()
+        cursor = conn.cursor()
+        cursor.execute("""
+            CREATE TABLE IF NOT EXISTS interaction_traces (
+                id TEXT PRIMARY KEY,
+                session_id TEXT,
+                trace_json TEXT NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        """)
+        created_at = datetime.now().isoformat()
+        cursor.execute(
+            "INSERT OR REPLACE INTO interaction_traces (id, session_id, trace_json, created_at) VALUES (?, ?, ?, ?)",
+            (trace_id, session_id, json.dumps(trace_data or {}, ensure_ascii=False), created_at)
+        )
+        conn.commit()
+        conn.close()
+    except Exception as e:
+        print(f"[TRACE] Error guardando traza de interaccion: {e}")

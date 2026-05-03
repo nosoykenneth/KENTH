@@ -32,7 +32,7 @@ export default function CheckoutView() {
     fullname: '',
     checkedEmail: ''
   });
-
+  const createClientTxId = () => `KENTH-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   // CLIENT IDs (Sandbox)
   const PAYPAL_CLIENT_ID = import.meta.env.VITE_PAYPAL_CLIENT_ID || "test";
@@ -115,17 +115,41 @@ export default function CheckoutView() {
   };
 
   const canRenderPayphoneButton = () => {
-  if (loading || isEnrolled) return false;
-  if (token) return true;
+    if (loading || isEnrolled) return false;
+    if (token) return true;
 
-  return (
-    formData.firstname.trim() &&
-    formData.lastname.trim() &&
-    emailRegex.test(formData.email) &&
-    !guestEnrollmentCheck.isEnrolled &&
-    !guestEnrollmentCheck.checking
-  );
-};
+    return (
+      formData.firstname.trim() &&
+      formData.lastname.trim() &&
+      emailRegex.test(formData.email) &&
+      !guestEnrollmentCheck.isEnrolled &&
+      !guestEnrollmentCheck.checking
+    );
+  };
+
+  const registerLocalIntent = async (clientTransactionId) => {
+    const effectiveProfile = getEffectiveProfile();
+
+    const response = await fetch('/moodle_api/proyecto_curso/api_persistente/api_register_intent.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        clientTransactionId,
+        course_id: id,
+        email: effectiveProfile.email,
+        firstname: effectiveProfile.firstname,
+        lastname: effectiveProfile.lastname
+      })
+    });
+
+    const data = await response.json();
+
+    if (!data.success) {
+      throw new Error(data.error || 'No se pudo registrar la intención de pago.');
+    }
+
+    return { effectiveProfile };
+  };
 
 
   const validateGuestData = () => {
@@ -252,36 +276,15 @@ export default function CheckoutView() {
       return;
     }
 
-
     try {
       setProcessing(true);
       setStatus('processing');
 
-      const clientTxId = `KENTH-${Date.now()}`;
+      const clientTxId = createClientTxId();
       localStorage.setItem('kenth_client_tx', clientTxId);
 
-      const effectiveProfile = getEffectiveProfile();
+      const { effectiveProfile } = await registerLocalIntent(clientTxId);
 
-      // 1. Registrar intención local
-      const registerResponse = await fetch('/moodle_api/proyecto_curso/api_persistente/api_register_intent.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          clientTransactionId: clientTxId,
-          course_id: id,
-          email: effectiveProfile.email,
-          firstname: effectiveProfile.firstname,
-          lastname: effectiveProfile.lastname
-        })
-      });
-
-      const registerData = await registerResponse.json();
-
-      if (!registerData.success) {
-        throw new Error(registerData.error || 'No se pudo registrar la intención de pago.');
-      }
-
-      // 2. Pedir URL de PayPhone a tu backend
       const prepareResponse = await fetch('/moodle_api/proyecto_curso/api_persistente/api_prepare_payphone.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -306,14 +309,63 @@ export default function CheckoutView() {
 
       window.location.href = prepareData.payUrl;
     } catch (error) {
-      console.error(error);
       showNotification('error', error.message || 'Error al iniciar el pago.');
       setStatus('idle');
       setProcessing(false);
     }
   };
 
+  const handlePayPalBackendCapture = async (orderID, clientTransactionId) => {
+    try {
+      setProcessing(true);
+      setStatus('processing');
 
+      const effectiveProfile = getEffectiveProfile();
+
+      const response = await fetch('/moodle_api/proyecto_curso/api_persistente/api_capture_paypal_order.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          orderID,
+          clientTransactionId,
+          course_id: id,
+          email: effectiveProfile.email,
+          firstname: effectiveProfile.firstname,
+          lastname: effectiveProfile.lastname
+        })
+      });
+
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || 'No se pudo completar la captura del pago.');
+      }
+
+      localStorage.removeItem('kenth_guest_data');
+
+      setStatus('success');
+
+      setTimeout(() => {
+        if (!token) {
+          navigate('/login', {
+            state: {
+              message: result.alreadyProcessed
+                ? 'Tu pago ya estaba verificado previamente.'
+                : '¡Pago verificado! Tu acceso ha sido enviado a tu correo.'
+            }
+          });
+        } else {
+          navigate('/dashboard');
+        }
+      }, 4000);
+
+    } catch (error) {
+      setStatus('idle');
+      showNotification('error', error.message || 'Error al procesar el pago con PayPal.');
+    } finally {
+      setProcessing(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -342,11 +394,15 @@ export default function CheckoutView() {
 
 
   return (
-    <PayPalScriptProvider options={{
-      "client-id": PAYPAL_CLIENT_ID,
-      "locale": "es_MX",
-      "disable-funding": "card,credit,venmo"
-    }}>
+    <PayPalScriptProvider
+      options={{
+        "client-id": PAYPAL_CLIENT_ID,
+        currency: "USD",
+        intent: "capture",
+        locale: "es_MX",
+        "disable-funding": "card,credit,venmo"
+      }}
+    >
       <div className="w-full bg-kenth-bg text-kenth-text font-sans min-h-screen">
         <Notification />
 
@@ -502,12 +558,14 @@ export default function CheckoutView() {
                           type="button"
                           onClick={handlePayphoneRedirect}
                           disabled={!isGuestEmailApproved}
-                          className={`w-full h-[60px] rounded-2xl font-black uppercase tracking-widest text-sm transition-all
+                          className={`w-full h-[50px] rounded-full font-black uppercase tracking-widest text-[10px] flex items-center justify-center gap-2 transition-all
                             ${!isGuestEmailApproved
                               ? 'bg-orange-500/30 text-white/50 cursor-not-allowed'
-                              : 'bg-orange-500 hover:bg-orange-400 text-white shadow-[0_10px_30px_rgba(249,115,22,0.35)]'}`}
+                              : 'bg-[#f97316] hover:bg-orange-400 text-white shadow-[0_10px_30px_rgba(249,115,22,0.35)]'}`}
                         >
-
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+                          </svg>
                           Pagar con tarjeta de crédito
                         </button>
                       </div>
@@ -518,23 +576,56 @@ export default function CheckoutView() {
                         <div className="relative flex justify-center text-[10px] uppercase font-black tracking-[0.3em]"><span className="bg-kenth-card px-4 text-kenth-subtext">Alternativa</span></div>
                       </div>
 
-                      <div className="relative z-0 opacity-80 hover:opacity-100 transition-opacity">
-                        <PayPalButtons
-                          style={{ layout: "vertical", shape: "pill", color: "blue", label: "pay" }}
-                          createOrder={(data, actions) => {
-                            if (!validateGuestData()) return;
-                            return actions.order.create({
-                              purchase_units: [{
-                                description: course?.fullname || "Curso KENTH",
-                                amount: { value: (course?.price || 49.99).toString() }
-                              }]
-                            });
-                          }}
-                          onApprove={async (data, actions) => {
-                            const details = await actions.order.capture();
-                            handleSuccessFlow('paypal', details.id);
-                          }}
-                        />
+                      <div className={`${!isGuestEmailApproved ? 'pointer-events-none opacity-50' : ''}`}>
+                        <div className="w-full">
+                          <PayPalButtons
+                            style={{ layout: "vertical", shape: "pill", color: "blue", label: "pay", height: 50 }}
+                            forceReRender={[isGuestEmailApproved, course?.price, course?.offer_price]}
+                            disabled={!isGuestEmailApproved}
+                            createOrder={async (data, actions) => {
+                              if (!validateGuestData()) {
+                                showNotification('error', 'Completa y valida tus datos antes de continuar.');
+                                throw new Error('Datos inválidos');
+                              }
+
+                              try {
+                                const clientTxId = createClientTxId();
+                                localStorage.setItem('kenth_client_tx', clientTxId);
+
+                                await registerLocalIntent(clientTxId);
+
+                                const priceToUse =
+                                  (course?.offer_price > 0 && course?.offer_price < course?.price)
+                                    ? course.offer_price
+                                    : (course?.price || 49.99);
+
+                                return actions.order.create({
+                                  purchase_units: [
+                                    {
+                                      reference_id: clientTxId,
+                                      description: course?.fullname || 'Curso KENTH',
+                                      amount: {
+                                        currency_code: 'USD',
+                                        value: Number(priceToUse).toFixed(2)
+                                      }
+                                    }
+                                  ]
+                                });
+                              } catch (error) {
+                                showNotification('error', error.message || 'No se pudo iniciar el pago con PayPal.');
+                                throw error;
+                              }
+                            }}
+                            onApprove={async (data) => {
+                              const clientTransactionId = localStorage.getItem('kenth_client_tx');
+                              await handlePayPalBackendCapture(data.orderID, clientTransactionId);
+                            }}
+                            onError={(err) => {
+                              console.error('PAYPAL ERROR:', err);
+                              showNotification('error', 'Error al procesar el pago con PayPal.');
+                            }}
+                          />
+                        </div>
                       </div>
                     </div>
 
