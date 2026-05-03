@@ -1,0 +1,197 @@
+﻿{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M03",
+  "module_order": 3,
+  "module_title": "Polaridad, fase y monocompatibilidad",
+  "module_slug": "polaridad-fase-monocompatibilidad",
+  "short_description": "Modulo sobre relaciones entre polaridad, fase y compatibilidad mono dentro del proceso de mezcla.",
+  "learning_scope": "Delimita el analisis de polaridad, fase, suma de señales y traduccion mono.",
+  "doc_type": "glossary",
+  "source_origin": "course",
+  "filename": "M03_glosario.json",
+  "version": "0.2",
+  "status": "draft_author_review",
+  "curation_source": "borrador_autoral_m03",
+  "terms": [
+    {
+      "term_id": "M03_TERM_001",
+      "term": "Polaridad",
+      "abbreviation": "",
+      "definition": "Orientacion de una señal respecto de su referencia.",
+      "stable_definition": "La polaridad puede invertirse, pero no debe confundirse automaticamente con fase.",
+      "pending_validation_notes": [
+        "Validar formulacion exacta del curso."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Conceptos base",
+      "tags": ["polaridad", "senal"],
+      "common_confusion": "Usarla como sinonimo de fase.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_002",
+      "term": "Inversion de polaridad",
+      "abbreviation": "",
+      "definition": "Operacion que invierte la orientacion de una señal respecto de su referencia.",
+      "stable_definition": "Es una accion puntual sobre la señal y no debe venderse como solucion universal.",
+      "pending_validation_notes": [
+        "Validar si el curso usa este termino o si la interfaz docente habla de invertir fase."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Operaciones basicas",
+      "tags": ["polaridad", "inversion"],
+      "common_confusion": "Creer que siempre corrige problemas de fase.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_003",
+      "term": "Fase",
+      "abbreviation": "",
+      "definition": "Relacion entre señales que influye en como se combinan al sumarse.",
+      "stable_definition": "La fase debe entenderse como relacion entre señales, no como una etiqueta unica para cualquier problema.",
+      "pending_validation_notes": [
+        "Validar nivel de formalidad matematica que usara el curso."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Conceptos base",
+      "tags": ["fase", "suma_de_senales"],
+      "common_confusion": "Reducirla solo a un boton o a una inversion.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_004",
+      "term": "Desfase",
+      "abbreviation": "",
+      "definition": "Diferencia en la relacion entre señales que puede afectar su suma.",
+      "stable_definition": "El desfase puede alterar el resultado audible cuando señales relacionadas se combinan.",
+      "pending_validation_notes": [
+        "Validar si el curso diferencia desfase temporal, espectral u otras formulaciones."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Relaciones entre señales",
+      "tags": ["desfase", "fase", "suma"],
+      "common_confusion": "Usarlo como diagnostico automatico sin contexto.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_005",
+      "term": "Suma de señales",
+      "abbreviation": "",
+      "definition": "Combinacion de dos o mas señales cuyo resultado depende de su relacion mutua.",
+      "stable_definition": "La suma puede reforzar o debilitar componentes segun el contexto.",
+      "pending_validation_notes": [
+        "Validar si el curso desarrolla suma con ejemplos propios y hasta que nivel de detalle."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Operacion basica",
+      "tags": ["suma", "senal", "mezcla"],
+      "common_confusion": "Pensar que el resultado depende solo del volumen.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_006",
+      "term": "Cancelacion parcial",
+      "abbreviation": "",
+      "definition": "Perdida o reduccion de informacion cuando señales relacionadas se combinan de forma poco favorable.",
+      "stable_definition": "No implica necesariamente desaparicion total de la señal.",
+      "pending_validation_notes": [
+        "Validar ejemplos y formulacion oficial del curso."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Efectos de suma",
+      "tags": ["cancelacion", "fase", "suma"],
+      "common_confusion": "Usarla para describir cualquier cambio tonal leve.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_007",
+      "term": "Filtro peine",
+      "abbreviation": "Comb Filter",
+      "definition": "Alteracion espectral asociada a la suma de señales muy parecidas con diferencias de llegada o de relacion temporal.",
+      "stable_definition": "Debe tratarse como un fenomeno de suma entre señales similares, no como etiqueta para cualquier timbre raro.",
+      "pending_validation_notes": [
+        "Validar el nivel de detalle con que el curso lo explica y si se usa este termino de forma central."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Efectos de suma",
+      "tags": ["comb_filter", "filtro_peine", "fase", "suma"],
+      "common_confusion": "Diagnosticarlo automaticamente sin escuchar contexto.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_008",
+      "term": "Monocompatibilidad",
+      "abbreviation": "",
+      "definition": "Capacidad de una mezcla o fuente para conservar una traduccion funcional al reducirse a mono.",
+      "stable_definition": "No exige que mono y estereo suenen identicos.",
+      "pending_validation_notes": [
+        "Validar definicion exacta que quedara como doctrina del curso."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Traduccion",
+      "tags": ["mono", "monocompatibilidad", "traduccion"],
+      "common_confusion": "Creer que obliga a mezclar todo en mono.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_009",
+      "term": "Colapso a mono",
+      "abbreviation": "",
+      "definition": "Reduccion de una señal o mezcla estereo a una representacion mono.",
+      "stable_definition": "Sirve como prueba de traduccion y de relacion entre señales.",
+      "pending_validation_notes": [
+        "Validar si el curso usa literalmente este termino o equivalente."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Verificacion tecnica",
+      "tags": ["mono", "colapso", "estereo"],
+      "common_confusion": "Pensar que siempre empeora el audio por definicion.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_010",
+      "term": "Correlacion",
+      "abbreviation": "",
+      "definition": "Indicador usado para observar de forma orientativa la relacion entre canales o señales.",
+      "stable_definition": "Es una ayuda visual y no reemplaza la escucha contextual.",
+      "pending_validation_notes": [
+        "Validar si el curso incorpora correlometro o medidor equivalente como termino oficial."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Medicion",
+      "tags": ["correlacion", "medidor", "mono"],
+      "common_confusion": "Tomar el medidor como veredicto definitivo.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_011",
+      "term": "Goniometro",
+      "abbreviation": "",
+      "definition": "Herramienta visual usada para observar de forma orientativa la distribucion de la imagen estereo.",
+      "stable_definition": "Puede ayudar a leer amplitud e imagen, pero no sustituye la escucha ni la prueba en mono.",
+      "pending_validation_notes": [
+        "Validar si el curso realmente lo trata como termino central del modulo."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Medicion",
+      "tags": ["goniometro", "imagen_estereo", "medicion"],
+      "common_confusion": "Interpretarlo como prueba autosuficiente de que la mezcla esta bien o mal.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_012",
+      "term": "Imagen estereo",
+      "abbreviation": "",
+      "definition": "Percepcion de distribucion espacial entre canales izquierdo y derecho.",
+      "stable_definition": "Debe evaluarse junto con estabilidad y traduccion mono.",
+      "pending_validation_notes": [
+        "Validar formulacion exacta del curso."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Espacialidad basica",
+      "tags": ["estereo", "imagen", "mezcla"],
+      "common_confusion": "Asumir que mas amplitud siempre es mejor.",
+      "requires_validation": true
+    }
+  ]
+}

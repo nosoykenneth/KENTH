@@ -1,0 +1,20 @@
+﻿{
+    "course_id":  "mezcla_masterizacion_kenth",
+    "module_id":  "M03",
+    "module_order":  3,
+    "module_title":  "Polaridad, fase y monocompatibilidad",
+    "module_slug":  "polaridad-fase-monocompatibilidad",
+    "short_description":  "Modulo sobre relaciones temporales, polaridad, fase y compatibilidad mono.",
+    "learning_scope":  "Delimita problemas de suma, cancelacion, correlacion e imagen mono/estereo dentro de la mezcla.",
+    "source_origin":  "course",
+    "version":  "0.1",
+    "status":  "draft_pending_authoring",
+    "curation_source":  "estructura_base_curso",
+    "requires_validation":  true,
+    "doc_type":  "activities",
+    "filename":  "M03_actividades.json",
+    "purpose":  "Skeleton base para actividades Moodle del modulo. No contiene actividades finales.",
+    "activities":  [
+
+                   ]
+}

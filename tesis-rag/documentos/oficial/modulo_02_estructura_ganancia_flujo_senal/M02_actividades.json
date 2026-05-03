@@ -1,0 +1,20 @@
+﻿{
+    "course_id":  "mezcla_masterizacion_kenth",
+    "module_id":  "M02",
+    "module_order":  2,
+    "module_title":  "Estructura de ganancia y flujo de senal",
+    "module_slug":  "estructura-ganancia-flujo-senal",
+    "short_description":  "Modulo sobre organizacion de niveles, margen de trabajo y recorrido de la senal.",
+    "learning_scope":  "Delimita criterios de nivel, headroom, ruteo y flujo de senal antes de aplicar procesamiento.",
+    "source_origin":  "course",
+    "version":  "0.1",
+    "status":  "draft_pending_authoring",
+    "curation_source":  "estructura_base_curso",
+    "requires_validation":  true,
+    "doc_type":  "activities",
+    "filename":  "M02_actividades.json",
+    "purpose":  "Skeleton base para actividades Moodle del modulo. No contiene actividades finales.",
+    "activities":  [
+
+                   ]
+}

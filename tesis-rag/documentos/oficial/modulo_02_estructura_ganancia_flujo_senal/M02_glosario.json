@@ -1,0 +1,302 @@
+﻿{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M02",
+  "module_order": 2,
+  "module_title": "Estructura de ganancia y flujo de senal",
+  "module_slug": "estructura-ganancia-flujo-senal",
+  "short_description": "Modulo sobre tipos de nivel, referencia en decibeles, headroom, gain staging y organizacion del flujo de senal en el DAW.",
+  "learning_scope": "Establece bases para controlar niveles a lo largo de la cadena de audio, evitar clipping, conservar headroom y comprender el ruteo tecnico dentro de la mezcla.",
+  "doc_type": "glossary",
+  "source_origin": "course",
+  "filename": "M02_glosario.json",
+  "version": "0.1",
+  "status": "curated_pending_source_check",
+  "curation_source": "borrador_autoral_m02",
+  "terms": [
+    {
+      "term_id": "M02_TERM_001",
+      "term": "Gain staging",
+      "abbreviation": "",
+      "definition": "Gestion de niveles a lo largo de toda la cadena de audio para mantener una señal util sin chocar con el clipping ni caer innecesariamente cerca del piso de ruido.",
+      "stable_definition": "Gain staging consiste en ordenar el nivel en cada etapa, no solo al final del canal.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere fijar ejemplos nominales concretos dentro de esta definicion."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Estructura de ganancia",
+      "tags": ["gain_staging", "headroom", "clipping", "cadena"],
+      "common_confusion": "Reducir gain staging a bajar el fader del canal.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_002",
+      "term": "Headroom",
+      "abbreviation": "",
+      "definition": "Margen operativo disponible antes de llegar al recorte o clipping.",
+      "stable_definition": "El headroom es espacio util de trabajo antes del limite de recorte.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere diferenciar de forma explicita headroom analogico, digital y nominal de plugins."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Margen operativo",
+      "tags": ["headroom", "clipping", "nivel"],
+      "common_confusion": "Pensar que headroom es solo espacio sobrante sin impacto practico.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_003",
+      "term": "Clipping",
+      "abbreviation": "",
+      "definition": "Recorte de la señal cuando se supera el margen operativo permitido por una etapa del sistema.",
+      "stable_definition": "El clipping ocurre cuando una etapa no puede representar o entregar mas nivel util.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere distinguir clipping digital, analogico y saturacion de modelado."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Nivel y recorte",
+      "tags": ["clipping", "recorte", "saturacion"],
+      "common_confusion": "Asumir que bajar el fader despues del recorte deshace el clipping previo.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_004",
+      "term": "dB",
+      "abbreviation": "",
+      "definition": "Relacion logaritmica entre valores, no una unidad absoluta independiente por si sola.",
+      "stable_definition": "El decibel solo tiene sentido completo cuando se conoce su referencia.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere incluir formulas logaritmicas en esta entrada o dejarlas fuera."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Decibeles",
+      "tags": ["db", "relacion", "referencia"],
+      "common_confusion": "Usar dB como si siempre significara lo mismo en cualquier entorno.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_005",
+      "term": "dBFS",
+      "abbreviation": "",
+      "definition": "Referencia de nivel usada en audio digital donde 0 representa el maximo codificable del sistema.",
+      "stable_definition": "dBFS pertenece al entorno digital y no debe confundirse con referencias analogicas como dBu o dBV.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere fijar relaciones con estandares externos o dejarlo solo en nivel conceptual."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Referencias digitales",
+      "tags": ["dbfs", "digital", "nivel"],
+      "common_confusion": "Tratar dBFS como si fuera la misma referencia que dBu o dBV.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_006",
+      "term": "dBu",
+      "abbreviation": "",
+      "definition": "Referencia de voltaje usada en contexto profesional o de linea analogica.",
+      "stable_definition": "dBu es una referencia analogica y no equivale por defecto a dBFS.",
+      "pending_validation_notes": [
+        "Validar cuanto detalle formal quiere dejar el curso en esta entrada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Referencias analogicas",
+      "tags": ["dbu", "analogico", "voltaje"],
+      "common_confusion": "Convertirlo automaticamente a dBFS sin contexto de calibracion.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_007",
+      "term": "dBV",
+      "abbreviation": "",
+      "definition": "Referencia de voltaje usada con frecuencia en contextos domesticos o semiprofesionales.",
+      "stable_definition": "dBV es otra referencia analogica y no debe mezclarse sin criterio con dBu o dBFS.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere enfatizar la relacion con -10 dBV dentro de esta entrada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Referencias analogicas",
+      "tags": ["dbv", "analogico", "voltaje"],
+      "common_confusion": "Usarlo como si fuera la misma referencia que +4 dBu.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_008",
+      "term": "Nivel nominal",
+      "abbreviation": "",
+      "definition": "Nivel operativo esperado o de referencia con el que un equipo o proceso suele trabajar de forma estable.",
+      "stable_definition": "El nivel nominal sirve como punto de trabajo esperado, no como maximo absoluto del sistema.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere usar aqui ejemplos concretos como +4 dBu o -10 dBV."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Niveles operativos",
+      "tags": ["nivel_nominal", "operativo", "referencia"],
+      "common_confusion": "Confundir nivel nominal con clipping o con maximo permitido.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_009",
+      "term": "Clip Gain",
+      "abbreviation": "",
+      "definition": "Ajuste de nivel aplicado directamente al clip o region antes de la cadena principal de procesamiento.",
+      "stable_definition": "Clip Gain permite corregir nivel antes de que la señal entre a los plugins.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere diferenciar Clip Gain de Trim dentro de la definicion o tratarlos juntos."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Control de entrada",
+      "tags": ["clip_gain", "ganancia", "entrada", "plugins"],
+      "common_confusion": "Creer que cumple exactamente la misma funcion que el fader.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_010",
+      "term": "Trim",
+      "abbreviation": "",
+      "definition": "Control de ajuste de nivel utilizado para modificar la ganancia antes o dentro de una etapa concreta de la cadena.",
+      "stable_definition": "Trim se usa para colocar la señal en una zona mas razonable antes del procesamiento.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere separar Trim de ganancia de preamplificador en la explicacion."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Control de nivel",
+      "tags": ["trim", "ganancia", "ajuste", "entrada"],
+      "common_confusion": "Usarlo como si fuera solo un volumen final del canal.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_011",
+      "term": "PFL",
+      "abbreviation": "Pre Fader Listen",
+      "definition": "Modo de escucha o medicion que toma la señal antes del fader del canal.",
+      "stable_definition": "PFL ayuda a revisar estructura de ganancia sin depender del nivel final del fader.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere definirlo como escucha, medicion o ambas."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Monitoreo de señal",
+      "tags": ["pfl", "pre_fader", "medicion", "flujo"],
+      "common_confusion": "Confundirlo con el nivel final que sale del canal despues del fader.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_012",
+      "term": "AFL",
+      "abbreviation": "After Fader Listen",
+      "definition": "Modo de escucha o medicion que toma la señal despues del fader del canal.",
+      "stable_definition": "AFL refleja mejor el nivel resultante tras la posicion del fader.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere usar AFL como contraste directo frente a PFL o dejarlo secundario."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Monitoreo de señal",
+      "tags": ["afl", "after_fader", "medicion", "flujo"],
+      "common_confusion": "Usarlo para evaluar saturacion previa en plugins cuando el problema ocurre antes del fader.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_013",
+      "term": "Unity Gain",
+      "abbreviation": "",
+      "definition": "Condicion en la que la salida de una etapa se mantiene aproximadamente al mismo nivel que su entrada, salvo que se busque un cambio deliberado.",
+      "stable_definition": "Unity Gain permite comparar el efecto del procesamiento sin que el volumen engañe.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere fijar este termino de forma literal o como idea operativa."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Calibracion de procesos",
+      "tags": ["unity_gain", "entrada", "salida", "plugins"],
+      "common_confusion": "Pensar que unity gain significa ausencia total de procesamiento.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_014",
+      "term": "Bus",
+      "abbreviation": "",
+      "definition": "Ruta o canal de agrupacion hacia el que varias señales pueden enviarse para controlarlas o procesarlas en conjunto.",
+      "stable_definition": "Un bus sirve para sumar, organizar o procesar varias señales como conjunto.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere diferenciar bus, subgrupo y grupo en entradas separadas o tratarlos juntos."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Ruteo",
+      "tags": ["bus", "subgrupo", "grupo", "ruteo"],
+      "common_confusion": "Usarlo como sinonimo perfecto de master o de auxiliar en cualquier contexto.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_015",
+      "term": "Subgrupo",
+      "abbreviation": "",
+      "definition": "Agrupacion intermedia de señales que permite controlar o procesar varias fuentes relacionadas antes de llegar a buses mas generales.",
+      "stable_definition": "El subgrupo ayuda a organizar familias o elementos relacionados dentro de la mezcla.",
+      "pending_validation_notes": [
+        "Validar hasta que punto el curso diferencia formalmente subgrupo y grupo."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Ruteo",
+      "tags": ["subgrupo", "grupo", "ruteo", "mezcla"],
+      "common_confusion": "Creer que toda agrupacion cumple exactamente la misma funcion tecnica.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_016",
+      "term": "Mix Bus",
+      "abbreviation": "",
+      "definition": "Ruta de suma principal de la mezcla antes de la salida final o del master fader.",
+      "stable_definition": "El Mix Bus concentra el resultado general de la mezcla antes de la etapa final.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere diferenciarlo siempre del master fader o tratarlos como etapas consecutivas."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Ruteo general",
+      "tags": ["mix_bus", "master", "mezcla", "suma"],
+      "common_confusion": "Confundir mix bus con cualquier bus de grupo.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_017",
+      "term": "Envio auxiliar",
+      "abbreviation": "Aux Send",
+      "definition": "Derivacion de una parte de la señal hacia otra ruta, usada con frecuencia para efectos en paralelo.",
+      "stable_definition": "El envio auxiliar permite sumar una ruta adicional sin reemplazar la señal principal.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere introducir aqui la idea de postfader como caso habitual."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Ruteo y efectos",
+      "tags": ["aux", "envio", "paralelo", "efectos"],
+      "common_confusion": "Creer que un envio auxiliar es igual a una insercion en serie.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_018",
+      "term": "Pan Law",
+      "abbreviation": "",
+      "definition": "Compensacion de ganancia aplicada al panoramizar una señal mono, especialmente al ubicarla en el centro.",
+      "stable_definition": "Pan Law evita que el centro se vuelva artificialmente mas fuerte por suma entre altavoces.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere fijar valores concretos como parte oficial de esta entrada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Panoramizacion",
+      "tags": ["pan_law", "panorama", "centro", "ganancia"],
+      "common_confusion": "Cambiarla a mitad de mezcla sin entender que altera balances ya hechos.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M02_TERM_019",
+      "term": "Nivel de linea",
+      "abbreviation": "",
+      "definition": "Nivel de señal ya acondicionado para transferencia o procesamiento entre equipos de audio.",
+      "stable_definition": "El nivel de linea no debe tratarse como equivalente al nivel de microfono.",
+      "pending_validation_notes": [
+        "Validar si el curso quiere relacionarlo aqui con +4 dBu y -10 dBV o dejarlo en FAQ/guia."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Tipos de nivel",
+      "tags": ["nivel_linea", "audio", "senal"],
+      "common_confusion": "Entrar una salida de linea por una entrada de microfono sin considerar el nivel y la etapa.",
+      "requires_validation": true
+    }
+  ]
+}

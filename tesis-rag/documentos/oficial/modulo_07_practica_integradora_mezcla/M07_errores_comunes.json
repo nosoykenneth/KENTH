@@ -1,0 +1,20 @@
+﻿{
+    "course_id":  "mezcla_masterizacion_kenth",
+    "module_id":  "M07",
+    "module_order":  7,
+    "module_title":  "Practica integradora de mezcla",
+    "module_slug":  "practica-integradora-mezcla",
+    "short_description":  "Modulo de integracion practica de criterios tecnicos y esteticos de mezcla.",
+    "learning_scope":  "Integra ganancia, fase, ecualizacion, dinamica, espacialidad y balance en ejercicios de mezcla completos.",
+    "source_origin":  "course",
+    "version":  "0.1",
+    "status":  "draft_pending_authoring",
+    "curation_source":  "estructura_base_curso",
+    "requires_validation":  true,
+    "doc_type":  "common_errors",
+    "filename":  "M07_errores_comunes.json",
+    "purpose":  "Skeleton base para observaciones pedagogicas del modulo. No contiene errores comunes finales.",
+    "items":  [
+
+              ]
+}

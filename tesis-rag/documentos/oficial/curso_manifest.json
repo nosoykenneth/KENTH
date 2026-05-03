@@ -1,0 +1,92 @@
+{
+  "id": "curso_mezcla_masterizacion_manifest_v1",
+  "title": "Curso de mezcla y masterizacion",
+  "canonical_version": "canonical_v1",
+  "source_origin": "course",
+  "status": "canonical_v1",
+  "version": "1.0.0",
+  "language": "es",
+  "description": "Referencia oficial congelada del temario del curso para el proyecto de tesis.",
+  "modules": [
+    {
+      "module_id": "M01",
+      "order": 1,
+      "title": "Fundamentos físicos, acústica y medición",
+      "slug": "fundamentos-fisicos-acustica-medicion",
+      "short_description": "Modulo base sobre fundamentos fisicos, acustica y medicion aplicados al audio.",
+      "learning_scope": "Delimita los conceptos fisicos, acusticos y de medicion que sostienen las decisiones tecnicas del curso.",
+      "status": "canonical_v1",
+      "version": "1.0.0"
+    },
+    {
+      "module_id": "M02",
+      "order": 2,
+      "title": "Estructura de ganancia y flujo de señal",
+      "slug": "estructura-ganancia-flujo-senal",
+      "short_description": "Modulo sobre organizacion de niveles, headroom y recorrido de la señal.",
+      "learning_scope": "Delimita el trabajo con estructura de ganancia, flujo de señal y orden operativo dentro de una mezcla.",
+      "status": "canonical_v1",
+      "version": "1.0.0"
+    },
+    {
+      "module_id": "M03",
+      "order": 3,
+      "title": "Polaridad, fase y monocompatibilidad",
+      "slug": "polaridad-fase-monocompatibilidad",
+      "short_description": "Modulo sobre relaciones temporales y compatibilidad mono en señales de audio.",
+      "learning_scope": "Delimita el analisis de polaridad, fase, suma de señales y traduccion mono.",
+      "status": "canonical_v1",
+      "version": "1.0.0"
+    },
+    {
+      "module_id": "M04",
+      "order": 4,
+      "title": "Filtros y ecualización",
+      "slug": "filtros-ecualizacion",
+      "short_description": "Modulo sobre filtros y ecualizacion dentro del proceso de mezcla.",
+      "learning_scope": "Delimita el uso tecnico y musical de filtros y ecualizadores segun el temario oficial.",
+      "status": "canonical_v1",
+      "version": "1.0.0"
+    },
+    {
+      "module_id": "M05",
+      "order": 5,
+      "title": "Procesadores dinámicos",
+      "slug": "procesadores-dinamicos",
+      "short_description": "Modulo sobre procesamiento dinamico aplicado a señales y mezcla.",
+      "learning_scope": "Delimita el estudio de herramientas y criterios vinculados al control dinamico.",
+      "status": "canonical_v1",
+      "version": "1.0.0"
+    },
+    {
+      "module_id": "M06",
+      "order": 6,
+      "title": "Espacialidad, profundidad y ambiencia",
+      "slug": "espacialidad-profundidad-ambiencia",
+      "short_description": "Modulo sobre construccion espacial, profundidad y ambiente en mezcla.",
+      "learning_scope": "Delimita los recursos de espacialidad, profundidad y ambiencia del curso.",
+      "status": "canonical_v1",
+      "version": "1.0.0"
+    },
+    {
+      "module_id": "M07",
+      "order": 7,
+      "title": "Práctica integradora de mezcla",
+      "slug": "practica-integradora-mezcla",
+      "short_description": "Modulo de aplicacion integrada de criterios de mezcla.",
+      "learning_scope": "Delimita la integracion practica de los contenidos previos en una experiencia de mezcla.",
+      "status": "canonical_v1",
+      "version": "1.0.0"
+    },
+    {
+      "module_id": "M08",
+      "order": 8,
+      "title": "Masterización y optimización comercial",
+      "slug": "masterizacion-optimizacion-comercial",
+      "short_description": "Modulo sobre masterizacion y optimizacion final para distribucion comercial.",
+      "learning_scope": "Delimita el cierre tecnico del curso mediante masterizacion y criterios de optimizacion comercial.",
+      "status": "canonical_v1",
+      "version": "1.0.0"
+    }
+  ]
+}

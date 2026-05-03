@@ -1,0 +1,299 @@
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M04",
+  "module_order": 4,
+  "module_title": "Filtros y ecualizacion",
+  "module_slug": "filtros-ecualizacion",
+  "short_description": "Modulo sobre filtros y ecualizacion dentro del proceso de mezcla.",
+  "learning_scope": "Delimita el uso tecnico y musical de filtros y ecualizadores segun el temario oficial.",
+  "doc_type": "glossary",
+  "source_origin": "course",
+  "filename": "M04_glosario.json",
+  "version": "0.3",
+  "status": "ready_for_indexing",
+  "curation_source": "borrador_autoral_m04",
+  "terms": [
+    {
+      "term_id": "M04_TERM_001",
+      "term": "Frecuencia de corte",
+      "abbreviation": "Fc",
+      "definition": "Punto de referencia usado para describir desde donde se evalua la accion de un filtro.",
+      "stable_definition": "La frecuencia de corte sirve como referencia tecnica para interpretar un filtro, no como una barrera visual absoluta.",
+      "pending_validation_notes": [
+        "Validar la definicion exacta con -3 dB en el apunte oficial.",
+        "Validar como se explica la relacion con potencia o amplitud."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Filtros",
+      "tags": ["filtros", "parametros_de_medicion"],
+      "common_confusion": "Confundirla con el punto visual donde la curva empieza a moverse en el plugin.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_002",
+      "term": "Pendiente",
+      "abbreviation": "Slope",
+      "definition": "Parametro que describe que tan rapida es la atenuacion de un filtro fuera de su zona de paso.",
+      "stable_definition": "La pendiente se relaciona con la rapidez de caida del filtro.",
+      "pending_validation_notes": [
+        "Validar unidades y ejemplos exactos usados en el curso, como dB/octava o dB/decada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Filtros",
+      "tags": ["filtros", "pendiente", "parametros"],
+      "common_confusion": "Confundir pendiente con factor Q.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_003",
+      "term": "Factor de calidad",
+      "abbreviation": "Q",
+      "definition": "Parametro relacionado con la selectividad o ancho de una intervencion en frecuencia.",
+      "stable_definition": "El Q ayuda a describir si una curva es mas estrecha o mas amplia.",
+      "pending_validation_notes": [
+        "Validar la formula exacta que usara el curso.",
+        "Validar si se define como relacion entre frecuencia central y ancho de banda."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Parametros del ecualizador",
+      "tags": ["q", "ecualizadores", "parametros"],
+      "common_confusion": "Usarlo como sinonimo de pendiente.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_004",
+      "term": "Ancho de banda",
+      "abbreviation": "BW",
+      "definition": "Rango de frecuencias afectado alrededor de una frecuencia de referencia.",
+      "stable_definition": "El ancho de banda ayuda a describir cuanta zona del espectro queda afectada por una intervencion.",
+      "pending_validation_notes": [
+        "Validar si el curso lo define con puntos de -3 dB u otra referencia."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Parametros del ecualizador",
+      "tags": ["ancho_de_banda", "eq", "parametros"],
+      "common_confusion": "",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_005",
+      "term": "Filtro pasa altos",
+      "abbreviation": "HPF / Low Cut",
+      "definition": "Filtro que conserva la zona alta del espectro y atenua progresivamente contenido por debajo de una referencia de corte.",
+      "stable_definition": "Se usa para reducir contenido grave o subgrave cuando existe una intencion tecnica clara.",
+      "pending_validation_notes": [
+        "Validar ejemplos de uso aceptados por el curso."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Filtros",
+      "tags": ["hpf", "low_cut", "limpieza", "headroom"],
+      "common_confusion": "Aplicarlo por rutina sin escuchar el contexto.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_006",
+      "term": "Filtro pasa bajos",
+      "abbreviation": "LPF / High Cut",
+      "definition": "Filtro que conserva la zona baja o media del espectro y atenua progresivamente contenido por encima de una referencia de corte.",
+      "stable_definition": "Se usa para controlar contenido agudo cuando existe una intencion tecnica o estetica clara.",
+      "pending_validation_notes": [
+        "Validar ejemplos de uso aceptados por el curso."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Filtros",
+      "tags": ["lpf", "high_cut", "control_espectral"],
+      "common_confusion": "Interpretarlo como eliminacion absoluta de todo lo que queda encima.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_007",
+      "term": "Filtro notch",
+      "abbreviation": "Notch",
+      "definition": "Filtro o intervencion estrecha orientada a reducir una zona puntual del espectro.",
+      "stable_definition": "Puede utilizarse para problemas localizados, pero requiere escuchar y justificar la intervencion.",
+      "pending_validation_notes": [
+        "Validar como el curso diferencia notch, campana estrecha y correccion quirurgica."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Correccion puntual",
+      "tags": ["notch", "resonancia", "correccion"],
+      "common_confusion": "Usarlo como solucion automatica para cualquier problema de mezcla.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_008",
+      "term": "Filtro Butterworth",
+      "abbreviation": "",
+      "definition": "Tipo de filtro mencionado como una posible topologia dentro del estudio de filtros.",
+      "stable_definition": "Debe tratarse como una topologia especifica, no como sinonimo de todos los filtros.",
+      "pending_validation_notes": [
+        "Validar si el curso lo desarrolla en detalle o solo lo menciona como ejemplo.",
+        "Validar descripcion tecnica exacta de su respuesta."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Tipologias de filtros",
+      "tags": ["butterworth", "filtros", "topologia"],
+      "common_confusion": "Tomarlo como la totalidad de los filtros existentes.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_009",
+      "term": "Filtros de fase lineal",
+      "abbreviation": "",
+      "definition": "Filtros digitales que se estudian por su comportamiento particular frente a la fase.",
+      "stable_definition": "No deben presentarse automaticamente como mejores; deben evaluarse por contexto.",
+      "pending_validation_notes": [
+        "Validar explicacion oficial sobre fase, latencia y pre-ringing.",
+        "Validar casos de uso recomendados o desaconsejados."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Filtros digitales",
+      "tags": ["fase_lineal", "filtros", "artefactos"],
+      "common_confusion": "Creer que son una solucion perfecta para cualquier problema de fase.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_010",
+      "term": "Pre-ringing",
+      "abbreviation": "",
+      "definition": "Artefacto temporal asociado en el borrador a ciertos procesos de fase lineal.",
+      "stable_definition": "Debe explicarse con cautela y solo si la fuente del curso lo respalda.",
+      "pending_validation_notes": [
+        "Validar definicion tecnica y ejemplos en el material oficial.",
+        "Validar si se describe como energia antes del transitorio."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Artefactos digitales",
+      "tags": ["pre_ringing", "fase_lineal", "transientes"],
+      "common_confusion": "Ignorarlo al asumir que fase lineal siempre es transparente.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_011",
+      "term": "Overshoot",
+      "abbreviation": "",
+      "definition": "Comportamiento pendiente de validar, asociado en el borrador a picos o excesos temporales generados por ciertos filtros.",
+      "stable_definition": "No debe afirmarse como consecuencia general sin fuente verificada.",
+      "pending_validation_notes": [
+        "Validar definicion exacta.",
+        "Validar relacion con pendientes abruptas y frecuencia de corte."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Artefactos",
+      "tags": ["overshoot", "filtros_agresivos", "transientes"],
+      "common_confusion": "Usarlo como palabra tecnica sin poder explicar el fenomeno.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_012",
+      "term": "Ringing",
+      "abbreviation": "",
+      "definition": "Comportamiento pendiente de validar, asociado en el borrador a oscilaciones o resonancias posteriores a una intervencion de filtrado.",
+      "stable_definition": "Debe explicarse solo con respaldo de la fuente original.",
+      "pending_validation_notes": [
+        "Validar definicion exacta.",
+        "Validar relacion con pendientes abruptas y transientes."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Artefactos",
+      "tags": ["ringing", "filtros", "alteracion_temporal"],
+      "common_confusion": "Tratarlo como sinonimo de resonancia musical sin contexto tecnico.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_013",
+      "term": "Ecualizador shelving",
+      "abbreviation": "Estante",
+      "definition": "Curva de ecualizacion que modifica una zona amplia hacia un extremo del espectro.",
+      "stable_definition": "Se diferencia de una campana y de un filtro de corte por la forma de su curva.",
+      "pending_validation_notes": [
+        "Validar la explicacion oficial sobre shelving y fase.",
+        "Validar ejemplos de uso tonal o correctivo."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Modelado tonal",
+      "tags": ["shelving", "eq", "fase"],
+      "common_confusion": "Creer que evita automaticamente problemas de fase.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_014",
+      "term": "Ecualizador peak",
+      "abbreviation": "Campana / Bell",
+      "definition": "Curva de ecualizacion centrada en una frecuencia, con accion que se reduce hacia los lados.",
+      "stable_definition": "Es una forma comun de intervenir una zona especifica del espectro.",
+      "pending_validation_notes": [
+        "Validar como el curso relaciona campana, Q y ancho de banda."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Topologias de ecualizadores",
+      "tags": ["peak", "bell", "eq"],
+      "common_confusion": "",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_015",
+      "term": "Q proporcional",
+      "abbreviation": "",
+      "definition": "Comportamiento donde el ancho de una curva puede variar al cambiar la ganancia.",
+      "stable_definition": "Sirve para describir que no todos los ecualizadores responden igual al realce o recorte.",
+      "pending_validation_notes": [
+        "Validar definicion contra el apunte de ecualizadores.",
+        "Validar ejemplos de marcas o disenos concretos."
+      ],
+      "brand_or_model_mentions": ["API"],
+      "topic": "Comportamiento de ecualizadores",
+      "tags": ["q_proporcional", "eq", "hardware"],
+      "common_confusion": "Creer que el cambio de ancho es siempre un error del plugin.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_016",
+      "term": "Ecualizacion asimetrica",
+      "abbreviation": "",
+      "definition": "Comportamiento donde las curvas de realce y atenuacion no tienen necesariamente la misma forma.",
+      "stable_definition": "Debe entenderse como caracteristica de ciertos disenos, no como regla universal de todos los EQ.",
+      "pending_validation_notes": [
+        "Validar el ejemplo de Pultec y su importancia dentro del curso.",
+        "Validar explicacion exacta de curvas asimetricas."
+      ],
+      "brand_or_model_mentions": ["Pultec"],
+      "topic": "Modelado analogico",
+      "tags": ["asimetria", "pultec", "color_musical"],
+      "common_confusion": "Creer que subir y bajar la misma frecuencia siempre se anula de forma simple.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_017",
+      "term": "Ecualizacion dinamica",
+      "abbreviation": "",
+      "definition": "Forma de ecualizacion en la que una intervencion puede activarse o variar segun el comportamiento de la senal.",
+      "stable_definition": "Se usa como opcion para problemas que no estan presentes todo el tiempo.",
+      "pending_validation_notes": [
+        "Validar definicion oficial y parametros que el curso desea incluir.",
+        "Validar diferencia frente a compresion multibanda."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Ecualizacion avanzada",
+      "tags": ["eq_dinamica", "threshold", "problemas_intermitentes"],
+      "common_confusion": "Confundirla automaticamente con compresion multibanda.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_018",
+      "term": "Metodo Robin Hood",
+      "abbreviation": "",
+      "definition": "Nombre pendiente de validacion para un criterio sustractivo de trabajo con EQ y headroom.",
+      "stable_definition": "Si se conserva en el curso, debe explicarse como criterio pedagogico, no como herramienta.",
+      "pending_validation_notes": [
+        "Validar si el nombre aparece literalmente en las fuentes oficiales.",
+        "Validar la formulacion exacta del criterio."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Metodologia y headroom",
+      "tags": ["metodo_robin_hood", "headroom", "buenas_practicas"],
+      "common_confusion": "Confundirlo con un plugin, filtro fisico o parametro de compresor.",
+      "requires_validation": true
+    }
+  ]
+}

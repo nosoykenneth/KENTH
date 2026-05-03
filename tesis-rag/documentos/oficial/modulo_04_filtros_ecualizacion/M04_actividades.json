@@ -1,0 +1,141 @@
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M04",
+  "module_order": 4,
+  "module_title": "Filtros y ecualizacion",
+  "module_slug": "filtros-ecualizacion",
+  "short_description": "Modulo sobre filtros y ecualizacion dentro del proceso de mezcla.",
+  "learning_scope": "Delimita el uso tecnico y musical de filtros y ecualizadores segun el temario oficial.",
+  "doc_type": "activities",
+  "source_origin": "course",
+  "filename": "M04_actividades.json",
+  "version": "0.3",
+  "status": "curated_pending_source_check",
+  "curation_source": "borrador_autoral_m04",
+  "purpose": "Borrador de actividades para Moodle. Las consignas deben validarse pedagogicamente antes de usarse en el curso.",
+  "activities": [
+    {
+      "activity_id": "M04_ACT_001",
+      "title": "Analisis basico de una decision de filtrado",
+      "moodle_type": "tarea_breve",
+      "objective": "Que el estudiante explique la intencion de un filtro sin depender solo de la grafica.",
+      "student_task": "Elegir una decision de filtrado propia o hipotetica y describir: que problema o intencion atiende, que zona del espectro busca modificar y como verificaria si la decision funciona dentro de la mezcla.",
+      "evidence_to_submit": [
+        "Descripcion del contexto de mezcla o instrumento.",
+        "Captura opcional del ajuste, si existe.",
+        "Justificacion breve de la decision."
+      ],
+      "ai_feedback_criteria": [
+        "Verificar si el estudiante explica la intencion del filtro.",
+        "Pedir aclaracion si solo entrega valores sin contexto.",
+        "No inventar pagina, minuto, plugin ni valor tecnico."
+      ],
+      "related_errors": ["M04_ERR_001"],
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar si la actividad sera individual, practica o solo reflexiva.",
+        "Validar si se exigira captura obligatoria."
+      ],
+      "tags": ["filtros", "frecuencia_de_corte", "contexto"],
+      "requires_validation": true
+    },
+    {
+      "activity_id": "M04_ACT_002",
+      "title": "Comparacion entre pendiente y Q",
+      "moodle_type": "cuestionario_o_tarea_breve",
+      "objective": "Que el estudiante distinga parametros antes de justificar un ajuste.",
+      "student_task": "Explicar con sus palabras la diferencia entre pendiente y Q. Si usa una captura de plugin, debe indicar que parametro esta observando y que duda le genera.",
+      "evidence_to_submit": [
+        "Explicacion breve de pendiente.",
+        "Explicacion breve de Q.",
+        "Ejemplo propio o captura opcional."
+      ],
+      "ai_feedback_criteria": [
+        "Detectar si Q y pendiente aparecen como sinonimos.",
+        "Pedir captura si la interfaz del plugin es ambigua.",
+        "Evitar afirmaciones sobre artefactos si no hay fuente validada."
+      ],
+      "related_errors": ["M04_ERR_002", "M04_ERR_003"],
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar definiciones oficiales antes de usar como pregunta calificada."
+      ],
+      "tags": ["q", "pendiente", "filtros"],
+      "requires_validation": true
+    },
+    {
+      "activity_id": "M04_ACT_003",
+      "title": "Decision correctiva o decision tonal",
+      "moodle_type": "foro_o_tarea_breve",
+      "objective": "Que el estudiante clasifique la intencion de una ecualizacion.",
+      "student_task": "Describir una decision de EQ y clasificarla como correctiva o tonal. Debe explicar si la decision fue tomada en contexto de mezcla y que esperaba lograr.",
+      "evidence_to_submit": [
+        "Descripcion de la fuente o mezcla.",
+        "Clasificacion: correctiva o tonal.",
+        "Justificacion de la intencion."
+      ],
+      "ai_feedback_criteria": [
+        "Preguntar por intencion si la respuesta es ambigua.",
+        "Detectar si el estudiante decide el timbre final solo en modo solo.",
+        "No recomendar marcas, modelos ni plugins concretos."
+      ],
+      "related_errors": ["M04_ERR_007", "M04_ERR_008"],
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar si el curso usara esta distincion como eje oficial de evaluacion."
+      ],
+      "tags": ["eq_correctiva", "eq_tonal", "contexto"],
+      "requires_validation": true
+    },
+    {
+      "activity_id": "M04_ACT_004",
+      "title": "Revision de una decision de EQ en contexto",
+      "moodle_type": "tarea_practica_opcional",
+      "objective": "Que el estudiante relacione una decision de EQ con el balance general de la mezcla.",
+      "student_task": "Presentar una decision de EQ aplicada a un elemento de la mezcla y explicar como cambia su relacion con los demas elementos. Si no tiene proyecto propio, puede describir un caso hipotetico.",
+      "evidence_to_submit": [
+        "Descripcion del elemento procesado.",
+        "Descripcion del cambio buscado dentro de la mezcla.",
+        "Captura o audio opcional, si el entorno lo permite."
+      ],
+      "ai_feedback_criteria": [
+        "Priorizar contexto de mezcla sobre valores aislados.",
+        "Pedir mas informacion si no se entiende el objetivo.",
+        "No diagnosticar problemas de audio sin evidencia suficiente."
+      ],
+      "related_errors": ["M04_ERR_008"],
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar si Moodle recibira audio/capturas o solo texto.",
+        "Validar criterio de calificacion."
+      ],
+      "tags": ["mezcla", "contexto", "eq"],
+      "requires_validation": true
+    },
+    {
+      "activity_id": "M04_ACT_005",
+      "title": "Criterio sustractivo y margen de nivel",
+      "moodle_type": "tarea_breve",
+      "objective": "Que el estudiante proponga una decision sustractiva antes de sumar ganancia cuando hay acumulacion o poco margen.",
+      "student_task": "Describir una situacion donde la mezcla o un grupo tenga demasiada energia. Proponer una accion sustractiva y explicar por que seria preferible antes de realzar otra zona.",
+      "evidence_to_submit": [
+        "Descripcion de la acumulacion o problema percibido.",
+        "Accion sustractiva propuesta.",
+        "Justificacion vinculada al margen de nivel o claridad."
+      ],
+      "ai_feedback_criteria": [
+        "Evitar valores exactos de dB sin evidencia.",
+        "Pedir contexto si no se sabe que energia molesta.",
+        "No usar el nombre Metodo Robin Hood como oficial hasta validarlo."
+      ],
+      "related_errors": ["M04_ERR_010"],
+      "teacher_decision_status": "pending_teacher_review",
+      "validation_notes": [
+        "Validar si el nombre Metodo Robin Hood se conservara en el material oficial.",
+        "Validar si esta actividad pertenece a M04 o a estructura de ganancia."
+      ],
+      "tags": ["headroom", "eq_sustractiva", "criterio_sustractivo"],
+      "requires_validation": true
+    }
+  ]
+}

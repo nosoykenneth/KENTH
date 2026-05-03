@@ -1,0 +1,280 @@
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M04",
+  "module_order": 4,
+  "module_title": "Filtros y ecualizacion",
+  "module_slug": "filtros-ecualizacion",
+  "short_description": "Modulo sobre filtros y ecualizacion dentro del proceso de mezcla.",
+  "learning_scope": "Delimita el uso tecnico y musical de filtros y ecualizadores segun el temario oficial.",
+  "doc_type": "faq",
+  "source_origin": "course",
+  "filename": "M04_faq.json",
+  "version": "0.3",
+  "status": "ready_for_indexing",
+  "curation_source": "borrador_autoral_m04",
+  "items": [
+    {
+      "faq_id": "M04_FAQ_001",
+      "question": "Donde empieza realmente a actuar o cortar un filtro?",
+      "canonical_answer": "En este modulo se distingue entre la lectura visual de la curva y la referencia tecnica de frecuencia de corte. La curva puede empezar a modificarse antes del punto marcado como corte; por eso conviene no interpretar el grafico como una eliminacion absoluta.",
+      "short_answer": "No conviene leer el filtro como una barrera absoluta; la frecuencia de corte es una referencia tecnica que debe validarse con la fuente del curso.",
+      "stable_answer": "La curva visual de un filtro no debe interpretarse como un corte instantaneo ni absoluto.",
+      "pending_validation_notes": [
+        "Validar en la fuente original la definicion exacta de frecuencia de corte.",
+        "Validar la formulacion de -3 dB y su explicacion tecnica.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Lectura de filtros y analizadores",
+      "learning_objective": "Interpretar la frecuencia de corte sin depender solo de la visualizacion del plugin.",
+      "tags": ["filtros", "frecuencia_de_corte", "analizador"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que el filtro elimina por completo todo lo que queda fuera de la frecuencia.",
+        "No dar paginas, minutos ni valores exactos sin evidencia."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_002",
+      "question": "Es lo mismo el factor Q que la pendiente de un filtro?",
+      "canonical_answer": "No deben tratarse como lo mismo. En el marco del modulo, la pendiente describe la rapidez con la que cae la respuesta de un filtro, mientras que el Q se relaciona con la selectividad o ancho de una intervencion.",
+      "short_answer": "No. Pendiente y Q son parametros distintos; no conviene usarlos como sinonimos.",
+      "stable_answer": "Q y pendiente cumplen funciones diferentes dentro de la lectura de filtros y ecualizadores.",
+      "pending_validation_notes": [
+        "Validar la formulacion matematica exacta del Q contra una fuente oficial propia.",
+        "Validar si el curso explica excepciones o interfaces donde ambos controles parezcan relacionados.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Parametros del ecualizador",
+      "learning_objective": "Distinguir pendiente, Q y ancho de banda.",
+      "tags": ["q", "pendiente", "filtros", "eq"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No afirmar que mover Q cambia directamente los dB/octava de la pendiente si la fuente no lo respalda."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_003",
+      "question": "Que problemas puede generar usar siempre filtros con pendientes muy abruptas?",
+      "canonical_answer": "Una pendiente muy abrupta puede ser util en casos concretos, pero no deberia usarse como valor por defecto sin escuchar y sin justificar la decision. El modulo deja pendiente validar los efectos especificos sobre fase, transientes, overshoot o ringing.",
+      "short_answer": "No uses pendientes extremas por rutina; primero justifica que problema tecnico estas resolviendo.",
+      "stable_answer": "Las pendientes extremas requieren criterio y contexto; no son automaticamente una mejor limpieza.",
+      "pending_validation_notes": [
+        "Validar en fuentes originales la relacion entre pendientes abruptas, fase, overshoot y ringing.",
+        "Validar cualquier ejemplo numerico, como 24 dB/octava o 48 dB/octava.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Efectos colaterales de los filtros",
+      "learning_objective": "Evaluar el uso de pendientes de filtrado segun contexto tecnico.",
+      "tags": ["pendiente", "fase", "overshoot", "ringing"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No recomendar pendientes extremas como solucion universal.",
+        "No afirmar consecuencias tecnicas cerradas sin fuente verificada."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_004",
+      "question": "Conviene usar siempre filtros de fase lineal?",
+      "canonical_answer": "No conviene presentarlos como una solucion universal. En el modulo se trabajara como una alternativa con ventajas y posibles costos, que deben evaluarse segun el material, el contexto y el tipo de senal.",
+      "short_answer": "No son una solucion automatica; hay que evaluar ventajas y posibles efectos colaterales.",
+      "stable_answer": "La fase lineal debe analizarse como una opcion tecnica, no como una mejora garantizada en todo caso.",
+      "pending_validation_notes": [
+        "Validar en la fuente del curso la explicacion de latencia y pre-ringing.",
+        "Validar en que casos el curso recomienda o evita fase lineal.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Tipologias de filtros digitales",
+      "learning_objective": "Evaluar fase lineal sin asumir que es siempre superior.",
+      "tags": ["fase_lineal", "pre_ringing", "latencia"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No llamar a la fase lineal la opcion perfecta.",
+        "No sugerir su uso rutinario sin contexto."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_005",
+      "question": "Un shelving evita los problemas de fase de un HPF o LPF?",
+      "canonical_answer": "No debe presentarse como una solucion magica. Un shelving y un filtro de corte tienen curvas distintas, pero cualquier afirmacion especifica sobre fase debe verificarse con el material original del curso.",
+      "short_answer": "No asumas que un shelving evita problemas de fase; revisa el contexto y la fuente del curso.",
+      "stable_answer": "Shelving y filtros de corte no son la misma curva ni deben intercambiarse sin criterio.",
+      "pending_validation_notes": [
+        "Validar la explicacion del curso sobre shelving y rotacion de fase.",
+        "Validar si se presentan excepciones o contextos especificos.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Curvas shelving y fase",
+      "learning_objective": "Evitar simplificaciones sobre curvas shelving y fase.",
+      "tags": ["shelving", "fase", "eq"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que shelving mantiene la fase intacta por defecto.",
+        "No afirmar consecuencias tecnicas sin evidencia recuperada."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_006",
+      "question": "Cuando uso EQ correctiva y cuando uso EQ tonal?",
+      "canonical_answer": "Una forma estable de ordenar la decision es preguntar si se esta resolviendo un problema o buscando un color. Si hay un problema concreto, la decision tiende a ser correctiva. Si se busca caracter o presencia dentro de la mezcla, la decision tiende a ser tonal.",
+      "short_answer": "Primero define la intencion: corregir un problema o buscar color.",
+      "stable_answer": "La intencion de la intervencion guia el tipo de ecualizacion.",
+      "pending_validation_notes": [
+        "Validar si el curso usa literalmente las frases 'tengo un problema' y 'me gustaria que'.",
+        "Validar ejemplos de herramientas o curvas asociadas a cada caso.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Criterios de decision en mezcla",
+      "learning_objective": "Distinguir decisiones correctivas y tonales.",
+      "tags": ["eq_correctiva", "eq_tonal", "contexto"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No recomendar plugins o marcas si no aparecen en la evidencia o en la pregunta.",
+        "No diagnosticar sin descripcion del problema."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_007",
+      "question": "Que pasa si realzo y atenuo la misma zona en un ecualizador analogico?",
+      "canonical_answer": "Depende del diseno de la herramienta. Algunos ecualizadores o emulaciones pueden tener curvas no simetricas, pero cualquier ejemplo concreto debe verificarse con la fuente del curso antes de tratarse como regla general.",
+      "short_answer": "No asumas cancelacion perfecta ni un efecto fijo; depende del diseno y debe validarse con la fuente.",
+      "stable_answer": "En ecualizadores con curvas no identicas, realce y atenuacion pueden no cancelarse de forma simple.",
+      "pending_validation_notes": [
+        "Validar el ejemplo de Pultec en la fuente original.",
+        "Validar si el curso presenta esta tecnica como contenido central u observacion puntual.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": ["Pultec"],
+      "topic": "Curvas asimetricas y modelado analogico",
+      "learning_objective": "Evitar generalizaciones sobre realce y atenuacion en ecualizadores analogicos.",
+      "tags": ["asimetria", "eq_analogico", "pultec"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No recomendar Pultec si no aparece en la evidencia o en la pregunta.",
+        "No afirmar que boost y cut se cancelan siempre."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_008",
+      "question": "Por que algunas campanas cambian de ancho cuando aumento la ganancia?",
+      "canonical_answer": "Puede deberse al comportamiento de Q proporcional, donde la relacion entre ganancia y ancho de banda no se mantiene fija. Esta explicacion debe validarse con los apuntes o la clase correspondiente antes de usarse como regla cerrada.",
+      "short_answer": "Puede ser Q proporcional, pero valida el comportamiento segun la herramienta y la fuente del curso.",
+      "stable_answer": "No todos los ecualizadores mantienen el mismo ancho de banda al cambiar la ganancia.",
+      "pending_validation_notes": [
+        "Validar definicion de Q constante y Q proporcional.",
+        "Validar ejemplos de marcas o modelos asociados.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": ["API"],
+      "topic": "Q constante vs Q proporcional",
+      "learning_objective": "Reconocer que no todas las curvas de EQ responden igual.",
+      "tags": ["q_proporcional", "q_constante", "eq"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No afirmar que es un error del plugin sin revisar el diseno.",
+        "No mencionar marcas como recomendacion si no aparecen en evidencia."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_009",
+      "question": "Por que al filtrar una capa puede perderse pegada o cuerpo?",
+      "canonical_answer": "Una posibilidad es que el filtro cambie la relacion entre capas y afecte la suma resultante. Antes de compensar con mas graves, conviene revisar fase, polaridad, alineacion y contexto de mezcla.",
+      "short_answer": "Puede ser un problema de suma entre capas; revisa fase y contexto antes de subir graves.",
+      "stable_answer": "En layering, filtrar una capa puede cambiar como se suma con otra.",
+      "pending_validation_notes": [
+        "Validar si el curso recomienda osciloscopio u otra herramienta especifica.",
+        "Validar ejemplos concretos como bombos, bajo o layers.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Filtros, fase y layering",
+      "learning_objective": "Relacionar decisiones de filtrado con suma entre capas.",
+      "tags": ["layering", "fase", "filtros", "graves"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No diagnosticar definitivamente sin audio, captura o descripcion suficiente.",
+        "No proponer subir graves como primera solucion."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_010",
+      "question": "Puedo confiar ciegamente en los numeros de un plugin de modelado analogico?",
+      "canonical_answer": "No conviene confiar solo en la interfaz. En herramientas de modelado analogico, la lectura visual o numerica puede requerir escucha, medicion o comparacion para entender que esta ocurriendo realmente.",
+      "short_answer": "Usa los numeros como referencia, no como garantia absoluta.",
+      "stable_answer": "La decision final debe validarse con escucha y contexto, no solo con la interfaz.",
+      "pending_validation_notes": [
+        "Validar ejemplos del curso sobre perillas, serigrafia o diferencias entre interfaz y curva real.",
+        "Validar cualquier ejemplo numerico concreto.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Modelado analogico e interfaz",
+      "learning_objective": "Usar interfaces analogicas como referencia, no como verdad absoluta.",
+      "tags": ["modelado_analogico", "gui", "escucha"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No pedir ajustes exactos a ciegas basados solo en la GUI.",
+        "No inventar frecuencias afectadas si no estan en la fuente."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_011",
+      "question": "Cuando tiene sentido usar ecualizacion dinamica?",
+      "canonical_answer": "Tiene sentido considerarla cuando el problema espectral aparece solo en ciertos momentos. Si el problema es permanente, una decision estatica puede ser suficiente; si es intermitente, una intervencion dinamica podria ser mas adecuada.",
+      "short_answer": "Considerala para problemas localizados que aparecen solo a veces.",
+      "stable_answer": "La EQ dinamica se relaciona con problemas espectrales intermitentes o dependientes del nivel.",
+      "pending_validation_notes": [
+        "Validar como define el curso la diferencia entre EQ dinamica y compresion multibanda.",
+        "Validar ejemplos del curso, como sibilancia o conflictos entre instrumentos.",
+        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Ecualizacion dinamica",
+      "learning_objective": "Distinguir una intervencion dinamica de una intervencion estatica.",
+      "tags": ["eq_dinamica", "problema_intermitente", "sibilancia"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No confundir automaticamente EQ dinamica con compresion multibanda.",
+        "No recomendarla si el problema no esta descrito."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M04_FAQ_012",
+      "question": "Como aplico un criterio sustractivo si la mezcla ya tiene demasiado nivel?",
+      "canonical_answer": "Antes de sumar ganancia, conviene revisar si hay energia que puede reducirse sin perjudicar la intencion musical. Si el curso conserva el nombre Metodo Robin Hood, debe entenderse como criterio pedagogico de headroom y no como una herramienta.",
+      "short_answer": "Primero revisa que puedes atenuar antes de sumar mas ganancia.",
+      "stable_answer": "Un enfoque sustractivo puede ayudar a proteger headroom y ordenar la mezcla.",
+      "pending_validation_notes": [
+        "Validar si Metodo Robin Hood aparece literalmente en la fuente oficial.",
+        "Validar la formulacion exacta del criterio sustractivo.",
+        "No usar borradores internos como evidencia del curso."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "Criterio sustractivo y headroom",
+      "learning_objective": "Relacionar decisiones de EQ con margen de nivel.",
+      "tags": ["headroom", "eq_sustractiva", "metodo_robin_hood"],
+      "evidence_sources": [],
+      "do_not_say": [
+        "No decir que Metodo Robin Hood es un plugin.",
+        "No decir que es un filtro fisico o parametro de compresor."
+      ],
+      "requires_validation": true
+    }
+  ]
+}
