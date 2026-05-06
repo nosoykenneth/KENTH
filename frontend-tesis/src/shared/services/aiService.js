@@ -58,7 +58,7 @@ export const askOllama = async (token, prompt, courseContext = '', imageBase64 =
  */
 const RAG_API_URL = '/rag_api';
 
-export const askOllamaDirect = async (prompt, courseContext = '', imageBase64 = '', usarInternet = false, sessionId = '') => {
+export const askOllamaDirect = async (prompt, courseContext = '', imageBase64 = '', usarInternet = false, sessionId = '', historial = []) => {
   try {
     console.log('[AI DEBUG] Enviando consulta RAG', {
       hasImage: Boolean(imageBase64),
@@ -71,7 +71,8 @@ export const askOllamaDirect = async (prompt, courseContext = '', imageBase64 = 
       contexto_leccion: courseContext,
       imagen: imageBase64,
       usar_internet: usarInternet,
-      session_id: sessionId
+      session_id: sessionId,
+      historial
     };
 
     const response = await fetch(`${RAG_API_URL}/chat`, {

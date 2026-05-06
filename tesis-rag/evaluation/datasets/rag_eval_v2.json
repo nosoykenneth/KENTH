@@ -1,0 +1,459 @@
+[
+  {
+    "id": "reg_001_out_of_domain_napoleon",
+    "question": "quien es napoleon",
+    "category": "fuera_de_dominio",
+    "expected_route": "bloqueo",
+    "expected_answer_type": "out_of_domain",
+    "should_block": true,
+    "notes": "Regresion critica: no debe activarse M04 por el token corto q dentro de quien."
+  },
+  {
+    "id": "reg_002_ambiguous_foam_interface",
+    "question": "que relacion tiene la espuma con la interfaz",
+    "category": "ambigua",
+    "expected_answer_type": "clarification",
+    "should_clarify": true,
+    "notes": "Regresion critica: debe pedir aclaracion o responder seguro, sin inventar relacion tecnica."
+  },
+  {
+    "id": "reg_003_processed_audio_clarification",
+    "question": "puedo ecualizar con mis audios ya procesados",
+    "category": "ambigua",
+    "expected_answer_type": "clarification",
+    "should_clarify": true,
+    "notes": "Regresion critica: debe distinguir mezcla/master, stems o efectos impresos."
+  },
+  {
+    "id": "reg_004_headroom_direct",
+    "question": "que es el headroom",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M02",
+    "should_have_sources": true,
+    "forbid_visible_source_label": true,
+    "notes": "Regresion critica: concepto directo grounded y sin Fuente X visible."
+  },
+  {
+    "id": "reg_005_compression_vs_eq",
+    "question": "diferencia entre compresion y ecualizacion",
+    "category": "comparacion",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Regresion critica: comparacion multiconcepto."
+  },
+  {
+    "id": "reg_006_lookup_cutoff_frequency",
+    "question": "en que modulo hablan de frecuencia de corte",
+    "category": "lookup",
+    "expected_route": "teoria",
+    "expected_intent": "busqueda_fuente",
+    "expected_answer_type": "source_lookup",
+    "should_have_sources": true,
+    "notes": "Regresion critica: lookup debe seguir funcionando."
+  },
+  {
+    "id": "v2_007_concepto_polaridad",
+    "question": "que es la polaridad",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M03",
+    "should_have_sources": true,
+    "notes": "Concepto directo del curso, M03."
+  },
+  {
+    "id": "v2_008_comparacion_serie_paralelo",
+    "question": "diferencia entre procesamiento en serie y paralelo",
+    "category": "comparacion",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Comparacion tecnica del flujo de senal."
+  },
+  {
+    "id": "v2_009_lookup_mono",
+    "question": "donde se habla de revisar en mono",
+    "category": "lookup",
+    "expected_route": "teoria",
+    "expected_intent": "busqueda_fuente",
+    "expected_answer_type": "source_lookup",
+    "should_have_sources": true,
+    "notes": "Lookup por fuente/metadatos. Fallo conocido v1: se clasifica como aclaracion_concepto."
+  },
+  {
+    "id": "v2_010_ambigua_followup",
+    "question": "y eso cuando conviene",
+    "category": "ambigua",
+    "expected_answer_type": "clarification",
+    "should_clarify": true,
+    "notes": "Pregunta ambigua sin historial."
+  },
+  {
+    "id": "v2_011_out_of_domain_weather",
+    "question": "como va a estar el clima manana",
+    "category": "fuera_de_dominio",
+    "expected_route": "bloqueo",
+    "expected_answer_type": "out_of_domain",
+    "should_block": true,
+    "notes": "Fuera de dominio general. Fallo conocido v1."
+  },
+  {
+    "id": "v2_012_diagnostico_practico",
+    "question": "tengo un tema y no se si le falta ecualizacion compresion distorsion o subir volumen que hago",
+    "category": "diagnostico_practico",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Pregunta practica de diagnostico y decision."
+  },
+  {
+    "id": "v2_013_concepto_gain_staging",
+    "question": "que es gain staging",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M02",
+    "should_have_sources": true,
+    "notes": "Concepto directo, debe traer evidencia de M02."
+  },
+  {
+    "id": "v2_014_concepto_dither",
+    "question": "que es el dither y cuando se usa",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M08",
+    "should_have_sources": true,
+    "notes": "Concepto directo de M08 masterizacion."
+  },
+  {
+    "id": "v2_015_concepto_frecuencia_corte",
+    "question": "que es la frecuencia de corte",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M04",
+    "should_have_sources": true,
+    "notes": "Concepto directo de M04 filtros."
+  },
+  {
+    "id": "v2_016_concepto_threshold",
+    "question": "que hace el threshold en un compresor",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M05",
+    "should_have_sources": true,
+    "notes": "Concepto directo de M05 dinamica."
+  },
+  {
+    "id": "v2_017_concepto_monocompat",
+    "question": "que es la monocompatibilidad",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M03",
+    "should_have_sources": true,
+    "notes": "Concepto directo de M03 fase."
+  },
+  {
+    "id": "v2_018_concepto_lufs",
+    "question": "que significa LUFS",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Concepto directo loudness/mastering."
+  },
+  {
+    "id": "v2_019_concepto_reverb",
+    "question": "para que sirve la reverberacion en mezcla",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M06",
+    "should_have_sources": true,
+    "notes": "Concepto directo de M06 espacialidad."
+  },
+  {
+    "id": "v2_020_concepto_true_peak",
+    "question": "que es true peak",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M08",
+    "should_have_sources": true,
+    "notes": "Concepto directo de M08."
+  },
+  {
+    "id": "v2_021_comparacion_peak_rms",
+    "question": "diferencia entre peak y rms",
+    "category": "comparacion",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Comparacion tecnica de medicion."
+  },
+  {
+    "id": "v2_022_comparacion_eq_dinamica_multibanda",
+    "question": "en que se diferencia un ecualizador dinamico de un compresor multibanda",
+    "category": "comparacion",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Comparacion tecnica M04/M05."
+  },
+  {
+    "id": "v2_023_comparacion_pfl_afl",
+    "question": "cual es la diferencia entre PFL y AFL",
+    "category": "comparacion",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Comparacion tecnica M02 ruteo."
+  },
+  {
+    "id": "v2_024_comparacion_fase_polaridad",
+    "question": "fase y polaridad son lo mismo",
+    "category": "comparacion",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M03",
+    "should_have_sources": true,
+    "notes": "Comparacion M03, error comun del modulo."
+  },
+  {
+    "id": "v2_025_comparacion_mezcla_master",
+    "question": "que diferencia hay entre mezcla y mastering",
+    "category": "comparacion",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Comparacion global del curso."
+  },
+  {
+    "id": "v2_026_lookup_compresion_paralela",
+    "question": "en que parte del curso hablan de compresion paralela",
+    "category": "lookup",
+    "expected_route": "teoria",
+    "expected_intent": "busqueda_fuente",
+    "expected_answer_type": "source_lookup",
+    "should_have_sources": true,
+    "notes": "Lookup explicito por ubicacion en curso."
+  },
+  {
+    "id": "v2_027_lookup_dc_offset",
+    "question": "donde se explica que es DC offset",
+    "category": "lookup",
+    "expected_route": "teoria",
+    "expected_intent": "busqueda_fuente",
+    "expected_answer_type": "source_lookup",
+    "should_have_sources": true,
+    "notes": "Lookup explicito por ubicacion."
+  },
+  {
+    "id": "v2_028_lookup_sidechain",
+    "question": "en que modulo se ve el sidechain",
+    "category": "lookup",
+    "expected_route": "teoria",
+    "expected_intent": "busqueda_fuente",
+    "expected_answer_type": "source_lookup",
+    "should_have_sources": true,
+    "notes": "Lookup explicito por modulo."
+  },
+  {
+    "id": "v2_029_ambigua_que_opinas",
+    "question": "tu que opinas",
+    "category": "ambigua",
+    "expected_answer_type": "clarification",
+    "should_clarify": true,
+    "notes": "Pregunta sin contexto, debe pedir aclaracion."
+  },
+  {
+    "id": "v2_030_ambigua_esto_sirve",
+    "question": "esto me sirve o no",
+    "category": "ambigua",
+    "expected_answer_type": "clarification",
+    "should_clarify": true,
+    "notes": "Referente ambiguo sin historial."
+  },
+  {
+    "id": "v2_031_ambigua_como_lo_aplico",
+    "question": "como lo aplico",
+    "category": "ambigua",
+    "expected_answer_type": "clarification",
+    "should_clarify": true,
+    "notes": "Referente ambiguo sin historial."
+  },
+  {
+    "id": "v2_032_ambigua_frecuencia_sola",
+    "question": "frecuencia",
+    "category": "ambigua",
+    "expected_answer_type": "clarification",
+    "should_clarify": true,
+    "notes": "Palabra suelta sin contexto, debe pedir mas informacion."
+  },
+  {
+    "id": "v2_033_fuera_dominio_receta",
+    "question": "dame una receta de pollo al horno",
+    "category": "fuera_de_dominio",
+    "expected_route": "bloqueo",
+    "expected_answer_type": "out_of_domain",
+    "should_block": true,
+    "notes": "Claramente fuera de dominio."
+  },
+  {
+    "id": "v2_034_fuera_dominio_futbol",
+    "question": "quien gano el mundial de futbol en 2022",
+    "category": "fuera_de_dominio",
+    "expected_route": "bloqueo",
+    "expected_answer_type": "out_of_domain",
+    "should_block": true,
+    "notes": "Fuera de dominio, tema deportivo."
+  },
+  {
+    "id": "v2_035_fuera_dominio_programacion",
+    "question": "como hago un for loop en python",
+    "category": "fuera_de_dominio",
+    "expected_route": "bloqueo",
+    "expected_answer_type": "out_of_domain",
+    "should_block": true,
+    "notes": "Fuera de dominio, programacion."
+  },
+  {
+    "id": "v2_036_fuera_dominio_salud",
+    "question": "me duele la cabeza que medicamento me tomo",
+    "category": "fuera_de_dominio",
+    "expected_route": "bloqueo",
+    "expected_answer_type": "out_of_domain",
+    "should_block": true,
+    "notes": "Fuera de dominio, salud."
+  },
+  {
+    "id": "v2_037_diagnostico_bombo_bajo",
+    "question": "el bombo y el bajo se pelean en mi mezcla que puedo hacer",
+    "category": "diagnostico_practico",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Diagnostico practico de conflicto bombo-bajo."
+  },
+  {
+    "id": "v2_038_diagnostico_mezcla_opaca",
+    "question": "mi mezcla suena opaca y sin brillo como la mejoro",
+    "category": "diagnostico_practico",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Diagnostico practico de mezcla."
+  },
+  {
+    "id": "v2_039_diagnostico_master_distorsion",
+    "question": "estoy masterizando y cuando subo el limitador se distorsiona todo",
+    "category": "diagnostico_practico",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Diagnostico practico de mastering."
+  },
+  {
+    "id": "v2_040_diagnostico_fase_bateria",
+    "question": "grabe la bateria con varios microfonos y al sumar suena raro como reviso la fase",
+    "category": "diagnostico_practico",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M03",
+    "should_have_sources": true,
+    "notes": "Diagnostico practico de fase en bateria."
+  },
+  {
+    "id": "v2_041_diagnostico_voz_sibilancia",
+    "question": "la voz tiene mucha sibilancia como la controlo sin que suene apagada",
+    "category": "diagnostico_practico",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Diagnostico practico de sibilancia."
+  },
+  {
+    "id": "v2_042_estudiante_perdido_no_entiendo",
+    "question": "la verdad no entiendo nada de esto de la fase estoy perdido",
+    "category": "estudiante_perdido",
+    "expected_route": "perdido",
+    "expected_intent": "estudiante_perdido",
+    "notes": "Estudiante perdido, frustracion."
+  },
+  {
+    "id": "v2_043_estudiante_perdido_dificil",
+    "question": "todo me parece demasiado dificil no se por donde empezar con la mezcla",
+    "category": "estudiante_perdido",
+    "expected_route": "perdido",
+    "expected_intent": "estudiante_perdido",
+    "notes": "Estudiante perdido, bloqueo de aprendizaje."
+  },
+  {
+    "id": "v2_044_estudiante_perdido_frustrado",
+    "question": "llevo horas y mi mezcla sigue sonando mal ya me rindo",
+    "category": "estudiante_perdido",
+    "expected_route": "perdido",
+    "expected_intent": "estudiante_perdido",
+    "notes": "Estudiante frustrado, requiere apoyo pedagogico."
+  },
+  {
+    "id": "v2_045_saludo_hola",
+    "question": "hola",
+    "category": "saludo_cortesia",
+    "expected_route": "saludo",
+    "expected_intent": "saludo",
+    "notes": "Saludo simple."
+  },
+  {
+    "id": "v2_046_saludo_buenas",
+    "question": "buenas tardes como estas",
+    "category": "saludo_cortesia",
+    "expected_route": "saludo",
+    "expected_intent": "saludo",
+    "notes": "Saludo con cortesia."
+  },
+  {
+    "id": "v2_047_saludo_gracias",
+    "question": "gracias por la ayuda",
+    "category": "saludo_cortesia",
+    "expected_route": "saludo",
+    "expected_intent": "saludo",
+    "notes": "Agradecimiento, tratado como cortesia."
+  },
+  {
+    "id": "v2_048_concepto_comb_filtering",
+    "question": "que es el comb filtering",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M03",
+    "should_have_sources": true,
+    "notes": "Concepto directo M03."
+  },
+  {
+    "id": "v2_049_concepto_attack_release",
+    "question": "que hacen el attack y release en un compresor",
+    "category": "concepto_directo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M05",
+    "should_have_sources": true,
+    "notes": "Concepto directo M05 parametros dinamicos."
+  },
+  {
+    "id": "v2_050_comparacion_dbu_dbv",
+    "question": "cual es la diferencia entre dBu y dBV",
+    "category": "comparacion",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "expected_module": "M02",
+    "should_have_sources": true,
+    "notes": "Comparacion de referencias de nivel M02."
+  }
+]

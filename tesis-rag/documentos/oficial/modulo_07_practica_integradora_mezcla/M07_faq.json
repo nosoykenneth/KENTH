@@ -1,19 +1,378 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M07",
-    "module_order":  7,
-    "module_title":  "Practica integradora de mezcla",
-    "module_slug":  "practica-integradora-mezcla",
-    "short_description":  "Modulo de integracion practica de criterios tecnicos y esteticos de mezcla.",
-    "learning_scope":  "Integra ganancia, fase, ecualizacion, dinamica, espacialidad y balance en ejercicios de mezcla completos.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "faq",
-    "filename":  "M07_faq.json",
-    "items":  [
-
-              ]
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M07",
+  "module_order": 7,
+  "module_title": "Práctica integradora de mezcla",
+  "module_slug": "practica-integradora-mezcla",
+  "short_description": "Borrador canónico de trabajo sobre la integración de decisiones técnicas y artísticas en la mezcla.",
+  "learning_scope": "Delimita criterios de diagnóstico, jerarquía de planos, ruteo, dinámica, espacialidad, continuidad entre canciones y preservación de sesión dentro de la práctica integradora de mezcla.",
+  "doc_type": "faq",
+  "source_origin": "course",
+  "filename": "M07_faq.json",
+  "version": "0.1",
+  "status": "ready_for_indexing",
+  "curation_source": "borrador_autoral_m07",
+  "items": [
+    {
+      "faq_id": "M07_FAQ_001",
+      "question": "¿La mezcla de este módulo se entiende como corrección técnica o como integración global?",
+      "canonical_answer": "En este módulo, la mezcla se entiende como integración global. La corrección técnica sigue siendo importante, pero se subordina a una lectura más amplia del tema: jerarquía de planos, dirección musical, convivencia entre capas, continuidad del proyecto y costo real de cada intervención.",
+      "short_answer": "Se entiende como integración global, no solo como corrección aislada.",
+      "stable_answer": "La mezcla del módulo se aborda como una integración de decisiones técnicas y artísticas.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "enfoque general",
+      "learning_objective": "Comprender el marco doctrinal del módulo.",
+      "tags": [
+        "mezcla",
+        "criterio",
+        "integración"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "La mezcla es básicamente poner plugins hasta que suene mejor.",
+        "Mezclar es corregir cada pista por separado."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_002",
+      "question": "¿Cómo sé si un problema debe resolverse con EQ, dinámica o edición temporal?",
+      "canonical_answer": "Primero conviene clasificar el conflicto en el eje correcto. Si el problema principal es de duración o cola, la ecualización puede no ser la primera respuesta. Si es de plano o pico errático, probablemente pertenece al nivel. Si es máscara, resonancia o aspereza, puede pertenecer a la frecuencia. El módulo insiste en diagnosticar antes de procesar.",
+      "short_answer": "Primero clasifica el problema: tiempo, nivel o frecuencia.",
+      "stable_answer": "La herramienta debería corresponder al eje real del problema.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "diagnóstico",
+      "learning_objective": "Distinguir el eje operativo del problema antes de intervenir.",
+      "tags": [
+        "diagnóstico",
+        "tiempo",
+        "nivel",
+        "frecuencia"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Todo se arregla con EQ.",
+        "Si molesta, recorta frecuencia y ya."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_003",
+      "question": "¿La mezcla puede compensar una mala base de producción?",
+      "canonical_answer": "Solo hasta cierto punto. El módulo conserva con fuerza la idea de que no todo problema pertenece a la mezcla. Si una canción exige correcciones extremas y permanentes, conviene revisar arreglo, fuente, toma, sala o dirección sonora antes de seguir acumulando procesos.",
+      "short_answer": "Puede ayudar, pero no reemplaza una buena base de producción.",
+      "stable_answer": "La mezcla no debería asumir que puede corregir cualquier deficiencia previa.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "límites de la mezcla",
+      "learning_objective": "Reconocer la frontera entre mezcla y problemas previos.",
+      "tags": [
+        "arreglo",
+        "producción",
+        "criterio"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "La mezcla arregla cualquier cosa.",
+        "Si no funciona, mete más plugins."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_004",
+      "question": "¿La jerarquía de planos depende solo del gusto personal?",
+      "canonical_answer": "No conviene reducirla a gusto personal. En este módulo, la jerarquía de planos responde al género, al clima emocional, a la letra y a la función musical de cada elemento. La mezcla decide qué lidera, qué acompaña y qué solo sostiene.",
+      "short_answer": "No. También depende del concepto musical del tema.",
+      "stable_answer": "La jerarquía de planos se define por función musical, no solo por preferencia individual.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "planos",
+      "learning_objective": "Entender cómo se define el frente y el fondo en una mezcla.",
+      "tags": [
+        "planos",
+        "balance",
+        "concepto"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Todo instrumento importante debe ir adelante.",
+        "Los planos se definen solo por gusto."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_005",
+      "question": "¿Conviene mezclar cada canción de un álbum desde cero?",
+      "canonical_answer": "El módulo propone otra lógica. Cuando hay varias canciones, conviene elegir una canción hilo conductor, aprobar su dirección general y reutilizar su estructura base en las demás. Eso ayuda a conservar continuidad sin impedir ajustes específicos por tema.",
+      "short_answer": "No es lo ideal. Conviene partir de una canción hilo conductor.",
+      "stable_answer": "Para proyectos de varias canciones, la continuidad suele beneficiarse de una estructura base compartida.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "workflow de álbum",
+      "learning_objective": "Entender la continuidad entre canciones dentro de un proyecto.",
+      "tags": [
+        "álbum",
+        "workflow",
+        "continuidad",
+        "canción hilo conductor"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Cada canción del disco debe ignorar a las demás.",
+        "La continuidad sale sola al final."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_006",
+      "question": "¿El pegamento se resuelve solo con compresión en el Mix Bus?",
+      "canonical_answer": "No necesariamente. El módulo corrige esa simplificación. La cohesión empieza antes: en el arreglo, el balance, la interacción espectral, el filtrado prudente, la compresión por etapas y una espacialidad coherente. Un proceso global puede ayudar, pero no suele reemplazar decisiones previas mal planteadas.",
+      "short_answer": "No. El pegamento empieza antes del Mix Bus.",
+      "stable_answer": "La cohesión no depende únicamente del procesamiento final del bus.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "cohesión",
+      "learning_objective": "Comprender de dónde proviene la sensación de mezcla integrada.",
+      "tags": [
+        "glue",
+        "mix bus",
+        "cohesión"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Pon un compresor en el Mix Bus y ya queda pegado.",
+        "El glue aparece al final, no importa lo anterior."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_007",
+      "question": "¿Se deben tomar decisiones de EQ contextual escuchando en Solo?",
+      "canonical_answer": "No es lo recomendable cuando la decisión depende de convivencia entre instrumentos. El módulo insiste en que la ecualización que abre espacio para otra capa debe juzgarse en contexto. En aislamiento puede parecer excesiva o pobre, pero seguir siendo la decisión correcta para la mezcla.",
+      "short_answer": "No. La EQ contextual debe juzgarse en mezcla.",
+      "stable_answer": "Las decisiones que afectan convivencia espectral conviene evaluarlas en contexto.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ecualización contextual",
+      "learning_objective": "Evitar diagnósticos aislados cuando el problema es relacional.",
+      "tags": [
+        "eq",
+        "contexto",
+        "espacio espectral"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si en Solo suena mal, está mal.",
+        "Toda EQ debe aprobarse en aislamiento."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_008",
+      "question": "¿Es mejor usar una sola reverb para que todo parezca el mismo cuarto?",
+      "canonical_answer": "El módulo no lo plantea como regla general. La profundidad suele construirse mejor por contraste entre planos y tamaños aparentes. Una sola reverb para todo puede simplificar demasiado la escena y convertirla en una masa uniforme.",
+      "short_answer": "No necesariamente. La profundidad suele construirse por contraste.",
+      "stable_answer": "Una misma reverb para todo no es una ley del módulo.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "espacialidad",
+      "learning_objective": "Comprender la construcción de profundidad y contraste espacial.",
+      "tags": [
+        "reverb",
+        "profundidad",
+        "planos"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Una sola reverb siempre une mejor la mezcla.",
+        "Más homogeneidad espacial siempre es mejor."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_009",
+      "question": "¿Cuándo conviene usar envíos pre-fader en lugar de post-fader?",
+      "canonical_answer": "En el módulo, el pre-fader aparece como una herramienta útil cuando se quiere alterar la relación entre señal seca y ambiente, por ejemplo para generar sensación de alejamiento. No reemplaza al post-fader como práctica general, pero amplía la paleta de profundidad cuando la intención espacial lo justifica.",
+      "short_answer": "Cuando quieres separar el nivel del efecto del nivel seco, por ejemplo para alejamiento.",
+      "stable_answer": "El pre-fader puede ser útil para construir distancia perceptual.",
+      "pending_validation_notes": [
+        "La conveniencia final depende del objetivo espacial concreto."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "envíos",
+      "learning_objective": "Entender una aplicación espacial del envío pre-fader.",
+      "tags": [
+        "pre-fader",
+        "post-fader",
+        "profundidad"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Todo envío temporal debe ir siempre post-fader."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_010",
+      "question": "¿Tiene sentido comprimir directamente un grupo si el problema real está en una pista específica?",
+      "canonical_answer": "En general, no conviene que el grupo sea la primera respuesta frente a defectos individuales. El módulo distingue entre control individual y glue grupal. Primero se estabiliza lo que pertenece a una pista; después, si hace falta, se integra el conjunto con una compresión de grupo más prudente.",
+      "short_answer": "No como primera respuesta. Primero corrige la pista afectada.",
+      "stable_answer": "El grupo no debería cargar con problemas que pertenecen a una sola toma.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "compresión",
+      "learning_objective": "Distinguir compresión individual de compresión de grupo.",
+      "tags": [
+        "compresión",
+        "grupo",
+        "glue"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Es más rápido comprimir el grupo y listo.",
+        "Da igual si el problema es individual o grupal."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_011",
+      "question": "¿El bleed siempre debe eliminarse?",
+      "canonical_answer": "No. El módulo trata el bleed como un fenómeno dependiente de estética y contexto. En producciones muy limpias puede buscarse mayor separación, pero en otras situaciones cierta filtración puede aportar realidad, tamaño o cohesión. La decisión no debería convertirse en dogma.",
+      "short_answer": "No siempre. A veces conviene reducirlo y a veces conviene tolerarlo.",
+      "stable_answer": "El bleed no se trata como basura universal en este módulo.",
+      "pending_validation_notes": [
+        "La cantidad de bleed aceptable es sensible al género y a la producción."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "batería y captura",
+      "learning_objective": "Evaluar el bleed según función musical y estética.",
+      "tags": [
+        "bleed",
+        "estética",
+        "batería"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Todo bleed es un error.",
+        "La única mezcla profesional es la totalmente aislada."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_012",
+      "question": "¿La fase lineal es mejor por definición?",
+      "canonical_answer": "No. El módulo pide usarla con precisión y no como mejora automática. Puede ser útil cuando el objetivo es una reconstrucción matemática del split, pero también puede introducir efectos no deseados en material muy transiente. La conveniencia depende del objetivo y de la fuente.",
+      "short_answer": "No. Su utilidad depende del caso.",
+      "stable_answer": "La fase lineal no se presenta como una mejora universal.",
+      "pending_validation_notes": [
+        "Requiere validación contextual cuando se traslada a otras fuentes y tareas."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "fase",
+      "learning_objective": "Entender que la elección de fase depende del uso y del material.",
+      "tags": [
+        "fase lineal",
+        "split",
+        "transientes"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "La fase lineal siempre suena mejor.",
+        "Si puedes activarla, actívala siempre."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_013",
+      "question": "¿Duplicar una pista mono y retrasarla equivale a un doubling real?",
+      "canonical_answer": "No. El módulo distingue con claridad entre doubling real y falso estéreo. La duplicación digital con retraso fijo puede generar cancelaciones y problemas al colapsar a mono. El doubling real depende de una nueva interpretación, con variaciones naturales de tiempo y afinación.",
+      "short_answer": "No. Eso es falso estéreo, no doubling real.",
+      "stable_answer": "Una duplicación retardada no sustituye una segunda interpretación real.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "estéreo",
+      "learning_objective": "Distinguir apertura estéreo genuina de atajos problemáticos.",
+      "tags": [
+        "doubling",
+        "falso estéreo",
+        "mono"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Retrasar una copia mono es lo mismo que doblar.",
+        "Si se abre a los lados, ya es un doubling."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_014",
+      "question": "¿Conviene poner un HPF en el master por seguridad?",
+      "canonical_answer": "El módulo lo desaconseja como reflejo automático. La limpieza subsónica debería resolverse canal por canal, antes de arrastrar esa energía por todo el sistema. Un HPF global aplicado por costumbre puede introducir efectos no deseados y esconder una limpieza mal resuelta aguas arriba.",
+      "short_answer": "No como costumbre. La limpieza debe hacerse antes y por canal.",
+      "stable_answer": "El HPF en el master no se presenta como solución preventiva estándar.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "filtrado",
+      "learning_objective": "Entender dónde conviene resolver la limpieza subsónica.",
+      "tags": [
+        "hpf",
+        "master",
+        "limpieza"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Siempre hay que poner un HPF en el master.",
+        "Da igual limpiar antes o al final."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_015",
+      "question": "¿La mezcla debe dejarse ya muy aplastada para que compita?",
+      "canonical_answer": "No es la orientación del módulo. La mezcla debería conservar una relación sana entre pico y promedio y evitar aplastar su impacto antes de tiempo. Las referencias dinámicas del material deben leerse como criterios operativos y no como metas rígidas, pero la doctrina general es preservar vida antes de forzar volumen prematuro.",
+      "short_answer": "No. Conviene preservar dinámica útil antes de aplastar.",
+      "stable_answer": "La mezcla no debería sacrificar impacto por competitividad prematura.",
+      "pending_validation_notes": [
+        "Las referencias numéricas de dinámica del módulo son contextuales."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "dinámica macro",
+      "learning_objective": "Proteger la relación entre picos y promedio en mezcla.",
+      "tags": [
+        "plr",
+        "dinámica",
+        "mezcla"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Hay que dejar la mezcla ya casi masterizada.",
+        "Más RMS siempre significa mejor mezcla."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M07_FAQ_016",
+      "question": "¿La preservación y limpieza de sesión también forma parte de este módulo?",
+      "canonical_answer": "Sí. El módulo incluye continuidad operativa y archivo. Imprimir instrumentos virtuales, limpiar ruteos inútiles, conservar respaldo de MIDI sin depender de él para abrir el proyecto, y generar una copia final ordenada forman parte del estándar de trabajo, no de un trámite secundario.",
+      "short_answer": "Sí. El cierre técnico y el archivo robusto son parte del módulo.",
+      "stable_answer": "La mezcla del módulo incluye también preservación de sesión y continuidad operativa.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "archivo",
+      "learning_objective": "Comprender que una mezcla profesional también debe poder reabrirse y mantenerse.",
+      "tags": [
+        "archivo",
+        "sesión",
+        "preservación"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Lo importante es solo el sonido final.",
+        "La limpieza de sesión da igual si ya exportaste."
+      ],
+      "requires_validation": true
+    }
+  ]
 }

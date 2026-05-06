@@ -107,6 +107,10 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null, isE
     if (!pregunta.trim() && !imagenBase64) return;
     
     const requestSessionId = sessionId; // Sesión en la que se disparó la pregunta
+    const historialParaBackend = historial
+      .filter(msg => ['user', 'assistant'].includes(msg.role) && typeof msg.content === 'string' && msg.content.trim())
+      .map(msg => ({ role: msg.role, content: msg.content.trim() }))
+      .slice(-10);
     const nuevoMensajeUsuario = { role: 'user', content: pregunta, image: imagenBase64 };
     setHistorial(prev => [...prev, nuevoMensajeUsuario]);
     
@@ -123,7 +127,8 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null, isE
         contextoLeccion, 
         imagenEnviada, 
         usarInternet, 
-        requestSessionId
+        requestSessionId,
+        historialParaBackend
       );
       
       // CRÍTICO: Verificamos si la sesión activa (según el ref) sigue siendo

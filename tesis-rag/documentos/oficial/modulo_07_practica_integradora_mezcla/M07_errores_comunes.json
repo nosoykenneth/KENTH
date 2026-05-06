@@ -1,20 +1,330 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M07",
-    "module_order":  7,
-    "module_title":  "Practica integradora de mezcla",
-    "module_slug":  "practica-integradora-mezcla",
-    "short_description":  "Modulo de integracion practica de criterios tecnicos y esteticos de mezcla.",
-    "learning_scope":  "Integra ganancia, fase, ecualizacion, dinamica, espacialidad y balance en ejercicios de mezcla completos.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "common_errors",
-    "filename":  "M07_errores_comunes.json",
-    "purpose":  "Skeleton base para observaciones pedagogicas del modulo. No contiene errores comunes finales.",
-    "items":  [
-
-              ]
+{
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M07",
+"module_order": 7,
+"module_title": "Práctica integradora de mezcla",
+"module_slug": "practica-integradora-mezcla",
+"short_description": "Integración práctica de ruteo, ganancia, dinámica, ecualización, espacialidad, diagnóstico y continuidad de proyecto para mezclar con criterio técnico y artístico.",
+"learning_scope": "Delimita la práctica integradora de mezcla en canciones y álbumes: diagnóstico por ejes tiempo/nivel/frecuencia, jerarquía de planos, arquitectura de buses y efectos, compresión individual y grupal, espacialidad, fase, chequeos macro y preservación profesional de la sesión.",
+"doc_type": "common_errors",
+"source_origin": "course",
+"filename": "M07_errores_comunes.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m07",
+"purpose": "Errores comunes del modulo para retroalimentacion del tutor IA. No reemplaza la guia canonica.",
+"errors": [
+{
+"error_id": "M07_ERR_001",
+"error_title": "Resolver todo con ecualización",
+"misconception": "Si algo no funciona en la mezcla, lo primero y principal es ecualizarlo.",
+"why_it_is_incorrect": "El módulo organiza los problemas de mezcla en tres ejes: tiempo, nivel y frecuencia. Si se usa una herramienta del eje equivocado, se corrige el síntoma pero no la causa real. Un tom demasiado largo, por ejemplo, no necesariamente pide un recorte tonal, sino control de duración mediante compuerta, expansor o ajustes de Hold y Release.",
+"why_it_matters": "Este error lleva a sobreprocesar, a quitar identidad tímbrica útil y a destruir elementos que sí eran necesarios en la mezcla.",
+"how_to_detect_it": [
+"El alumno propone un notch o un recorte apenas oye una molestia.",
+"Describe problemas de sustain o cola como si fueran solo problemas de frecuencia.",
+"Dice cosas como \"al bajo le falta corte, subamos 800 Hz\" sin revisar envolvente, plano o duración.",
+"Usa EQ como primera respuesta incluso cuando el problema parece de nivel, tiempo o fase."
+],
+"tutor_feedback_strategy": "Pedir que nombre primero el tipo de problema antes de sugerir una herramienta. Hacerlo contrastar si el conflicto es de duración, de balance, de enmascaramiento o de arreglo. Corregirlo sin dogmatismo, mostrando que la EQ puede ser válida, pero no como reflejo automático.",
+"suggested_reframe": "Antes de procesar, conviene identificar si el problema es de tiempo, nivel o frecuencia, y recién después elegir la herramienta.",
+"related_terms": [
+"tiempo",
+"nivel",
+"frecuencia",
+"compuerta",
+"expansor",
+"ecualización",
+"compresor"
+],
+"severity": "high",
+"validation_notes": [
+"Corrección estable dentro del alcance del módulo: el error es confundir el eje del problema, no usar EQ en sí."
+],
+"requires_validation": false
+},
+{
+"error_id": "M07_ERR_002",
+"error_title": "Tomar decisiones contextuales en Solo",
+"misconception": "Si una pista suena delgada o rara en Solo, esa ecualización está mal.",
+"why_it_is_incorrect": "El módulo insiste en que la ecualización contextual no debe decidirse en aislamiento. Un recorte que suena agresivo o pobre en Solo puede ser justamente lo que abre espacio para otro instrumento dentro de la mezcla completa.",
+"why_it_matters": "Si se juzga todo aislado, se pierde claridad entre instrumentos, aparecen enmascaramientos y la mezcla se embarra aunque cada pista sola parezca \"bonita\".",
+"how_to_detect_it": [
+"El alumno rechaza un recorte porque en Solo siente que la pista queda fea.",
+"Dice que no quiere tocar una guitarra porque aislada pierde cuerpo, aunque en contexto tape al bajo.",
+"Evalúa HPF, notch o recortes de medios sin escuchar la mezcla completa.",
+"Confunde sonido atractivo en aislamiento con función correcta en arreglo."
+],
+"tutor_feedback_strategy": "Recordarle que la mezcla no se juzga como una colección de pistas solistas. Pedirle que compare antes y después dentro del contexto completo y que escuche qué gana o qué respira el resto de la mezcla.",
+"suggested_reframe": "Una ecualización contextual debe juzgarse dentro de la mezcla, no por cómo luce o suena la pista sola.",
+"related_terms": [
+"ecualización contextual",
+"Solo",
+"enmascaramiento",
+"HPF",
+"balance tonal",
+"plano"
+],
+"severity": "high",
+"validation_notes": [
+"La corrección depende del rol de la pista en el arreglo: un recorte útil en mezcla puede sonar pobre en aislamiento."
+],
+"requires_validation": true
+},
+{
+"error_id": "M07_ERR_003",
+"error_title": "Usar compresión de grupo para cazar picos individuales",
+"misconception": "Es más rápido poner un compresor rápido en el bus de guitarras o coros para controlar los picos de todas las tomas a la vez.",
+"why_it_is_incorrect": "El módulo distingue entre compresión individual y compresión de grupo. Si el pico está en una toma concreta, comprimir el grupo hace que una señal problemática arrastre a las demás, incluso si las otras no lo necesitaban. Primero se corrigen picos por pista y luego se aplica compresión ligera de glue en el grupo.",
+"why_it_matters": "Se castigan tomas sanas, se pierde estabilidad estéreo y se degrada la coherencia musical del grupo.",
+"how_to_detect_it": [
+"El alumno propone insertar un 1176 en el grupo como primera solución.",
+"No diferencia entre control de picos y glue.",
+"Habla de comprimir el bus porque una sola toma izquierda o derecha tiene picos erráticos.",
+"No separa la etapa individual de la etapa grupal."
+],
+"tutor_feedback_strategy": "Corregir mostrando la lógica por etapas: control rápido por pista, luego compresión grupal lenta y ligera para amalgamar. Señalar que el grupo no debería pagar por el error de una sola toma.",
+"suggested_reframe": "Primero conviene estabilizar cada toma problemática; después, si hace falta, se usa el bus para glue y no para corrección quirúrgica.",
+"related_terms": [
+"compresión individual",
+"compresión de grupo",
+"1176",
+"LA-2A",
+"2254",
+"glue",
+"subgrupo"
+],
+"severity": "high",
+"validation_notes": [
+"Corrección estable dentro del módulo: el bus grupal se plantea como segunda etapa, no como primera respuesta a picos individuales."
+],
+"requires_validation": false
+},
+{
+"error_id": "M07_ERR_004",
+"error_title": "Confundir falso estéreo con doubling real",
+"misconception": "Duplicar una pista mono, retrasarla y panearla equivale a grabar un doble real.",
+"why_it_is_incorrect": "El módulo distingue claramente entre doubling real y falso estéreo. La duplicación digital con Sample Delay crea un filtro peine estático y puede colapsar mal a mono. El doubling real depende de diferencias humanas microscópicas de tiempo y afinación, no de un retraso artificial fijo.",
+"why_it_matters": "Este error puede destruir monocompatibilidad, generar cancelaciones y producir una amplitud aparente pero frágil.",
+"how_to_detect_it": [
+"El alumno propone duplicar una voz o guitarra mono y retrasar una copia para abrirla.",
+"Habla de Sample Delay como sustituto directo de una segunda toma.",
+"No revisa colapso mono ni correlación.",
+"Confunde anchura aparente con producción estéreo real."
+],
+"tutor_feedback_strategy": "Corregir sin purismo, explicando que el recurso digital puede tener usos espaciales puntuales, pero no reemplaza un doble interpretado. Pedir siempre chequeo mono si se intenta cualquier pseudoestéreo.",
+"suggested_reframe": "Si se busca un doble creíble, conviene grabar otra toma; si se usa retraso artificial, debe asumirse como efecto y no como doubling real.",
+"related_terms": [
+"doubling",
+"falso estéreo",
+"Sample Delay",
+"filtro peine",
+"monocompatibilidad",
+"correlación"
+],
+"severity": "high",
+"validation_notes": [
+"Corrección estable dentro del módulo: el dossier trata el retraso digital como pseudoestéreo potencialmente destructivo, no como sustituto del doble real."
+],
+"requires_validation": false
+},
+{
+"error_id": "M07_ERR_005",
+"error_title": "Tomar la fase lineal como mejora universal",
+"misconception": "Si un ecualizador en fase lineal evita rotación de fase, entonces conviene usarlo siempre que haya que corregir algo sensible.",
+"why_it_is_incorrect": "El módulo corrige esa generalización. La fase lineal puede ser necesaria en un split de bajo para reconstrucción tipo Linkwitz-Riley, pero en fuentes transientes como una guitarra acústica puede introducir pre-ringing y arruinar el ataque.",
+"why_it_matters": "Se puede cambiar un problema tonal por un daño temporal más grave, especialmente en instrumentos donde la transiente define el carácter.",
+"how_to_detect_it": [
+"El alumno propone fase lineal por defecto ante frecuencias hirientes.",
+"Asume que menos rotación de fase siempre implica mejor resultado auditivo.",
+"No diferencia entre corrección de crossover y corrección de transientes.",
+"Ignora el riesgo de pre-ringing."
+],
+"tutor_feedback_strategy": "Pedir que justifique el objetivo: reconstrucción matemática, color tonal o corrección de una zona agresiva. Reforzar que la conveniencia de la fase lineal depende del material y de la tarea.",
+"suggested_reframe": "La fase lineal no es mejor siempre; sirve en algunos cruces y puede ser contraproducente en fuentes muy transientes.",
+"related_terms": [
+"fase lineal",
+"pre-ringing",
+"transiente",
+"Linkwitz-Riley",
+"split de bajo",
+"guitarra acústica"
+],
+"severity": "high",
+"validation_notes": [
+"La corrección depende del material y del objetivo: en el módulo se exige para ciertos crossovers, pero se desaconseja en guitarra acústica y casos similares."
+],
+"requires_validation": true
+},
+{
+"error_id": "M07_ERR_006",
+"error_title": "Poner un HPF en el master por costumbre",
+"misconception": "Lo más seguro es filtrar el master desde 20 Hz para limpiar cualquier basura subsónica.",
+"why_it_is_incorrect": "El módulo corrige ese hábito y propone limpiar canal por canal al inicio. Un HPF en el master no corrige el origen del problema, arrastra basura por subgrupos, rota la fase global y puede provocar overshot o picos espurios.",
+"why_it_matters": "Se compromete el comportamiento de toda la mezcla por no resolver la limpieza donde correspondía.",
+"how_to_detect_it": [
+"El alumno inserta un HPF en el master apenas abre la sesión.",
+"Justifica el filtro como medida preventiva sin revisar pistas individuales.",
+"Habla de limpiar el subgrave global sin distinguir fuentes.",
+"No contempla efectos de fase a escala de mezcla completa."
+],
+"tutor_feedback_strategy": "Reencuadrar la limpieza como tarea distribuida y temprana. Pedirle que identifique qué canales realmente aportan basura subsónica y que limpie ahí, no en el último eslabón.",
+"suggested_reframe": "La limpieza subsónica conviene hacerla canal por canal y al principio de la mezcla, no como parche general en el master.",
+"related_terms": [
+"HPF",
+"master",
+"subsónicas",
+"fase global",
+"overshot",
+"gain staging"
+],
+"severity": "high",
+"validation_notes": [
+"Corrección estable dentro del módulo: el error señalado es usar el HPF del master como costumbre o seguro general."
+],
+"requires_validation": false
+},
+{
+"error_id": "M07_ERR_007",
+"error_title": "Separar todo al extremo y esperar glue en el Mix Bus",
+"misconception": "Mientras más aisladas queden las pistas con filtros muy abruptos, más fácil será pegarlas después con el compresor del Mix Bus.",
+"why_it_is_incorrect": "El módulo critica la \"mezcla Tetris\": primero se destruye la interacción natural entre pistas y luego se pretende recuperar cohesión con compresión global. El pegamento real empieza antes, en la interacción acústica, en filtros prudentes y en decisiones menos destructivas.",
+"why_it_matters": "La mezcla puede quedar artificial, fragmentada y sin integración musical aunque técnicamente parezca limpia.",
+"how_to_detect_it": [
+"El alumno usa pendientes muy agresivas para evitar cualquier superposición espectral.",
+"Habla de que ningún instrumento debe tocar la zona de otro.",
+"Confía en que el compresor del bus resolverá luego la falta de cohesión.",
+"Describe la mezcla como un rompecabezas puramente geométrico."
+],
+"tutor_feedback_strategy": "Corregir mostrando la contradicción del método. Señalar que cierta convivencia espectral y acústica es parte del resultado musical. No prohibir filtros fuertes cuando son necesarios, pero sí cuestionar su uso como filosofía general.",
+"suggested_reframe": "La cohesión no nace solo en el Mix Bus; conviene no desarmar la interacción natural de la mezcla si después se quiere integración.",
+"related_terms": [
+"mezcla Tetris",
+"glue",
+"Mix Bus",
+"filtros",
+"pendiente",
+"interacción acústica"
+],
+"severity": "high",
+"validation_notes": [
+"La corrección es contextual: el módulo no prohíbe filtros fuertes en todos los casos, sino su uso dogmático como estrategia general de separación."
+],
+"requires_validation": true
+},
+{
+"error_id": "M07_ERR_008",
+"error_title": "Confundir profundidad con una sola reverb larga para todo",
+"misconception": "Si todos los instrumentos van al mismo cuarto y con bastante cola, la mezcla suena más real y más profunda.",
+"why_it_is_incorrect": "El módulo corrige el mito de la reverb única como solución universal. La profundidad se construye por contraste de tamaños, planos y tiempos. Además, el abuso de reverb puede hundir la mezcla, borrar ataque y romper la integración temporal con el tema.",
+"why_it_matters": "Se pierde inteligibilidad, definición de plano y claridad rítmica. La mezcla puede convertirse en una sopa homogénea en lugar de una escena tridimensional controlada.",
+"how_to_detect_it": [
+"El alumno quiere mandar todo al mismo room para que parezca el mismo cuarto.",
+"Sube colas largas sin revisar tempo o figura musical.",
+"Usa más reverb como solución genérica para dar profundidad.",
+"No diferencia ambientes para voz, instrumentos de sostén y elementos de fondo."
+],
+"tutor_feedback_strategy": "Reorientar la escucha hacia planos y contraste. Hacer que compare qué queda delante, qué se empuja atrás y cuánto ambiente soporta cada elemento sin perder función. Recordar que no se condena la reverb, sino su uso indiscriminado.",
+"suggested_reframe": "La profundidad suele construirse mejor con contrastes de ambiente y control temporal que con una sola reverb larga para todo.",
+"related_terms": [
+"reverb",
+"profundidad",
+"plano",
+"tempo",
+"pre-fader",
+"post-fader",
+"sidechain en efectos"
+],
+"severity": "high",
+"validation_notes": [
+"La corrección depende de estética, género y producción: el error no es compartir ambientes puntuales, sino volverlo dogma y usar exceso de cola como solución general."
+],
+"requires_validation": true
+},
+{
+"error_id": "M07_ERR_009",
+"error_title": "Mezclar un álbum como si cada canción fuera un proyecto aislado",
+"misconception": "Cada canción de un disco debería mezclarse totalmente desde cero para que tenga personalidad propia.",
+"why_it_is_incorrect": "El módulo propone el método de la canción hilo conductor y la analogía del edificio. En un álbum conviene conservar una estructura base de mixer, ruteos, subgrupos, balances y criterios tímbricos para mantener continuidad sonora entre temas.",
+"why_it_matters": "Sin continuidad estructural, el disco puede terminar sonando como varios proyectos inconexos, aunque cada canción por separado funcione.",
+"how_to_detect_it": [
+"El alumno rehace completamente la arquitectura de mezcla en cada tema del álbum.",
+"No usa referencia interna del primer bounce aprobado.",
+"No contempla Import Session Data ni una canción guía.",
+"Trata la continuidad del disco como algo secundario o posterior."
+],
+"tutor_feedback_strategy": "Diferenciar claramente mezcla de single y mezcla de álbum. Hacerle ver que conservar estructura no impide ajustar balances y decoración específica por canción. Reforzar la idea de continuidad sin uniformidad ciega.",
+"suggested_reframe": "En un álbum, conviene partir de una canción hilo conductor y trasladar su estructura para mantener continuidad, ajustando luego lo específico de cada tema.",
+"related_terms": [
+"canción hilo conductor",
+"Import Session Data",
+"bounce de referencia",
+"continuidad",
+"Mix Bus",
+"álbum"
+],
+"severity": "medium",
+"validation_notes": [
+"La corrección aplica especialmente a proyectos de varias canciones con identidad común; no debe extrapolarse igual a singles o discos deliberadamente heterogéneos."
+],
+"requires_validation": true
+},
+{
+"error_id": "M07_ERR_010",
+"error_title": "Creer que más procesamiento compensa una mala fuente",
+"misconception": "Si sigo corrigiendo con más plugins, notch, denoise o cirugía, eventualmente cualquier grabación o arreglo quedará bien mezclado.",
+"why_it_is_incorrect": "El módulo marca una frontera clara: la mezcla no reemplaza una buena partitura, un buen arreglo, una buena toma, una buena sala ni una buena elección de instrumento o micrófono. Cuando hacen falta correcciones extremas y permanentes, el problema puede estar antes de la mezcla.",
+"why_it_matters": "Este error lleva a perder tiempo, degradar el audio y atacar síntomas sin revisar la causa real del problema.",
+"how_to_detect_it": [
+"El alumno acumula correcciones cada vez más agresivas sin cuestionar la fuente.",
+"Habla de arreglar con mezcla una mala grabación o un arreglo débil.",
+"Propone notches o denoisers múltiples como estrategia central.",
+"No considera preproducción, interpretación, toma o sala como parte del diagnóstico."
+],
+"tutor_feedback_strategy": "Corregir con criterio de costo-beneficio. Hacer que evalúe si la intervención arregla algo real o solo maquilla una deficiencia previa. Introducir la idea de límite técnico sin sonar fatalista.",
+"suggested_reframe": "La mezcla puede mejorar mucho, pero no sustituye una fuente bien resuelta; si la corrección empieza a mutilar, conviene revisar el problema de origen.",
+"related_terms": [
+"arreglo",
+"grabación",
+"notch",
+"denoise",
+"preproducción",
+"diagnóstico"
+],
+"severity": "high",
+"validation_notes": [
+"La corrección es prudente: el módulo no niega que se puedan reparar cosas, pero sí limita la expectativa de que la mezcla resuelva por sí sola fallas estructurales."
+],
+"requires_validation": true
+},
+{
+"error_id": "M07_ERR_011",
+"error_title": "Tratar la preservación de sesión como algo secundario",
+"misconception": "No hace falta imprimir instrumentos virtuales ni ordenar la sesión final; después se podrá abrir igual.",
+"why_it_is_incorrect": "El módulo trata la preservación como parte del flujo profesional. Dejar instrumentos virtuales vivos, no limpiar I/O, no usar Save Session Copy In o destruir los silencios útiles después de Strip Silence compromete compatibilidad futura, consumo de CPU y estabilidad del proyecto.",
+"why_it_matters": "La sesión puede quedar dependiente de licencias, versiones o plugins que luego no existan, además de perder optimización y dificultar continuidad, archivo o entrega.",
+"how_to_detect_it": [
+"El alumno deja instrumentos virtuales activos en la mezcla final.",
+"No hace Commit o Print a audio.",
+"Consolida nuevamente pistas después de Strip Silence y pierde los huecos útiles para ahorro de CPU.",
+"No limpia la matriz I/O ni genera copia final de sesión."
+],
+"tutor_feedback_strategy": "Presentar la preservación como una extensión natural de la mezcla terminada, no como tarea administrativa separada. Corregir con foco práctico: compatibilidad, archivo, CPU y continuidad de trabajo.",
+"suggested_reframe": "Una mezcla profesional no solo suena bien; también queda preservada, imprimible y reabrible sin depender de condiciones frágiles.",
+"related_terms": [
+"Commit",
+"Print",
+"Strip Silence",
+"Dynamic Plugin Processing",
+"Save Session Copy In",
+"I/O",
+"instrumento virtual"
+],
+"severity": "medium",
+"validation_notes": [
+"Corrección estable dentro del alcance del módulo: la preservación de sesión aparece como parte explícita del workflow profesional."
+],
+"requires_validation": false
+}
+]
 }

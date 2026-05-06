@@ -1,19 +1,366 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M06",
-    "module_order":  6,
-    "module_title":  "Espacialidad, profundidad y ambiencia",
-    "module_slug":  "espacialidad-profundidad-ambiencia",
-    "short_description":  "Modulo sobre construccion de espacio, profundidad, paneo y ambiencia en mezcla.",
-    "learning_scope":  "Delimita decisiones de imagen estereo, profundidad, reverberacion, delay y percepcion espacial.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "glossary",
-    "filename":  "M06_glosario.json",
-    "terms":  [
-
-              ]
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M06",
+  "module_order": 6,
+  "module_title": "Espacialidad, profundidad y ambiencia",
+  "module_slug": "espacialidad-profundidad-ambiencia",
+  "short_description": "Delimita los fundamentos perceptuales, acústicos y operativos con los que el curso construye sensación de espacio, plano y profundidad en mezcla.",
+  "learning_scope": "Comprender cómo el módulo articula sonido directo, reflexiones, reverberación, paneo y ruteo para construir cercanía, lejanía, tamaño y coherencia espacial sin convertir recursos contextuales en reglas universales.",
+  "doc_type": "glossary",
+  "source_origin": "course",
+  "filename": "M06_glosario.json",
+  "version": "0.1",
+  "status": "ready_for_indexing",
+  "curation_source": "borrador_autoral_m06",
+  "terms": [
+    {
+      "term_id": "M06_TERM_001",
+      "term": "Ambiencia",
+      "abbreviation": "",
+      "definition": "En este módulo, es el campo espacial percibido alrededor de una fuente. Incluye relación entre sonido directo, reflexiones, rebotes, posición y sensación general de recinto; no se reduce a una cola de reverb.",
+      "stable_definition": "La ambiencia es más amplia que la reverb y organiza la escena espacial.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "fundamentos espaciales",
+      "tags": [
+        "ambiencia",
+        "espacio",
+        "fundamentos"
+      ],
+      "common_confusion": "Tomarla como sinónimo total de reverb.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_002",
+      "term": "Reverberación",
+      "abbreviation": "Reverb",
+      "definition": "Resultado perceptual de una masa densa de reflexiones sucesivas que termina oyéndose como una entidad espacial continua. En el módulo, se trata como parte del fenómeno de ambiencia, no como su totalidad.",
+      "stable_definition": "La reverb es una componente del ambiente, no la definición completa del espacio.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "acústica aplicada",
+      "tags": [
+        "reverb",
+        "decaimiento",
+        "reflexiones"
+      ],
+      "common_confusion": "Describirla solo como sonido estirado o como equivalente directo de profundidad.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_003",
+      "term": "RT60",
+      "abbreviation": "",
+      "definition": "Tiempo que tarda una señal en caer 60 dB desde su valor máximo después de un impulso. En el módulo se usa como referencia para pensar duración del campo reverberante y su convivencia con el tiempo musical.",
+      "stable_definition": "El RT60 orienta la duración del decaimiento reverberante.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "acústica aplicada",
+      "tags": [
+        "RT60",
+        "decaimiento",
+        "reverberación"
+      ],
+      "common_confusion": "Usarlo como único criterio para resolver toda la espacialidad.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_004",
+      "term": "Sonido directo",
+      "abbreviation": "",
+      "definition": "Porción de la señal que llega primero al oyente sin pasar por rebotes perceptualmente relevantes. En este módulo, su relación con la información reflejada es decisiva para la lectura de cercanía y definición.",
+      "stable_definition": "El sonido directo sirve como referencia principal de frente y proximidad.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "fundamentos perceptuales",
+      "tags": [
+        "directo",
+        "proximidad",
+        "frente"
+      ],
+      "common_confusion": "Pensar que el plano depende solo del nivel absoluto y no de su relación con el ambiente.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_005",
+      "term": "Reflexiones tempranas",
+      "abbreviation": "",
+      "definition": "Primeras reflexiones que llegan poco después del sonido directo y que suelen integrarse con él antes de desprenderse como eco evidente. En el módulo, ayudan a construir habitación, anchura, tamaño y profundidad.",
+      "stable_definition": "Las reflexiones tempranas son una base estructural del plano espacial.",
+      "pending_validation_notes": [
+        "Los umbrales temporales deben tratarse como referencias orientativas."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "percepción temporal",
+      "tags": [
+        "early reflections",
+        "profundidad",
+        "habitación"
+      ],
+      "common_confusion": "Reducirlas a un detalle menor frente a la cola reverberante.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_006",
+      "term": "Eco",
+      "abbreviation": "",
+      "definition": "Reflexión o repetición que ya se desprende perceptualmente del sonido original como evento distinguible. El módulo no fija un umbral universal, pero sí trata la separación entre reflexión integrada y eco como criterio práctico de diseño espacial.",
+      "stable_definition": "El eco aparece cuando la información reflejada deja de fundirse con el directo.",
+      "pending_validation_notes": [
+        "La frontera perceptual entre reflexión y eco depende del material."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "percepción temporal",
+      "tags": [
+        "eco",
+        "delay",
+        "percepción"
+      ],
+      "common_confusion": "Aplicar una cifra fija como regla válida para toda fuente y todo tempo.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_007",
+      "term": "Profundidad",
+      "abbreviation": "",
+      "definition": "Sensación de cercanía o lejanía de una fuente dentro de la escena. En el módulo, se construye por la relación entre señal directa, tiempo de llegada del ambiente y proporción relativa de campo reverberante, no solo por cantidad de reverb.",
+      "stable_definition": "La profundidad es una relación perceptual entre directo y ambiente.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "plano espacial",
+      "tags": [
+        "profundidad",
+        "plano",
+        "ambiente"
+      ],
+      "common_confusion": "Reducirla a subir o bajar una reverb.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_008",
+      "term": "Predelay",
+      "abbreviation": "",
+      "definition": "Retraso entre el sonido directo y el inicio del campo reverberante o de la primera información de ambiente construida artificialmente. En el módulo, puede diseñarse fuera de la reverb para controlar el plano de manera explícita.",
+      "stable_definition": "El predelay ayuda a separar directo y ambiente para modelar distancia aparente.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ruteo espacial",
+      "tags": [
+        "predelay",
+        "reverb",
+        "distancia"
+      ],
+      "common_confusion": "Tratarlo solo como perilla interna de plugin sin relación con la lógica del plano.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_009",
+      "term": "Sala virtual",
+      "abbreviation": "",
+      "definition": "Construcción artificial de un recinto perceptualmente creíble mediante relaciones de tiempo, nivel y ambiente, aun sin reproducir toda la complejidad geométrica de un espacio real. El módulo sostiene que el cerebro puede completar información faltante.",
+      "stable_definition": "Una sala virtual es una simulación espacial funcional construida por relaciones perceptuales.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "construcción espacial",
+      "tags": [
+        "sala virtual",
+        "simulación",
+        "espacio"
+      ],
+      "common_confusion": "Pensar que solo una simulación físicamente exhaustiva puede producir sensación de espacio válida.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_010",
+      "term": "Ley de distancia",
+      "abbreviation": "",
+      "definition": "Referencia física según la cual la energía cae al aumentar la distancia, usada en el módulo como base orientativa para emular relaciones de amplitud al construir habitaciones o planos artificiales.",
+      "stable_definition": "La distancia no altera solo el tiempo de llegada; también modifica el nivel relativo.",
+      "pending_validation_notes": [
+        "La formulación del módulo toma como referencia campo abierto y debe aplicarse con prudencia en simulaciones."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "acústica aplicada",
+      "tags": [
+        "distancia",
+        "nivel",
+        "simulación"
+      ],
+      "common_confusion": "Retrasar reflexiones sin ajustar también su proporción de nivel.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_011",
+      "term": "Sombra acústica",
+      "abbreviation": "",
+      "definition": "Efecto físico por el cual la cabeza modifica de forma desigual la llegada de distintas frecuencias al oído opuesto a la fuente. En el módulo, ayuda a explicar la localización horizontal junto con tiempo, nivel y fase.",
+      "stable_definition": "La sombra acústica aporta información tímbrica a la percepción espacial lateral.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "psicoacústica",
+      "tags": [
+        "sombra acústica",
+        "localización",
+        "timbre"
+      ],
+      "common_confusion": "Reducir la localización izquierda-derecha solo a paneo de volumen.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_012",
+      "term": "Localización horizontal",
+      "abbreviation": "",
+      "definition": "Determinación perceptual de la posición lateral de una fuente. El módulo la vincula con diferencia de tiempo de arribo, diferencia de amplitud, fase y alteración tímbrica causada por la sombra acústica.",
+      "stable_definition": "La ubicación lateral depende de varios factores perceptuales combinados.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "psicoacústica",
+      "tags": [
+        "localización",
+        "paneo",
+        "psicoacústica"
+      ],
+      "common_confusion": "Confundir localización horizontal con simple panoramización del DAW.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_013",
+      "term": "Pan Law",
+      "abbreviation": "",
+      "definition": "Compensación aplicada al centro del panorama para que una señal enviada a ambos lados no incremente su energía percibida de forma desordenada al pasar desde los extremos al centro. En el módulo, se trata como complemento matemático de la escena estéreo.",
+      "stable_definition": "La Pan Law ordena el comportamiento energético del centro en la imagen estéreo.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "imagen estéreo",
+      "tags": [
+        "pan law",
+        "centro",
+        "estéreo"
+      ],
+      "common_confusion": "Cambiarla sin considerar que altera balances y perspectiva espacial ya construidos.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_014",
+      "term": "Room mics",
+      "abbreviation": "",
+      "definition": "Micrófonos que capturan la respuesta espacial del recinto a mayor distancia que los cercanos. En el módulo, su llegada tardía es parte del tamaño, del aire y de la profundidad natural de la escena.",
+      "stable_definition": "Los room mics pueden aportar profundidad real capturada si no se destruye su función temporal.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "captura espacial",
+      "tags": [
+        "room mics",
+        "sala",
+        "captura"
+      ],
+      "common_confusion": "Alinearlos o filtrarlos agresivamente por automatismo, como si solo fueran un problema tonal.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_015",
+      "term": "Post-fader",
+      "abbreviation": "",
+      "definition": "Modo de envío en el que la señal que alimenta un auxiliar sigue el movimiento del fader del canal original. En este módulo, es la norma práctica para delays y reverbs porque preserva la relación entre directo y efecto al ajustar nivel.",
+      "stable_definition": "Post-fader mantiene amarrado el efecto temporal al nivel del canal seco.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ruteo",
+      "tags": [
+        "post-fader",
+        "envíos",
+        "auxiliares"
+      ],
+      "common_confusion": "Presentarlo como ley absoluta sin reconocer excepciones espaciales.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_016",
+      "term": "Pre-fader",
+      "abbreviation": "",
+      "definition": "Modo de envío en el que el auxiliar recibe señal sin depender directamente del fader del canal original. En el módulo, puede usarse como excepción espacial para alejar una fuente al dejar relativamente más estable el ambiente que el directo.",
+      "stable_definition": "Pre-fader puede servir como recurso puntual de alejamiento.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ruteo",
+      "tags": [
+        "pre-fader",
+        "envíos",
+        "profundidad"
+      ],
+      "common_confusion": "Usarlo o descartarlo como dogma sin considerar objetivo espacial.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_017",
+      "term": "Ducking de reverb o delay",
+      "abbreviation": "",
+      "definition": "Control dinámico aplicado después del efecto espacial y disparado por la señal seca, para que el ambiente ceda durante el ataque o la articulación principal y reaparezca en los huecos. El módulo lo trata como técnica de limpieza espacial.",
+      "stable_definition": "El ducking permite preservar claridad del directo sin renunciar al espacio.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "dinámica espacial",
+      "tags": [
+        "ducking",
+        "sidechain",
+        "reverb",
+        "delay"
+      ],
+      "common_confusion": "Comprimir la reverb desde sí misma y esperar el mismo resultado.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_018",
+      "term": "Falso estéreo por duplicación",
+      "abbreviation": "",
+      "definition": "Apertura artificial obtenida al duplicar digitalmente una pista y retrasar una copia con un valor fijo. En el módulo, se advierte que puede generar filtro peine estático y comprometer la suma mono.",
+      "stable_definition": "La duplicación retrasada no equivale de forma estable a un doubling real.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "apertura espacial",
+      "tags": [
+        "falso estéreo",
+        "duplicación",
+        "filtro peine"
+      ],
+      "common_confusion": "Tratarlo como sustituto limpio y universal de una doble toma real.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_019",
+      "term": "Monocompatibilidad",
+      "abbreviation": "",
+      "definition": "Capacidad de una mezcla o de un recurso espacial para conservar estabilidad suficiente al plegarse a mono. En el módulo, se considera una verificación importante, aunque no siempre tratada como absoluto indiferente al lenguaje musical.",
+      "stable_definition": "La monocompatibilidad es un control relevante, pero su prioridad puede requerir juicio contextual.",
+      "pending_validation_notes": [
+        "El punto en que una pérdida de mono es aceptable debe formularse con mucha prudencia."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "verificación",
+      "tags": [
+        "mono",
+        "correlación",
+        "verificación"
+      ],
+      "common_confusion": "O ignorarla por completo o convertirla en un criterio absoluto sin contexto estético.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M06_TERM_020",
+      "term": "Hundimiento de la mezcla",
+      "abbreviation": "",
+      "definition": "Pérdida de frente, claridad y presencia producida por un uso excesivo o mal calibrado del ambiente. En el módulo, es uno de los síntomas más claros de espacialidad mal dosificada.",
+      "stable_definition": "Hundir la mezcla es empujarla demasiado hacia atrás y borrar su definición útil.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "errores comunes",
+      "tags": [
+        "hundimiento",
+        "reverb",
+        "error"
+      ],
+      "common_confusion": "Confundir sensación de grandeza con buena profundidad aunque la mezcla pierda lectura.",
+      "requires_validation": true
+    }
+  ]
 }

@@ -1,20 +1,245 @@
 ﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M02",
-    "module_order":  2,
-    "module_title":  "Estructura de ganancia y flujo de senal",
-    "module_slug":  "estructura-ganancia-flujo-senal",
-    "short_description":  "Modulo sobre organizacion de niveles, margen de trabajo y recorrido de la senal.",
-    "learning_scope":  "Delimita criterios de nivel, headroom, ruteo y flujo de senal antes de aplicar procesamiento.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "activities",
-    "filename":  "M02_actividades.json",
-    "purpose":  "Skeleton base para actividades Moodle del modulo. No contiene actividades finales.",
-    "activities":  [
-
-                   ]
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M02",
+"module_order": 2,
+"module_title": "Estructura de ganancia y flujo de señal",
+"module_slug": "estructura-ganancia-flujo-senal",
+"short_description": "Modulo centrado en referencias de nivel, estructura de ganancia, headroom, lectura de medidores, ruteo interno y decisiones operativas para mantener una señal coherente desde la entrada hasta la exportacion.",
+"learning_scope": "Incluye decibeles referenciados, diferencias entre potencia y voltaje, niveles de microfono, linea y amplificacion, nivel operativo, 0 VU, dBFS, headroom, Peak vs VU/RMS, PFL vs AFL, prefader vs postfader, gain staging activo, calibracion prudente de plugins, arquitectura Mix Bus vs Master Fader, overshoot de filtros y decisiones de exportacion sin perder resolucion.",
+"doc_type": "activities",
+"source_origin": "course",
+"filename": "M02_actividades.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m02",
+"purpose": "Borrador de actividades del modulo para uso posterior en tutor IA o Moodle. Requiere validacion pedagogica antes de publicarse. ",
+"activities": [
+{
+"activity_id": "M02_ACT_001",
+"title": "Distinguir referencias y zonas de trabajo",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante distinga entre referencia en dB, nivel operativo, 0 VU, headroom y techo digital sin tratarlos como sinonimos.",
+"student_task": "Explica con tus palabras la diferencia entre +4 dBu, -10 dBV, 0 VU y 0 dBFS. Luego responde por que nivel operativo y headroom no significan lo mismo y por que 0 VU no debe interpretarse como techo.",
+"evidence_to_submit": [
+"Respuesta breve de 180 a 300 palabras.",
+"Una comparacion final en formato lista con al menos cuatro diferencias tecnicas claras."
+],
+"ai_feedback_criteria": [
+"Distingue correctamente referencia, promedio operativo y limite digital.",
+"No presenta el dB como medida absoluta aislada.",
+"Reconoce que 0 VU es zona media de trabajo y no maximo.",
+"Explica que el headroom es margen antes de saturar y no el mismo concepto que nivel operativo."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Conviene validar si esta actividad se mantiene como respuesta abierta o se transforma despues en comparacion autocorregible."
+],
+"tags": [
+"dB",
+"dBu",
+"dBV",
+"dBFS",
+"0 VU",
+"headroom",
+"nivel operativo"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M02_ACT_002",
+"title": "Diagnosticar una cadena mal adaptada",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Comprobar si el estudiante puede detectar errores de adaptacion entre microfono, previo, linea e interfaz y proponer una correccion coherente.",
+"student_task": "Analiza este caso: un estudiante conecta un previo externo a la entrada de microfono de su interfaz y ademas enlaza un equipo profesional a un equipo semiprofesional sin revisar la sensibilidad +4/-10. Describe dos problemas posibles y propone la ruta correcta de conexion y adaptacion.",
+"evidence_to_submit": [
+"Diagnostico breve de los errores detectados.",
+"Propuesta de correccion tecnica en pasos."
+],
+"ai_feedback_criteria": [
+"Reconoce que un previo externo ya entrega nivel de linea.",
+"Aplica la regla de que linea debe entrar a linea.",
+"Identifica riesgos de saturacion o aumento de ruido por mezclar +4 dBu y -10 dBV sin adaptacion.",
+"No confunde tipo de conector con tipo de señal."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"La actividad es viable solo en formato textual y no requiere hardware real.",
+"Si luego existe material visual del curso sobre conexiones, puede añadirse como apoyo opcional."
+],
+"tags": [
+"microfono",
+"linea",
+"preamplificador",
+"+4 dBu",
+"-10 dBV",
+"adaptacion",
+"flujo de señal"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M02_ACT_003",
+"title": "Elegir el medidor correcto segun la señal",
+"moodle_type": "cuestionario_o_tarea_breve",
+"objective": "Verificar que el estudiante seleccione criterios de lectura adecuados para material percusivo y no percusivo.",
+"student_task": "Para cada caso indica si priorizarias lectura Peak o VU/RMS y justifica en una o dos frases: bombo, caja, bajo sostenido, voz legato y pad. Cierra explicando por que un pico aislado no siempre obliga a bajar toda la pista o toda la mezcla.",
+"evidence_to_submit": [
+"Cinco decisiones de medicion con su justificacion.",
+"Una conclusion final sobre pico aislado versus promedio."
+],
+"ai_feedback_criteria": [
+"Asigna Peak a señales percusivas y VU/RMS a material sostenido.",
+"Explica la limitacion de la balistica VU en transientes rapidas.",
+"Distingue pico aislado de estado global de la señal.",
+"Evita convertir un criterio de medicion en regla universal para todo el material."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Conviene validar si el docente quiere mantener los ejemplos propuestos o reemplazarlos por otros del mismo modulo."
+],
+"tags": [
+"Peak",
+"VU",
+"RMS",
+"transientes",
+"promedio",
+"pico aislado",
+"headroom"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M02_ACT_004",
+"title": "Corregir una suma saturada en subgrupo",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Evaluar si el estudiante sabe corregir una suma fuera de nivel sin destruir balances ya construidos.",
+"student_task": "Caso: los canales top y bottom de un tambor estan bien por separado, pero el subgrupo queda al rojo antes del procesamiento grupal. Propone tres acciones posibles y justifica cual seria tu opcion preferida y por que.",
+"evidence_to_submit": [
+"Respuesta breve con tres alternativas de correccion.",
+"Justificacion tecnica de la opcion elegida."
+],
+"ai_feedback_criteria": [
+"Menciona alternativas coherentes como mover faders enlazados, usar VCA o insertar Trim en el grupo.",
+"Entiende que el problema puede nacer en la suma y no en cada canal individual.",
+"Prioriza la correccion antes del procesamiento grupal.",
+"Valora conservar balances previos cuando la solucion lo permite."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Puede convertirse despues en pregunta de opcion multiple, pero en esta fase conviene dejarla abierta para capturar criterio tecnico."
+],
+"tags": [
+"subgrupo",
+"suma",
+"Trim",
+"VCA",
+"balance",
+"gain staging",
+"procesamiento grupal"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M02_ACT_005",
+"title": "Definir envios y modo de escucha",
+"moodle_type": "analisis_guiado",
+"objective": "Comprobar si el estudiante distingue correctamente prefader, postfader, PFL y AFL segun la funcion operativa.",
+"student_task": "Resuelve estos cuatro casos: envio a reverb, envio a delay, compresion paralela y mezcla de monitoreo. En cada uno indica si usarias prefader o postfader y por que. Luego explica si para grabar y estructurar ganancia elegirias PFL o AFL y cual es el riesgo de escoger mal.",
+"evidence_to_submit": [
+"Tabla o lista con cuatro decisiones de envio.",
+"Explicacion final sobre PFL y AFL."
+],
+"ai_feedback_criteria": [
+"Asigna postfader a reverb y delay cuando el efecto debe acompañar al canal.",
+"Asigna prefader a compresion paralela y monitoreo cuando el fader no debe alterar esa alimentacion.",
+"Selecciona PFL para grabacion y estructura de ganancia.",
+"Explica que AFL puede ocultar el nivel real que entra a la cadena."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"No requiere sesion real de DAW; la evaluacion puede hacerse solo con argumentacion textual."
+],
+"tags": [
+"prefader",
+"postfader",
+"PFL",
+"AFL",
+"reverb",
+"delay",
+"compresion paralela",
+"monitoreo"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M02_ACT_006",
+"title": "Compensar nivel y evitar recetas ciegas",
+"moodle_type": "aplicacion_practica_breve",
+"objective": "Verificar que el estudiante entienda la compensacion obligatoria de salida y la no universalidad de la calibracion 0 VU = -18 dBFS.",
+"student_task": "Un plugin de modelado analogo eleva la señal 10 dB al activarse. Explica que deberias hacer para evaluar el cambio con objetividad. Luego responde por que seria incorrecto asumir que todo plugin debe calibrarse igual, incluso si en otro caso 0 VU se acercaba a -18 dBFS.",
+"evidence_to_submit": [
+"Explicacion breve del ajuste de salida necesario.",
+"Justificacion corta sobre por que la calibracion no debe copiarse ciegamente entre plugins."
+],
+"ai_feedback_criteria": [
+"Indica que si el proceso sube nivel, la salida debe compensarse en magnitud equivalente para comparar con criterio.",
+"Evita confundir mas fuerte con mejor.",
+"Reconoce que la equivalencia 0 VU = -18 dBFS no es universal.",
+"Acepta la necesidad de medir o verificar la respuesta real del plugin."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Si mas adelante se incorporan capturas o ejemplos medidos del curso, puede enriquecerse como ejercicio semipráctico; por ahora debe mantenerse textual."
+],
+"tags": [
+"compensacion de nivel",
+"plugins analogicos",
+"0 VU",
+"-18 dBFS",
+"calibracion",
+"Trim",
+"gain staging activo"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M02_ACT_007",
+"title": "Decidir el nivel final sin perder resolucion",
+"moodle_type": "analisis_guiado",
+"objective": "Evaluar si el estudiante puede justificar una decision de salida considerando promedio, pico, arquitectura de Mix Bus y efecto del bounce fijo.",
+"student_task": "Caso: una mezcla muestra en el Mix Bus un pico de -2,8 dBFS y un promedio sano, sin clipping. Un estudiante propone bajar 6 dB el Master Fader antes de exportar a 24 bits para entregar mas headroom. Explica si esa decision es correcta o no, que problema tecnico puede introducir y que rol deberian cumplir Mix Bus y Master Fader en esa arquitectura.",
+"evidence_to_submit": [
+"Analisis breve del caso.",
+"Decision final justificada en lenguaje tecnico del modulo."
+],
+"ai_feedback_criteria": [
+"Reconoce que un pico relativamente alto sin clipping no obliga por si mismo a perseguir -6 dBFS.",
+"Explica que bajar 6 dB en un bounce a 24 bits implica perdida de resolucion.",
+"Distingue entre el rol del Mix Bus como canal central de mezcla y el Master Fader como punto final de control y medicion.",
+"No trata el headroom como una consigna fija desconectada del promedio y del contexto."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Conviene validar si el docente quiere evaluar tambien el dato de 1 bit ≈ 6 dB como parte obligatoria o solo como apoyo conceptual."
+],
+"tags": [
+"Mix Bus",
+"Master Fader",
+"exportacion",
+"24 bits",
+"resolucion",
+"headroom",
+"pico",
+"promedio"
+],
+"requires_validation": true
+}
+]
 }

@@ -1,19 +1,374 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M08",
-    "module_order":  8,
-    "module_title":  "Masterizacion y optimizacion comercial",
-    "module_slug":  "masterizacion-optimizacion-comercial",
-    "short_description":  "Modulo sobre preparacion final, control tecnico y optimizacion comercial del master.",
-    "learning_scope":  "Delimita criterios de traduccion, nivel, limitacion, entrega y revision final para distribucion.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "faq",
-    "filename":  "M08_faq.json",
-    "items":  [
-
-              ]
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M08",
+  "module_order": 8,
+  "module_title": "Masterización y optimización comercial",
+  "module_slug": "masterizacion-optimizacion-comercial",
+  "short_description": "Borrador canónico del módulo sobre mastering como cierre técnico, comercial y de traducción final del producto estéreo.",
+  "learning_scope": "Delimita la función del mastering, sus etapas técnica, comercial y artística, y los criterios prudentes de loudness, True Peak, limitación, dither, traducción y entrega.",
+  "doc_type": "faq",
+  "source_origin": "course",
+  "filename": "M08_faq.json",
+  "version": "0.1",
+  "status": "ready_for_indexing",
+  "curation_source": "borrador_autoral_m08",
+  "items": [
+    {
+      "faq_id": "M08_FAQ_001",
+      "question": "¿Qué es mastering dentro de este módulo?",
+      "canonical_answer": "En este módulo, mastering se entiende como la preparación final del producto estéreo para su distribución. Incluye revisión técnica, adaptación comercial y, solo si hace falta, un acabado artístico final. No se plantea como una segunda mezcla ni como un lugar para corregir de forma mágica problemas estructurales que debieron resolverse antes.",
+      "short_answer": "Es la preparación final del estéreo para distribución, no una segunda mezcla.",
+      "stable_answer": "Mastering es la etapa final de revisión, adaptación y entrega del producto estéreo.",
+      "pending_validation_notes": [
+        "La proporción entre corrección técnica, optimización comercial y acabado artístico puede variar según contexto."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "definicion_mastering",
+      "learning_objective": "Distinguir la función del mastering frente a otras etapas del proceso.",
+      "tags": [
+        "mastering",
+        "definicion",
+        "flujo",
+        "doctrina"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "El mastering arregla cualquier mezcla.",
+        "El mastering siempre rehace la mezcla."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_002",
+      "question": "¿El mastering puede arreglar una mala mezcla?",
+      "canonical_answer": "Puede disimular o parchear ciertos problemas sobre la suma estéreo, pero no sustituye decisiones de balance, arreglo, espacio o control interno que pertenecen a la mezcla. La doctrina del módulo es que lo que pueda resolverse antes conviene resolverlo antes.",
+      "short_answer": "Puede parchear algo, pero no reemplaza una mezcla bien resuelta.",
+      "stable_answer": "El mastering no sustituye la resolución estructural de la mezcla.",
+      "pending_validation_notes": [
+        "El alcance real de un parche depende de qué tan profundo sea el problema original."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "mezcla_vs_mastering",
+      "learning_objective": "Evitar expectativas incorrectas sobre el papel del mastering.",
+      "tags": [
+        "mezcla",
+        "mastering",
+        "limites",
+        "correccion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Sí, el mastering arregla todo al final.",
+        "No importa mezclar bien porque luego se masteriza."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_003",
+      "question": "¿Cuáles son las etapas que distingue el módulo dentro del mastering?",
+      "canonical_answer": "El módulo distingue una etapa técnica, una etapa comercial y una etapa artística. La técnica revisa problemas sobrevivientes a la mezcla; la comercial adapta el material al contexto real de entrega; la artística aporta color o cohesión solo si el material lo pide. No siempre las tres tienen el mismo peso.",
+      "short_answer": "Técnica, comercial y artística.",
+      "stable_answer": "El módulo organiza el mastering en tres planos: técnico, comercial y artístico.",
+      "pending_validation_notes": [
+        "La etapa artística puede ser mínima o incluso innecesaria en algunos casos."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "etapas_mastering",
+      "learning_objective": "Comprender la estructura conceptual del módulo.",
+      "tags": [
+        "etapas",
+        "tecnica",
+        "comercial",
+        "artistica"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "La etapa artística es obligatoria.",
+        "Todas las etapas siempre pesan igual."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_004",
+      "question": "¿Conviene masterizar siempre a -14 LUFS porque una plataforma normaliza cerca de ese valor?",
+      "canonical_answer": "No se plantea así. El módulo usa ese dato como referencia de normalización de reproducción, no como target universal de mastering. La decisión de loudness depende del género, la intención, el costo dinámico aceptable y del hecho de que la normalización puede no ser el único escenario real de escucha.",
+      "short_answer": "No. Ese valor no se usa como target universal.",
+      "stable_answer": "La normalización de plataforma no equivale por sí sola a un objetivo fijo de mastering.",
+      "pending_validation_notes": [
+        "Los targets concretos siguen siendo dependientes de contexto, género y destino."
+      ],
+      "brand_or_model_mentions": [
+        "Spotify"
+      ],
+      "topic": "loudness_targets",
+      "learning_objective": "Evitar el uso mecánico de targets de plataforma.",
+      "tags": [
+        "loudness",
+        "lufs",
+        "streaming",
+        "normalizacion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Siempre hay que entregar a -14 LUFS.",
+        "La plataforma decide por completo el máster."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_005",
+      "question": "¿Por qué el módulo insiste en controlar True Peak?",
+      "canonical_answer": "Porque el pico de muestra no alcanza para anticipar toda la realidad de reproducción. El módulo asocia el control de True Peak con picos interesample, codificación con pérdida y seguridad técnica en distribución. Aun así, reconoce que en la práctica comercial existe tensión entre margen técnico prudente y decisiones más agresivas.",
+      "short_answer": "Porque ayuda a anticipar problemas reales de reproducción y codificación.",
+      "stable_answer": "True Peak se usa para evaluar margen de seguridad más allá del simple pico de muestra.",
+      "pending_validation_notes": [
+        "El margen concreto puede variar según formato, destino y tolerancia comercial."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "true_peak",
+      "learning_objective": "Comprender por qué el techo técnico no se reduce al pico digital tradicional.",
+      "tags": [
+        "true_peak",
+        "interesample",
+        "streaming",
+        "entrega"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si el pico de muestra está bien, todo lo demás da igual.",
+        "True Peak es irrelevante."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_006",
+      "question": "¿Hay que volver a comprimir en mastering si ya hubo compresión en mezcla?",
+      "canonical_answer": "No necesariamente. El módulo no trata la compresión de mastering como ritual obligatorio. Puede no hacer falta, o puede bastar una intervención muy suave si se busca un ajuste final de cohesión o control.",
+      "short_answer": "No. Puede no hacer falta.",
+      "stable_answer": "La compresión adicional en mastering es opcional y depende del material.",
+      "pending_validation_notes": [
+        "La necesidad real de compresión final depende de cómo llegue la mezcla y de la meta de entrega."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "compresion_mastering",
+      "learning_objective": "Evitar cadenas automáticas por costumbre.",
+      "tags": [
+        "compresion",
+        "mixbus",
+        "mastering",
+        "cadena"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Siempre hay que comprimir otra vez.",
+        "Sin compresor no hay mastering."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_007",
+      "question": "¿Por qué se recomienda medir LUFS de forma offline y no depender solo del análisis en tiempo real?",
+      "canonical_answer": "Porque el módulo prioriza primero escuchar con criterio y luego medir el resultado completo con menor desgaste auditivo. La medición offline ayuda a obtener el valor integrado de manera más fría y evita prolongar decisiones solo por costumbre o sobreexposición al material.",
+      "short_answer": "Para medir con menos fatiga y no sustituir la escucha por el medidor.",
+      "stable_answer": "La medición offline ayuda a validar el resultado sin gastar criterio auditivo innecesariamente.",
+      "pending_validation_notes": [
+        "La utilidad exacta del flujo offline puede variar según entorno de trabajo."
+      ],
+      "brand_or_model_mentions": [
+        "Youlean Loudness Meter"
+      ],
+      "topic": "medicion_offline",
+      "learning_objective": "Entender el orden correcto entre escucha y medición.",
+      "tags": [
+        "lufs",
+        "medicion",
+        "offline",
+        "fatiga"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Primero manda el número y luego la escucha.",
+        "Da igual cómo se mida mientras salga un valor."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_008",
+      "question": "¿Por qué no conviene bajar el master fader para entregar headroom cuando el archivo está en punto fijo?",
+      "canonical_answer": "Porque el módulo considera esa práctica técnicamente innecesaria y potencialmente peor que el problema que intenta resolver. La atenuación útil puede hacerse dentro del entorno de mastering con margen flotante, mientras que regalar resolución en una exportación fija no se presenta como una buena solución.",
+      "short_answer": "Porque en punto fijo se considera una mala salida técnica para regalar headroom.",
+      "stable_answer": "La doctrina del módulo desaconseja bajar el master fader en exportación fija solo para entregar más margen.",
+      "pending_validation_notes": [
+        "La formulación concreta depende del formato de archivo y del entorno de trabajo usado."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "headroom_exportacion",
+      "learning_objective": "Evitar una mala práctica frecuente en la interfaz entre mezcla y mastering.",
+      "tags": [
+        "headroom",
+        "exportacion",
+        "resolucion",
+        "punto_fijo"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Siempre baja el master 6 dB y listo.",
+        "Regalar headroom en exportación fija no tiene costo."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_009",
+      "question": "¿Qué diferencia hay entre truncado y dither?",
+      "canonical_answer": "El truncado reduce resolución sin tratamiento y el módulo lo asocia con errores de cuantización y degradación audible más áspera. El dither, en cambio, se plantea como la corrección adecuada cuando hay reducción de bits, porque transforma ese daño en un ruido controlado y preserva mejor la información de bajo nivel. El noise shaping aparece como refinamiento adicional de esa corrección.",
+      "short_answer": "Truncar degrada sin control; dither corrige la reducción de bits de forma más estable.",
+      "stable_answer": "Dither y truncado no son equivalentes: el primero corrige una reducción de resolución y el segundo no.",
+      "pending_validation_notes": [
+        "La decisión final depende de si realmente hay cambio de resolución en la entrega."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "dither",
+      "learning_objective": "Comprender por qué el dither no es opcional cuando el formato final lo exige.",
+      "tags": [
+        "dither",
+        "truncado",
+        "noise_shaping",
+        "bit_depth"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Dither y truncado dan lo mismo.",
+        "Si ya hay ruido en la señal, conviene truncar."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_010",
+      "question": "¿Si el grave está muy abierto, basta con cerrarlo a mono?",
+      "canonical_answer": "No siempre. El módulo advierte que un problema grave de fase puede ser en realidad un problema temporal. En esos casos, colapsar a mono sin diagnóstico puede incluso empeorar el resultado. La monocompatibilidad se trabaja con criterio, no como botón automático.",
+      "short_answer": "No siempre. Primero hay que diagnosticar si el problema es temporal.",
+      "stable_answer": "Mono no es una corrección universal para problemas graves de fase en low-end.",
+      "pending_validation_notes": [
+        "El tratamiento depende del origen exacto del problema y del formato de destino."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "low_end_monocompatibilidad",
+      "learning_objective": "Distinguir cierre a mono de corrección temporal.",
+      "tags": [
+        "low_end",
+        "mono",
+        "fase",
+        "vinilo"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si el grave falla, ciérralo a mono sin más.",
+        "Todo problema de fase grave se soluciona con Mono Maker."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_011",
+      "question": "¿Conviene poner un clipper en el master para lograr más volumen?",
+      "canonical_answer": "La doctrina del módulo no lo favorece como solución principal sobre el estéreo completo. La advertencia es que ese recorte puede distorsionar simultáneamente varios elementos del mix que coincidan con el pico. El enfoque preferido es preparar mejor el headroom antes y no cargar todo el problema al master final.",
+      "short_answer": "No se plantea como la mejor salida sobre el master estéreo completo.",
+      "stable_answer": "El módulo desaconseja usar un clipper en el master como solución general de loudness extremo.",
+      "pending_validation_notes": [
+        "La severidad del problema depende del material y de cuánto recorte se aplique."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "clipping_master",
+      "learning_objective": "Evitar maximización agresiva mal ubicada dentro del flujo.",
+      "tags": [
+        "clipper",
+        "loudness",
+        "master",
+        "distorsion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Un clipper en el master siempre resuelve mejor el volumen.",
+        "Mientras suene fuerte, no importa qué se deforma."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_012",
+      "question": "¿Por qué el módulo pide comparar limitadores al mismo volumen?",
+      "canonical_answer": "Porque, sin compensación exacta, el oído suele interpretar más nivel como mejora. El módulo trata esta trampa psicoacústica como una fuente central de autoengaño en la etapa comercial. Comparar isométricamente es una condición mínima para juzgar si el proceso realmente mejora o solo sube el volumen.",
+      "short_answer": "Porque más fuerte suele parecer mejor aunque no lo sea.",
+      "stable_answer": "La comparación solo es válida si el nivel está compensado.",
+      "pending_validation_notes": [
+        "El grado de compensación necesario depende del método de comparación usado."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "comparacion_isometrica",
+      "learning_objective": "Formar criterio auditivo menos sesgado en optimización final.",
+      "tags": [
+        "limitador",
+        "comparacion",
+        "volumen",
+        "sesgo"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si suena más fuerte, ya está mejor.",
+        "No hace falta compensar salida para comparar."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_013",
+      "question": "¿Tiene sentido simular el códec final si el WAV ya quedó bien?",
+      "canonical_answer": "Sí, porque el módulo considera insuficiente validar solo el archivo interno de trabajo. La codificación final puede alterar el comportamiento del material, elevar picos y exponer artefactos que no eran obvios en el WAV. Por eso la traducción comercial incluye anticipar ese escenario.",
+      "short_answer": "Sí. El WAV sano no garantiza comportamiento final sano tras codificación.",
+      "stable_answer": "La validación del mastering incluye considerar cómo responde el archivo una vez codificado.",
+      "pending_validation_notes": [
+        "La importancia exacta de esta simulación depende del destino de distribución."
+      ],
+      "brand_or_model_mentions": [
+        "AAC",
+        "MP3"
+      ],
+      "topic": "codec_simulation",
+      "learning_objective": "Entender que la entrega real no coincide siempre con el archivo de trabajo.",
+      "tags": [
+        "codec",
+        "aac",
+        "mp3",
+        "traduccion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si el WAV quedó bien, lo demás da igual.",
+        "No hace falta pensar en codificación."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M08_FAQ_014",
+      "question": "¿Masterizar un álbum es lo mismo que masterizar canciones sueltas?",
+      "canonical_answer": "No. El módulo distingue que un álbum necesita continuidad estructural de nivel, balance macro y sensación tímbrica general. Cada tema puede conservar identidad, pero sin romper el marco común del disco. Una canción aislada admite decisiones más locales.",
+      "short_answer": "No. Un álbum exige coherencia estructural entre temas.",
+      "stable_answer": "El mastering de álbum incorpora continuidad entre canciones, no solo resolución individual.",
+      "pending_validation_notes": [
+        "El grado de continuidad deseado depende del concepto del disco y de la producción previa."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "album_vs_cancion",
+      "learning_objective": "Comprender la diferencia entre criterio local y criterio de conjunto.",
+      "tags": [
+        "album",
+        "cancion",
+        "coherencia",
+        "secuencia"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Se masteriza un álbum igual que canciones aisladas.",
+        "Cada tema puede ignorar por completo al resto."
+      ],
+      "requires_validation": true
+    }
+  ]
 }

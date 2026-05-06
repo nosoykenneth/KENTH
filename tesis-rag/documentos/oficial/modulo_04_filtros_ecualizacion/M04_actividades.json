@@ -1,141 +1,280 @@
 {
-  "course_id": "mezcla_masterizacion_kenth",
-  "module_id": "M04",
-  "module_order": 4,
-  "module_title": "Filtros y ecualizacion",
-  "module_slug": "filtros-ecualizacion",
-  "short_description": "Modulo sobre filtros y ecualizacion dentro del proceso de mezcla.",
-  "learning_scope": "Delimita el uso tecnico y musical de filtros y ecualizadores segun el temario oficial.",
-  "doc_type": "activities",
-  "source_origin": "course",
-  "filename": "M04_actividades.json",
-  "version": "0.3",
-  "status": "curated_pending_source_check",
-  "curation_source": "borrador_autoral_m04",
-  "purpose": "Borrador de actividades para Moodle. Las consignas deben validarse pedagogicamente antes de usarse en el curso.",
-  "activities": [
-    {
-      "activity_id": "M04_ACT_001",
-      "title": "Analisis basico de una decision de filtrado",
-      "moodle_type": "tarea_breve",
-      "objective": "Que el estudiante explique la intencion de un filtro sin depender solo de la grafica.",
-      "student_task": "Elegir una decision de filtrado propia o hipotetica y describir: que problema o intencion atiende, que zona del espectro busca modificar y como verificaria si la decision funciona dentro de la mezcla.",
-      "evidence_to_submit": [
-        "Descripcion del contexto de mezcla o instrumento.",
-        "Captura opcional del ajuste, si existe.",
-        "Justificacion breve de la decision."
-      ],
-      "ai_feedback_criteria": [
-        "Verificar si el estudiante explica la intencion del filtro.",
-        "Pedir aclaracion si solo entrega valores sin contexto.",
-        "No inventar pagina, minuto, plugin ni valor tecnico."
-      ],
-      "related_errors": ["M04_ERR_001"],
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar si la actividad sera individual, practica o solo reflexiva.",
-        "Validar si se exigira captura obligatoria."
-      ],
-      "tags": ["filtros", "frecuencia_de_corte", "contexto"],
-      "requires_validation": true
-    },
-    {
-      "activity_id": "M04_ACT_002",
-      "title": "Comparacion entre pendiente y Q",
-      "moodle_type": "cuestionario_o_tarea_breve",
-      "objective": "Que el estudiante distinga parametros antes de justificar un ajuste.",
-      "student_task": "Explicar con sus palabras la diferencia entre pendiente y Q. Si usa una captura de plugin, debe indicar que parametro esta observando y que duda le genera.",
-      "evidence_to_submit": [
-        "Explicacion breve de pendiente.",
-        "Explicacion breve de Q.",
-        "Ejemplo propio o captura opcional."
-      ],
-      "ai_feedback_criteria": [
-        "Detectar si Q y pendiente aparecen como sinonimos.",
-        "Pedir captura si la interfaz del plugin es ambigua.",
-        "Evitar afirmaciones sobre artefactos si no hay fuente validada."
-      ],
-      "related_errors": ["M04_ERR_002", "M04_ERR_003"],
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar definiciones oficiales antes de usar como pregunta calificada."
-      ],
-      "tags": ["q", "pendiente", "filtros"],
-      "requires_validation": true
-    },
-    {
-      "activity_id": "M04_ACT_003",
-      "title": "Decision correctiva o decision tonal",
-      "moodle_type": "foro_o_tarea_breve",
-      "objective": "Que el estudiante clasifique la intencion de una ecualizacion.",
-      "student_task": "Describir una decision de EQ y clasificarla como correctiva o tonal. Debe explicar si la decision fue tomada en contexto de mezcla y que esperaba lograr.",
-      "evidence_to_submit": [
-        "Descripcion de la fuente o mezcla.",
-        "Clasificacion: correctiva o tonal.",
-        "Justificacion de la intencion."
-      ],
-      "ai_feedback_criteria": [
-        "Preguntar por intencion si la respuesta es ambigua.",
-        "Detectar si el estudiante decide el timbre final solo en modo solo.",
-        "No recomendar marcas, modelos ni plugins concretos."
-      ],
-      "related_errors": ["M04_ERR_007", "M04_ERR_008"],
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar si el curso usara esta distincion como eje oficial de evaluacion."
-      ],
-      "tags": ["eq_correctiva", "eq_tonal", "contexto"],
-      "requires_validation": true
-    },
-    {
-      "activity_id": "M04_ACT_004",
-      "title": "Revision de una decision de EQ en contexto",
-      "moodle_type": "tarea_practica_opcional",
-      "objective": "Que el estudiante relacione una decision de EQ con el balance general de la mezcla.",
-      "student_task": "Presentar una decision de EQ aplicada a un elemento de la mezcla y explicar como cambia su relacion con los demas elementos. Si no tiene proyecto propio, puede describir un caso hipotetico.",
-      "evidence_to_submit": [
-        "Descripcion del elemento procesado.",
-        "Descripcion del cambio buscado dentro de la mezcla.",
-        "Captura o audio opcional, si el entorno lo permite."
-      ],
-      "ai_feedback_criteria": [
-        "Priorizar contexto de mezcla sobre valores aislados.",
-        "Pedir mas informacion si no se entiende el objetivo.",
-        "No diagnosticar problemas de audio sin evidencia suficiente."
-      ],
-      "related_errors": ["M04_ERR_008"],
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar si Moodle recibira audio/capturas o solo texto.",
-        "Validar criterio de calificacion."
-      ],
-      "tags": ["mezcla", "contexto", "eq"],
-      "requires_validation": true
-    },
-    {
-      "activity_id": "M04_ACT_005",
-      "title": "Criterio sustractivo y margen de nivel",
-      "moodle_type": "tarea_breve",
-      "objective": "Que el estudiante proponga una decision sustractiva antes de sumar ganancia cuando hay acumulacion o poco margen.",
-      "student_task": "Describir una situacion donde la mezcla o un grupo tenga demasiada energia. Proponer una accion sustractiva y explicar por que seria preferible antes de realzar otra zona.",
-      "evidence_to_submit": [
-        "Descripcion de la acumulacion o problema percibido.",
-        "Accion sustractiva propuesta.",
-        "Justificacion vinculada al margen de nivel o claridad."
-      ],
-      "ai_feedback_criteria": [
-        "Evitar valores exactos de dB sin evidencia.",
-        "Pedir contexto si no se sabe que energia molesta.",
-        "No usar el nombre Metodo Robin Hood como oficial hasta validarlo."
-      ],
-      "related_errors": ["M04_ERR_010"],
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar si el nombre Metodo Robin Hood se conservara en el material oficial.",
-        "Validar si esta actividad pertenece a M04 o a estructura de ganancia."
-      ],
-      "tags": ["headroom", "eq_sustractiva", "criterio_sustractivo"],
-      "requires_validation": true
-    }
-  ]
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M04",
+"module_order": 4,
+"module_title": "Filtros y ecualización",
+"module_slug": "filtros-ecualizacion",
+"short_description": "Módulo sobre filtros, ecualización, pendiente, Q, fase, criterios de intervención y uso correctivo, tonal, dinámico y contextual de la EQ.",
+"learning_scope": "El módulo delimita el uso técnico y musical de filtros y ecualizadores en mezcla y mastering, incluyendo frecuencia de corte, polos, pendiente, Q, campanas, shelves, tilt, fase lineal, overshot, all-pass, crossovers, EQ dinámica, multibanda, orden de inserción y criterios para decidir cuándo intervenir o no intervenir.",
+"doc_type": "activities",
+"source_origin": "course",
+"filename": "M04_actividades.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m04",
+"purpose": "Borrador de actividades del modulo para uso posterior en tutor IA o Moodle. Requiere validacion pedagogica antes de publicarse.",
+"activities": [
+{
+"activity_id": "M04_ACT_001",
+"title": "Frecuencia de corte no es muro",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante distingue la frecuencia de corte real de un filtro frente a la idea errónea de un corte instantáneo.",
+"student_task": "Explica por qué elegir un filtro en 1000 Hz no significa que todo lo inferior desaparece ni que todo lo superior queda intacto. Incluye en tu respuesta la relación entre frecuencia de corte, caída de 3 dB, mitad de potencia y pendiente.",
+"evidence_to_submit": [
+"Explicación breve de 120 a 180 palabras",
+"Una frase que corrija explícitamente la idea de filtro como muro ideal",
+"Mención de la pendiente en dB/octava"
+],
+"ai_feedback_criteria": [
+"Revisar que el estudiante ubique la frecuencia de corte en -3 dB respecto a la entrada",
+"Comprobar que no describa el filtro como brickwall perfecto",
+"Verificar que relacione la transición gradual con la pendiente",
+"Corregir si confunde frecuencia de corte de filtro con frecuencia de corte de shelving"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad textual viable sin material adicional.",
+"Requiere validación docente para ajustar extensión esperada."
+],
+"tags": [
+"frecuencia de corte",
+"filtros",
+"pendiente",
+"dB por octava",
+"Butterworth"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M04_ACT_002",
+"title": "Pendiente, polos y Q",
+"moodle_type": "cuestionario_o_tarea_breve",
+"objective": "Comprobar que el estudiante separa correctamente pendiente, polos y Q.",
+"student_task": "Responde: 1) ¿Cuántos dB/octava corresponden a 1, 2, 3 y 4 polos? 2) ¿Por qué pendiente y Q no son el mismo parámetro? 3) ¿Por qué un filtro de 6 dB/oct no ofrece control real de Q según el marco del módulo?",
+"evidence_to_submit": [
+"Tabla simple de polos y dB/octava",
+"Respuesta breve sobre diferencia entre pendiente y Q",
+"Respuesta breve sobre el caso de 6 dB/oct"
+],
+"ai_feedback_criteria": [
+"Validar la equivalencia de 1 polo = 6 dB/oct, 2 polos = 12 dB/oct, 3 polos = 18 dB/oct y 4 polos = 24 dB/oct",
+"Revisar que el estudiante defina pendiente como caída por octava",
+"Revisar que el estudiante defina Q como concentración, resonancia, ancho o selectividad",
+"Corregir si trata el mando Q como sinónimo universal de pendiente"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad textual viable sin material adicional.",
+"Puede convertirse luego en cuestionario de respuesta corta."
+],
+"tags": [
+"polos",
+"pendiente",
+"Q",
+"resonancia",
+"dB/octava"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M04_ACT_003",
+"title": "Decidir si filtrar o no",
+"moodle_type": "analisis_guiado",
+"objective": "Evaluar si el estudiante aplica el criterio del módulo contra el filtrado automático por costumbre.",
+"student_task": "Analiza este caso: una pista tiene contenido por debajo de su registro útil, pero ese contenido está entre 20 y 30 dB por debajo de la fundamental y no genera problema audible ni técnico. Decide si filtrarías o no. Justifica usando los criterios del módulo.",
+"evidence_to_submit": [
+"Decisión: filtrar o no filtrar",
+"Justificación técnica breve",
+"Mención de al menos dos criterios: registro útil, headroom, riesgo térmico, enmascaramiento o basura subsónica"
+],
+"ai_feedback_criteria": [
+"Revisar que el estudiante no recomiende filtrar solo por reflejo",
+"Comprobar que use el criterio de 20 a 30 dB por debajo de la fundamental como posible señal inofensiva",
+"Validar que distinga entre basura real, riesgo técnico y material que no molesta",
+"Corregir respuestas que propongan limpiar todo desde el master como solución principal"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad basada en caso textual. No requiere audio.",
+"Requiere validación docente para confirmar si se desea exigir una respuesta única o aceptar decisiones condicionadas."
+],
+"tags": [
+"no filtrar por costumbre",
+"headroom",
+"registro útil",
+"basura subsónica",
+"criterio técnico"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M04_ACT_004",
+"title": "Overshot después de filtrar",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Verificar que el estudiante entiende por qué un filtro puede elevar picos aunque quite información espectral.",
+"student_task": "Explica el fenómeno observado en la demostración: ruido blanco a -20 dB pasa por un high-pass de 24 dB/oct en 20 Hz; el pico sube a -14.6 dB mientras el RMS se mantiene alrededor de -23.1. Indica por qué esto no significa que la señal tenga más energía útil ni que suene necesariamente más fuerte.",
+"evidence_to_submit": [
+"Explicación breve del fenómeno",
+"Mención de pico y RMS como mediciones distintas",
+"Mención de rotación de fase, reorganización temporal u overshot"
+],
+"ai_feedback_criteria": [
+"Comprobar que el estudiante distinga pico de RMS",
+"Validar que no interprete el aumento de pico como aumento de volumen promedio",
+"Revisar que relacione el fenómeno con rotación de fase, reordenamiento temporal u overshot",
+"Corregir si concluye que filtrar siempre mejora headroom"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad viable sin recrear la demostración en DAW.",
+"Puede enriquecerse después con captura o medición real si el docente decide crear recurso visual."
+],
+"tags": [
+"overshot",
+"high-pass",
+"rotación de fase",
+"RMS",
+"pico"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M04_ACT_005",
+"title": "Correctiva, tonal, estática o dinámica",
+"moodle_type": "aplicacion_practica_breve",
+"objective": "Comprobar que el estudiante elige el tipo de ecualización según la naturaleza del problema o intención.",
+"student_task": "Clasifica cada situación y justifica brevemente: A) una resonancia molesta constante en una voz; B) una sibilancia que aparece solo en algunas palabras; C) una mezcla que necesita sensación de más aire; D) una mezcla que necesita percibirse con más peso sin sumar demasiado low-end real.",
+"evidence_to_submit": [
+"Clasificación de cada caso",
+"Justificación de una o dos frases por caso",
+"Mención de herramientas o curvas solo si salen del módulo"
+],
+"ai_feedback_criteria": [
+"Validar que el caso A se asocie con EQ correctiva estática o sustractiva si el problema es permanente",
+"Validar que el caso B se asocie con EQ dinámica por ser intermitente",
+"Validar que el caso C se relacione con EQ tonal, shelving, brillo o aire",
+"Validar que el caso D pueda resolverse con Tilt por contraste antes que con suma bruta de graves",
+"Corregir si el estudiante usa multibanda como respuesta automática sin justificar crossovers o zonas rígidas"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad textual viable sin audio.",
+"Requiere validación docente para aceptar variantes de respuesta según contexto."
+],
+"tags": [
+"EQ correctiva",
+"EQ tonal",
+"EQ dinámica",
+"EQ estática",
+"Tilt",
+"shelving"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M04_ACT_006",
+"title": "Campana, ancho de banda y frecuencia central",
+"moodle_type": "cuestionario_o_tarea_breve",
+"objective": "Evaluar si el estudiante entiende cómo se define el ancho de banda de una campana y cómo se calcula la frecuencia central.",
+"student_task": "En una campana con pico de +9 dB, explica en qué nivel se miden F1 y F2 para definir el ancho de banda. Luego indica por qué la frecuencia central no se obtiene con promedio aritmético y escribe la fórmula correcta.",
+"evidence_to_submit": [
+"Nivel correcto para medir F1 y F2",
+"Fórmula de frecuencia central",
+"Fórmula de Q según el módulo"
+],
+"ai_feedback_criteria": [
+"Revisar que F1 y F2 se midan a +6 dB si el pico está en +9 dB",
+"Comprobar que use Fc = raíz cuadrada de F1 por F2",
+"Comprobar que use Q = frecuencia central / ancho de banda",
+"Corregir si define el ancho por los puntos donde la curva vuelve a ganancia unidad"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad viable sin gráfico.",
+"Puede convertirse luego en ejercicio numérico con valores F1 y F2 definidos por el docente."
+],
+"tags": [
+"campana",
+"bell",
+"ancho de banda",
+"frecuencia central",
+"Q",
+"media geométrica"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M04_ACT_007",
+"title": "Crossover estándar vs Linkwitz-Riley",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante entiende por qué dividir y recombinar una señal no equivale a aplicar filtros comunes sin consecuencias.",
+"student_task": "Compara un cruce hecho con HPF y LPF estándar en la misma frecuencia frente a un cruce Linkwitz-Riley. Explica por qué el primero puede fallar al recombinarse y qué condiciones exige el módulo para una reconstrucción correcta.",
+"evidence_to_submit": [
+"Comparación breve entre ambos enfoques",
+"Explicación del problema de suma, fase o refuerzo en el cruce estándar",
+"Mención de cruce a -6 dB y preferencia por fase lineal"
+],
+"ai_feedback_criteria": [
+"Revisar que el estudiante no trate el split de bandas como una ecualización simple",
+"Validar que identifique problemas de fase, refuerzo o falla de prueba nula en HPF/LPF estándar",
+"Comprobar que mencione Linkwitz-Riley y cruce a -6 dB",
+"Corregir si propone usar el botón Learn o cualquier automatismo como garantía musical suficiente"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad textual viable sin sesión de audio.",
+"Si se desea evaluación práctica real, haría falta crear material de prueba específico."
+],
+"tags": [
+"crossover",
+"Linkwitz-Riley",
+"fase lineal",
+"split de bandas",
+"reconstrucción"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M04_ACT_008",
+"title": "DC Offset o asimetría",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Comprobar que el estudiante diferencia DC Offset de asimetría y elige la herramienta adecuada.",
+"student_task": "Explica la diferencia entre DC Offset y asimetría de onda. Luego indica qué herramienta corresponde a cada caso según el módulo y por qué sería un error corregir una asimetría como si fuera DC Offset.",
+"evidence_to_submit": [
+"Definición breve de DC Offset",
+"Definición breve de asimetría",
+"Herramienta o enfoque de corrección para cada caso",
+"Justificación del riesgo de confundirlos"
+],
+"ai_feedback_criteria": [
+"Validar que DC Offset se describa como corriente continua parásita o desplazamiento de la onda respecto al centro",
+"Validar que asimetría se describa como picos cargados hacia un lado con onda centrada",
+"Comprobar que el estudiante asocie DC Offset con HPF muy bajo",
+"Comprobar que el estudiante asocie asimetría con all-pass o rotor de fase",
+"Corregir si afirma que el all-pass ecualiza amplitud o corta frecuencias"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad textual viable sin captura de forma de onda.",
+"Podría requerir recurso visual si se transforma en diagnóstico gráfico dentro de Moodle."
+],
+"tags": [
+"DC Offset",
+"asimetría",
+"all-pass",
+"HPF",
+"fase",
+"diagnóstico"
+],
+"requires_validation": true
+}
+]
 }

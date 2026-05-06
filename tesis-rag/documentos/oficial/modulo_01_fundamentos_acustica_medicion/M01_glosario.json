@@ -1,196 +1,692 @@
-﻿{
+{
   "course_id": "mezcla_masterizacion_kenth",
   "module_id": "M01",
   "module_order": 1,
   "module_title": "Fundamentos fisicos, acustica y medicion",
   "module_slug": "fundamentos-fisicos-acustica-medicion",
-  "short_description": "Modulo base sobre fundamentos fisicos, acustica y medicion aplicados al audio.",
-  "learning_scope": "Delimita los conceptos fisicos, acusticos y de medicion que sostienen las decisiones tecnicas del curso.",
+  "short_description": "Fundamentos físicos, acústicos y de medición que sostienen la escucha crítica y la toma de decisiones técnicas del curso.",
+  "learning_scope": "Delimita relaciones entre señal, percepción, sala, monitoreo y medición técnica, sin convertir todavía la ecualización, la dinámica o la espacialidad en el núcleo doctrinal.",
   "doc_type": "glossary",
   "source_origin": "course",
   "filename": "M01_glosario.json",
-  "version": "0.2",
-  "status": "draft_author_review",
+  "version": "0.1",
+  "status": "ready_for_indexing",
   "curation_source": "borrador_autoral_m01",
   "terms": [
     {
       "term_id": "M01_TERM_001",
-      "term": "Frecuencia",
-      "abbreviation": "Hz",
-      "definition": "Magnitud fisica usada para describir cuantas veces se repite un ciclo en un intervalo de tiempo.",
-      "stable_definition": "La frecuencia pertenece a la descripcion fisica de la señal y no debe confundirse automaticamente con tono.",
-      "pending_validation_notes": [
-        "Validar formulacion exacta del curso."
-      ],
+      "term": "Oscilograma",
+      "abbreviation": "",
+      "definition": "Representación de la señal en el dominio temporal donde el eje horizontal expresa tiempo y el eje vertical amplitud.",
+      "stable_definition": "Gráfico de amplitud en función del tiempo.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Fundamentos fisicos",
-      "tags": ["frecuencia", "senal", "hz"],
-      "common_confusion": "Usarla como sinonimo exacto de tono.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "oscilograma",
+        "tiempo",
+        "amplitud",
+        "senal"
+      ],
+      "common_confusion": "Confundirlo con una representación espectral.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_002",
-      "term": "Tono",
+      "term": "Ciclo",
       "abbreviation": "",
-      "definition": "Percepcion auditiva relacionada con la altura aparente de un sonido.",
-      "stable_definition": "El tono se trabaja como percepcion y no como magnitud fisica identica a la frecuencia.",
-      "pending_validation_notes": [
-        "Validar hasta que punto el curso introduce factores perceptuales asociados."
-      ],
+      "definition": "Recorrido completo de una onda dentro de su patrón repetitivo.",
+      "stable_definition": "Unidad completa de repetición de una onda periódica.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Percepcion auditiva",
-      "tags": ["tono", "percepcion", "psicoacustica"],
-      "common_confusion": "Confundirlo con el valor fisico medido en Hz.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "ciclo",
+        "onda",
+        "periodicidad",
+        "tiempo"
+      ],
+      "common_confusion": "Usarlo como sinónimo de frecuencia.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_003",
-      "term": "Periodo",
-      "abbreviation": "T",
-      "definition": "Tiempo que tarda una señal periodica en completar un ciclo.",
-      "stable_definition": "Ayuda a relacionar una señal con su frecuencia dentro del dominio temporal.",
-      "pending_validation_notes": [
-        "Validar si el curso presenta explicitamente la relacion con frecuencia."
-      ],
+      "term": "Período",
+      "abbreviation": "",
+      "definition": "Tiempo que tarda un ciclo en completarse. En el módulo se insiste en que no conviene definirlo como la duración de una frecuencia, sino como la duración de un ciclo de esa frecuencia.",
+      "stable_definition": "Tiempo de un ciclo completo.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Fundamentos fisicos",
-      "tags": ["periodo", "tiempo", "senal"],
-      "common_confusion": "Tratarlo como dato aislado sin relacion con la frecuencia.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "periodo",
+        "ciclo",
+        "tiempo",
+        "frecuencia"
+      ],
+      "common_confusion": "Decir que el período es una frecuencia o una medida separada de ella.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_004",
-      "term": "Longitud de onda",
-      "abbreviation": "Lambda",
-      "definition": "Distancia fisica que ocupa un ciclo de una onda en un medio dado.",
-      "stable_definition": "Sirve para relacionar la señal con el espacio fisico y con el comportamiento acustico de una sala.",
-      "pending_validation_notes": [
-        "Validar la formulacion exacta y los ejemplos del curso."
-      ],
+      "term": "Frecuencia",
+      "abbreviation": "",
+      "definition": "Magnitud física que depende del período y expresa cuántos ciclos ocurren en un segundo. En el marco del módulo se trata como dato objetivo y medible.",
+      "stable_definition": "Número de ciclos por segundo.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Fundamentos fisicos",
-      "tags": ["longitud_de_onda", "acustica", "sala"],
-      "common_confusion": "Reducirla a una formula sin uso practico.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "frecuencia",
+        "periodo",
+        "senal",
+        "medicion"
+      ],
+      "common_confusion": "Usarla como sinónimo de tono percibido.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_005",
-      "term": "Armonicos",
+      "term": "Onda senoidal",
       "abbreviation": "",
-      "definition": "Componentes relacionados con una frecuencia fundamental que contribuyen a la estructura de un sonido.",
-      "stable_definition": "Ayudan a entender por que un sonido complejo no se describe solo por una frecuencia unica.",
-      "pending_validation_notes": [
-        "Validar el nivel de formalidad con que el curso distingue armonicos e inarmonicos."
-      ],
+      "definition": "Caso simple de onda que contiene una sola frecuencia y sirve como referencia básica para entender periodicidad y suma de componentes.",
+      "stable_definition": "Onda simple de una sola frecuencia.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Estructura espectral",
-      "tags": ["armonicos", "fundamental", "espectro"],
-      "common_confusion": "Pensar que todo sonido complejo es simplemente ruido.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "senoidal",
+        "onda_simple",
+        "frecuencia",
+        "fundamentos"
+      ],
+      "common_confusion": "Pensar que describe la mayoría del audio musical real.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_006",
-      "term": "Ruido blanco",
+      "term": "Onda compleja",
       "abbreviation": "",
-      "definition": "Señal de ruido usada como referencia de distribucion espectral.",
-      "stable_definition": "Debe interpretarse como una referencia tecnica util, no solo como una sensacion auditiva.",
-      "pending_validation_notes": [
-        "Validar la formulacion exacta del curso sobre energia y percepcion."
-      ],
+      "definition": "Señal formada por la suma de múltiples senoidales. Puede seguir siendo periódica si mantiene un patrón repetitivo estable.",
+      "stable_definition": "Suma de varias componentes senoidales.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Referencias espectrales",
-      "tags": ["ruido_blanco", "espectro", "medicion"],
-      "common_confusion": "Confundir su distribucion tecnica con una percepcion plana.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "onda_compleja",
+        "suma",
+        "senoidales",
+        "periodicidad"
+      ],
+      "common_confusion": "Suponer que compleja significa necesariamente desordenada o aperiódica.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_007",
-      "term": "Ruido rosa",
+      "term": "Frecuencia fundamental",
       "abbreviation": "",
-      "definition": "Señal de ruido usada como referencia espectral en comparacion con otras distribuciones.",
-      "stable_definition": "Puede servir como apoyo para explicar relacion entre distribucion energetica y percepcion.",
-      "pending_validation_notes": [
-        "Validar si el curso lo define con una pendiente exacta o con descripcion mas general."
-      ],
+      "definition": "Frecuencia que organiza el período de una onda compleja periódica. En este módulo no se define por ser siempre la de mayor amplitud.",
+      "stable_definition": "Frecuencia base que organiza el período global.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Referencias espectrales",
-      "tags": ["ruido_rosa", "espectro", "medicion"],
-      "common_confusion": "Llamarlo plano sin explicar el marco de referencia.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "fundamental",
+        "periodicidad",
+        "armonicos",
+        "onda_compleja"
+      ],
+      "common_confusion": "Reducirla al componente espectral más alto en amplitud.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_008",
-      "term": "FFT",
-      "abbreviation": "Fast Fourier Transform",
-      "definition": "Procedimiento de analisis usado para observar una señal desde una representacion frecuencial.",
-      "stable_definition": "Es una herramienta de analisis util, pero su lectura depende de parametros y de contexto.",
-      "pending_validation_notes": [
-        "Validar hasta que punto el curso profundiza en resolucion, ventanas y configuracion."
-      ],
+      "term": "Parcial armónico",
+      "abbreviation": "",
+      "definition": "Componente de una onda compleja cuya frecuencia guarda relación de múltiplo entero con la frecuencia fundamental.",
+      "stable_definition": "Parcial relacionado por múltiplo entero con la fundamental.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Medicion",
-      "tags": ["fft", "analizador", "espectro"],
-      "common_confusion": "Tomar la grafica como verdad suficiente sin escucha.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "parcial",
+        "armonico",
+        "fundamental",
+        "espectro"
+      ],
+      "common_confusion": "Usarlo como sinónimo de cualquier componente espectral.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_009",
-      "term": "Oscilograma",
+      "term": "Parcial inarmónico",
       "abbreviation": "",
-      "definition": "Representacion visual de una señal en el dominio temporal.",
-      "stable_definition": "Muestra comportamiento en el tiempo, no todo el contenido espectral de la señal.",
-      "pending_validation_notes": [
-        "Validar si el curso usa este termino o uno equivalente."
-      ],
+      "definition": "Componente cuya frecuencia no guarda relación de múltiplo entero con la fundamental. En el módulo se asocia a señales menos periódicas o aperiódicas.",
+      "stable_definition": "Parcial no alineado por múltiplo entero con la fundamental.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Medicion",
-      "tags": ["oscilograma", "tiempo", "senal"],
-      "common_confusion": "Creer que ya contiene toda la informacion del espectro.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "parcial",
+        "inarmonico",
+        "fundamental",
+        "aperiodicidad"
+      ],
+      "common_confusion": "Pensar que inarmónico significa automáticamente inútil o indeseable.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_010",
-      "term": "Reflexiones tempranas",
+      "term": "Distorsión armónica",
       "abbreviation": "",
-      "definition": "Reflexiones iniciales del sonido en la sala que modifican la escucha de la fuente directa.",
-      "stable_definition": "Son parte del comportamiento acustico que puede alterar la interpretacion del balance y la imagen.",
-      "pending_validation_notes": [
-        "Validar el nivel de detalle con que el curso las desarrolla."
-      ],
+      "definition": "Alteración que añade componentes armónicos a la señal y que, en saturación moderada, el módulo admite como potencialmente útil o musical.",
+      "stable_definition": "Distorsión que agrega armónicos relacionados con la señal base.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Acustica de sala",
-      "tags": ["reflexiones", "sala", "escucha"],
-      "common_confusion": "Minimizar su efecto por concentrarse solo en el monitor.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "distorsion",
+        "armonica",
+        "saturacion",
+        "espectro"
+      ],
+      "common_confusion": "Asumir que toda distorsión armónica es automáticamente deseable.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_011",
-      "term": "Modo de sala",
+      "term": "Distorsión por intermodulación",
       "abbreviation": "",
-      "definition": "Comportamiento resonante asociado a la relacion entre frecuencias y dimensiones del recinto.",
-      "stable_definition": "Ayuda a explicar por que ciertas zonas de la sala acumulan o debilitan energia.",
-      "pending_validation_notes": [
-        "Validar si el curso distingue tipos de modos o solo su impacto general."
-      ],
+      "definition": "Distorsión asociada en el módulo a saturación excesiva, percibida como más áspera, chillona o fatigante que una distorsión armónica moderada.",
+      "stable_definition": "Distorsión compleja asociada a saturación más problemática.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Acustica de sala",
-      "tags": ["modos", "sala", "resonancia"],
-      "common_confusion": "Pensar que todo problema grave se resuelve solo cambiando de monitor.",
+      "topic": "senal_y_periodicidad",
+      "tags": [
+        "intermodulacion",
+        "distorsion",
+        "saturacion",
+        "percepcion"
+      ],
+      "common_confusion": "Tratar toda saturación intensa como si produjera el mismo efecto que una saturación armónica moderada.",
       "requires_validation": true
     },
     {
       "term_id": "M01_TERM_012",
-      "term": "Sweet spot",
+      "term": "Tono",
       "abbreviation": "",
-      "definition": "Zona de escucha donde la relacion geometrica con los monitores favorece una percepcion mas estable.",
-      "stable_definition": "Se usa como referencia practica de posicion de escucha, no como garantia absoluta de escucha perfecta.",
+      "definition": "Percepción subjetiva de altura sonora. El módulo lo distingue de la frecuencia, que pertenece al plano físico y medible.",
+      "stable_definition": "Percepción auditiva de altura.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "psicoacustica_basica",
+      "tags": [
+        "tono",
+        "percepcion",
+        "altura",
+        "psicoacustica"
+      ],
+      "common_confusion": "Usarlo como equivalente exacto de frecuencia.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_013",
+      "term": "Curvas isofónicas",
+      "abbreviation": "",
+      "definition": "Marco perceptivo que muestra que la sensibilidad del oído cambia con el nivel. En el módulo se usan para explicar por qué al subir volumen parecen aparecer más graves y agudos.",
+      "stable_definition": "Curvas que describen cambios de percepción tonal según nivel.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "psicoacustica_basica",
+      "tags": [
+        "curvas_isofonicas",
+        "nivel",
+        "oido",
+        "percepcion"
+      ],
+      "common_confusion": "Pensar que el volumen solo cambia cantidad y no balance percibido.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_014",
+      "term": "Fundamental ausente",
+      "abbreviation": "",
+      "definition": "Situación en la que cierta base grave no está reproducida plenamente, pero la percepción puede reconstruirla a partir de relaciones armónicas presentes.",
+      "stable_definition": "Reconstrucción perceptiva de una base no reproducida de forma completa.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "psicoacustica_basica",
+      "tags": [
+        "fundamental_ausente",
+        "graves",
+        "armonicos",
+        "percepcion"
+      ],
+      "common_confusion": "Creer que si esa frecuencia no está físicamente, no puede existir ninguna sensación vinculada a ella.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_015",
+      "term": "Modo de sala",
+      "abbreviation": "",
+      "definition": "Comportamiento resonante asociado a la relación entre frecuencia, longitud de onda y dimensiones del recinto. El módulo advierte que no conviene reducirlo a un solo eje de análisis.",
+      "stable_definition": "Resonancia ligada a dimensiones del recinto y longitud de onda.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "acustica_de_sala",
+      "tags": [
+        "modo_de_sala",
+        "resonancia",
+        "longitud_de_onda",
+        "recinto"
+      ],
+      "common_confusion": "Analizar la sala solo por una medida aislada.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_016",
+      "term": "Difusión",
+      "abbreviation": "",
+      "definition": "Tratamiento o efecto que reparte energía reflejada en distintas direcciones. En el módulo se distingue de la absorción: difundir no es absorber.",
+      "stable_definition": "Redistribución espacial de energía reflejada.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "acustica_de_sala",
+      "tags": [
+        "difusion",
+        "sala",
+        "reflexiones",
+        "energia"
+      ],
+      "common_confusion": "Pensar que un difusor cumple la misma función que un absorbente.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_017",
+      "term": "Resonador",
+      "abbreviation": "",
+      "definition": "Elemento orientado a controlar ciertos problemas de baja frecuencia. En el módulo se lo diferencia de paneles absorbentes usados de manera indiscriminada para graves.",
+      "stable_definition": "Dispositivo orientado a tratar resonancias o acumulaciones específicas.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "acustica_de_sala",
+      "tags": [
+        "resonador",
+        "graves",
+        "sala",
+        "tratamiento"
+      ],
+      "common_confusion": "Creer que cualquier espuma liviana cumple la misma función.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_018",
+      "term": "Desacople",
+      "abbreviation": "",
+      "definition": "Separación mecánica entre monitor y superficie de apoyo para reducir transmisión de vibración por estructura sólida.",
+      "stable_definition": "Aislamiento mecánico que limita vibración estructural.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "monitoreo",
+      "tags": [
+        "desacople",
+        "monitores",
+        "vibracion",
+        "mesa"
+      ],
+      "common_confusion": "Usar materiales demasiado blandos que dejan el monitor inestable y pivotando.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_019",
+      "term": "Direccionalidad del tweeter",
+      "abbreviation": "",
+      "definition": "Comportamiento por el cual los agudos se proyectan de forma más direccional y exigen que el tweeter esté orientado hacia el oyente y a la altura del oído.",
+      "stable_definition": "Necesidad de orientar el tweeter correctamente para una lectura fiable de agudos.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "monitoreo",
+      "tags": [
+        "tweeter",
+        "agudos",
+        "direccionalidad",
+        "posicionamiento"
+      ],
+      "common_confusion": "Intentar corregir con EQ lo que proviene de mala orientación física.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_020",
+      "term": "Factor de damping",
+      "abbreviation": "",
+      "definition": "Relación práctica asociada al control del transductor desde la salida del amplificador. En el módulo se la vincula a la interacción de impedancias y a la limpieza o suciedad del grave.",
+      "stable_definition": "Condición de control del transductor relacionada con la interfaz amplificador-carga.",
       "pending_validation_notes": [
-        "Validar recomendaciones exactas de geometria antes de volverlas doctrina cerrada."
+        "El módulo lo trata desde una regla operativa y no desde un desarrollo completo de diseño electroacústico."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Monitoreo",
-      "tags": ["sweet_spot", "monitores", "escucha"],
-      "common_confusion": "Pensar que basta con encontrar esa posicion para eliminar todos los problemas de la sala.",
+      "topic": "sistemas_de_escucha",
+      "tags": [
+        "damping",
+        "impedancia",
+        "auriculares",
+        "grave"
+      ],
+      "common_confusion": "Pensar que la impedancia solo afecta volumen y no control tonal.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_021",
+      "term": "Analizador de espectro",
+      "abbreviation": "",
+      "definition": "Herramienta de medición que muestra distribución energética por frecuencia y ayuda a observar contenido subsónico, acumulaciones, distorsiones y tendencias tonales.",
+      "stable_definition": "Instrumento para observar energía por frecuencia.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "tags": [
+        "analizador",
+        "espectro",
+        "medicion",
+        "energia"
+      ],
+      "common_confusion": "Creer que basta con ver una curva para dar por resuelta la escucha.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_022",
+      "term": "Ruido blanco",
+      "abbreviation": "",
+      "definition": "Señal que distribuye la misma energía por frecuencia. En el módulo se conserva como físicamente plana, aunque perceptualmente más brillante.",
+      "stable_definition": "Ruido con igual energía por frecuencia.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "tags": [
+        "ruido_blanco",
+        "energia",
+        "espectro",
+        "medicion"
+      ],
+      "common_confusion": "Pensar que físicamente plano equivale automáticamente a percepción equilibrada.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_023",
+      "term": "Ruido rosa",
+      "abbreviation": "",
+      "definition": "Señal cuya energía cae aproximadamente 3 dB por octava y que en el módulo se presenta como perceptualmente más equilibrada que el ruido blanco.",
+      "stable_definition": "Ruido con caída aproximada de 3 dB por octava.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "tags": [
+        "ruido_rosa",
+        "octava",
+        "espectro",
+        "percepcion"
+      ],
+      "common_confusion": "Tomarlo como si fuera físicamente plano del mismo modo que el ruido blanco.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_024",
+      "term": "Slope / Tilt",
+      "abbreviation": "",
+      "definition": "Inclinación aplicada a la visualización del analizador. El módulo recomienda llevarla a cero para lectura técnica y no dejarla compensada solo para parecer perceptualmente correcta.",
+      "stable_definition": "Inclinación de lectura del analizador que conviene poner en cero para uso técnico.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "tags": [
+        "slope",
+        "tilt",
+        "analizador",
+        "calibracion"
+      ],
+      "common_confusion": "Asumir que cualquier curva bonita en pantalla ya está técnicamente bien calibrada.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_025",
+      "term": "FFT",
+      "abbreviation": "FFT",
+      "definition": "Configuración de análisis espectral que determina, en términos prácticos del módulo, el compromiso entre resolución frecuencial e inmediatez temporal.",
+      "stable_definition": "Parámetro de análisis que equilibra resolución en frecuencia y respuesta temporal.",
+      "pending_validation_notes": [
+        "El valor 8192 aparece como referencia operativa del módulo y no como estándar universal."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "tags": [
+        "FFT",
+        "resolucion",
+        "tiempo",
+        "analizador"
+      ],
+      "common_confusion": "Reducir la enseñanza a memorizar un único tamaño de FFT.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_026",
+      "term": "Overlap",
+      "abbreviation": "",
+      "definition": "Ajuste del analizador que suaviza visualmente la transición entre bloques de análisis.",
+      "stable_definition": "Superposición entre bloques que vuelve más continua la visualización.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "tags": [
+        "overlap",
+        "analizador",
+        "bloques",
+        "visualizacion"
+      ],
+      "common_confusion": "Pensar que overlap crea información nueva en la señal.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_027",
+      "term": "Average Time",
+      "abbreviation": "",
+      "definition": "Ajuste del analizador que estabiliza la curva y ayuda a observar una tendencia tonal más sostenida.",
+      "stable_definition": "Promedio temporal que estabiliza la lectura espectral.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "tags": [
+        "average_time",
+        "analizador",
+        "promedio",
+        "tendencia"
+      ],
+      "common_confusion": "Confundir estabilidad visual con mayor precisión absoluta en todo contexto.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_028",
+      "term": "V corta en graves",
+      "abbreviation": "",
+      "definition": "Criterio visual empírico del módulo usado para ayudar a diferenciar señal útil de contenido espurio o subsónico en la zona baja del espectro.",
+      "stable_definition": "Hallazgo visual de oficio en graves que se usa con prudencia.",
+      "pending_validation_notes": [
+        "Debe conservarse como criterio empírico y no como ley exacta."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "tags": [
+        "V_corta",
+        "graves",
+        "subsónicos",
+        "analizador"
+      ],
+      "common_confusion": "Tomarla como regla rígida aplicable idénticamente a cualquier material.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_029",
+      "term": "Decibel referenciado",
+      "abbreviation": "",
+      "definition": "Uso del decibel con un cero anclado a una referencia fija y no solo como relación abstracta entre dos valores.",
+      "stable_definition": "Decibel asociado a una referencia explícita.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_de_nivel",
+      "tags": [
+        "decibel",
+        "referencia",
+        "nivel",
+        "medicion"
+      ],
+      "common_confusion": "Pensar que todo dB expresa exactamente la misma clase de comparación.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_030",
+      "term": "dBFS",
+      "abbreviation": "dBFS",
+      "definition": "Escala digital en la que 0 representa el máximo codificable. El módulo la usa para fijar el límite a partir del cual ya no se conserva intacta la información.",
+      "stable_definition": "Escala digital cuyo techo de codificación es 0.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_de_nivel",
+      "tags": [
+        "dBFS",
+        "digital",
+        "clip",
+        "nivel"
+      ],
+      "common_confusion": "Hablar de señal útil por encima de 0 dBFS como si el sistema la entregara intacta.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_031",
+      "term": "dBu",
+      "abbreviation": "dBu",
+      "definition": "Referencia de nivel basada en 0,775 V. En el módulo se vincula al estándar operativo profesional de +4 dBu.",
+      "stable_definition": "Referencia de nivel anclada en 0,775 voltios.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "niveles_operativos",
+      "tags": [
+        "dBu",
+        "voltaje",
+        "referencia",
+        "nivel"
+      ],
+      "common_confusion": "Confundirlo con dBV o tratar ambas referencias como equivalentes.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_032",
+      "term": "dBV",
+      "abbreviation": "dBV",
+      "definition": "Referencia de nivel basada en 1 V. El módulo la asocia al estándar doméstico o semiprofesional de -10 dBV.",
+      "stable_definition": "Referencia de nivel anclada en 1 voltio.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "niveles_operativos",
+      "tags": [
+        "dBV",
+        "voltaje",
+        "referencia",
+        "nivel"
+      ],
+      "common_confusion": "Pensar que +4 dBu y -10 dBV son solo etiquetas intercambiables.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_033",
+      "term": "Ponderación A",
+      "abbreviation": "",
+      "definition": "Marco de lectura asociado en el módulo a volumen bajo y a un recorte fuerte de extremos del espectro.",
+      "stable_definition": "Ponderación orientada a lecturas con mayor recorte de extremos.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_de_nivel",
+      "tags": [
+        "ponderacion_A",
+        "medicion",
+        "nivel",
+        "oido"
+      ],
+      "common_confusion": "Tratar A, B y C como si fueran intercambiables o meramente decorativas.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_034",
+      "term": "Ponderación C",
+      "abbreviation": "",
+      "definition": "Marco de lectura asociado en el módulo a volumen alto y a una respuesta más plana que la ponderación A.",
+      "stable_definition": "Ponderación de respuesta más plana para niveles altos.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_de_nivel",
+      "tags": [
+        "ponderacion_C",
+        "medicion",
+        "nivel",
+        "respuesta"
+      ],
+      "common_confusion": "Pensar que toda medición sonora usa una misma ponderación sin consecuencias.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_035",
+      "term": "Ponderación K",
+      "abbreviation": "",
+      "definition": "Ponderación utilizada por la medición de LUFS según la formulación del módulo.",
+      "stable_definition": "Ponderación empleada en la lectura LUFS dentro del marco del módulo.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_de_sonoridad",
+      "tags": [
+        "ponderacion_K",
+        "LUFS",
+        "medicion",
+        "sonoridad"
+      ],
+      "common_confusion": "Confundirla con LUFS como si fueran la misma cosa.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_036",
+      "term": "LUFS",
+      "abbreviation": "LUFS",
+      "definition": "Medición de sonoridad que, en el módulo, se distingue de la ponderación y se vincula a lecturas afectadas por el balance espectral, especialmente en agudos.",
+      "stable_definition": "Sistema de medición de sonoridad distinto de la ponderación K que utiliza.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_de_sonoridad",
+      "tags": [
+        "LUFS",
+        "sonoridad",
+        "medicion",
+        "K_weighting"
+      ],
+      "common_confusion": "Definir LUFS como si fuera la propia curva de ponderación.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M01_TERM_037",
+      "term": "Normalización por ganancia",
+      "abbreviation": "",
+      "definition": "Ajuste de nivel que, según la formulación canónica del módulo, no debe describirse como compresión de la dinámica musical.",
+      "stable_definition": "Cambio de nivel usado para igualar sonoridad percibida sin presentarlo como compresión dinámica musical.",
+      "pending_validation_notes": [
+        "Conviene mantener esta definición dentro del marco doctrinal del módulo."
+      ],
+      "brand_or_model_mentions": [
+        "Spotify"
+      ],
+      "topic": "medicion_de_sonoridad",
+      "tags": [
+        "normalizacion",
+        "ganancia",
+        "streaming",
+        "sonoridad"
+      ],
+      "common_confusion": "Decir que la plataforma comprime la dinámica musical para normalizar.",
       "requires_validation": true
     }
   ]

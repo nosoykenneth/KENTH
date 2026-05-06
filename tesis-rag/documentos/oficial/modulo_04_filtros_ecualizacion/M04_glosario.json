@@ -2,297 +2,443 @@
   "course_id": "mezcla_masterizacion_kenth",
   "module_id": "M04",
   "module_order": 4,
-  "module_title": "Filtros y ecualizacion",
+  "module_title": "Filtros y ecualización",
   "module_slug": "filtros-ecualizacion",
-  "short_description": "Modulo sobre filtros y ecualizacion dentro del proceso de mezcla.",
-  "learning_scope": "Delimita el uso tecnico y musical de filtros y ecualizadores segun el temario oficial.",
+  "short_description": "Borrador canónico sobre la lógica de filtrado y ecualización aplicada a corrección, balance tonal y decisiones contextuales de mezcla.",
+  "learning_scope": "Delimita cómo el módulo entiende frecuencia de corte, pendiente, polos, Q, tipologías de EQ y criterios de intervención correctiva, tonal, dinámica y contextual, incluyendo sus compromisos temporales y eléctricos.",
   "doc_type": "glossary",
   "source_origin": "course",
   "filename": "M04_glosario.json",
-  "version": "0.3",
+  "version": "0.1",
   "status": "ready_for_indexing",
   "curation_source": "borrador_autoral_m04",
   "terms": [
     {
       "term_id": "M04_TERM_001",
       "term": "Frecuencia de corte",
-      "abbreviation": "Fc",
-      "definition": "Punto de referencia usado para describir desde donde se evalua la accion de un filtro.",
-      "stable_definition": "La frecuencia de corte sirve como referencia tecnica para interpretar un filtro, no como una barrera visual absoluta.",
+      "abbreviation": "",
+      "definition": "Referencia operativa que, en filtros, el módulo entiende como el punto donde la salida ya cayó 3 dB respecto a la entrada. No debe interpretarse como un muro ideal ni como desaparición instantánea de todo el contenido contiguo.",
+      "stable_definition": "Punto de referencia dentro de la transición del filtro.",
       "pending_validation_notes": [
-        "Validar la definicion exacta con -3 dB en el apunte oficial.",
-        "Validar como se explica la relacion con potencia o amplitud."
+        "Su lectura exacta cambia en shelves y puede depender del diseño."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Filtros",
-      "tags": ["filtros", "parametros_de_medicion"],
-      "common_confusion": "Confundirla con el punto visual donde la curva empieza a moverse en el plugin.",
+      "topic": "fundamentos_de_filtros",
+      "tags": [
+        "frecuencia_de_corte",
+        "filtros",
+        "fundamentos"
+      ],
+      "common_confusion": "Pensar que es la frontera perfecta donde de un lado ya no queda nada.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_002",
       "term": "Pendiente",
-      "abbreviation": "Slope",
-      "definition": "Parametro que describe que tan rapida es la atenuacion de un filtro fuera de su zona de paso.",
-      "stable_definition": "La pendiente se relaciona con la rapidez de caida del filtro.",
-      "pending_validation_notes": [
-        "Validar unidades y ejemplos exactos usados en el curso, como dB/octava o dB/decada."
-      ],
+      "abbreviation": "",
+      "definition": "Velocidad con la que un filtro atenúa al alejarse de su zona de corte. En el módulo se expresa en dB por octava y se relaciona pedagógicamente con la cantidad de polos.",
+      "stable_definition": "Rapidez de caída de un filtro por octava.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Filtros",
-      "tags": ["filtros", "pendiente", "parametros"],
-      "common_confusion": "Confundir pendiente con factor Q.",
+      "topic": "fundamentos_de_filtros",
+      "tags": [
+        "pendiente",
+        "dB_por_octava",
+        "polos"
+      ],
+      "common_confusion": "Confundirla con Q o con resonancia.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_003",
-      "term": "Factor de calidad",
-      "abbreviation": "Q",
-      "definition": "Parametro relacionado con la selectividad o ancho de una intervencion en frecuencia.",
-      "stable_definition": "El Q ayuda a describir si una curva es mas estrecha o mas amplia.",
+      "term": "Polo",
+      "abbreviation": "",
+      "definition": "Unidad estructural usada en el módulo para explicar la pendiente de un filtro. Como regla pedagógica del borrador, cada polo equivale a 6 dB por octava.",
+      "stable_definition": "Elemento estructural que ayuda a explicar la pendiente del filtro.",
       "pending_validation_notes": [
-        "Validar la formula exacta que usara el curso.",
-        "Validar si se define como relacion entre frecuencia central y ancho de banda."
+        "La equivalencia se conserva como marco didáctico del módulo."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Parametros del ecualizador",
-      "tags": ["q", "ecualizadores", "parametros"],
-      "common_confusion": "Usarlo como sinonimo de pendiente.",
+      "topic": "fundamentos_de_filtros",
+      "tags": [
+        "polo",
+        "pendiente",
+        "filtros"
+      ],
+      "common_confusion": "Usarlo como si fuera sinónimo de frecuencia de corte.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_004",
-      "term": "Ancho de banda",
-      "abbreviation": "BW",
-      "definition": "Rango de frecuencias afectado alrededor de una frecuencia de referencia.",
-      "stable_definition": "El ancho de banda ayuda a describir cuanta zona del espectro queda afectada por una intervencion.",
-      "pending_validation_notes": [
-        "Validar si el curso lo define con puntos de -3 dB u otra referencia."
-      ],
+      "term": "Q",
+      "abbreviation": "",
+      "definition": "Factor que en este módulo describe concentración, resonancia o selectividad de una intervención. En campanas se asocia al ancho de banda efectivo y no debe confundirse con la pendiente.",
+      "stable_definition": "Control de selectividad o concentración de una banda.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Parametros del ecualizador",
-      "tags": ["ancho_de_banda", "eq", "parametros"],
-      "common_confusion": "",
+      "topic": "q_y_ancho_de_banda",
+      "tags": [
+        "q",
+        "selectividad",
+        "campana"
+      ],
+      "common_confusion": "Creer que mover Q siempre significa volver el filtro más abrupto.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_005",
-      "term": "Filtro pasa altos",
-      "abbreviation": "HPF / Low Cut",
-      "definition": "Filtro que conserva la zona alta del espectro y atenua progresivamente contenido por debajo de una referencia de corte.",
-      "stable_definition": "Se usa para reducir contenido grave o subgrave cuando existe una intencion tecnica clara.",
-      "pending_validation_notes": [
-        "Validar ejemplos de uso aceptados por el curso."
-      ],
+      "term": "Ancho de banda",
+      "abbreviation": "",
+      "definition": "Extensión espectral realmente afectada por una campana entre dos puntos de referencia que, en el marco del módulo, se miden a 3 dB respecto del máximo o mínimo de la intervención.",
+      "stable_definition": "Tramo útil del espectro afectado por una campana.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Filtros",
-      "tags": ["hpf", "low_cut", "limpieza", "headroom"],
-      "common_confusion": "Aplicarlo por rutina sin escuchar el contexto.",
+      "topic": "q_y_ancho_de_banda",
+      "tags": [
+        "ancho_de_banda",
+        "campana",
+        "q"
+      ],
+      "common_confusion": "Medirlo por donde la curva vuelve visualmente a cero.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_006",
-      "term": "Filtro pasa bajos",
-      "abbreviation": "LPF / High Cut",
-      "definition": "Filtro que conserva la zona baja o media del espectro y atenua progresivamente contenido por encima de una referencia de corte.",
-      "stable_definition": "Se usa para controlar contenido agudo cuando existe una intencion tecnica o estetica clara.",
-      "pending_validation_notes": [
-        "Validar ejemplos de uso aceptados por el curso."
-      ],
+      "term": "Frecuencia central",
+      "abbreviation": "Fc",
+      "definition": "Frecuencia de referencia de una campana. En este módulo se formula como media geométrica entre los límites de la banda útil, no como simple promedio aritmético.",
+      "stable_definition": "Centro operativo de una campana medido por media geométrica.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Filtros",
-      "tags": ["lpf", "high_cut", "control_espectral"],
-      "common_confusion": "Interpretarlo como eliminacion absoluta de todo lo que queda encima.",
+      "topic": "q_y_ancho_de_banda",
+      "tags": [
+        "frecuencia_central",
+        "campana",
+        "fc"
+      ],
+      "common_confusion": "Calcularla como promedio lineal entre los extremos.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_007",
-      "term": "Filtro notch",
-      "abbreviation": "Notch",
-      "definition": "Filtro o intervencion estrecha orientada a reducir una zona puntual del espectro.",
-      "stable_definition": "Puede utilizarse para problemas localizados, pero requiere escuchar y justificar la intervencion.",
+      "term": "Butterworth",
+      "abbreviation": "",
+      "definition": "Diseño de filtro tomado en el módulo como referencia práctica dominante para el trabajo cotidiano en DAWs, consolas y plugins comunes.",
+      "stable_definition": "Diseño de filtro usado como referencia operativa del módulo.",
       "pending_validation_notes": [
-        "Validar como el curso diferencia notch, campana estrecha y correccion quirurgica."
+        "La afirmación sobre predominio práctico se conserva como marco del curso y conviene mantenerla prudente."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Correccion puntual",
-      "tags": ["notch", "resonancia", "correccion"],
-      "common_confusion": "Usarlo como solucion automatica para cualquier problema de mezcla.",
+      "topic": "tipologias_de_filtros",
+      "tags": [
+        "butterworth",
+        "filtros",
+        "referencia"
+      ],
+      "common_confusion": "Pensar que es el único diseño posible o el mejor en cualquier situación.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_008",
-      "term": "Filtro Butterworth",
+      "term": "Shelf",
       "abbreviation": "",
-      "definition": "Tipo de filtro mencionado como una posible topologia dentro del estudio de filtros.",
-      "stable_definition": "Debe tratarse como una topologia especifica, no como sinonimo de todos los filtros.",
+      "definition": "Curva de ecualización que eleva o reduce un extremo del espectro hasta una meseta. En el módulo se diferencia del filtro de corte porque su lectura de frecuencia de actuación puede variar según diseño.",
+      "stable_definition": "Curva que modifica un extremo del espectro hasta estabilizarse en una meseta.",
       "pending_validation_notes": [
-        "Validar si el curso lo desarrolla en detalle o solo lo menciona como ejemplo.",
-        "Validar descripcion tecnica exacta de su respuesta."
+        "La convención de frecuencia en shelves puede variar según fabricante."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Tipologias de filtros",
-      "tags": ["butterworth", "filtros", "topologia"],
-      "common_confusion": "Tomarlo como la totalidad de los filtros existentes.",
+      "topic": "tipologias_de_eq",
+      "tags": [
+        "shelf",
+        "shelving",
+        "tono"
+      ],
+      "common_confusion": "Creer que siempre comparte exactamente la misma lógica de corte que un high-pass o low-pass.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_009",
-      "term": "Filtros de fase lineal",
-      "abbreviation": "",
-      "definition": "Filtros digitales que se estudian por su comportamiento particular frente a la fase.",
-      "stable_definition": "No deben presentarse automaticamente como mejores; deben evaluarse por contexto.",
-      "pending_validation_notes": [
-        "Validar explicacion oficial sobre fase, latencia y pre-ringing.",
-        "Validar casos de uso recomendados o desaconsejados."
-      ],
+      "term": "Campana",
+      "abbreviation": "Bell",
+      "definition": "Curva centrada en una frecuencia determinada que puede realzar o recortar un sector del espectro con ancho y selectividad variables.",
+      "stable_definition": "Intervención localizada alrededor de una frecuencia central.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Filtros digitales",
-      "tags": ["fase_lineal", "filtros", "artefactos"],
-      "common_confusion": "Creer que son una solucion perfecta para cualquier problema de fase.",
+      "topic": "tipologias_de_eq",
+      "tags": [
+        "campana",
+        "bell",
+        "peak",
+        "ecualizacion"
+      ],
+      "common_confusion": "Tratarla solo como una figura dibujada sin medir su banda útil real.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_010",
-      "term": "Pre-ringing",
+      "term": "Tilt",
       "abbreviation": "",
-      "definition": "Artefacto temporal asociado en el borrador a ciertos procesos de fase lineal.",
-      "stable_definition": "Debe explicarse con cautela y solo si la fuente del curso lo respalda.",
-      "pending_validation_notes": [
-        "Validar definicion tecnica y ejemplos en el material oficial.",
-        "Validar si se describe como energia antes del transitorio."
-      ],
+      "definition": "Curva de pivote que inclina el balance general: al subir un extremo, reduce el otro. En el módulo se valora como recurso eficiente para modificar percepción de peso o claridad por contraste.",
+      "stable_definition": "Curva que inclina el balance espectral alrededor de un pivote.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Artefactos digitales",
-      "tags": ["pre_ringing", "fase_lineal", "transientes"],
-      "common_confusion": "Ignorarlo al asumir que fase lineal siempre es transparente.",
+      "topic": "tipologias_de_eq",
+      "tags": [
+        "tilt",
+        "balance_tonal",
+        "mastering"
+      ],
+      "common_confusion": "Usarla como si fuera un simple shelf doble sin implicaciones de balance global.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_011",
-      "term": "Overshoot",
+      "term": "Notch",
       "abbreviation": "",
-      "definition": "Comportamiento pendiente de validar, asociado en el borrador a picos o excesos temporales generados por ciertos filtros.",
-      "stable_definition": "No debe afirmarse como consecuencia general sin fuente verificada.",
-      "pending_validation_notes": [
-        "Validar definicion exacta.",
-        "Validar relacion con pendientes abruptas y frecuencia de corte."
-      ],
+      "definition": "Intervención muy estrecha orientada a reducir una zona puntual del espectro. Dentro del módulo se asocia a cirugía correctiva y no a balance tonal amplio.",
+      "stable_definition": "Recorte muy selectivo de una zona puntual.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Artefactos",
-      "tags": ["overshoot", "filtros_agresivos", "transientes"],
-      "common_confusion": "Usarlo como palabra tecnica sin poder explicar el fenomeno.",
+      "topic": "tipologias_de_eq",
+      "tags": [
+        "notch",
+        "quirurgico",
+        "correctiva"
+      ],
+      "common_confusion": "Pensar que acumular muchos notch es señal de refinamiento en vez de posible síntoma de mala fuente.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_012",
-      "term": "Ringing",
+      "term": "Overshot",
       "abbreviation": "",
-      "definition": "Comportamiento pendiente de validar, asociado en el borrador a oscilaciones o resonancias posteriores a una intervencion de filtrado.",
-      "stable_definition": "Debe explicarse solo con respaldo de la fuente original.",
+      "definition": "Sobreimpulso por el cual, después de filtrar, los picos pueden elevarse aunque se esté retirando contenido espectral. El módulo lo vincula a rotación de fase y reorganización temporal interna.",
+      "stable_definition": "Fenómeno donde el pico sube aunque la intervención quite contenido.",
       "pending_validation_notes": [
-        "Validar definicion exacta.",
-        "Validar relacion con pendientes abruptas y transientes."
+        "Su magnitud y audibilidad dependen del material y del diseño."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Artefactos",
-      "tags": ["ringing", "filtros", "alteracion_temporal"],
-      "common_confusion": "Tratarlo como sinonimo de resonancia musical sin contexto tecnico.",
+      "topic": "fenomenos_y_riesgos",
+      "tags": [
+        "overshot",
+        "picos",
+        "fase",
+        "headroom"
+      ],
+      "common_confusion": "Creer que si el pico sube entonces la señal necesariamente ganó volumen promedio útil.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_013",
-      "term": "Ecualizador shelving",
-      "abbreviation": "Estante",
-      "definition": "Curva de ecualizacion que modifica una zona amplia hacia un extremo del espectro.",
-      "stable_definition": "Se diferencia de una campana y de un filtro de corte por la forma de su curva.",
-      "pending_validation_notes": [
-        "Validar la explicacion oficial sobre shelving y fase.",
-        "Validar ejemplos de uso tonal o correctivo."
-      ],
+      "term": "Rotación de fase",
+      "abbreviation": "",
+      "definition": "Reordenamiento relativo entre componentes frecuenciales producido por muchos filtros y ecualizadores IIR al modificar amplitud. En el módulo se trata como costo técnico normal de la intervención.",
+      "stable_definition": "Cambio relativo de fase entre frecuencias al intervenir la señal.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Modelado tonal",
-      "tags": ["shelving", "eq", "fase"],
-      "common_confusion": "Creer que evita automaticamente problemas de fase.",
+      "topic": "fenomenos_y_riesgos",
+      "tags": [
+        "fase",
+        "rotacion_de_fase",
+        "iir"
+      ],
+      "common_confusion": "Pensar que solo existe cuando se oyen cancelaciones evidentes.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_014",
-      "term": "Ecualizador peak",
-      "abbreviation": "Campana / Bell",
-      "definition": "Curva de ecualizacion centrada en una frecuencia, con accion que se reduce hacia los lados.",
-      "stable_definition": "Es una forma comun de intervenir una zona especifica del espectro.",
+      "term": "Fase lineal",
+      "abbreviation": "",
+      "definition": "Modo o diseño que busca evitar rotación relativa de fase entre frecuencias. En el módulo se presenta como una solución con costos propios, especialmente latencia alta y pre-ringing.",
+      "stable_definition": "Enfoque que preserva alineación relativa de fase a costa de otros compromisos.",
       "pending_validation_notes": [
-        "Validar como el curso relaciona campana, Q y ancho de banda."
+        "Su conveniencia depende del material y del objetivo."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Topologias de ecualizadores",
-      "tags": ["peak", "bell", "eq"],
-      "common_confusion": "",
+      "topic": "fenomenos_y_riesgos",
+      "tags": [
+        "fase_lineal",
+        "latencia",
+        "pre_ringing"
+      ],
+      "common_confusion": "Tomarla como mejora obligatoria en cualquier contexto.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_015",
-      "term": "Q proporcional",
+      "term": "Pre-ringing",
       "abbreviation": "",
-      "definition": "Comportamiento donde el ancho de una curva puede variar al cambiar la ganancia.",
-      "stable_definition": "Sirve para describir que no todos los ecualizadores responden igual al realce o recorte.",
-      "pending_validation_notes": [
-        "Validar definicion contra el apunte de ecualizadores.",
-        "Validar ejemplos de marcas o disenos concretos."
+      "definition": "Artefacto donde aparece energía oscilatoria antes del transitorio. En el módulo se lo considera uno de los costos más delicados de ciertas intervenciones en fase lineal.",
+      "stable_definition": "Oscilación artificial previa al ataque de un transitorio.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "fenomenos_y_riesgos",
+      "tags": [
+        "pre_ringing",
+        "transientes",
+        "fase_lineal"
       ],
-      "brand_or_model_mentions": ["API"],
-      "topic": "Comportamiento de ecualizadores",
-      "tags": ["q_proporcional", "eq", "hardware"],
-      "common_confusion": "Creer que el cambio de ancho es siempre un error del plugin.",
+      "common_confusion": "Pensar que toda limpieza matemática suena automáticamente más natural.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_016",
-      "term": "Ecualizacion asimetrica",
+      "term": "Ecualización correctiva",
       "abbreviation": "",
-      "definition": "Comportamiento donde las curvas de realce y atenuacion no tienen necesariamente la misma forma.",
-      "stable_definition": "Debe entenderse como caracteristica de ciertos disenos, no como regla universal de todos los EQ.",
-      "pending_validation_notes": [
-        "Validar el ejemplo de Pultec y su importancia dentro del curso.",
-        "Validar explicacion exacta de curvas asimetricas."
+      "definition": "Intervención que parte de la existencia de un problema concreto: resonancia, dureza, enmascaramiento o desbalance. Suele orientarse a precisión, control y transparencia.",
+      "stable_definition": "EQ destinada a resolver un problema identificable.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "logica_de_intervencion",
+      "tags": [
+        "correctiva",
+        "ecualizacion",
+        "problema"
       ],
-      "brand_or_model_mentions": ["Pultec"],
-      "topic": "Modelado analogico",
-      "tags": ["asimetria", "pultec", "color_musical"],
-      "common_confusion": "Creer que subir y bajar la misma frecuencia siempre se anula de forma simple.",
+      "common_confusion": "Usarla como si fuera solo una forma menos musical de ecualizar.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_017",
-      "term": "Ecualizacion dinamica",
+      "term": "Ecualización tonal",
       "abbreviation": "",
-      "definition": "Forma de ecualizacion en la que una intervencion puede activarse o variar segun el comportamiento de la senal.",
-      "stable_definition": "Se usa como opcion para problemas que no estan presentes todo el tiempo.",
-      "pending_validation_notes": [
-        "Validar definicion oficial y parametros que el curso desea incluir.",
-        "Validar diferencia frente a compresion multibanda."
-      ],
+      "definition": "Intervención orientada al balance estético general: cuerpo, aire, presencia, peso o color. En el módulo se separa de la EQ correctiva para no confundir intención con cirugía.",
+      "stable_definition": "EQ destinada a moldear balance y carácter.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Ecualizacion avanzada",
-      "tags": ["eq_dinamica", "threshold", "problemas_intermitentes"],
-      "common_confusion": "Confundirla automaticamente con compresion multibanda.",
+      "topic": "logica_de_intervencion",
+      "tags": [
+        "tonal",
+        "balance",
+        "color"
+      ],
+      "common_confusion": "Tratar cualquier realce amplio como si ya estuviera corrigiendo un defecto real.",
       "requires_validation": true
     },
     {
       "term_id": "M04_TERM_018",
-      "term": "Metodo Robin Hood",
+      "term": "Ecualización dinámica",
+      "abbreviation": "Dynamic EQ",
+      "definition": "Ecualización cuya banda se activa o intensifica cuando la señal supera una condición determinada. En el módulo se reserva para problemas frecuenciales intermitentes.",
+      "stable_definition": "EQ dependiente del comportamiento temporal de la señal.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "control_frecuencial_dinamico",
+      "tags": [
+        "dynamic_eq",
+        "umbral",
+        "intermitencia"
+      ],
+      "common_confusion": "Usarla como reemplazo automático de cualquier EQ estática.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_019",
+      "term": "Compresor multibanda",
       "abbreviation": "",
-      "definition": "Nombre pendiente de validacion para un criterio sustractivo de trabajo con EQ y headroom.",
-      "stable_definition": "Si se conserva en el curso, debe explicarse como criterio pedagogico, no como herramienta.",
+      "definition": "Procesador dinámico que divide el espectro mediante crossovers y comprime por regiones. En este módulo no se lo trata como sinónimo de ecualizador dinámico.",
+      "stable_definition": "Compresión por bandas separadas mediante cruces.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "control_frecuencial_dinamico",
+      "tags": [
+        "multibanda",
+        "crossovers",
+        "compresion"
+      ],
+      "common_confusion": "Creer que toda intervención dinámica por frecuencia es lo mismo.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_020",
+      "term": "Linkwitz-Riley",
+      "abbreviation": "",
+      "definition": "Tipo de crossover que el módulo destaca para divisiones espectrales que deban recombinarse con mayor neutralidad. Se lo asocia a cruce a -6 dB y a una lógica de reconstrucción más controlada.",
+      "stable_definition": "Crossover orientado a recombinación más coherente entre bandas.",
       "pending_validation_notes": [
-        "Validar si el nombre aparece literalmente en las fuentes oficiales.",
-        "Validar la formulacion exacta del criterio."
+        "La neutralidad final también depende de implementación y fase."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Metodologia y headroom",
-      "tags": ["metodo_robin_hood", "headroom", "buenas_practicas"],
-      "common_confusion": "Confundirlo con un plugin, filtro fisico o parametro de compresor.",
+      "topic": "crossovers",
+      "tags": [
+        "linkwitz_riley",
+        "crossover",
+        "split"
+      ],
+      "common_confusion": "Asumir que cualquier high-pass y low-pass emparejados reconstruyen igual de bien.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_021",
+      "term": "All-pass",
+      "abbreviation": "",
+      "definition": "Filtro que no busca alterar amplitud general de la zona tratada, sino reorganizar fase alrededor de ella. En el módulo aparece ligado a corrección de asimetrías y a casos delicados de laboratorio.",
+      "stable_definition": "Filtro orientado a modificar fase sin ecualizar del modo habitual.",
+      "pending_validation_notes": [
+        "Su uso exige validación auditiva cuidadosa."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "tipologias_de_filtros",
+      "tags": [
+        "all_pass",
+        "fase",
+        "asimetria"
+      ],
+      "common_confusion": "Tomarlo como una variante de high-pass o low-pass.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_022",
+      "term": "DC Offset",
+      "abbreviation": "",
+      "definition": "Desplazamiento continuo de la onda respecto al centro por presencia de componente en 0 Hz. En el módulo se diferencia de la asimetría porque no describen el mismo problema ni se corrigen igual.",
+      "stable_definition": "Desplazamiento de la señal por componente continua no deseada.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "diagnostico",
+      "tags": [
+        "dc_offset",
+        "asimetria",
+        "diagnostico"
+      ],
+      "common_confusion": "Confundirlo con una onda centrada pero cargada hacia un lado por relaciones internas de fase.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_023",
+      "term": "Asimetría",
+      "abbreviation": "",
+      "definition": "Condición en la que la señal puede mantenerse centrada pero muestra reparto desigual de picos hacia un lado. En el módulo se vincula a relaciones internas de fase entre armónicos y no a DC Offset.",
+      "stable_definition": "Desbalance interno de la forma de onda sin desplazamiento DC obligatorio.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "diagnostico",
+      "tags": [
+        "asimetria",
+        "fase",
+        "onda"
+      ],
+      "common_confusion": "Corregirla con la misma herramienta pensada para DC Offset.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M04_TERM_024",
+      "term": "Barrido aditivo",
+      "abbreviation": "",
+      "definition": "Método de diagnóstico donde se realza una banda y se desplaza por el espectro para encontrar la zona problemática antes de convertir el hallazgo en una intervención más razonable.",
+      "stable_definition": "Búsqueda de frecuencias problemáticas mediante realce temporal.",
+      "pending_validation_notes": [
+        "El nivel de realce y la selectividad deben ajustarse con criterio."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "diagnostico",
+      "tags": [
+        "barrido_aditivo",
+        "diagnostico",
+        "campana"
+      ],
+      "common_confusion": "Confundir el método de búsqueda con la solución final.",
       "requires_validation": true
     }
   ]

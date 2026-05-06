@@ -1,20 +1,249 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M05",
-    "module_order":  5,
-    "module_title":  "Procesadores dinamicos",
-    "module_slug":  "procesadores-dinamicos",
-    "short_description":  "Modulo sobre control de dinamica mediante procesadores como compresores, expansores, gates y limitadores.",
-    "learning_scope":  "Delimita el uso de procesadores dinamicos para controlar envolvente, rango dinamico y estabilidad de la mezcla.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "activities",
-    "filename":  "M05_actividades.json",
-    "purpose":  "Skeleton base para actividades Moodle del modulo. No contiene actividades finales.",
-    "activities":  [
-
-                   ]
+{
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M05",
+"module_order": 5,
+"module_title": "Procesadores dinámicos",
+"module_slug": "procesadores-dinamicos",
+"short_description": "Módulo dedicado al control dinámico de señales: compresión, expansión, compuertas, limitación, sidechain, detectores, topologías y criterios de parametrización y diagnóstico.",
+"learning_scope": "El módulo aborda la lógica de acción de los procesadores dinámicos, sus parámetros nucleares, diferencias entre detectores y arquitecturas, usos técnicos y artísticos, criterios de ruteo, control selectivo por sidechain y principios de validación auditiva. No cubre una guía cerrada de presets ni depende de recursos externos obligatorios.",
+"doc_type": "activities",
+"source_origin": "course",
+"filename": "M05_actividades.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m05",
+"purpose": "Borrador de actividades del modulo para uso posterior en tutor IA o Moodle. Requiere validacion pedagogica antes de publicarse.",
+"activities": [
+{
+"activity_id": "M05_ACT_001",
+"title": "Distinguir comportamientos dinámicos básicos",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante distinga correctamente las cuatro lógicas básicas de procesamiento dinámico y no reduzca el módulo a compresión descendente.",
+"student_task": "Explica con tus palabras la diferencia entre compresor descendente, expansor ascendente, expansor descendente o compuerta, y compresor ascendente. Para cada uno, indica qué parte de la señal se ve afectada respecto al umbral y cuál sería un uso técnico posible dentro de una mezcla.",
+"evidence_to_submit": [
+"Texto breve comparativo de 180 a 300 palabras",
+"Una lista de cuatro usos posibles, uno por cada comportamiento"
+],
+"ai_feedback_criteria": [
+"Verifica si el estudiante identifica correctamente si el proceso actúa por encima o por debajo del umbral",
+"Revisa si diferencia reducción de ganancia frente a aumento de ganancia",
+"Evalúa si evita definir todos los casos como simples variantes de compresión",
+"Comprueba si los usos propuestos son coherentes con la lógica dinámica descrita"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"compresor descendente",
+"expansor ascendente",
+"compuerta",
+"compresor ascendente",
+"umbral",
+"logica dinamica"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M05_ACT_002",
+"title": "Threshold, ratio y excedente real",
+"moodle_type": "analisis_guiado",
+"objective": "Comprobar que el estudiante comprenda que el compresor actúa sobre el excedente por encima del umbral y no como un fader automático uniforme.",
+"student_task": "Redacta una explicación breve de por qué una automatización de fader no equivale matemáticamente a una compresión. En tu respuesta debes mencionar el papel del umbral, del ratio y del excedente que supera ese umbral. Cierra con una consecuencia práctica de esa diferencia al mezclar.",
+"evidence_to_submit": [
+"Texto argumentado de 150 a 250 palabras"
+],
+"ai_feedback_criteria": [
+"Revisa si el estudiante menciona que la acción ocurre solo a partir del umbral",
+"Comprueba si explica que el ratio afecta el excedente y no toda la señal por igual",
+"Evalúa si evita describir la compresión como una simple bajada lineal de volumen",
+"Verifica si la consecuencia práctica propuesta se relaciona con control no lineal de la dinámica"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"threshold",
+"ratio",
+"excedente",
+"compresion no lineal",
+"automatizacion",
+"control dinamico"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M05_ACT_003",
+"title": "Diagnóstico de attack y release según objetivo",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Evaluar si el estudiante puede relacionar attack y release con un objetivo dinámico concreto sin caer en el mito de tratarlos como tiempos de espera.",
+"student_task": "Analiza estos tres objetivos y propone para cada uno una orientación razonada de attack, release, ratio y knee: 1) cazar picos o transientes, 2) nivelar una línea melódica, 3) aumentar densidad o RMS percibido. No des números fijos obligatorios; justifica el criterio con lenguaje técnico del módulo.",
+"evidence_to_submit": [
+"Respuesta estructurada en tres apartados",
+"Justificación breve de parámetros por cada objetivo"
+],
+"ai_feedback_criteria": [
+"Verifica si el estudiante asocia tiempos rápidos con caza de picos y tiempos más amplios con densidad o nivelación cuando corresponde",
+"Revisa si entiende que attack y release son velocidades de transición y no tiempos de espera",
+"Evalúa si la propuesta mantiene coherencia entre objetivo, umbral, ratio y tipo de knee",
+"Comprueba si evita convertir los parámetros en recetas rígidas sin contexto"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"attack",
+"release",
+"knee",
+"transientes",
+"nivelacion",
+"densidad",
+"metodo del triangulo"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M05_ACT_004",
+"title": "Uso técnico vs uso artístico",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante diferencie un uso correctivo de un uso deliberadamente audible de la compresión.",
+"student_task": "Compara un uso técnico y un uso artístico de la compresión. Debes explicar qué busca cada enfoque, cómo cambia la relación entre attack y release con el material, y qué tipo de resultado se espera percibir. Añade un ejemplo plausible para cada caso.",
+"evidence_to_submit": [
+"Cuadro comparativo o texto comparativo de 180 a 280 palabras"
+],
+"ai_feedback_criteria": [
+"Revisa si el estudiante separa control discreto de efecto audible o expresivo",
+"Comprueba si menciona que el uso técnico busca copiar la envolvente del problema para no notarse",
+"Evalúa si reconoce que el uso artístico puede aprovechar bombeo, swing, carácter o distorsión armónica",
+"Verifica si los ejemplos son compatibles con el enfoque descrito"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"uso tecnico",
+"uso artistico",
+"bombeo",
+"groove",
+"control dinamico",
+"envolvente"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M05_ACT_005",
+"title": "Sidechain y detector: qué oye realmente el compresor",
+"moodle_type": "analisis_guiado",
+"objective": "Comprobar que el estudiante entienda que muchas decisiones dinámicas dependen de la señal que escucha el detector y del orden de flujo antes del procesador.",
+"student_task": "Responde a este caso: un compresor en un bus reacciona de forma exagerada por información subsónica y el resultado se siente inestable. Explica dos formas de corregir el problema usando criterios del módulo: una relacionada con el orden de cadena y otra relacionada con el sidechain o detector. Debes justificar por qué esas acciones cambian el comportamiento dinámico.",
+"evidence_to_submit": [
+"Texto técnico breve de 160 a 260 palabras"
+],
+"ai_feedback_criteria": [
+"Verifica si el estudiante entiende que el detector no necesariamente escucha lo mismo que la salida útil",
+"Revisa si propone limpiar la señal antes de la dinámica cuando el flujo lo permite",
+"Comprueba si menciona filtrado del sidechain, HPF manual o escucha del detector como herramientas válidas",
+"Evalúa si evita reducir el problema a subir ratio o mover threshold sin atender la causa"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"sidechain",
+"detector",
+"key input",
+"filtro sidechain",
+"flujo de senal",
+"subsónicos",
+"listen"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M05_ACT_006",
+"title": "Gate no es de-noiser",
+"moodle_type": "cuestionario_o_tarea_breve",
+"objective": "Detectar si el estudiante comprende el alcance real de una compuerta y sus límites frente al ruido incrustado en la señal útil.",
+"student_task": "Un estudiante afirma: \"Voy a usar una compuerta para quitar el hiss del amplificador mientras la guitarra está sonando\". Indica si la afirmación es correcta o incorrecta y justifica tu respuesta. Después explica un caso en el que sí tendría sentido usar gate y qué parámetros cobrarían importancia.",
+"evidence_to_submit": [
+"Respuesta breve de 120 a 220 palabras"
+],
+"ai_feedback_criteria": [
+"Comprueba si el estudiante identifica que la compuerta no elimina ruido embebido mientras la señal supera el umbral",
+"Revisa si diferencia silenciamiento entre frases frente a limpieza de ruido continuo durante la ejecución",
+"Evalúa si propone un uso pertinente de gate, por ejemplo control de bleed o diseño temporal",
+"Verifica si menciona parámetros relevantes como threshold, hold, release o range"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"gate",
+"expansion descendente",
+"ruido embebido",
+"bleed",
+"hold",
+"range",
+"threshold"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M05_ACT_007",
+"title": "Decisión entre multibanda y EQ dinámico",
+"moodle_type": "aplicacion_practica_breve",
+"objective": "Evaluar si el estudiante sabe elegir entre compresor multibanda y ecualizador dinámico según el tipo de problema.",
+"student_task": "Analiza dos situaciones: a) una mezcla necesita control global por zonas amplias del espectro, b) una voz presenta una sibilancia o resonancia intermitente en una zona puntual. Para cada caso decide si usarías multibanda o EQ dinámico y justifica la decisión con criterios del módulo.",
+"evidence_to_submit": [
+"Dos decisiones razonadas, una por caso"
+],
+"ai_feedback_criteria": [
+"Revisa si el estudiante reserva el multibanda para control global o por bandas extensas",
+"Comprueba si reconoce al EQ dinámico como opción más precisa para problemas puntuales e intermitentes",
+"Evalúa si menciona la diferencia estructural entre crossovers globales y bandas puntuales",
+"Verifica si evita presentar ambas herramientas como equivalentes en cualquier contexto"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"multibanda",
+"eq dinamico",
+"sibilancia",
+"resonancia",
+"control global",
+"cirugia puntual"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M05_ACT_008",
+"title": "A/B honesto en dinámica",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Verificar que el estudiante incorpore criterios de validación auditiva y detecte autoengaño por volumen al evaluar un procesador dinámico.",
+"student_task": "Describe un procedimiento breve y ordenado para comparar una señal procesada y una sin procesar sin caer en autoengaño por volumen. Tu respuesta debe incluir qué hacer con el nivel de salida y qué indicios permitirían sospechar que una limitación o compresión está siendo destructiva.",
+"evidence_to_submit": [
+"Procedimiento escrito en pasos",
+"Criterio final de diagnóstico"
+],
+"ai_feedback_criteria": [
+"Comprueba si el estudiante iguala niveles antes del A/B",
+"Revisa si entiende que más volumen percibido no implica mejor procesamiento",
+"Evalúa si menciona indicadores de destrucción dinámica, como residual excesivo o efecto audible no deseado",
+"Verifica si la secuencia propuesta es aplicable por un tutor IA textual sin depender de recursos inexistentes"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"ab",
+"igualacion de nivel",
+"make-up gain",
+"autoengano por volumen",
+"delta",
+"diagnostico",
+"limitacion"
+],
+"requires_validation": true
+}
+]
 }

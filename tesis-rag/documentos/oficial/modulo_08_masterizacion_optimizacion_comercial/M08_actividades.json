@@ -1,20 +1,250 @@
 ﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M08",
-    "module_order":  8,
-    "module_title":  "Masterizacion y optimizacion comercial",
-    "module_slug":  "masterizacion-optimizacion-comercial",
-    "short_description":  "Modulo sobre preparacion final, control tecnico y optimizacion comercial del master.",
-    "learning_scope":  "Delimita criterios de traduccion, nivel, limitacion, entrega y revision final para distribucion.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "activities",
-    "filename":  "M08_actividades.json",
-    "purpose":  "Skeleton base para actividades Moodle del modulo. No contiene actividades finales.",
-    "activities":  [
-
-                   ]
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M08",
+"module_order": 8,
+"module_title": "Masterización y optimización comercial",
+"module_slug": "masterizacion-optimizacion-comercial",
+"short_description": "Módulo centrado en la preparación técnica, comercial y artística del producto final para distribución, con énfasis en loudness, traducción, limitación, True Peak, dither, diagnóstico técnico y optimización sin destruir la mezcla.",
+"learning_scope": "El estudiante debe distinguir mezcla y mastering, diagnosticar problemas técnicos del archivo estéreo, justificar decisiones de loudness y entrega comercial, aplicar criterios básicos de limitación, controlar riesgos de codificación y evitar errores comunes como masterizar a targets fijos, comparar a distinto volumen o usar el mastering para corregir una mezcla fallida.",
+"doc_type": "activities",
+"source_origin": "course",
+"filename": "M08_actividades.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m08",
+"purpose": "Borrador de actividades del modulo para uso posterior en tutor IA o Moodle. Requiere validacion pedagogica antes de publicarse.",
+"activities": [
+{
+"activity_id": "M08_ACT_001",
+"title": "Distinguir mezcla y mastering",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante entienda que el mastering trabaja sobre el producto final estéreo y no reemplaza decisiones que pertenecen a la mezcla.",
+"student_task": "Explica en un párrafo la diferencia entre mezclar y masterizar. Luego indica dos problemas que deberían resolverse antes del mastering y dos problemas que sí pueden revisarse en mastering.",
+"evidence_to_submit": [
+"Un párrafo comparativo entre mezcla y mastering.",
+"Lista de dos problemas propios de mezcla.",
+"Lista de dos problemas revisables en mastering."
+],
+"ai_feedback_criteria": [
+"Debe indicar que la mezcla trabaja sobre elementos individuales, buses y balance interno.",
+"Debe indicar que el mastering trabaja sobre la suma estéreo o producto final.",
+"Debe evitar presentar el mastering como solución mágica para una mala mezcla.",
+"Debe mencionar criterios técnicos reales del módulo como fase, espectro, subsónicas, DC offset, loudness, True Peak o traducción."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad textual viable sin material externo.",
+"Requiere validación docente para confirmar el nivel de profundidad esperado."
+],
+"tags": [
+"mezcla",
+"mastering",
+"suma estéreo",
+"diagnóstico técnico",
+"producto final"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M08_ACT_002",
+"title": "Target de loudness y contexto comercial",
+"moodle_type": "analisis_guiado",
+"objective": "Evaluar si el estudiante comprende que -14 LUFS no debe usarse ciegamente como target único de mastering.",
+"student_task": "Un cliente pide masterizar una canción pop directamente a -14 LUFS integrados porque 'eso pide Spotify'. Responde qué revisarías antes de aceptar ese criterio y propone una decisión razonada usando el lenguaje del módulo.",
+"evidence_to_submit": [
+"Respuesta breve de 120 a 180 palabras.",
+"Una decisión concreta de loudness o enfoque comercial.",
+"Justificación técnica relacionada con normalización, competencia comercial y dinámica."
+],
+"ai_feedback_criteria": [
+"Debe distinguir normalización de ganancia y compresión de datos.",
+"Debe explicar que Spotify puede normalizar el nivel sin comprimir el rango dinámico por esa acción.",
+"Debe reconocer que -14 LUFS es una referencia de normalización, no una ley universal de mastering.",
+"Debe mencionar que el target depende del género, intención comercial y posible reproducción con normalización desactivada.",
+"Debe evitar convertir -10 LUFS o -8 LUFS en reglas absolutas."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad textual viable sin audio.",
+"Validar si la referencia de pop/rock alrededor de -10 LUFS debe mantenerse como criterio de cátedra en la versión final."
+],
+"tags": [
+"LUFS",
+"Spotify",
+"normalización",
+"loudness integrado",
+"optimización comercial"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M08_ACT_003",
+"title": "Diagnóstico antes de filtrar subsónicas",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Comprobar que el estudiante no aplique filtros globales por costumbre y que justifique el uso de HPF solo cuando el diagnóstico lo requiere.",
+"student_task": "Analiza este caso: recibes un máster con mucha energía visual en el extremo grave. No tienes todavía una conclusión clara. Explica qué verificarías antes de insertar un HPF a 20 Hz y por qué no conviene filtrar 'por las dudas'.",
+"evidence_to_submit": [
+"Lista de verificaciones previas.",
+"Explicación breve del riesgo de filtrar sin diagnóstico.",
+"Decisión final condicionada al análisis."
+],
+"ai_feedback_criteria": [
+"Debe mencionar análisis espectral completo o revisión de la pendiente grave.",
+"Debe reconocer que un filtro puede rotar fase.",
+"Debe mencionar riesgo de overshoot o aumento de picos.",
+"Debe diferenciar acumulación subsónica problemática de una pendiente grave sana.",
+"Debe evitar recomendar HPF automático a 20 Hz como rutina fija."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad viable como caso textual.",
+"Si luego se crea un recurso visual de espectro, podría convertirse en diagnóstico con imagen."
+],
+"tags": [
+"subsónicas",
+"HPF",
+"overshoot",
+"RX",
+"diagnóstico espectral"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M08_ACT_004",
+"title": "Comparación isométrica de limitadores",
+"moodle_type": "aplicacion_practica_breve",
+"objective": "Verificar que el estudiante entienda la necesidad de comparar procesamientos al mismo volumen para no confundir más fuerte con mejor.",
+"student_task": "Describe cómo compararías dos configuraciones de limitador sin caer en autoengaño por volumen. Incluye qué compensarías y qué señales indicarían que el limitador está trabajando de forma destructiva.",
+"evidence_to_submit": [
+"Procedimiento breve de comparación.",
+"Criterios para compensar entrada y salida.",
+"Dos señales de limitación excesiva o destructiva."
+],
+"ai_feedback_criteria": [
+"Debe indicar que la comparación debe hacerse al mismo volumen percibido o nivel compensado.",
+"Debe mencionar compensación de ganancia de entrada, salida o ceiling según corresponda.",
+"Debe explicar que más volumen no equivale automáticamente a mejor sonido.",
+"Debe mencionar pérdida de transientes, espacialidad, cuerpo musical o factor de cresta como señales de daño.",
+"Puede incluir el modo Delta como herramienta de diagnóstico si lo usa correctamente."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad viable sin plugins específicos, aunque puede adaptarse después a Pro-L 2 si el docente lo permite.",
+"Requiere validación para decidir si se exige o no mencionar modo Delta."
+],
+"tags": [
+"limitador",
+"comparación isométrica",
+"Delta",
+"transientes",
+"factor de cresta"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M08_ACT_005",
+"title": "True Peak y archivo codificado",
+"moodle_type": "analisis_guiado",
+"objective": "Evaluar si el estudiante comprende que el WAV aparentemente sano no garantiza una entrega segura después de la codificación con pérdida.",
+"student_task": "Un archivo WAV final marca picos a -0.3 dBFS. Al simular MP3 128 kbps, el True Peak sube por encima de 0 dBTP. Explica el problema y qué decisión tomarías para una entrega de streaming más segura.",
+"evidence_to_submit": [
+"Diagnóstico del problema.",
+"Explicación de la diferencia entre pico de muestra y True Peak.",
+"Decisión de ajuste para entrega."
+],
+"ai_feedback_criteria": [
+"Debe mencionar picos interesample o reconstrucción/codificación como causa del riesgo.",
+"Debe distinguir pico digital de muestra y True Peak.",
+"Debe justificar el uso de margen de seguridad, especialmente cerca de -1 dBTP para streaming.",
+"Debe reconocer que el archivo codificado es parte de la validación comercial real.",
+"Debe evitar afirmar que el WAV de trabajo basta como única prueba final."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad viable como caso textual.",
+"Puede ampliarse luego con recurso de simulación de códec si ese recurso se crea oficialmente."
+],
+"tags": [
+"True Peak",
+"dBTP",
+"códec",
+"MP3",
+"streaming",
+"picos interesample"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M08_ACT_006",
+"title": "DC Offset o asimetría",
+"moodle_type": "cuestionario_o_tarea_breve",
+"objective": "Comprobar que el estudiante distinga entre una señal desplazada respecto al eje central y una onda centrada pero asimétrica.",
+"student_task": "Explica la diferencia entre DC Offset y asimetría de onda. Luego indica qué tipo de corrección corresponde en cada caso y por qué no deben tratarse como el mismo problema.",
+"evidence_to_submit": [
+"Definición breve de DC Offset.",
+"Definición breve de asimetría.",
+"Corrección asociada a cada caso."
+],
+"ai_feedback_criteria": [
+"Debe definir DC Offset como desplazamiento de toda la señal respecto del eje central.",
+"Debe asociar DC Offset con frecuencia 0 Hz, pérdida de headroom o corrección con herramienta dedicada/HPF ultrabajo.",
+"Debe definir asimetría como onda centrada con semiperiodos desiguales.",
+"Debe asociar asimetría con relaciones de fase internas y corrección mediante All-Pass o rotador de fase.",
+"Debe evitar recomendar HPF como solución para cualquier forma de onda visualmente rara."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad textual viable.",
+"Puede beneficiarse de imágenes de forma de onda si el curso decide crear recursos visuales propios."
+],
+"tags": [
+"DC Offset",
+"asimetría",
+"All-Pass",
+"HPF ultrabajo",
+"headroom"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M08_ACT_007",
+"title": "Dither al cerrar formato",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante comprenda la diferencia entre truncado, dither y noise shaping al reducir resolución de bits.",
+"student_task": "Compara truncado, dither y dither con noise shaping en una entrega que debe pasar de 24 bits a 16 bits. Indica cuál usarías al final del flujo y qué problema evita.",
+"evidence_to_submit": [
+"Comparación breve de los tres conceptos.",
+"Decisión de uso al final del flujo.",
+"Justificación técnica relacionada con cuantización y ruido."
+],
+"ai_feedback_criteria": [
+"Debe explicar que truncar de 24 a 16 bits sin tratamiento produce errores de cuantización y distorsión áspera.",
+"Debe explicar que el dither añade ruido controlado para preservar información de bajo nivel.",
+"Debe explicar que el noise shaping redistribuye el ruido hacia zonas menos sensibles.",
+"Debe ubicar el dither al final del flujo cuando el formato final exige 16 bits.",
+"Debe evitar decir que el dither corrige aliasing o que debe omitirse por existir aliasing."
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Actividad viable sin material externo.",
+"Requiere validación docente sobre el nivel de detalle matemático esperado."
+],
+"tags": [
+"dither",
+"noise shaping",
+"truncado",
+"16 bits",
+"24 bits",
+"cuantización"
+],
+"requires_validation": true
+}
+]
 }

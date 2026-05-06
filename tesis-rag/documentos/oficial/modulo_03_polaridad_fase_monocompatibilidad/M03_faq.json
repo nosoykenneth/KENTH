@@ -1,177 +1,290 @@
-﻿{
+{
   "course_id": "mezcla_masterizacion_kenth",
   "module_id": "M03",
   "module_order": 3,
   "module_title": "Polaridad, fase y monocompatibilidad",
   "module_slug": "polaridad-fase-monocompatibilidad",
-  "short_description": "Modulo sobre relaciones entre polaridad, fase y compatibilidad mono dentro del proceso de mezcla.",
-  "learning_scope": "Delimita el analisis de polaridad, fase, suma de señales y traduccion mono.",
+  "short_description": "Distinge polaridad y fase, ordena la lógica de suma y cancelación, y delimita criterios prácticos de monocompatibilidad y diagnóstico.",
+  "learning_scope": "Comprender la diferencia entre polaridad y fase, leer relaciones de suma y cancelación, evaluar monocompatibilidad, diagnosticar conflictos entre señales y aplicar criterios prudentes de corrección según función musical.",
   "doc_type": "faq",
   "source_origin": "course",
   "filename": "M03_faq.json",
-  "version": "0.2",
-  "status": "draft_author_review",
+  "version": "0.1",
+  "status": "ready_for_indexing",
   "curation_source": "borrador_autoral_m03",
   "items": [
     {
       "faq_id": "M03_FAQ_001",
-      "question": "Polaridad y fase son lo mismo?",
-      "canonical_answer": "No conviene tratarlas como lo mismo. En este modulo se separa la inversion de polaridad de los problemas de relacion de fase entre señales. Aunque ambos conceptos pueden afectar la suma, no deben usarse como sinonimos.",
-      "short_answer": "No. Polaridad y fase se relacionan, pero no son equivalentes.",
-      "stable_answer": "El modulo distingue inversion de polaridad y relacion de fase como conceptos diferentes.",
-      "pending_validation_notes": [
-        "Validar la formulacion exacta del curso para distinguir ambos terminos.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Polaridad y fase significan lo mismo?",
+      "canonical_answer": "No. En este módulo se distinguen de forma estricta. La polaridad es una inversión binaria de la señal; la fase describe una relación temporal entre señales y puede expresarse como desplazamiento o relación angular. Confundir ambas nociones puede llevar a diagnósticos equivocados.",
+      "short_answer": "No. Polaridad es inversión; fase es relación temporal.",
+      "stable_answer": "Conviene tratarlas como fenómenos distintos para no aplicar correcciones incorrectas.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Distincion conceptual basica",
-      "learning_objective": "Evitar el uso indistinto de polaridad y fase.",
-      "tags": ["polaridad", "fase", "suma_de_senales"],
+      "topic": "distinciones fundamentales",
+      "learning_objective": "Distinguir los conceptos base del módulo.",
+      "tags": [
+        "polaridad",
+        "fase",
+        "fundamentos"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No decir que invertir polaridad siempre corrige un problema de fase.",
-        "No presentar ambos terminos como equivalentes."
+        "El botón de phase siempre corrige la fase.",
+        "Invertir polaridad y alinear en tiempo son lo mismo."
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M03_FAQ_002",
-      "question": "Si invierto la polaridad ya resolvi el problema?",
-      "canonical_answer": "No necesariamente. Invertir polaridad puede modificar la forma en que dos señales se suman, pero no debe tratarse como una solucion universal. Primero conviene identificar si el problema realmente corresponde a polaridad, a relacion temporal entre señales o a otra causa.",
-      "short_answer": "No siempre. Primero hay que entender que tipo de problema existe.",
-      "stable_answer": "La inversion de polaridad es una prueba o decision contextual, no una correccion automatica.",
-      "pending_validation_notes": [
-        "Validar en el material propio del curso cuando se recomienda usar inversion de polaridad.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Si algo se escucha ancho en estéreo, eso significa que está bien resuelto?",
+      "canonical_answer": "No necesariamente. El módulo plantea que la anchura estéreo y la monocompatibilidad no pueden maximizarse al mismo tiempo en todos los casos. Un elemento puede sonar muy abierto y, al cerrar a mono, perder solidez o sufrir cancelaciones parciales. La lectura correcta depende además de la función musical del elemento.",
+      "short_answer": "No. Anchura no garantiza buena traducción.",
+      "stable_answer": "La apertura debe evaluarse junto con su comportamiento al colapsar y con el rol del elemento en la mezcla.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Diagnostico de problemas de suma",
-      "learning_objective": "Evitar usar inversion de polaridad como reflejo automatico.",
-      "tags": ["polaridad", "diagnostico", "suma"],
+      "topic": "monocompatibilidad",
+      "learning_objective": "Relacionar apertura estéreo con estabilidad mono.",
+      "tags": [
+        "estereo",
+        "mono",
+        "monocompatibilidad"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No llamar al boton de polaridad una solucion universal."
+        "Si suena enorme, está correcto.",
+        "Todo lo ancho es automáticamente profesional."
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M03_FAQ_003",
-      "question": "Que significa que dos señales se cancelan?",
-      "canonical_answer": "En este modulo se trata la cancelacion como una reduccion o perdida parcial de informacion cuando dos señales relacionadas se suman de manera poco favorable. No conviene explicarla como desaparicion total en todos los casos ni en todo el espectro.",
-      "short_answer": "Suele implicar perdida parcial al sumar señales relacionadas, no siempre desaparicion total.",
-      "stable_answer": "La cancelacion debe evaluarse como efecto de suma entre señales relacionadas.",
-      "pending_validation_notes": [
-        "Validar si el curso desarrolla cancelacion total, parcial o filtro peine con ejemplos propios.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Todo lo que pierde algo al pasar a mono debe corregirse?",
+      "canonical_answer": "No. El módulo distingue entre problema técnico real y costo estético aceptado. Los elementos primarios exigen mayor rigor de suma y centro. En elementos secundarios o terciarios puede tolerarse cierta pérdida al cerrar a mono, siempre que no comprometa la estructura principal de la mezcla.",
+      "short_answer": "No. Depende del rol musical.",
+      "stable_answer": "La prioridad de corrección aumenta cuando el elemento afectado sostiene centro, peso o inteligibilidad.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Suma y cancelacion",
-      "learning_objective": "Interpretar la cancelacion con cautela.",
-      "tags": ["cancelacion", "suma_de_senales", "fase"],
+      "topic": "criterio de corrección",
+      "learning_objective": "Jerarquizar decisiones según función musical.",
+      "tags": [
+        "primarios",
+        "secundarios",
+        "criterio",
+        "mono"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No afirmar que cualquier perdida de cuerpo significa cancelacion total.",
-        "No generalizar el efecto a todo el espectro sin evidencia."
+        "Todo debe sobrevivir idéntico en mono.",
+        "Toda pérdida en mono es un error."
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M03_FAQ_004",
-      "question": "Por que debo revisar la mezcla en mono?",
-      "canonical_answer": "Porque la revision en mono ayuda a detectar si decisiones estereo o relaciones entre señales comprometen la traduccion de elementos importantes. No significa que la mezcla deba sonar igual en mono y en estereo, sino que conviene comprobar que siga funcionando.",
-      "short_answer": "Para verificar que la mezcla siga siendo funcional cuando se suma a mono.",
-      "stable_answer": "La revision en mono es una comprobacion tecnica util de traduccion.",
-      "pending_validation_notes": [
-        "Validar que nivel de exigencia establece el curso sobre revision mono.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿El correlator dice toda la verdad sobre la fase de una mezcla?",
+      "canonical_answer": "No. El módulo insiste en una lectura prudente. El correlator puede quedar dominado por la banda o la fuente más fuerte y no describir con precisión lo que ocurre en otras zonas del espectro. Por eso puede ser útil revisar tendencia general, usar lectura lenta y, cuando haga falta, medir por bandas.",
+      "short_answer": "No. Es una referencia útil, no un veredicto total.",
+      "stable_answer": "La medición debe leerse junto con escucha y contexto espectral.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Traduccion mono",
-      "learning_objective": "Entender la utilidad de revisar en mono.",
-      "tags": ["mono", "monocompatibilidad", "traduccion"],
+      "topic": "medición",
+      "learning_objective": "Interpretar herramientas sin absolutizarlas.",
+      "tags": [
+        "correlator",
+        "medicion",
+        "diagnostico"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No decir que una mezcla correcta debe sonar identica en mono y estereo."
+        "Si el correlator marca bien, no hay problema.",
+        "Un solo valor resume toda la mezcla."
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M03_FAQ_005",
-      "question": "Si algo suena mas ancho en estereo, significa que esta mejor?",
-      "canonical_answer": "No necesariamente. Una mayor sensacion de amplitud puede ser deseable, pero debe evaluarse junto con la estabilidad del centro, la suma de señales y la traduccion mono. El modulo prioriza revisar si esa amplitud conserva utilidad dentro de la mezcla.",
-      "short_answer": "No. Mas ancho no implica automaticamente mejor.",
-      "stable_answer": "La amplitud debe juzgarse junto con suma, estabilidad y traduccion mono.",
-      "pending_validation_notes": [
-        "Validar si el curso incluye ejemplos propios de widening, duplicacion o delays cortos.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Conviene revisar la mezcla en mono aunque el destino principal sea estéreo?",
+      "canonical_answer": "Sí, como prueba práctica de estabilidad. En este módulo, la escucha mono no se plantea como formato final obligatorio, sino como un chequeo para detectar debilidad estructural, pérdida de centro o cancelaciones que pueden aparecer fuera del entorno ideal de escucha.",
+      "short_answer": "Sí. Es un chequeo útil de traducción.",
+      "stable_answer": "La revisión en mono ayuda a evaluar solidez, no a negar el valor del estéreo.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Imagen estereo",
-      "learning_objective": "Evitar equiparar amplitud con calidad.",
-      "tags": ["imagen_estereo", "mono", "traduccion"],
+      "topic": "chequeo de mezcla",
+      "learning_objective": "Usar la suma mono como prueba diagnóstica.",
+      "tags": [
+        "mono",
+        "traduccion",
+        "revision"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No recomendar ensanchamiento como mejora universal."
+        "Mono ya no importa.",
+        "Si la mezcla es estéreo, no hace falta revisar nada más."
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M03_FAQ_006",
-      "question": "Puedo confiar solo en un correlometro o medidor?",
-      "canonical_answer": "No conviene depender solo de la lectura visual. Un medidor puede aportar indicios utiles, pero el diagnostico debe completarse con escucha, contexto de mezcla y verificacion mono cuando corresponda.",
-      "short_answer": "No. El medidor ayuda, pero no reemplaza la escucha y el contexto.",
-      "stable_answer": "La medicion visual complementa, pero no sustituye, la escucha contextual.",
-      "pending_validation_notes": [
-        "Validar en el material propio del curso que herramientas de medicion se nombran realmente.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Duplicar una pista y retrasar un lado equivale a un doubling real?",
+      "canonical_answer": "No. El módulo diferencia con claridad el falso estéreo por duplicación con delay del doubling real. La duplicación retrasada genera un peine estático y puede degradarse con fuerza al cerrar a mono. El doubling real introduce variaciones humanas microscópicas de tiempo y afinación que cambian el comportamiento de la suma.",
+      "short_answer": "No. Son comportamientos distintos.",
+      "stable_answer": "Duplicar con delay puede dar anchura aparente, pero no reemplaza una segunda interpretación real.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Lectura de medidores",
-      "learning_objective": "Evitar dependencia exclusiva de herramientas visuales.",
-      "tags": ["medicion", "correlacion", "mono"],
+      "topic": "doblajes y estereo",
+      "learning_objective": "Diferenciar fuentes de anchura estéreo.",
+      "tags": [
+        "doubling",
+        "falso_estereo",
+        "comb_filtering"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No convertir una lectura visual en veredicto automatico."
+        "Es lo mismo pero más rápido.",
+        "Todo doble paneado nace del mismo principio."
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M03_FAQ_007",
-      "question": "Cuando debo sospechar un problema de fase o suma?",
-      "canonical_answer": "Conviene sospecharlo cuando dos señales relacionadas cambian demasiado al sumarse, cuando un elemento pierde solidez al pasar a mono o cuando una decision estereo altera de forma poco estable el resultado. Aun asi, el tutor debe pedir contexto antes de cerrar el diagnostico.",
-      "short_answer": "Cuando la suma cambia demasiado el resultado o la mezcla pierde estabilidad en mono.",
-      "stable_answer": "Los problemas de suma deben interpretarse desde cambios audibles entre señales relacionadas y su traduccion.",
+      "question": "¿Si el problema está en graves, basta con usar un mono maker?",
+      "canonical_answer": "No como regla automática. El material del módulo sostiene que, si el conflicto de graves es temporal entre canales, la corrección pertinente también debe ser temporal. Cerrar el low-end puede consolidar la cancelación en lugar de resolverla. La decisión requiere diagnóstico previo.",
+      "short_answer": "No necesariamente. Primero hay que diagnosticar.",
+      "stable_answer": "Cuando el origen del problema es temporal, una corrección puramente de amplitud puede ser insuficiente o contraproducente.",
       "pending_validation_notes": [
-        "Validar ejemplos oficiales del curso para diagnostico.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+        "La formulación operativa requiere validación editorial antes de asumirla como prescripción universal."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Deteccion de problemas",
-      "learning_objective": "Reconocer señales de alerta sin sobrediagnosticar.",
-      "tags": ["fase", "suma", "mono", "diagnostico"],
+      "topic": "graves y correccion",
+      "learning_objective": "Relacionar tipo de problema con tipo de corrección.",
+      "tags": [
+        "graves",
+        "mono_maker",
+        "tiempo",
+        "offset"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No atribuir cualquier diferencia tonal a fase sin mas contexto."
+        "Todo grave desfasado se arregla cerrándolo al centro.",
+        "Mono maker siempre corrige el low-end."
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M03_FAQ_008",
-      "question": "Monocompatibilidad significa mezclar todo en mono?",
-      "canonical_answer": "No. Monocompatibilidad no significa renunciar al trabajo estereo, sino comprobar que la mezcla mantenga una traduccion funcional cuando se reduce a mono. Es una verificacion de estabilidad, no una obligacion de mezclar todo como si fuera mono.",
-      "short_answer": "No. Es una verificacion de traduccion, no una prohibicion del estereo.",
-      "stable_answer": "La monocompatibilidad busca conservar funcionalidad al colapsar a mono.",
+      "question": "¿Alinear siempre es mejor cuando hay varios micrófonos?",
+      "canonical_answer": "No. El módulo muestra que una corrección temporal puede mejorar una relación y empeorar otra. En batería, por ejemplo, una alineación favorable para un elemento puede alterar balances, sangrados o percepción espacial del conjunto. La alineación debe responder a una prioridad clara, no a una obsesión universal por coincidir todo.",
+      "short_answer": "No. Alinear también tiene costos.",
+      "stable_answer": "La conveniencia de alinear depende de qué se busca preservar y de qué se está dispuesto a sacrificar.",
       "pending_validation_notes": [
-        "Validar la definicion exacta del curso sobre monocompatibilidad.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
+        "La prioridad de ciertas piezas como referencia debe tratarse con prudencia contextual."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Criterio operativo",
-      "learning_objective": "Entender que mono es prueba de traduccion, no formato obligatorio.",
-      "tags": ["monocompatibilidad", "mono", "estereo"],
+      "topic": "alineacion",
+      "learning_objective": "Entender límites de la corrección temporal.",
+      "tags": [
+        "alineacion",
+        "microfonia",
+        "bateria",
+        "prioridades"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No decir que mezclar bien equivale a mezclar siempre en mono."
+        "Todo debe quedar perfectamente alineado.",
+        "Si no alineas, estás mezclando mal."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_009",
+      "question": "¿La fase lineal evita todo problema de fase sin costo?",
+      "canonical_answer": "No. El módulo conserva la idea de que no hay procesos gratuitos. Los modos de fase lineal pueden evitar cierta rotación relativa, pero introducen otros compromisos, como latencia y pre-ringing. La elección no es entre una solución perfecta y un error, sino entre compromisos distintos.",
+      "short_answer": "No. Cambia el tipo de compromiso.",
+      "stable_answer": "Evitar una clase de alteración temporal puede introducir otra consecuencia audible o operativa.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "procesamiento",
+      "learning_objective": "Evaluar compensaciones en procesos avanzados.",
+      "tags": [
+        "fase_lineal",
+        "eq",
+        "crossovers",
+        "pre_ringing"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Fase lineal siempre es mejor.",
+        "Si usas fase lineal no hay daños."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_010",
+      "question": "¿Asimetría de una onda y DC offset son el mismo problema?",
+      "canonical_answer": "No. El módulo los separa. El DC offset desplaza la onda respecto del eje y se asocia a un componente cercano a continua. La asimetría, en cambio, puede aparecer con la onda centrada pero con picos desbalanceados por relaciones internas de fase. No conviene tratarlos como equivalentes.",
+      "short_answer": "No. Son fenómenos distintos.",
+      "stable_answer": "Antes de corregir, conviene identificar si hay desplazamiento del eje o una asimetría interna de la forma.",
+      "pending_validation_notes": [
+        "Las decisiones de corrección avanzada asociadas a asimetría requieren validación editorial."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "forma de onda",
+      "learning_objective": "Diferenciar problemas internos de señal.",
+      "tags": [
+        "asimetria",
+        "dc_offset",
+        "rotor_de_fase"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Toda onda asimétrica tiene DC offset.",
+        "Un high-pass siempre corrige ambos casos."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_011",
+      "question": "¿Una inversión de polaridad entre L y R se cancela igual que en una suma matemática simple?",
+      "canonical_answer": "No de la misma manera en escucha binaural directa. El módulo distingue entre cancelación ideal en una suma y percepción humana en el espacio. Una inversión así puede no anularse a cero en la experiencia del oyente, pero sí producir pérdida de frente, rareza espacial, debilitamiento de graves e incomodidad perceptiva.",
+      "short_answer": "No exactamente. La percepción binaural no equivale a una suma eléctrica simple.",
+      "stable_answer": "Puede no haber anulación total perceptiva, pero sí una degradación espacial y tonal importante.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "percepcion y espacio",
+      "learning_objective": "Distinguir cancelación física de experiencia binaural.",
+      "tags": [
+        "binaural",
+        "lr",
+        "polaridad",
+        "percepcion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si no se anula a cero, entonces no hay problema.",
+        "La escucha humana replica exactamente la suma eléctrica."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M03_FAQ_012",
+      "question": "¿Conviene corregir por prevención aunque todavía no haya evidencia clara de problema?",
+      "canonical_answer": "No como hábito. El módulo favorece medir y escuchar antes de aplicar correcciones destructivas por paranoia. Si una decisión técnica no está respaldada por problema audible o medible, puede introducir un compromiso innecesario.",
+      "short_answer": "No. Primero conviene medir y escuchar.",
+      "stable_answer": "La intervención debería responder a evidencia y no a temor automático.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "metodologia",
+      "learning_objective": "Aplicar criterio de intervención prudente.",
+      "tags": [
+        "metodologia",
+        "medicion",
+        "criterio"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Más vale corregir todo por si acaso.",
+        "Toda modulación o apertura requiere filtro preventivo."
       ],
       "requires_validation": true
     }

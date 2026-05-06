@@ -1,20 +1,318 @@
 ﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M05",
-    "module_order":  5,
-    "module_title":  "Procesadores dinamicos",
-    "module_slug":  "procesadores-dinamicos",
-    "short_description":  "Modulo sobre control de dinamica mediante procesadores como compresores, expansores, gates y limitadores.",
-    "learning_scope":  "Delimita el uso de procesadores dinamicos para controlar envolvente, rango dinamico y estabilidad de la mezcla.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "common_errors",
-    "filename":  "M05_errores_comunes.json",
-    "purpose":  "Skeleton base para observaciones pedagogicas del modulo. No contiene errores comunes finales.",
-    "items":  [
-
-              ]
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M05",
+"module_order": 5,
+"module_title": "Procesadores dinámicos",
+"module_slug": "procesadores-dinamicos",
+"short_description": "Errores frecuentes al comprender y parametrizar compresión, expansión, compuertas, limitación y sidechain.",
+"learning_scope": "Detección y corrección de malentendidos sobre lógica de reducción y expansión, detectores, envolventes, enlace estéreo, ruteo y usos técnicos o artísticos de procesadores dinámicos.",
+"doc_type": "common_errors",
+"source_origin": "course",
+"filename": "M05_errores_comunes.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m05",
+"purpose": "Errores comunes del modulo para retroalimentacion del tutor IA. No reemplaza la guia canonica.",
+"errors": [
+{
+"error_id": "M05_ERR_001",
+"error_title": "Tomar el compresor como un fader automático",
+"misconception": "El compresor baja toda la señal de manera pareja, como si fuera una automatización de volumen automática.",
+"why_it_is_incorrect": "En el módulo, la compresión se define como una acción sobre el excedente que supera el umbral. Ese excedente se divide por el ratio, por lo que la deformación dinámica es no lineal y no equivale matemáticamente a mover un fader.",
+"why_it_matters": "Si el alumno confunde compresión con simple bajada de volumen, ajusta mal threshold, ratio y make-up, y pierde criterio para distinguir control dinámico real de automatización.",
+"how_to_detect_it": [
+"Dice que comprimir es igual a bajar el canal cuando se pasa.",
+"Explica la compresión sin mencionar umbral, excedente ni ratio.",
+"Propone reemplazar compresión por automatización como si fueran operaciones equivalentes."
+],
+"tutor_feedback_strategy": "Corregir desde la lógica del excedente sobre el umbral. Conviene remarcar que el compresor no trata igual todo el material y que las partes más alejadas del threshold reciben castigo distinto.",
+"suggested_reframe": "La compresión no baja todo parejo: modifica la relación entre las partes que superan el umbral y el resto de la señal.",
+"related_terms": [
+"threshold",
+"ratio",
+"reducción de ganancia",
+"compresión descendente"
+],
+"severity": "high",
+"validation_notes": [
+"Error estable dentro del módulo: la distinción entre automatización lineal y compresión no lineal es explícita."
+],
+"requires_validation": false
+},
+{
+"error_id": "M05_ERR_002",
+"error_title": "Entender attack y release como tiempos de espera",
+"misconception": "El attack es el tiempo que el compresor espera antes de empezar a actuar, y el release es otro retraso similar al volver.",
+"why_it_is_incorrect": "El módulo corrige ese mito de forma frontal: attack y release son velocidades de transición, no delays previos. El cambio de ganancia ocurre gradualmente desde que la condición se cumple.",
+"why_it_matters": "Si se entienden como esperas, el alumno configura mal la envolvente y no puede prever distorsión, pérdida de transiente, bombeo o comportamiento musical.",
+"how_to_detect_it": [
+"Habla del attack como una demora antes de comprimir.",
+"Describe el release como tiempo de espera para soltar.",
+"Usa un lenguaje de interruptor en vez de transición progresiva."
+],
+"tutor_feedback_strategy": "Reencuadrar el concepto como velocidad de frenado y recuperación. El tutor debe insistir en que el procesador no espera inmóvil, sino que alcanza la reducción y luego regresa con una balística determinada.",
+"suggested_reframe": "Attack y release describen qué tan rápido entra y sale la reducción de ganancia, no un tiempo muerto antes de actuar.",
+"related_terms": [
+"attack",
+"release",
+"envolvente",
+"hold"
+],
+"severity": "high",
+"validation_notes": [
+"Error estable: el módulo define attack y release como velocidades de transición."
+],
+"requires_validation": false
+},
+{
+"error_id": "M05_ERR_003",
+"error_title": "Querer resolver picos, nivelación y densidad con un solo compresor",
+"misconception": "Un único compresor bien ajustado debería poder cazar picos, nivelar la melodía y engrosar la base al mismo tiempo.",
+"why_it_is_incorrect": "El método del triángulo del módulo separa zonas con objetivos y balísticas distintas. La doctrina explícita es que un solo compresor no debería intentar resolver simultáneamente las tres zonas; si hay varios objetivos, se trabaja por etapas o en serie.",
+"why_it_matters": "Este error empuja a configuraciones contradictorias: ataques y releases que no sirven para nada en particular, compresión torpe, pérdida de naturalidad y falta de control fino.",
+"how_to_detect_it": [
+"Busca un solo set de parámetros para todo el comportamiento dinámico.",
+"Quiere que el mismo compresor capture transientes y a la vez aumente densidad.",
+"No distingue entre control de picos, nivelación y trabajo de RMS."
+],
+"tutor_feedback_strategy": "Separar el objetivo antes de tocar parámetros. El tutor debe preguntar qué zona se intenta controlar y sugerir resolución por etapas cuando el alumno persigue más de un objetivo a la vez.",
+"suggested_reframe": "Primero define qué zona quieres controlar. Si buscas varios resultados dinámicos, distribúyelos entre más de una etapa.",
+"related_terms": [
+"método del triángulo",
+"caza de picos",
+"nivelación",
+"RMS"
+],
+"severity": "high",
+"validation_notes": [
+"La regla se plantea como criterio operativo del módulo. Su aplicación concreta depende del material y del objetivo, pero la advertencia contra la solución única es clara."
+],
+"requires_validation": true
+},
+{
+"error_id": "M05_ERR_004",
+"error_title": "Suponer que más rapidez siempre es mejor",
+"misconception": "Para atrapar picos o controlar graves, lo correcto es usar attack y release lo más rápidos posible.",
+"why_it_is_incorrect": "El módulo advierte que un ataque FET ultrarrápido puede comerse la transiente y destruir definición. También señala que envolventes demasiado rápidas en material grave mutilan el ciclo físico de la onda y generan distorsión.",
+"why_it_matters": "Este error daña el timbre, aplana golpes, provoca ronquido o distorsión en graves y hace que el alumno confunda control con destrucción del material.",
+"how_to_detect_it": [
+"Afirma que para picos rápidos siempre conviene el ataque más veloz.",
+"No relaciona la envolvente con la frecuencia más grave del material.",
+"Describe como mejora una reducción que borra por completo la transiente."
+],
+"tutor_feedback_strategy": "Corregir en función del objetivo y del contenido espectral. El tutor debe advertir que rapidez útil no es rapidez máxima, y que en graves la envolvente debe respetar el ciclo de la onda.",
+"suggested_reframe": "La rapidez del compresor se elige por efecto real, topología y material. Controlar un pico no implica borrar la identidad del golpe ni mutilar el grave.",
+"related_terms": [
+"attack",
+"release",
+"transiente",
+"distorsión en graves"
+],
+"severity": "high",
+"validation_notes": [
+"La velocidad útil depende del programa, de la topología y de la frecuencia. El módulo desalienta convertir los ajustes ultrarrápidos en norma universal."
+],
+"requires_validation": true
+},
+{
+"error_id": "M05_ERR_005",
+"error_title": "Juzgar la compresión a más volumen",
+"misconception": "Si al activar el compresor todo suena más fuerte, entonces suena mejor y la compresión está funcionando bien.",
+"why_it_is_incorrect": "El módulo exige comparar siempre a igual volumen percibido. Por curvas isofónicas, lo más fuerte suele parecer mejor aunque el resultado dinámico o tímbrico sea peor.",
+"why_it_matters": "Sin compensación de nivel, el alumno sobrevalora procesos mediocres, confunde mejora con incremento de loudness y pierde criterio para decisiones de mezcla o mastering.",
+"how_to_detect_it": [
+"Aprueba el compresor solo porque la señal sale más fuerte.",
+"Hace A/B sin igualar salida o ceiling.",
+"Habla de mejora sin separar volumen percibido de control dinámico."
+],
+"tutor_feedback_strategy": "Pedir comparación isométrica de nivel antes de sacar conclusiones. El tutor debe llevar la atención a transiente, estabilidad, distorsión, imagen o articulación, no solo al volumen.",
+"suggested_reframe": "Una compresión solo puede evaluarse bien cuando el antes y el después están igualados en volumen percibido.",
+"related_terms": [
+"make-up gain",
+"A/B",
+"curvas isofónicas",
+"compensación de nivel"
+],
+"severity": "high",
+"validation_notes": [
+"Error estable: la comparación nivelada es una regla explícita del módulo."
+],
+"requires_validation": false
+},
+{
+"error_id": "M05_ERR_006",
+"error_title": "Usar make-up gain como paso automático",
+"misconception": "Después de comprimir siempre hay que devolver exactamente la ganancia perdida con make-up, sin mayor análisis.",
+"why_it_is_incorrect": "El módulo presenta el make-up gain como parámetro delicado y potencialmente engañoso. Al subir salida también suben susurros, respiraciones, bleed, ruido, sibilancias y material que quizá no era el problema original.",
+"why_it_matters": "Esta automatización ciega convierte control de picos en aumento global de basura, empeora sibilancia, ruido de sala y sensación de desorden.",
+"how_to_detect_it": [
+"Compensa la reducción de ganancia por reflejo, sin escuchar consecuencias.",
+"Habla del make-up como obligación mecánica.",
+"No distingue entre recuperar percepción y reinyectar elementos indeseados."
+],
+"tutor_feedback_strategy": "Hacer que el alumno escuche qué más está subiendo junto con la señal útil. El tutor debe corregir la idea de compensación obligatoria y devolver la decisión al objetivo real del proceso.",
+"suggested_reframe": "El make-up no es un trámite fijo: se usa solo si ayuda al objetivo y sin reintroducir problemas mayores.",
+"related_terms": [
+"make-up gain",
+"bleed",
+"sibilancia",
+"ruido de fondo"
+],
+"severity": "high",
+"validation_notes": [
+"La compensación de salida depende del objetivo del proceso. El módulo la trata como decisión crítica, no como automatismo."
+],
+"requires_validation": true
+},
+{
+"error_id": "M05_ERR_007",
+"error_title": "Reducir el sidechain a un efecto de ducking",
+"misconception": "El sidechain solo sirve para que una pista baje a otra, y lo importante es tocar ratio y threshold, no lo que oye el detector.",
+"why_it_is_incorrect": "El módulo insiste en que muchas decisiones dinámicas correctas dependen más de qué escucha el detector que del ratio en sí. La cadena lateral puede ser interna, externa o filtrada, y eso cambia por completo el disparo del procesador.",
+"why_it_matters": "Si el alumno ignora el detector, comprime por información irrelevante, deja que subsónicos o bleed gobiernen la reducción y pierde precisión en ducking, de-essing o control selectivo.",
+"how_to_detect_it": [
+"Usa sidechain como sinónimo exclusivo de ducking popular.",
+"No considera Key Input ni filtros en el detector.",
+"Ajusta dinámica sin revisar qué señal dispara realmente la reducción."
+],
+"tutor_feedback_strategy": "Mover la conversación del efecto audible hacia la señal de control. El tutor debe preguntar qué está oyendo el detector y si conviene filtrarlo, estabilizarlo o alimentarlo desde otra fuente.",
+"suggested_reframe": "El sidechain no es solo un efecto: es la lógica de detección que decide cuándo y por qué actúa el procesador.",
+"related_terms": [
+"sidechain",
+"Key Input",
+"ducking",
+"listen del detector"
+],
+"severity": "high",
+"validation_notes": [
+"Error estable dentro del módulo: el rol del detector y de la señal de control es central en la doctrina."
+],
+"requires_validation": false
+},
+{
+"error_id": "M05_ERR_008",
+"error_title": "Creer que una compuerta elimina ruido embebido mientras la fuente toca",
+"misconception": "Si hay hiss o hum en una toma, basta con poner una compuerta para que desaparezca incluso durante la ejecución.",
+"why_it_is_incorrect": "El módulo aclara que la compuerta solo atenúa cuando la señal cae por debajo del umbral. Si la fuente útil abre la compuerta, el ruido incrustado pasa con ella; para ese caso no alcanza una dinámica de amplitud.",
+"why_it_matters": "Este error lleva a frustración, cortes antinaturales y soluciones ineficaces. El alumno intenta resolver un problema de ruido embebido con una herramienta pensada para otra lógica.",
+"how_to_detect_it": [
+"Quiere quitar hum continuo con gate mientras el instrumento sigue sonando.",
+"Confunde silencio entre frases con limpieza durante la frase.",
+"Espera que la compuerta separe señal útil y ruido cuando ambos llegan juntos."
+],
+"tutor_feedback_strategy": "Corregir por mecanismo, no por receta. El tutor debe explicar que la compuerta trabaja por nivel y no puede extraer ruido incrustado cuando la fuente mantiene abierto el umbral.",
+"suggested_reframe": "La compuerta sirve para cerrar cuando la señal cae. No elimina ruido embebido mientras la fuente útil sigue por encima del umbral.",
+"related_terms": [
+"compuerta",
+"expansión descendente",
+"threshold",
+"range"
+],
+"severity": "high",
+"validation_notes": [
+"Error estable: el módulo lo corrige explícitamente en una pregunta doctrinal."
+],
+"requires_validation": false
+},
+{
+"error_id": "M05_ERR_009",
+"error_title": "Tratar multibanda y ecualizador dinámico como si fueran lo mismo",
+"misconception": "Ambos son equivalentes y se pueden elegir indistintamente porque solo comprimen por bandas.",
+"why_it_is_incorrect": "El módulo los separa con claridad. El multibanda divide la señal completa con crossovers y se orienta a control global por zonas amplias; el EQ dinámico trabaja con campanas o shelves puntuales, usa lógica de range y sirve mejor para cirugía selectiva e intermitente.",
+"why_it_matters": "Confundirlos lleva a elegir una herramienta demasiado invasiva para un problema puntual, o demasiado quirúrgica para un control global, con consecuencias en fase, balance y precisión.",
+"how_to_detect_it": [
+"Habla de multibanda y EQ dinámico como nombres distintos para la misma función.",
+"No menciona crossovers ni trabajo puntual por banda.",
+"Propone multibanda para cualquier resonancia breve o de-essing fino sin justificarlo."
+],
+"tutor_feedback_strategy": "Hacer que el alumno defina si el problema es global o puntual. El tutor debe asociar multibanda con control estructural más amplio y EQ dinámico con intervención localizada e intermitente.",
+"suggested_reframe": "No son sinónimos: multibanda y EQ dinámico resuelven problemas emparentados, pero con arquitectura y precisión distintas.",
+"related_terms": [
+"compresor multibanda",
+"EQ dinámico",
+"crossovers",
+"range"
+],
+"severity": "medium",
+"validation_notes": [
+"Error estable: la diferenciación técnica entre ambas herramientas es explícita en el módulo."
+],
+"requires_validation": false
+},
+{
+"error_id": "M05_ERR_010",
+"error_title": "Suponer que el dual mono es inofensivo en cualquier bus estéreo",
+"misconception": "Comprimir un bus estéreo en dual mono no trae problema real porque cada lado se corrige mejor por separado.",
+"why_it_is_incorrect": "El módulo advierte que, aunque dual mono puede servir en señales mono aisladas, en buses estéreo puede desarmar la imagen. También explica que el link total o porcentual existe precisamente para equilibrar control y estabilidad espacial.",
+"why_it_matters": "Un mal criterio de enlace provoca movimientos laterales, hundimientos extraños y pérdida de coherencia en la escena estéreo.",
+"how_to_detect_it": [
+"Activa dual mono en buses estéreo sin considerar imagen.",
+"No diferencia entre fuente mono y bus estéreo complejo.",
+"Ignora opciones de link porcentual como compromiso operativo."
+],
+"tutor_feedback_strategy": "Pedir que el alumno piense primero en la imagen estéreo y no solo en el pico aislado. El tutor debe introducir la elección entre dual mono, link total y link parcial como decisión de contexto.",
+"suggested_reframe": "En estéreo, el modo de enlace es parte del resultado musical. Dual mono no es neutro y debe usarse con criterio.",
+"related_terms": [
+"dual mono",
+"stereo link",
+"imagen estéreo",
+"link porcentual"
+],
+"severity": "medium",
+"validation_notes": [
+"La conveniencia de dual mono, link total o link parcial depende del material. El módulo marca el riesgo en buses estéreo y recomienda criterio contextual."
+],
+"requires_validation": true
+},
+{
+"error_id": "M05_ERR_011",
+"error_title": "Creer que la compresión vocal resuelve sola la sibilancia",
+"misconception": "Si comprimo bien la voz, las eses quedarán controladas y no hará falta de-esser ni dinámica selectiva.",
+"why_it_is_incorrect": "El módulo explica que la sibilancia suele tener menos amplitud física que las vocales abiertas. El compresor aplasta más las vocales y luego el make-up puede subir relativamente la S, volviéndola más filosa. Por eso la lógica correcta suele ser de-esser o EQ dinámico, no compresión estática ciega.",
+"why_it_matters": "Este error empeora inteligibilidad y agresividad en la voz. El alumno puede pensar que está estabilizando la toma cuando en realidad está resaltando un problema intermitente.",
+"how_to_detect_it": [
+"Dice que la compresión vocal ya debería encargarse de las eses.",
+"Intenta corregir sibilancia solo con compresión general y make-up.",
+"Usa EQ estático fijo para una sibilancia claramente intermitente."
+],
+"tutor_feedback_strategy": "Separar control general de la voz y control selectivo de sibilancia. El tutor debe explicar por qué la compresión puede empeorar el problema y redirigir hacia de-essing o EQ dinámica cuando la molestia es intermitente.",
+"suggested_reframe": "La compresión general y el control de sibilancia no son la misma tarea. Muchas veces la voz comprimida necesita dinámica selectiva adicional.",
+"related_terms": [
+"de-esser",
+"EQ dinámico",
+"sibilancia",
+"make-up gain"
+],
+"severity": "high",
+"validation_notes": [
+"La corrección fina depende de cuán intermitente sea la sibilancia y del rango afectado, pero el módulo descarta confiar ciegamente en compresión vocal estática."
+],
+"requires_validation": true
+},
+{
+"error_id": "M05_ERR_012",
+"error_title": "Pensar que en mastering siempre hay que comprimir otra vez",
+"misconception": "Si una mezcla llega a mastering, obligatoriamente debe pasar por otra compresión antes del limitador.",
+"why_it_is_incorrect": "El módulo rechaza la cadena fija por dogma. Si la mezcla ya tiene consistencia dinámica, el mastering puede ir directo a limitación o requerir apenas una compresión ultratransparente y mínima.",
+"why_it_matters": "Este error genera procesamiento redundante, pérdida de naturalidad y decisiones mecánicas en lugar de diagnósticas.",
+"how_to_detect_it": [
+"Habla de la compresión en mastering como paso obligatorio.",
+"Propone una cadena fija sin evaluar la mezcla recibida.",
+"Asume que glue en mix bus y compresión en mastering siempre deben coexistir."
+],
+"tutor_feedback_strategy": "Volver al diagnóstico de necesidad real. El tutor debe corregir el automatismo y plantear que la compresión adicional solo tiene sentido si resuelve un problema o aporta un resultado concreto.",
+"suggested_reframe": "En mastering no se comprime por obligación. Se comprime solo si la mezcla todavía necesita ese tipo de control.",
+"related_terms": [
+"mastering",
+"glue",
+"limitación",
+"compresión ultratransparente"
+],
+"severity": "medium",
+"validation_notes": [
+"Error estable: el módulo niega la obligación automática y sustituye la cadena fija por criterio de necesidad."
+],
+"requires_validation": false
+}
+]
 }

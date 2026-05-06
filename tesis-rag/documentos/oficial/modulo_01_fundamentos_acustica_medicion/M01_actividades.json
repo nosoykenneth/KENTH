@@ -1,21 +1,231 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M01",
-    "module_order":  1,
-    "module_title":  "Fundamentos fisicos, acustica y medicion",
-    "module_slug":  "fundamentos-fisicos-acustica-medicion",
-    "short_description":  "Modulo introductorio sobre fenomenos fisicos del sonido, comportamiento acustico basico y herramientas iniciales de medicion.",
-    "learning_scope":  "Establece bases para interpretar frecuencia, tono, longitud de onda, acustica de sala, monitoreo y analisis espectral antes de entrar a decisiones de mezcla.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "activities",
-    "filename":  "M01_actividades.json",
-    "purpose":  "Skeleton base para actividades Moodle del modulo. No contiene actividades finales.",
-    "activities":  [
-
-                   ]
+{
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M01",
+"module_order": 1,
+"module_title": "Fundamentos fisicos, acustica y medicion",
+"module_slug": "fundamentos-fisicos-acustica-medicion",
+"short_description": "Modulo introductorio sobre comportamiento fisico de la señal, percepcion auditiva, acustica de sala, monitoreo, medicion espectral y niveles referenciados.",
+"learning_scope": "Este modulo delimita bases de dominio temporal y espectral, diferencia entre realidad fisica y percepcion, criterios iniciales de sala y monitoreo, uso tecnico del analizador y lectura correcta de niveles y referencias en audio.",
+"doc_type": "activities",
+"source_origin": "course",
+"filename": "M01_actividades.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m01",
+"purpose": "Borrador de actividades del modulo para uso posterior en tutor IA o Moodle. Requiere validacion pedagogica antes de publicarse.",
+"activities": [
+{
+"activity_id": "M01_ACT_001",
+"title": "Distinguir periodo, frecuencia y tono",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante diferencie magnitudes fisicas medibles de percepciones subjetivas y use con precision la terminologia base del modulo.",
+"student_task": "Explica con tus palabras la diferencia entre periodo, frecuencia y tono. Luego corrige esta frase: \"el periodo es lo que dura una frecuencia\". Cierra con un ejemplo simple donde la misma frecuencia pueda percibirse distinto si cambia la amplitud.",
+"evidence_to_submit": [
+"Texto breve de 120 a 220 palabras",
+"Correccion explicita de la frase incorrecta",
+"Un ejemplo redactado por el estudiante"
+],
+"ai_feedback_criteria": [
+"Distingue que frecuencia es un dato fisico y tono una percepcion",
+"Define el periodo como duracion de un ciclo y no como duracion de una frecuencia",
+"Mantiene coherencia entre frecuencia y periodo",
+"Menciona que la percepcion tonal puede variar con el nivel",
+"Evita usar tono y frecuencia como sinonimos"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"periodo",
+"frecuencia",
+"tono",
+"psicoacustica",
+"dominio_temporal"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M01_ACT_002",
+"title": "Periodicidad, fundamental y parciales",
+"moodle_type": "analisis_guiado",
+"objective": "Comprobar si el estudiante distingue ondas simples y complejas, y si reconoce cuando una suma conserva periodicidad o se vuelve aperiódica.",
+"student_task": "Analiza dos casos: suma de 100 Hz + 200 Hz y suma de 100 Hz + 373 Hz. En cada caso indica si la señal puede considerarse periodica o aperiódica, si hay relacion armonica o inarmonica y que papel cumple la fundamental cuando existe. No respondas solo con si o no: justifica cada decision.",
+"evidence_to_submit": [
+"Respuesta comparativa por escrito",
+"Justificacion tecnica breve para cada caso"
+],
+"ai_feedback_criteria": [
+"Reconoce que una senoidal es una onda simple",
+"Explica que una onda compleja puede seguir siendo periodica si conserva patron repetitivo",
+"Identifica la relacion de multiplos enteros en el caso armonico",
+"Distingue parciales armonicos de parciales inarmonicos",
+"No asume que la fundamental siempre debe ser la de mayor amplitud"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"onda_simple",
+"onda_compleja",
+"fundamental",
+"armonicos",
+"inarmonicos",
+"periodicidad"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M01_ACT_003",
+"title": "Diagnostico basico de sala y posicion de monitores",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Evaluar si el estudiante puede detectar problemas fisicos de escucha antes de proponer soluciones incorrectas por ecualizacion o tratamiento inadecuado.",
+"student_task": "Lee este caso hipotetico: un estudiante tiene monitores muy cerca de la pared, tweeters por debajo de la altura del oido, un monitor acostado aunque fue pensado para uso vertical y pretende corregir todo con ecualizacion y espuma. Enumera al menos cuatro problemas tecnicos del montaje y propone una accion inicial razonable para cada uno.",
+"evidence_to_submit": [
+"Lista de problemas detectados",
+"Lista de acciones correctivas iniciales"
+],
+"ai_feedback_criteria": [
+"Detecta refuerzo de graves por cercania a la pared",
+"Reconoce la importancia de la direccion de los tweeters y su altura",
+"Identifica el riesgo de acostar un gabinete pensado para posicion vertical",
+"Distingue entre corregir posicion fisica y compensar erradamente con EQ",
+"Evita presentar espuma comun como solucion general para graves"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"monitores",
+"pared",
+"tweeter",
+"crossover",
+"ecualizacion",
+"sala"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M01_ACT_004",
+"title": "Absorcion, resonancia y difusion",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante no confunda funciones acusticas distintas al intervenir una sala.",
+"student_task": "Compara en una tabla breve tres elementos: paneles absorbentes, resonadores y difusion. Para cada uno indica que problema ayuda a tratar, que no resuelve bien y una advertencia importante del modulo. Cierra explicando por que una biblioteca con libros puede funcionar como solucion domestica razonable en cierto contexto.",
+"evidence_to_submit": [
+"Tabla comparativa breve",
+"Cierre explicativo de 60 a 120 palabras"
+],
+"ai_feedback_criteria": [
+"Distingue que la difusion reparte energia y no la absorbe",
+"Reconoce que los graves inflados no se corrigen simplemente con espuma",
+"Asocia resonadores con control de ciertas acumulaciones graves",
+"Menciona que algunas cancelaciones severas pueden requerir cambios arquitectonicos",
+"Usa la solucion de biblioteca como ejemplo prudente y no como formula universal"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"paneles",
+"resonadores",
+"difusion",
+"graves",
+"cancelaciones",
+"acustica_de_sala"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M01_ACT_005",
+"title": "Configuracion tecnica del analizador",
+"moodle_type": "aplicacion_practica_breve",
+"objective": "Comprobar si el estudiante entiende ajustes basicos del analizador para uso tecnico y no solo visual o perceptual.",
+"student_task": "Redacta una configuracion inicial razonable para usar un analizador de espectro con criterio tecnico en home studio. Debes incluir: slope o tilt, tamaño de FFT, overlap, average time y una decision sobre ventana. Justifica cada ajuste en una o dos frases.",
+"evidence_to_submit": [
+"Configuracion escrita por parametros",
+"Justificacion breve de cada parametro"
+],
+"ai_feedback_criteria": [
+"Indica slope o tilt en cero para uso tecnico",
+"Explica el compromiso entre resolucion espectral y respuesta temporal",
+"Usa 8192 como referencia posible sin tratarlo como dogma",
+"Describe la funcion de overlap y average time",
+"Distingue al menos una razon de uso entre Hanning, Blackman-Harris o High Resolution"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Conviene validar despues si esta actividad se mantiene como respuesta abierta o se transforma en cuestionario guiado por parametros."
+],
+"tags": [
+"analizador",
+"slope",
+"fft",
+"overlap",
+"average_time",
+"ventanas",
+"medicion_espectral"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M01_ACT_006",
+"title": "Lectura correcta de dB y niveles operativos",
+"moodle_type": "cuestionario_o_tarea_breve",
+"objective": "Evaluar si el estudiante distingue referencias, formulas y consecuencias practicas al conectar equipos o leer medidores.",
+"student_task": "Responde de forma breve los siguientes puntos: 1) cual es la diferencia entre usar 10 log y 20 log, 2) que referencia fija tienen dBW, dBm, dBV y dBu, 3) que problema puede ocurrir si se conecta mal un equipo entre +4 dBu y -10 dBV, 4) por que decir que Spotify comprime la dinamica para normalizar es una afirmacion incorrecta.",
+"evidence_to_submit": [
+"Respuestas breves numeradas"
+],
+"ai_feedback_criteria": [
+"Distingue potencia de voltaje al elegir formula",
+"Reconoce correctamente las referencias de cada escala",
+"Explica saturacion o nivel bajo con ruido como efecto de mala adaptacion operativa",
+"Define 0 dBFS como maximo codificable digitalmente",
+"Aclara que la normalizacion en plataformas se hace por ganancia y no por compresion dinamica musical"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"decibeles",
+"dBW",
+"dBm",
+"dBV",
+"dBu",
+"dBFS",
+"niveles_operativos",
+"normalizacion"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M01_ACT_007",
+"title": "Monitores versus auriculares como referencia",
+"moodle_type": "analisis_guiado",
+"objective": "Revisar si el estudiante entiende limitaciones de distintos sistemas de escucha y puede justificar una eleccion basica de trabajo.",
+"student_task": "Compara escucha por monitores, auriculares cerrados y auriculares abiertos para una decision de mezcla basica. Debes mencionar campo estereo, resonancias, referencia de graves y una advertencia sobre impedancia y salida de amplificador.",
+"evidence_to_submit": [
+"Comparacion escrita de 150 a 250 palabras"
+],
+"ai_feedback_criteria": [
+"Reconoce la diferencia de interaccion interaural entre monitores y auriculares",
+"Identifica mayor resonancia y coloracion en auriculares cerrados",
+"Explica por que los abiertos pueden servir mejor como referencia de mezcla",
+"Menciona la regla operativa aproximada de impedancia 8:1",
+"Relaciona mal acople de impedancia con cambios de respuesta y grave menos controlado"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"monitores",
+"auriculares_abiertos",
+"auriculares_cerrados",
+"estereo",
+"impedancia",
+"damping"
+],
+"requires_validation": true
 }
-
+]
+}

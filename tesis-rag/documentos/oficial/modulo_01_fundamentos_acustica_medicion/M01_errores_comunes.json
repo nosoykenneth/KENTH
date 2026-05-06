@@ -1,21 +1,300 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M01",
-    "module_order":  1,
-    "module_title":  "Fundamentos fisicos, acustica y medicion",
-    "module_slug":  "fundamentos-fisicos-acustica-medicion",
-    "short_description":  "Modulo introductorio sobre fenomenos fisicos del sonido, comportamiento acustico basico y herramientas iniciales de medicion.",
-    "learning_scope":  "Establece bases para interpretar frecuencia, tono, longitud de onda, acustica de sala, monitoreo y analisis espectral antes de entrar a decisiones de mezcla.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "common_errors",
-    "filename":  "M01_errores_comunes.json",
-    "purpose":  "Skeleton base para observaciones pedagogicas del modulo. No contiene errores comunes finales.",
-    "items":  [
-
-              ]
+{
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M01",
+"module_order": 1,
+"module_title": "Fundamentos fisicos, acustica y medicion",
+"module_slug": "fundamentos-fisicos-acustica-medicion",
+"short_description": "Errores comunes del módulo sobre fundamentos físicos del sonido, acústica de sala, monitoreo, medición espectral y niveles referenciados. ",
+"learning_scope": "Detecta malentendidos frecuentes sobre período, frecuencia, tono, ondas complejas, saturación, curvas isofónicas, sala, posicionamiento de monitores, auriculares, analizador de espectro, decibeles referenciados, LUFS y normalización.",
+"doc_type": "common_errors",
+"source_origin": "course",
+"filename": "M01_errores_comunes.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m01",
+"purpose": "Errores comunes del modulo para retroalimentacion del tutor IA. No reemplaza la guia canonica.",
+"errors": [
+{
+"error_id": "M01_ERR_001",
+"error_title": "Usar frecuencia y tono como si fueran lo mismo",
+"misconception": "Frecuencia y tono son básicamente sinónimos; si una sube, el tono sube de forma objetiva y eso es todo.",
+"why_it_is_incorrect": "En el módulo, la frecuencia se presenta como un hecho físico medible y el tono como una percepción subjetiva. No son intercambiables, y la percepción tonal puede variar incluso sin cambiar la frecuencia.",
+"why_it_matters": "Si el estudiante mezcla realidad física con percepción, interpreta mal mediciones, decisiones de ecualización y comparaciones auditivas.",
+"how_to_detect_it": [
+"Dice cosas como \"frecuencia\" cuando en realidad está hablando de sensación tonal.",
+"Afirma que medir Hz basta para describir lo que se percibe.",
+"No distingue entre dato físico y respuesta perceptual."
+],
+"tutor_feedback_strategy": "Separar explícitamente el plano físico del perceptual. Corregir sin dramatizar y hacer que el alumno nombre por separado qué está midiendo y qué está oyendo.",
+"suggested_reframe": "La frecuencia es el dato físico; el tono es la forma en que ese dato se percibe.",
+"related_terms": [
+"frecuencia",
+"tono",
+"percepcion",
+"curvas isofonicas"
+],
+"severity": "high",
+"validation_notes": [
+"No requiere cautela adicional dentro del alcance del módulo."
+],
+"requires_validation": false
+},
+{
+"error_id": "M01_ERR_002",
+"error_title": "Definir mal el período",
+"misconception": "El período es lo que dura una frecuencia.",
+"why_it_is_incorrect": "La corrección explícita del módulo es que el período no es \"lo que dura una frecuencia\", sino el tiempo que tarda en completarse un ciclo de esa frecuencia.",
+"why_it_matters": "Este error desordena la base temporal del módulo y contamina el cálculo de frecuencia, la lectura de ondas y la comprensión de periodicidad.",
+"how_to_detect_it": [
+"Usa la frase \"duración de una frecuencia\".",
+"Confunde ciclo con frecuencia.",
+"No logra explicar la relación F = 1/T y T = 1/F con precisión."
+],
+"tutor_feedback_strategy": "Corregir la formulación exacta y volver al concepto de ciclo completo. Conviene hacer que el alumno lo reformule con sus propias palabras.",
+"suggested_reframe": "El período es el tiempo que tarda en completarse un ciclo; la frecuencia es cuántos ciclos ocurren por segundo.",
+"related_terms": [
+"periodo",
+"frecuencia",
+"ciclo",
+"onda periodica"
+],
+"severity": "high",
+"validation_notes": [
+"No requiere cautela adicional dentro del alcance del módulo."
+],
+"requires_validation": false
+},
+{
+"error_id": "M01_ERR_003",
+"error_title": "Creer que la fundamental siempre es la de mayor amplitud",
+"misconception": "La fundamental es necesariamente el componente más fuerte de la onda.",
+"why_it_is_incorrect": "En el módulo, la fundamental se define como la frecuencia que lleva el período de una onda compleja periódica, no como la de mayor amplitud. La propia pregunta de estudiantes muestra que esta confusión es real.",
+"why_it_matters": "Lleva a diagnosticar mal espectros, armónicos, reconstrucción perceptual y análisis de contenido complejo.",
+"how_to_detect_it": [
+"Identifica la fundamental solo mirando el pico más alto.",
+"Asume que mayor amplitud equivale automáticamente a mayor jerarquía estructural.",
+"Se pierde al comparar ondas periódicas complejas."
+],
+"tutor_feedback_strategy": "Mover la discusión desde amplitud hacia periodicidad. Pedir que el alumno identifique qué componente organiza el ciclo total antes de mirar cuál sobresale más.",
+"suggested_reframe": "La fundamental es la que organiza el período de la onda; no tiene por qué ser la de mayor amplitud.",
+"related_terms": [
+"fundamental",
+"armonicos",
+"parciales inarmonicos",
+"onda compleja"
+],
+"severity": "high",
+"validation_notes": [
+"No requiere cautela adicional dentro del alcance del módulo."
+],
+"requires_validation": false
+},
+{
+"error_id": "M01_ERR_004",
+"error_title": "Pensar que toda saturación agrega color útil",
+"misconception": "Mientras más se sature, más armónicos musicales aparecen y mejor suena.",
+"why_it_is_incorrect": "El módulo distingue saturación moderada, que puede introducir distorsión armónica útil, de saturación excesiva, que puede generar distorsión por intermodulación áspera, chillona y fatigante.",
+"why_it_matters": "Empuja al alumno a destruir material por exceso, confundiendo coloración controlada con degradación agresiva.",
+"how_to_detect_it": [
+"Defiende subir saturación sin límite porque \"da carácter\".",
+"No reconoce cuándo la aspereza ya no es armónica sino de intermodulación.",
+"Describe como mejora lo que en realidad suena fatigante."
+],
+"tutor_feedback_strategy": "No prohibir la saturación; delimitar su rango útil. Conviene hacer que el alumno distinga el punto donde deja de aportar armónicos útiles y empieza a volver áspero el material.",
+"suggested_reframe": "La saturación puede ser útil en dosis moderadas; llevada de más puede introducir intermodulación desagradable.",
+"related_terms": [
+"saturacion",
+"distorsion armonica",
+"intermodulacion",
+"fatiga auditiva"
+],
+"severity": "high",
+"validation_notes": [
+"La línea entre saturación útil y exceso depende del material y del contexto auditivo, pero la distinción conceptual sí es estable en el módulo."
+],
+"requires_validation": true
+},
+{
+"error_id": "M01_ERR_005",
+"error_title": "Creer que subir volumen mejora objetivamente la mezcla",
+"misconception": "Si al subir el nivel aparecen más graves y agudos, la mezcla realmente mejoró.",
+"why_it_is_incorrect": "El módulo insiste en que el oído no es lineal. Las curvas isofónicas hacen que, al subir el volumen, parezcan emerger extremos espectrales aunque la mezcla no haya cambiado.",
+"why_it_matters": "Provoca autoengaño al comparar versiones, tomar decisiones de balance o evaluar mastering a niveles distintos.",
+"how_to_detect_it": [
+"Compara versiones a distinto volumen y elige la más fuerte.",
+"Afirma que \"abrió\" o \"engordó\" solo porque sonó más duro.",
+"No iguala nivel antes de evaluar cambios."
+],
+"tutor_feedback_strategy": "Forzar comparación a mismo nivel y señalar que el cambio percibido puede venir del oído, no del material. Conviene introducir la idea de autoengaño sin volverla moralista.",
+"suggested_reframe": "Antes de concluir que algo mejoró, compara a igual nivel; subir volumen cambia la percepción.",
+"related_terms": [
+"curvas isofonicas",
+"tono",
+"amplitud",
+"percepcion auditiva"
+],
+"severity": "high",
+"validation_notes": [
+"No requiere cautela adicional dentro del alcance del módulo."
+],
+"requires_validation": false
+},
+{
+"error_id": "M01_ERR_006",
+"error_title": "Intentar arreglar graves de sala con espuma",
+"misconception": "Si una sala tiene graves inflados, basta con llenarla de espuma o paneles absorbentes.",
+"why_it_is_incorrect": "El módulo marca esto como error común. Los graves inflados se asocian a modos de sala y se abordan con resonadores; además, ciertas cancelaciones severas pueden exigir cambios arquitectónicos.",
+"why_it_matters": "Hace perder tiempo y dinero en tratamientos que no atacan el problema real y dejan al estudiante mezclando sobre una referencia falsa.",
+"how_to_detect_it": [
+"Propone espuma como solución principal para graves inflados.",
+"Habla de tratamiento acústico sin distinguir absorción, resonancia y difusión.",
+"Ignora dimensiones de sala, ejes y trayectorias."
+],
+"tutor_feedback_strategy": "Reubicar el problema: primero diagnosticar modo, inflación o cancelación; después hablar de tratamiento. Corregir la expectativa de que toda acústica se resuelve con paneles livianos.",
+"suggested_reframe": "Los problemas graves de sala no se corrigen automáticamente con espuma; hay que distinguir modos, inflación, cancelación y tratamiento adecuado.",
+"related_terms": [
+"modos de sala",
+"resonadores",
+"absorcion",
+"difusion"
+],
+"severity": "high",
+"validation_notes": [
+"La solución exacta depende del tipo y severidad del problema; el módulo solo fija que espuma o paneles comunes no son la respuesta general para graves inflados."
+],
+"requires_validation": true
+},
+{
+"error_id": "M01_ERR_007",
+"error_title": "Compensar con EQ lo que está mal en el posicionamiento del monitor",
+"misconception": "Si algo suena raro por ubicación física del monitor, se corrige ecualizando.",
+"why_it_is_incorrect": "El módulo advierte que el mal posicionamiento físico, especialmente en tweeters y relación con paredes, no debe maquillarse con EQ. Los agudos son direccionales y la posición altera la escucha antes que el contenido.",
+"why_it_matters": "Lleva a ecualizar contra un problema geométrico, empeorando la referencia y trasladando errores a todas las decisiones posteriores.",
+"how_to_detect_it": [
+"No revisa altura de tweeters ni orientación antes de tocar EQ.",
+"Corrige balance tonal sin considerar pared, rebotes o direccionalidad.",
+"Asume que la consola resuelve lo que en realidad depende de la colocación."
+],
+"tutor_feedback_strategy": "Hacer que el alumno revise primero ubicación, altura, orientación y desacople. La EQ debe entrar después, no como parche inicial.",
+"suggested_reframe": "Primero corrige la geometría de escucha; después evalúa si todavía hace falta corrección tonal.",
+"related_terms": [
+"tweeter",
+"direccionalidad",
+"monitores",
+"desacople"
+],
+"severity": "high",
+"validation_notes": [
+"La corrección por EQ puede tener un lugar acotado, pero el módulo desaconseja usarla como sustituto de una mala ubicación física."
+],
+"requires_validation": true
+},
+{
+"error_id": "M01_ERR_008",
+"error_title": "Tratar auriculares y monitores como referencias equivalentes",
+"misconception": "Mezclar en auriculares da la misma imagen espacial que mezclar en monitores; además, cualquier auricular sirve igual mientras suene claro.",
+"why_it_is_incorrect": "El módulo distingue la interacción interaural natural de monitores frente al panorama artificialmente simplificado en auriculares. También marca diferencias entre cerrados y abiertos, y advierte sobre la regla operativa de impedancia 8:1 para no ensuciar el grave.",
+"why_it_matters": "Puede falsear planos, balance estéreo y lectura de graves, especialmente si se trabaja con auriculares cerrados o mal adaptados al amplificador.",
+"how_to_detect_it": [
+"Toma decisiones de paneo duro sin cuestionar la escucha en auriculares.",
+"Afirma que abiertos y cerrados son equivalentes para mezclar.",
+"Ignora la relación entre impedancia del auricular y salida del amplificador."
+],
+"tutor_feedback_strategy": "No descalificar el uso de auriculares; delimitar qué engaños introducen y cuándo conviene contrastar con monitores. Recordar además la recomendación prudente de abiertos para mezcla.",
+"suggested_reframe": "Los auriculares pueden servir, pero no reproducen la misma interacción espacial que los monitores y su adaptación eléctrica también importa.",
+"related_terms": [
+"auriculares abiertos",
+"auriculares cerrados",
+"interaccion interaural",
+"impedancia",
+"factor de damping"
+],
+"severity": "medium",
+"validation_notes": [
+"La recomendación de abiertos y la regla 8:1 se presentan en el módulo como criterio operativo, no como garantía universal absoluta."
+],
+"requires_validation": true
+},
+{
+"error_id": "M01_ERR_009",
+"error_title": "Confiar en el analizador sin calibrarlo para uso técnico",
+"misconception": "Si el analizador se ve equilibrado, ya está bien configurado para tomar decisiones técnicas.",
+"why_it_is_incorrect": "El módulo advierte que muchos analizadores vienen ajustados para verse perceptualmente correctos. Para lectura técnica, el slope o tilt debe ir a cero. También remarca que FFT, overlap, average time y ventana afectan lo que se ve.",
+"why_it_matters": "El alumno puede interpretar como contenido real lo que en parte es una consecuencia de configuración visual o de resolución.",
+"how_to_detect_it": [
+"Usa presets sin revisar slope o tilt.",
+"Toma la curva como verdad objetiva sin mirar configuración.",
+"Habla de FFT o ventanas como si no cambiaran la lectura."
+],
+"tutor_feedback_strategy": "Pedir primero la configuración del analizador antes de discutir el contenido. Enseñar a distinguir entre herramienta calibrada para inspección técnica y visualización cosmetizada.",
+"suggested_reframe": "El analizador sirve como cinta métrica del audio solo si está configurado conscientemente para el tipo de lectura que se busca.",
+"related_terms": [
+"analizador de espectro",
+"slope",
+"tilt",
+"FFT",
+"overlap",
+"average time",
+"ventanas"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo fija slope en cero para uso técnico y trata 8192 como referencia útil, no como ajuste universal obligatorio."
+],
+"requires_validation": true
+},
+{
+"error_id": "M01_ERR_010",
+"error_title": "Tratar todos los decibeles como si fueran la misma cosa",
+"misconception": "dB es dB; dBu, dBV, dBFS y niveles como +4 o -10 son detalles secundarios o decorativos.",
+"why_it_is_incorrect": "El módulo diferencia decibeles referenciados, referencias de potencia y voltaje, niveles operativos y el límite de 0 dBFS. También aclara que el switch +4 / -10 existe para adaptar equipos y no es un adorno.",
+"why_it_matters": "Este error produce malas conexiones, ruido, saturación, lectura equivocada de medidores y comprensión deficiente del flujo entre equipos analógicos y digitales.",
+"how_to_detect_it": [
+"Habla de dBFS, dBu y dBV como si fueran equivalentes directos.",
+"Ignora el switch +4 / -10 o lo deja al azar.",
+"Supone que un valor por encima de 0 dBFS es una salida real mayor y no recorte."
+],
+"tutor_feedback_strategy": "Volver a la referencia de cada escala antes de discutir números. Pedir que el alumno diga siempre respecto de qué referencia está hablando.",
+"suggested_reframe": "Los decibeles solo significan algo completo cuando se sabe cuál es su referencia y en qué dominio se están leyendo.",
+"related_terms": [
+"decibel referenciado",
+"dBu",
+"dBV",
+"dBFS",
+"niveles operativos",
+"switch +4/-10"
+],
+"severity": "high",
+"validation_notes": [
+"No requiere cautela adicional dentro del alcance del módulo."
+],
+"requires_validation": false
+},
+{
+"error_id": "M01_ERR_011",
+"error_title": "Decir que Spotify comprime la dinámica para normalizar",
+"misconception": "Las plataformas normalizan comprimiendo la música, y LUFS es una ponderación en sí misma.",
+"why_it_is_incorrect": "El módulo aclara dos puntos: LUFS no es una ponderación, sino un sistema de medición que usa ponderación K; y Spotify normaliza por ganancia, no por compresión de la dinámica musical.",
+"why_it_matters": "Si el alumno entiende mal esto, persigue objetivos de loudness con premisas falsas y toma malas decisiones en agudos, nivel integrado y expectativa de reproducción final.",
+"how_to_detect_it": [
+"Dice que la plataforma \"aprieta\" la mezcla para llevarla al objetivo.",
+"Llama ponderación a LUFS en vez de distinguir la ponderación K.",
+"No relaciona el exceso de agudos con una lectura LUFS más alta y una normalización más agresiva."
+],
+"tutor_feedback_strategy": "Corregir el mecanismo sin absolutismos innecesarios: explicar que la plataforma ajusta ganancia y que la lectura LUFS depende también de cómo pesa el contenido espectral.",
+"suggested_reframe": "LUFS mide usando ponderación K; la normalización en plataforma se aplica por ganancia, no como compresión de la dinámica musical.",
+"related_terms": [
+"LUFS",
+"ponderacion K",
+"normalizacion",
+"streaming",
+"agudos"
+],
+"severity": "high",
+"validation_notes": [
+"No requiere cautela adicional dentro del alcance del módulo."
+],
+"requires_validation": false
 }
-
+]
+}

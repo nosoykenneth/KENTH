@@ -1,20 +1,314 @@
 ﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M02",
-    "module_order":  2,
-    "module_title":  "Estructura de ganancia y flujo de senal",
-    "module_slug":  "estructura-ganancia-flujo-senal",
-    "short_description":  "Modulo sobre organizacion de niveles, margen de trabajo y recorrido de la senal.",
-    "learning_scope":  "Delimita criterios de nivel, headroom, ruteo y flujo de senal antes de aplicar procesamiento.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "common_errors",
-    "filename":  "M02_errores_comunes.json",
-    "purpose":  "Skeleton base para observaciones pedagogicas del modulo. No contiene errores comunes finales.",
-    "items":  [
-
-              ]
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M02",
+"module_order": 2,
+"module_title": "Estructura de ganancia y flujo de señal",
+"module_slug": "estructura-ganancia-flujo-senal",
+"short_description": "Módulo centrado en niveles de señal, referencias en dB, headroom, calibración operativa y recorrido interno de la señal desde la entrada hasta la salida.",
+"learning_scope": "Delimita cómo leer, ajustar y conservar niveles coherentes en grabación, mezcla y exportación, incluyendo relación entre pico y promedio, nivel operativo analógico y digital, ruteo por buses/auxiliares, prefader/postfader, calibración de plugins y decisiones de corrección antes y después de la suma.",
+"doc_type": "common_errors",
+"source_origin": "course",
+"filename": "M02_errores_comunes.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m02",
+"purpose": "Errores comunes del modulo para retroalimentacion del tutor IA. No reemplaza la guia canonica.",
+"errors": [
+{
+"error_id": "M02_ERR_001",
+"error_title": "Reducir la estructura de ganancia a poner todo en -18 dBFS",
+"misconception": "La estructura de ganancia consiste en dejar todos los picos de todas las pistas en -18 dBFS.",
+"why_it_is_incorrect": "El dossier corrige explícitamente esa simplificación. La estructura de ganancia no se define por un número aislado, sino por la relación coherente entre entrada, promedio, pico, procesamiento, suma y salida. Además, la equivalencia -18 dBFS no describe igual a una senoidal pura que a una señal musical compleja.",
+"why_it_matters": "Lleva a nivelar por receta en vez de por comportamiento real de la señal, desarma balances útiles y puede empeorar la lectura de promedio, headroom y respuesta de plugins.",
+"how_to_detect_it": [
+"El alumno dice que todas las pistas deben quedar con picos en -18 dBFS.",
+"Usa -18 dBFS como regla única sin distinguir entre tono de prueba y música real.",
+"Corrige una sesión entera persiguiendo un mismo número aunque el promedio ya sea sano."
+],
+"tutor_feedback_strategy": "Corregir sin absolutismo. Recordar que el módulo define la estructura como relación entre etapas y no como pico fijo universal. Llevar al alumno a comparar pico, promedio y función de cada tramo de la cadena.",
+"suggested_reframe": "Más que clavar un número único, conviene hacer que cada etapa reciba y entregue una señal coherente con su rango operativo y con el tipo de material.",
+"related_terms": [
+"estructura de ganancia",
+"0 VU",
+"dBFS",
+"RMS",
+"Peak",
+"headroom"
+],
+"severity": "high",
+"validation_notes": [
+"La referencia -18 dBFS puede ser útil en contextos concretos de calibración, pero el dossier no la sostiene como ley general."
+],
+"requires_validation": true
+},
+{
+"error_id": "M02_ERR_002",
+"error_title": "Creer que grabar alto está bien mientras no llegue a 0 dBFS",
+"misconception": "Si la grabación no toca 0 dBFS, luego puedo bajar el nivel en mezcla y no pasa nada.",
+"why_it_is_incorrect": "El módulo aclara que el problema no es solo el techo digital. El previo analógico también tiene una zona operativa. Grabar demasiado alto puede empujar el circuito fuera de su zona ideal y aumentar distorsión analógica aunque todavía no haya clipping digital.",
+"why_it_matters": "Genera grabaciones menos limpias desde el origen y dificulta una estructura de ganancia estable en la mezcla.",
+"how_to_detect_it": [
+"El alumno defiende grabar lo más alto posible mientras no marque 0.",
+"Confunde ausencia de clipping digital con captura correcta.",
+"Habla del headroom solo en términos de no tocar el techo digital."
+],
+"tutor_feedback_strategy": "Reorientar la discusión hacia nivel operativo y zona útil del previo. Explicar que una captura sana no depende solo de evitar 0 dBFS, sino también de no forzar innecesariamente la etapa analógica.",
+"suggested_reframe": "Conviene grabar con margen y con el previo en una zona operativa estable, no simplemente lo más alto posible antes del cero digital.",
+"related_terms": [
+"preamplificador",
+"nivel operativo",
+"0 dBFS",
+"headroom",
+"clipping analógico",
+"clipping digital"
+],
+"severity": "high",
+"validation_notes": [
+"El impacto puede variar según la calidad y el ruido propio de la cadena, pero el malentendido central sigue siendo incorrecto."
+],
+"requires_validation": true
+},
+{
+"error_id": "M02_ERR_003",
+"error_title": "Usar el fader para corregir una entrada mal nivelada",
+"misconception": "Si una pista entra demasiado fuerte a la cadena, basta con bajar el fader.",
+"why_it_is_incorrect": "El dossier insiste en que las inserciones suelen ser prefader. Si la señal ya llegó demasiado fuerte al primer plugin, bajar el fader después no corrige la saturación ni el comportamiento indebido de los procesos anteriores.",
+"why_it_matters": "Provoca saturación innecesaria en plugins, umbrales mal disparados y comparaciones engañosas durante la mezcla.",
+"how_to_detect_it": [
+"El alumno propone bajar el fader para arreglar una pista que ya entra al rojo al plugin.",
+"No distingue entre nivel de entrada real y nivel de salida del canal.",
+"Ignora herramientas como Clip Gain, AudioSuite Gain o Trim al inicio."
+],
+"tutor_feedback_strategy": "Corregir de forma operativa: primero ajustar nivel previo al procesamiento y después mezclar con el fader. Señalar el orden del flujo de señal, no solo el valor del medidor final.",
+"suggested_reframe": "Si la señal entra mal a la cadena, la corrección debe hacerse antes del fader y antes del procesamiento.",
+"related_terms": [
+"fader",
+"Clip Gain",
+"AudioSuite Gain",
+"Trim",
+"prefader",
+"flujo de señal"
+],
+"severity": "high",
+"validation_notes": [
+"El principio es estable dentro del recorrido descrito por el módulo."
+],
+"requires_validation": false
+},
+{
+"error_id": "M02_ERR_004",
+"error_title": "Leer señales percusivas con VU como si fuera el medidor principal",
+"misconception": "El VU sirve igual para cualquier material, incluso para transientes rápidas.",
+"why_it_is_incorrect": "El módulo diferencia la lectura según el material. En señales percusivas la balística del VU engaña; para ese tipo de señal la referencia útil es Peak. VU o RMS se reservan para material sostenido o no percusivo.",
+"why_it_matters": "Hace que el alumno subestime picos reales, construya mal el headroom y tome decisiones de nivel incorrectas en baterías, percusión y transientes rápidas.",
+"how_to_detect_it": [
+"El alumno evalúa batería o percusión solo con VU.",
+"Dice que un track percusivo está bajo porque el VU apenas se mueve.",
+"No distingue entre energía promedio y pico transitorio."
+],
+"tutor_feedback_strategy": "Separar claramente qué se mira en cada caso. Pedir que compare Peak y VU/RMS sobre el mismo material para que vea por qué el VU no describe bien los transientes.",
+"suggested_reframe": "En material percusivo conviene vigilar picos; en material sostenido, el promedio también pesa mucho.",
+"related_terms": [
+"VU",
+"RMS",
+"Peak",
+"transiente",
+"headroom"
+],
+"severity": "high",
+"validation_notes": [
+"La distinción está formulada de manera explícita en el dossier."
+],
+"requires_validation": false
+},
+{
+"error_id": "M02_ERR_005",
+"error_title": "Tomar -3 o -6 dBFS de pico como obligación universal de entrega",
+"misconception": "Toda mezcla correcta debe terminar obligatoriamente en -3 o -6 dBFS de pico antes de mastering.",
+"why_it_is_incorrect": "El módulo rechaza ese dogma. Una mezcla sana no se define por clavar un pico arbitrario. Si no hay clipping y el promedio, el factor de cresta y el comportamiento general son coherentes, bajar todo solo para cumplir una cifra puede ser una mala decisión.",
+"why_it_matters": "Empuja a alterar mezclas estables por una norma rígida que el dossier no reconoce como estándar universal.",
+"how_to_detect_it": [
+"El alumno dice que cualquier mezcla que no termine en -6 dBFS está mal.",
+"Propone bajar toda la mezcla aunque no haya clipping ni problema de promedio.",
+"Usa el pico máximo como único criterio de salud del mix bus."
+],
+"tutor_feedback_strategy": "Bajar el tono normativo y devolver el foco al contexto: ausencia de clipping, promedio, tipo de material y necesidad real de margen. Corregir la obsesión por el número fijo.",
+"suggested_reframe": "Más útil que perseguir un pico arbitrario es entregar una mezcla sin clipping y con una relación coherente entre promedio, transientes y margen disponible.",
+"related_terms": [
+"mix bus",
+"master fader",
+"headroom",
+"Peak",
+"RMS",
+"factor de cresta"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo reconoce que dejar margen puede ser práctico, pero no lo formula como obligación universal."
+],
+"requires_validation": true
+},
+{
+"error_id": "M02_ERR_006",
+"error_title": "Bajar el Master Fader en el bounce para crear headroom",
+"misconception": "Si la mezcla quedó alta, basta con bajar el Master Fader al exportar para generar margen antes de mastering.",
+"why_it_is_incorrect": "El dossier lo corrige de forma directa: al imprimir a 24 bits, bajar 6 dB en el bounce implica perder 1 bit de resolución. No es un gesto neutro. El ajuste posterior conviene hacerse en entorno float, no destruyendo resolución en el archivo fijo ya impreso.",
+"why_it_matters": "Degrada la resolución real del archivo final y confunde una decisión de exportación con una corrección legítima de estructura de ganancia.",
+"how_to_detect_it": [
+"El alumno propone bajar el Master Fader solo al final para entregar con más headroom.",
+"Habla del bounce como si fuera un lugar gratuito para corregir nivel.",
+"No distingue entre motor float interno y archivo fixed-point exportado."
+],
+"tutor_feedback_strategy": "Corregir con una explicación concreta: el problema no es visual, sino de resolución y de tramo final del flujo. Reubicar la corrección de nivel en la etapa adecuada.",
+"suggested_reframe": "El headroom útil se construye antes; el bounce no debería usarse como parche para rehacer la estructura de ganancia.",
+"related_terms": [
+"Master Fader",
+"bounce",
+"24 bits",
+"32 bit float",
+"64 bit float",
+"resolución"
+],
+"severity": "high",
+"validation_notes": [
+"La advertencia es estable dentro del marco de exportación fixed-point descrito por el módulo."
+],
+"requires_validation": false
+},
+{
+"error_id": "M02_ERR_007",
+"error_title": "Asumir que 0 VU equivale siempre a -18 dBFS",
+"misconception": "0 VU siempre corresponde a -18 dBFS, tanto en música real como en cualquier plugin analógico.",
+"why_it_is_incorrect": "El dossier muestra que esa equivalencia puede funcionar en ciertos contextos, pero no es universal. Con música real, señales complejas o plugins distintos, la relación cambia. Incluso se documentan casos muy diferentes entre plugins de modelado analógico.",
+"why_it_matters": "Conduce a calibraciones falsas, a empujar o subalimentar procesos y a creer que todos los equipos virtuales responden igual.",
+"how_to_detect_it": [
+"El alumno repite 0 VU = -18 dBFS como ley general.",
+"No distingue entre senoidal de prueba y señal musical.",
+"Asume que todos los plugins analógicos comparten la misma calibración."
+],
+"tutor_feedback_strategy": "Responder con prudencia técnica. Mantener la idea de referencia útil, pero desactivar el absolutismo. Pedir medición real del plugin o del material cuando el comportamiento lo amerite.",
+"suggested_reframe": "0 VU puede alinearse con -18 dBFS en algunos contextos, pero la calibración real depende del material y del equipo o plugin concreto.",
+"related_terms": [
+"0 VU",
+"dBFS",
+"calibración",
+"plugin analógico",
+"senoidal",
+"RMS"
+],
+"severity": "high",
+"validation_notes": [
+"El propio módulo presenta varias equivalencias y contraejemplos, por lo que la formulación correcta debe mantenerse prudente."
+],
+"requires_validation": true
+},
+{
+"error_id": "M02_ERR_008",
+"error_title": "Tratar línea, micrófono e instrumento como si fueran intercambiables",
+"misconception": "Cualquier salida puede entrar a cualquier entrada, y el conector XLR o TRS ya define por sí solo el tipo de señal.",
+"why_it_is_incorrect": "El módulo separa con claridad nivel de micrófono, nivel de línea y etapa de amplificación. También corrige que el conector no define por sí mismo el tipo de señal. Un previo externo ya entrega línea y debe entrar a línea; volver a pasar por entrada de micrófono o instrumento genera problemas de sensibilidad, impedancia y distorsión.",
+"why_it_matters": "Rompe la adaptación correcta entre equipos, puede aumentar ruido, saturación o mal funcionamiento y desordena toda la estructura de ganancia desde el origen.",
+"how_to_detect_it": [
+"El alumno dice que si el conector cabe, la conexión sirve.",
+"Quiere entrar con salida de pre externo a una entrada de micrófono.",
+"Confunde cableado con tipo de señal o con nivel operativo."
+],
+"tutor_feedback_strategy": "Volver a la regla operativa del módulo: línea con línea. Corregir la idea de que la ficha decide la naturaleza de la señal y recordar la función del preamplificador.",
+"suggested_reframe": "No basta con el conector; importa qué nivel y qué circuito hay detrás. Una salida de línea debe entrar a línea.",
+"related_terms": [
+"nivel de micrófono",
+"nivel de línea",
+"preamplificador",
+"impedancia",
+"+4 dBu",
+"-10 dBV"
+],
+"severity": "high",
+"validation_notes": [
+"La formulación general es estable, aunque la magnitud del problema concreto depende del equipo implicado."
+],
+"requires_validation": true
+},
+{
+"error_id": "M02_ERR_009",
+"error_title": "Confundir bus con auxiliar y usar mal prefader y postfader",
+"misconception": "Bus y auxiliar son lo mismo, y cualquier envío sirve igual en pre o postfader.",
+"why_it_is_incorrect": "El dossier distingue que el bus es la ruta y el auxiliar es el canal que recibe esa ruta para procesarla o rerutearla. También fija una lógica funcional: reverb y delay suelen ir postfader, mientras que compresión paralela y monitoreo suelen ir prefader.",
+"why_it_matters": "Provoca ruteos poco previsibles, efectos que no siguen al canal cuando deberían hacerlo y procesos paralelos cuyo comportamiento cambia de forma indeseada con los movimientos de fader.",
+"how_to_detect_it": [
+"El alumno usa bus y auxiliar como sinónimos completos.",
+"Monta una compresión paralela postfader sin justificar por qué.",
+"Se sorprende de que la reverb no acompañe una automatización del canal."
+],
+"tutor_feedback_strategy": "Corregir desde la función, no solo desde la nomenclatura. Hacer que el alumno pregunte qué debe seguir al fader y qué no debe depender de él.",
+"suggested_reframe": "El bus es el conducto; el auxiliar es el canal que lo recibe. El modo pre o postfader se elige según cómo deba comportarse la ruta paralela.",
+"related_terms": [
+"bus",
+"auxiliar",
+"prefader",
+"postfader",
+"reverb",
+"compresión paralela"
+],
+"severity": "medium",
+"validation_notes": [
+"El uso típico está claro en el módulo, pero el dossier no pretende convertir toda variante de ruteo en prohibición absoluta."
+],
+"requires_validation": true
+},
+{
+"error_id": "M02_ERR_010",
+"error_title": "Tomar un pico aislado como prueba de que toda la pista o mezcla está mal",
+"misconception": "Si aparece un pico alto aislado, entonces hay que bajar toda la pista o toda la mezcla.",
+"why_it_is_incorrect": "El módulo distingue entre pico aislado y estado global de la señal. Si el promedio está sano y no hay clipping, perseguir un evento puntual bajando todo puede destruir una estructura que ya funcionaba. En esos casos la corrección debe apuntar al evento concreto.",
+"why_it_matters": "Hace perder nivel útil, empeora balances y desplaza la atención desde el problema real hacia una corrección excesiva.",
+"how_to_detect_it": [
+"El alumno propone bajar todo el track por un solo golpe desbordado.",
+"Interpreta un pico aislado como evidencia suficiente de mala estructura general.",
+"No contempla edición puntual, compresión específica o limitación ligera."
+],
+"tutor_feedback_strategy": "Enseñar a separar problema local de problema estructural. Pedir que compare pico máximo, promedio y frecuencia real del evento antes de decidir una corrección global.",
+"suggested_reframe": "No todo pico alto obliga a rehacer el nivel general; primero conviene verificar si es un evento puntual o un problema sostenido.",
+"related_terms": [
+"Peak",
+"RMS",
+"promedio",
+"factor de cresta",
+"edición",
+"limitación ligera"
+],
+"severity": "medium",
+"validation_notes": [
+"La corrección depende del contexto y del tipo de material, por eso conviene formularla con prudencia."
+],
+"requires_validation": true
+},
+{
+"error_id": "M02_ERR_011",
+"error_title": "No compensar el nivel cuando un plugin eleva la señal",
+"misconception": "Si un plugin mejora el sonido aunque salga más fuerte, no hace falta igualar niveles para evaluarlo.",
+"why_it_is_incorrect": "El dossier insiste en que la compensación de nivel no es opcional si se quiere escuchar objetivamente. Cuando un proceso sube nivel, debe corregirse su salida para no confundir aumento de volumen con mejora real ni desarmar la estructura de ganancia.",
+"why_it_matters": "Introduce sesgo auditivo, encadena decisiones falsas y puede sacar de rango operativo a los procesos siguientes.",
+"how_to_detect_it": [
+"El alumno prefiere sistemáticamente la versión más fuerte sin compensar salida.",
+"Inserta procesos que suman muchos dB y no corrige el nivel a la salida.",
+"Habla de mejora sonora sin comparar a igual volumen."
+],
+"tutor_feedback_strategy": "Pedir comparación nivelada antes de juzgar. Recordar que la evaluación auditiva y la estructura de ganancia se sostienen mejor cuando entrada y salida quedan en marcos comparables.",
+"suggested_reframe": "Si un proceso sube nivel, conviene compensarlo para evaluar el cambio real y conservar una cadena estable.",
+"related_terms": [
+"gain staging activo",
+"Trim",
+"salida del plugin",
+"nivel operativo",
+"limitador",
+"maximizador"
+],
+"severity": "high",
+"validation_notes": [
+"El principio aparece reforzado en varias partes del módulo y en su contenido dislocado."
+],
+"requires_validation": false
+}
+]
 }

@@ -1,20 +1,242 @@
 ﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M07",
-    "module_order":  7,
-    "module_title":  "Practica integradora de mezcla",
-    "module_slug":  "practica-integradora-mezcla",
-    "short_description":  "Modulo de integracion practica de criterios tecnicos y esteticos de mezcla.",
-    "learning_scope":  "Integra ganancia, fase, ecualizacion, dinamica, espacialidad y balance en ejercicios de mezcla completos.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "activities",
-    "filename":  "M07_actividades.json",
-    "purpose":  "Skeleton base para actividades Moodle del modulo. No contiene actividades finales.",
-    "activities":  [
-
-                   ]
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M07",
+"module_order": 7,
+"module_title": "Práctica integradora de mezcla",
+"module_slug": "practica-integradora-mezcla",
+"short_description": "Módulo práctico que integra ruteo, gain staging, dinámica, filtros, espacialidad, diagnóstico y continuidad de proyecto para tomar decisiones de mezcla con criterio técnico y musical.",
+"learning_scope": "Delimita la práctica integradora de mezcla en canciones y álbumes mediante diagnóstico por ejes de tiempo, nivel y frecuencia; jerarquía de planos; uso contextual de dinámica, ecualización y efectos; continuidad entre sesiones; chequeos macro; y preservación técnica del proyecto.",
+"doc_type": "activities",
+"source_origin": "course",
+"filename": "M07_actividades.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m07",
+"purpose": "Borrador de actividades del modulo para uso posterior en tutor IA o Moodle. Requiere validacion pedagogica antes de publicarse.",
+"activities": [
+{
+"activity_id": "M07_ACT_001",
+"title": "Diagnóstico por eje del problema",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Verificar si el estudiante distingue cuándo un problema principal pertenece al eje tiempo, nivel o frecuencia y si propone una intervención coherente con ese diagnóstico.",
+"student_task": "Clasifica estos casos según su eje principal y propone una acción técnica breve para cada uno: 1) un tom hace una cola demasiado larga, 2) un bajo no corta en una mezcla densa, 3) una guitarra rítmica tapa al bajo en la zona media-baja, 4) una voz presenta tensión puntual en sostenidos, 5) una reverb invade los golpes siguientes. Justifica cada decisión en una o dos frases.",
+"evidence_to_submit": [
+"Tabla o lista con cada caso, eje principal y herramienta o procedimiento elegido",
+"Justificación breve por caso"
+],
+"ai_feedback_criteria": [
+"Distingue correctamente entre problema de tiempo, nivel y frecuencia",
+"Evita usar ecualización como respuesta automática cuando el problema es de duración o envolvente",
+"Propone herramientas coherentes con el eje diagnosticado",
+"Justifica con lenguaje técnico del módulo y sin convertir valores contextuales en reglas universales"
+],
+"related_errors": [
+"M07_ERR_002",
+"M07_ERR_003"
+],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Validar luego si se publica como respuesta abierta o como cuestionario con clave cerrada."
+],
+"tags": [
+"diagnostico",
+"tiempo",
+"nivel",
+"frecuencia",
+"criterio_tecnico"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M07_ACT_002",
+"title": "Jerarquía de planos en el bolero",
+"moodle_type": "analisis_guiado",
+"objective": "Comprobar si el estudiante entiende que la mezcla responde al concepto musical y a la jerarquía emocional del arreglo, no solo al gusto personal.",
+"student_task": "Redacta un análisis breve del caso del bolero del módulo explicando por qué la voz y la guitarra principal deben ir al frente y la conga debe quedar en segundo plano. Luego indica qué cambia en la percepción del tema si la conga gana demasiado protagonismo.",
+"evidence_to_submit": [
+"Texto breve de 120 a 180 palabras",
+"Una conclusión final sobre cómo el plano modifica el carácter del tema"
+],
+"ai_feedback_criteria": [
+"Reconoce que el plano se decide por género, letra, clima y función musical",
+"Diferencia entre elemento líder, acompañamiento y sostén",
+"Explica cómo una mala jerarquía puede volver rítmico o bailable un tema que debía ser melancólico",
+"Mantiene foco en criterios del módulo y no en preferencias personales aisladas"
+],
+"related_errors": [
+"M07_ERR_001",
+"M07_ERR_008"
+],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"planos",
+"bolero",
+"jerarquia",
+"concepto",
+"balance_musical"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M07_ACT_003",
+"title": "Compresión individual antes del grupo",
+"moodle_type": "comparacion_conceptual",
+"objective": "Evaluar si el estudiante comprende la diferencia funcional entre compresión individual y compresión grupal dentro de una mezcla integradora.",
+"student_task": "Responde qué harías en un caso con dos guitarras dobladas donde una de las tomas tiene picos molestos y la otra no. Explica por qué no conviene poner primero un compresor rápido en el bus grupal y propone un flujo de trabajo correcto desde pista individual hasta grupo.",
+"evidence_to_submit": [
+"Respuesta técnica breve",
+"Secuencia de procesamiento propuesta en orden"
+],
+"ai_feedback_criteria": [
+"Distingue el rol de la compresión individual frente al rol de la compresión de grupo",
+"Explica por qué un pico en una toma no debería aplastar innecesariamente la otra",
+"Propone primero control individual y después glue grupal ligero",
+"Usa correctamente la idea de reducción leve en grupo sin convertirla en ley universal"
+],
+"related_errors": [
+"M07_ERR_004"
+],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"compresion",
+"grupo",
+"individual",
+"glue",
+"guitarras"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M07_ACT_004",
+"title": "Resolver el conflicto bombo-bajo sin destruir el estéreo",
+"moodle_type": "aplicacion_practica_breve",
+"objective": "Verificar si el estudiante puede elegir una solución de low-end acorde al problema real sin recurrir a bombeo innecesario o pérdida de amplitud.",
+"student_task": "Explica cómo resolverías un conflicto entre bombo y bajo cuando el bajo tiene información estéreo o modulación lateral. Compara dos opciones: ducking estándar de toda la pista y ducking Mid Only sobre la banda en conflicto. Indica cuál elegirías y por qué. Añade una segunda decisión: si el bajo no se lee bien, explica por qué a veces conviene trabajar la envolvente antes que sumar ecualización por costumbre.",
+"evidence_to_submit": [
+"Comparación breve entre ambas opciones de ducking",
+"Justificación final de la estrategia elegida",
+"Una observación sobre lectura del bajo sin subir volumen global"
+],
+"ai_feedback_criteria": [
+"Reconoce el problema de bombeo y pérdida de laterales del ducking estándar",
+"Explica la ventaja de despejar solo el centro y la banda necesaria",
+"Distingue entre mejorar lectura por envolvente y sumar presencia por EQ sin diagnóstico",
+"Usa lenguaje técnico compatible con el módulo"
+],
+"related_errors": [
+"M07_ERR_002",
+"M07_ERR_009"
+],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"bajo",
+"bombo",
+"ducking",
+"mid_only",
+"envolvente"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M07_ACT_005",
+"title": "Ruteo de efectos y prevención de loops",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Comprobar si el estudiante entiende la diferencia entre bus y auxiliar y si puede diseñar un ruteo de efectos sin errores estructurales.",
+"student_task": "Describe un ruteo correcto para: 1) una reverb de tambor, 2) un delay vocal controlado por sidechain desde la voz seca. En tu respuesta debes distinguir entre bus y auxiliar, indicar a qué etapa debería volver el efecto y explicar qué error aparece si una reverb regresa al mismo grupo que la alimenta.",
+"evidence_to_submit": [
+"Descripción paso a paso del ruteo",
+"Explicación del riesgo de loop o feedback",
+"Breve nota sobre cuándo un envío pre-fader puede ser útil para alejamiento"
+],
+"ai_feedback_criteria": [
+"Diferencia correctamente bus como ruta y auxiliar como destino procesable",
+"Evita devolver el efecto al mismo subgrupo que lo alimenta",
+"Comprende la lógica del compresor en sidechain después del efecto",
+"Menciona de forma pertinente el uso de pre-fader para profundidad o alejamiento"
+],
+"related_errors": [
+"M07_ERR_011"
+],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"ruteo",
+"bus",
+"auxiliar",
+"efectos",
+"sidechain"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M07_ACT_006",
+"title": "Canción hilo conductor y continuidad de álbum",
+"moodle_type": "analisis_guiado",
+"objective": "Evaluar si el estudiante comprende cómo sostener continuidad tímbrica y estructural entre varias mezclas de un mismo proyecto.",
+"student_task": "Redacta un procedimiento breve para mezclar un álbum sin empezar cada canción desde cero. Debes indicar cómo elegir la canción hilo conductor, qué elementos de estructura conviene trasladar a las demás sesiones y cómo usar una referencia interna para no perder el norte del disco.",
+"evidence_to_submit": [
+"Procedimiento secuencial de trabajo",
+"Criterios para elegir la canción hilo conductor",
+"Listado breve de elementos que sí se trasladan y elementos que se ajustan por canción"
+],
+"ai_feedback_criteria": [
+"Distingue entre estructura base y decoración específica de cada tema",
+"Comprende el uso de una mezcla aprobada como molde del proyecto",
+"Incluye una referencia interna de comparación entre canciones",
+"Evita plantear la mezcla del álbum como una suma de canciones aisladas"
+],
+"related_errors": [
+"M07_ERR_012"
+],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Validar luego si esta actividad se integra con una futura actividad de continuidad entre mezcla y mastering."
+],
+"tags": [
+"album",
+"hilo_conductor",
+"continuidad",
+"import_session_data",
+"workflow"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M07_ACT_007",
+"title": "Chequeo final y preservación de la sesión",
+"moodle_type": "cuestionario_o_tarea_breve",
+"objective": "Verificar si el estudiante reconoce decisiones de cierre profesional de una mezcla y distingue entre control técnico útil y práctica contraproducente.",
+"student_task": "Marca y justifica cuáles de las siguientes acciones son recomendables al cierre de una mezcla y cuáles no: imprimir instrumentos virtuales a audio, dejar librerías vivas por comodidad, usar Strip Silence para optimizar procesamiento, consolidar todo después de hacer Strip Silence, poner un HPF en el master por las dudas, reservar el Master Fader para medición, usar Save Session Copy In al final, revisar mono o correlación si sospechas falso estéreo.",
+"evidence_to_submit": [
+"Lista de decisiones clasificadas como recomendables o no recomendables",
+"Justificación breve por cada decisión"
+],
+"ai_feedback_criteria": [
+"Reconoce prácticas de preservación profesional del proyecto",
+"Detecta acciones que rompen optimización o introducen problemas globales evitables",
+"Distingue medición de procesamiento imprimible",
+"Relaciona el chequeo final con continuidad, mono y robustez de archivo"
+],
+"related_errors": [
+"M07_ERR_007",
+"M07_ERR_010",
+"M07_ERR_013"
+],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [
+"Validar posteriormente si se transforma en cuestionario autocalificable con banco fijo de opciones."
+],
+"tags": [
+"cierre",
+"archivo",
+"preservacion",
+"master_fader",
+"strip_silence"
+],
+"requires_validation": true
+}
+]
 }

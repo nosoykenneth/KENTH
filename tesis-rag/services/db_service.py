@@ -10,6 +10,7 @@ def get_connection():
     os.makedirs("./bd_chat", exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    conn.execute("PRAGMA foreign_keys = ON")
     return conn
 
 def init_db():
@@ -89,12 +90,35 @@ def get_user_chats(user_id: str) -> list:
 def delete_chat(chat_id: str) -> bool:
     conn = get_connection()
     cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM interaction_traces WHERE session_id = ?", (chat_id,))
     cursor.execute("DELETE FROM messages WHERE chat_id = ?", (chat_id,))
     cursor.execute("DELETE FROM chats WHERE id = ?", (chat_id,))
+
     conn.commit()
     success = cursor.rowcount > 0
     conn.close()
     return success
+
+def ensure_chat_exists(chat_id: str, user_id: str = "system", title: str = "Chat auto-creado") -> dict:
+    conn = get_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM chats WHERE id = ?", (chat_id,))
+    row = cursor.fetchone()
+
+    if row:
+        conn.close()
+        return dict(row)
+
+    created_at = datetime.now().isoformat()
+    cursor.execute(
+        "INSERT INTO chats (id, user_id, title, created_at) VALUES (?, ?, ?, ?)",
+        (chat_id, user_id, title, created_at)
+    )
+    conn.commit()
+    conn.close()
+
+    return {"id": chat_id, "user_id": user_id, "title": title, "created_at": created_at}
 
 def add_message(chat_id: str, role: str, content: str, image: str = None) -> dict:
     conn = get_connection()

@@ -1,179 +1,305 @@
 {
-  "course_id": "mezcla_masterizacion_kenth",
-  "module_id": "M04",
-  "module_order": 4,
-  "module_title": "Filtros y ecualizacion",
-  "module_slug": "filtros-ecualizacion",
-  "short_description": "Modulo sobre filtros y ecualizacion dentro del proceso de mezcla.",
-  "learning_scope": "Delimita el uso tecnico y musical de filtros y ecualizadores segun el temario oficial.",
-  "doc_type": "common_errors",
-  "source_origin": "course",
-  "filename": "M04_errores_comunes.json",
-  "version": "0.3",
-  "status": "curated_pending_source_check",
-  "curation_source": "borrador_autoral_m04",
-  "purpose": "Borrador de observaciones pedagogicas para orientar retroalimentacion del tutor IA. No representa todavia una rubrica final.",
-  "errors": [
-    {
-      "error_id": "M04_ERR_001",
-      "title": "Interpretar el grafico del filtro como un corte absoluto",
-      "description": "El estudiante puede asumir que la curva visual del filtro equivale a una eliminacion inmediata de frecuencias. Esta observacion debe tratarse como una oportunidad para revisar la lectura de filtros.",
-      "detectable_signals": [
-        "Describe el filtro como si eliminara todo a partir de una frecuencia.",
-        "Pregunta por que todavia se escucha informacion cerca del punto marcado."
-      ],
-      "tutor_response_rule": "Aclarar que la visualizacion es una referencia y pedir contexto si el estudiante necesita interpretar un ajuste concreto.",
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar la formulacion exacta de frecuencia de corte antes de usar ejemplos numericos."
-      ],
-      "tags": ["frecuencia_de_corte", "filtros", "analizador"],
-      "requires_validation": true
-    },
-    {
-      "error_id": "M04_ERR_002",
-      "title": "Usar Q y pendiente como si fueran el mismo parametro",
-      "description": "El estudiante puede mezclar conceptos de selectividad, ancho de banda y rapidez de atenuacion. El tutor debe separar los terminos sin asumir que el plugin del alumno usa una interfaz clara.",
-      "detectable_signals": [
-        "Pregunta si subir Q cambia directamente la caida del filtro.",
-        "Usa Q, slope o pendiente como sinonimos."
-      ],
-      "tutor_response_rule": "Distinguir Q, ancho de banda y pendiente; pedir captura si la interfaz del plugin puede generar confusion.",
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar definiciones contra guia o apunte oficial del modulo."
-      ],
-      "tags": ["q", "pendiente", "eq"],
-      "requires_validation": true
-    },
-    {
-      "error_id": "M04_ERR_003",
-      "title": "Elegir pendientes extremas sin justificar la decision",
-      "description": "El estudiante puede asociar una pendiente mas abrupta con una limpieza automaticamente mejor. La retroalimentacion debe pedir una razon tecnica y no convertir una pendiente especifica en prohibicion universal.",
-      "detectable_signals": [
-        "Propone una pendiente muy abrupta como valor por defecto.",
-        "Relaciona pendiente extrema con mayor calidad sin explicar el problema."
-      ],
-      "tutor_response_rule": "Pedir justificacion tecnica y recordar que las pendientes deben evaluarse por contexto.",
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar efectos especificos sobre fase, transientes, overshoot o ringing antes de afirmarlos.",
-        "Validar cualquier ejemplo numerico como 24 dB/octava o 48 dB/octava."
-      ],
-      "tags": ["pendiente", "fase", "filtros"],
-      "requires_validation": true
-    },
-    {
-      "error_id": "M04_ERR_004",
-      "title": "Tratar fase lineal como solucion universal",
-      "description": "El estudiante puede asumir que la fase lineal siempre es la opcion mas segura. El tutor debe presentar esta herramienta como una decision contextual con posibles ventajas y costos.",
-      "detectable_signals": [
-        "Quiere aplicar fase lineal en todos los casos.",
-        "Asume que evitar rotacion de fase elimina cualquier efecto colateral."
-      ],
-      "tutor_response_rule": "Responder con cautela y pedir contexto de uso antes de recomendar o descartar fase lineal.",
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar explicacion oficial sobre latencia y pre-ringing."
-      ],
-      "tags": ["fase_lineal", "pre_ringing", "latencia"],
-      "requires_validation": true
-    },
-    {
-      "error_id": "M04_ERR_005",
-      "title": "Asumir que una curva shelving resuelve por si sola problemas de fase",
-      "description": "El estudiante puede oponer shelving y filtros de corte como si una curva fuera automaticamente segura frente a la otra. Esta observacion debe mantenerse prudente hasta validar la fuente.",
-      "detectable_signals": [
-        "Propone shelving como forma de mantener fases intactas.",
-        "Contrapone shelving y HPF/LPF sin explicar el objetivo de la curva."
-      ],
-      "tutor_response_rule": "Evitar respuestas absolutas; explicar que la decision depende de la curva, el contexto y la evidencia del curso.",
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar como se explica shelving y fase en la fuente oficial."
-      ],
-      "tags": ["shelving", "fase", "eq"],
-      "requires_validation": true
-    },
-    {
-      "error_id": "M04_ERR_006",
-      "title": "Confiar solo en la interfaz de una herramienta",
-      "description": "El estudiante puede tomar los numeros o marcas visuales de un plugin como garantia absoluta. La observacion pedagogica es orientar a validar con escucha, contexto y medicion cuando corresponda.",
-      "detectable_signals": [
-        "Pide valores exactos basados solo en la interfaz.",
-        "Asume que la lectura visual coincide siempre con la accion real."
-      ],
-      "tutor_response_rule": "Usar la interfaz como referencia, no como sustituto de escucha o verificacion.",
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar ejemplos concretos sobre modelado analogico antes de mencionar marcas o desviaciones numericas."
-      ],
-      "tags": ["modelado_analogico", "gui", "escucha"],
-      "requires_validation": true
-    },
-    {
-      "error_id": "M04_ERR_007",
-      "title": "Intentar resolver todos los problemas con mas bandas de EQ",
-      "description": "El estudiante puede acumular intervenciones de ecualizacion sin revisar si el problema viene de la fuente, el arreglo, la captura o el balance general.",
-      "detectable_signals": [
-        "Describe una cadena de muchas correcciones estrechas.",
-        "Busca corregir con EQ problemas que podrian venir de la fuente o del contexto."
-      ],
-      "tutor_response_rule": "Preguntar por la fuente del problema antes de sugerir nuevas bandas de EQ.",
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar si esta observacion sera parte de la rubrica final del modulo."
-      ],
-      "tags": ["eq_correctiva", "fuente", "captura"],
-      "requires_validation": true
-    },
-    {
-      "error_id": "M04_ERR_008",
-      "title": "Decidir el timbre final solo en modo solo",
-      "description": "El estudiante puede juzgar una fuente aislada sin comprobar como funciona dentro de la mezcla. El tutor debe llevar la pregunta hacia la intencion y el contexto.",
-      "detectable_signals": [
-        "Pregunta si un instrumento suena bien aislado.",
-        "No menciona relacion con otros elementos de la mezcla."
-      ],
-      "tutor_response_rule": "Preguntar si la decision busca corregir un problema o construir un color dentro de la mezcla.",
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar si la escucha en contexto sera criterio explicito de evaluacion."
-      ],
-      "tags": ["eq_tonal", "contexto", "mezcla"],
-      "requires_validation": true
-    },
-    {
-      "error_id": "M04_ERR_009",
-      "title": "Compensar cambios entre capas solo con mas graves",
-      "description": "Si una capa pierde cuerpo al filtrarse, el estudiante puede intentar compensar con ganancia. El tutor debe pedir mas contexto y sugerir revisar suma, fase o alineacion antes de diagnosticar.",
-      "detectable_signals": [
-        "Indica que al filtrar capas pierde cuerpo o pegada.",
-        "Propone realzar graves sin revisar la relacion entre capas."
-      ],
-      "tutor_response_rule": "Pedir audio, captura o descripcion suficiente; no diagnosticar definitivamente sin evidencia.",
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar si layering y herramientas de verificacion forman parte del alcance final de M04."
-      ],
-      "tags": ["layering", "fase", "graves"],
-      "requires_validation": true
-    },
-    {
-      "error_id": "M04_ERR_010",
-      "title": "Confundir un criterio de trabajo con una herramienta",
-      "description": "Si se conserva el nombre Metodo Robin Hood en el curso, el estudiante podria interpretarlo como plugin o parametro. El tutor debe aclarar que seria un criterio pedagogico, no una herramienta tecnica.",
-      "detectable_signals": [
-        "Pregunta donde esta el plugin o parametro asociado al Metodo Robin Hood.",
-        "Busca activar el metodo dentro de una herramienta."
-      ],
-      "tutor_response_rule": "Aclarar que se trata de un criterio de trabajo solo si el nombre fue validado como parte del curso.",
-      "teacher_decision_status": "pending_teacher_review",
-      "validation_notes": [
-        "Validar si el nombre Metodo Robin Hood aparece literalmente en fuentes oficiales."
-      ],
-      "tags": ["metodo_robin_hood", "headroom", "eq_sustractiva"],
-      "requires_validation": true
-    }
-  ]
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M04",
+"module_order": 4,
+"module_title": "Filtros y ecualización",
+"module_slug": "filtros-ecualizacion",
+"short_description": "Compila la lógica técnica y práctica de filtros y ecualización, incluyendo criterios correctivos, tonales y dinámicos, junto con sus efectos de fase, tiempo y reconstrucción espectral.",
+"learning_scope": "Delimita el uso de filtros de corte, campanas, shelving, tilt, notch, EQ dinámica, all-pass y crossovers, con foco en frecuencia de corte, pendiente, polos, Q, rotación de fase, overshot, orden de inserción y decisiones contextuales de mezcla y mastering.",
+"doc_type": "common_errors",
+"source_origin": "course",
+"filename": "M04_errores_comunes.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m04",
+"purpose": "Errores comunes del modulo para retroalimentacion del tutor IA. No reemplaza la guia canonica.",
+"errors": [
+{
+"error_id": "M04_ERR_001",
+"error_title": "Tomar la frecuencia de corte como un muro ideal",
+"misconception": "Si pongo un filtro en una frecuencia, todo lo de un lado desaparece y todo lo del otro queda intacto.",
+"why_it_is_incorrect": "En la lógica del módulo, un filtro real estándar no actúa como brickwall. La frecuencia de corte no es donde la curva empieza visualmente a caer, sino el punto donde la salida ya cayó 3 dB respecto a la entrada, dentro de una transición gradual definida por la pendiente.",
+"why_it_matters": "Este error lleva a subestimar cuánto contenido vecino sigue pasando o siendo afectado. Eso distorsiona decisiones de limpieza, balance y convivencia espectral.",
+"how_to_detect_it": [
+"El alumno habla de la frecuencia de corte como si fuera un borde duro.",
+"Afirma que cortar en una frecuencia garantiza aislamiento total por encima o por debajo de ese punto.",
+"Describe el filtro como si la pendiente no importara en absoluto."
+],
+"tutor_feedback_strategy": "Corregir primero la idea de transición gradual. Conviene reubicar la frecuencia de corte como referencia técnica de -3 dB y luego conectar esa idea con la pendiente elegida y el alcance real sobre el contenido cercano.",
+"suggested_reframe": "La frecuencia de corte no marca un muro perfecto, sino un punto de referencia dentro de una caída progresiva cuyo alcance depende de la pendiente y del diseño del filtro.",
+"related_terms": [
+"frecuencia de corte",
+"Butterworth",
+"pendiente",
+"high-pass",
+"low-pass"
+],
+"severity": "high",
+"validation_notes": [
+"La formulación parte del marco operativo del módulo, centrado en filtros Butterworth y usos habituales de DAW/plugins."
+],
+"requires_validation": true
+},
+{
+"error_id": "M04_ERR_002",
+"error_title": "Confundir pendiente con Q",
+"misconception": "El Q y la pendiente son básicamente el mismo control o cumplen la misma función.",
+"why_it_is_incorrect": "El módulo separa ambos parámetros con claridad. La pendiente define la caída en dB por octava y depende de la cantidad de polos. El Q define selectividad o resonancia alrededor de una zona. No son equivalentes, y en estructuras de 6 dB/oct no hay control real de Q en el sentido explicado por el docente.",
+"why_it_matters": "Confundirlos genera mala lectura de plugins, decisiones erradas de filtrado y hábitos conceptuales incorrectos al trasladar criterio entre herramientas.",
+"how_to_detect_it": [
+"El alumno usa 'Q' para referirse a lo abrupto que cae un filtro.",
+"Dice que abrir o cerrar Q endurece directamente la pendiente.",
+"No distingue entre ancho/selectividad y caída por octava."
+],
+"tutor_feedback_strategy": "Separar funciones con lenguaje técnico simple: pendiente para velocidad de caída y Q para concentración o resonancia. Si hace falta, recordar el vínculo de 6 dB/oct por polo y la condición mínima de 2 polos para control de resonancia según el marco del módulo.",
+"suggested_reframe": "La pendiente define cómo cae el filtro por octava; el Q define cuán concentrada o resonante es la intervención alrededor de una zona.",
+"related_terms": [
+"Q",
+"pendiente",
+"polos",
+"ancho de banda",
+"frecuencia central"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo también advierte que algunos plugins usan rotulados que fomentan esta confusión."
+],
+"requires_validation": true
+},
+{
+"error_id": "M04_ERR_003",
+"error_title": "Filtrar por costumbre o por las dudas",
+"misconception": "Toda pista debería llevar filtro de corte, aunque no haya evidencia de problema.",
+"why_it_is_incorrect": "El módulo se opone explícitamente al filtrado reflejo. Primero se analiza si hay basura subsónica real, material fuera del registro útil, enmascaramiento contextual o riesgo técnico. Además, filtrar puede elevar picos por overshot y rotación de fase sin aportar mejora audible real.",
+"why_it_matters": "Aplicar filtros sin necesidad puede robar headroom, obligar al limitador a trabajar más y degradar la naturalidad del tejido entre instrumentos.",
+"how_to_detect_it": [
+"El alumno propone poner HPF a todo canal como regla general.",
+"Justifica el filtrado solo con 'por limpieza' sin identificar problema concreto.",
+"Ignora si el contenido residual está realmente estorbando o no."
+],
+"tutor_feedback_strategy": "Pedir que identifique primero el motivo técnico de la intervención: protección, limpieza bajo el registro útil o espacio contextual. Si no puede nombrarlo, conviene frenar el corte automático.",
+"suggested_reframe": "No se filtra por hábito, sino cuando hay una razón técnica o contextual verificable.",
+"related_terms": [
+"high-pass",
+"overshot",
+"headroom",
+"registro útil",
+"enmascaramiento"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo menciona como criterio orientativo que basura 20 a 30 dB por debajo de la fundamental útil puede resultar inofensiva.",
+"Ese umbral aparece como guía de criterio, no como regla universal rígida."
+],
+"requires_validation": true
+},
+{
+"error_id": "M04_ERR_004",
+"error_title": "Usar pendientes extremas como norma tonal",
+"misconception": "Cuanto más abrupto el filtro, más limpio y profesional queda siempre.",
+"why_it_is_incorrect": "El módulo advierte contra usar 48 o 96 dB/oct por defecto. Esas pendientes pueden sonar poco naturales, aumentar overshot, generar mucha rotación de fase y entrar en resonancias fuertes e inarmónicas en la frecuencia de corte. Se reservan más para diagnóstico o casos muy justificados.",
+"why_it_matters": "Este enfoque empuja a una mezcla tipo 'Tetris', rompe interacción natural entre fuentes y puede dejar luego una mezcla contradictoria que después se intenta recomponer con compresión glue.",
+"how_to_detect_it": [
+"El alumno propone pendientes máximas como rutina de limpieza.",
+"Habla de hacer que los instrumentos no se toquen nunca entre sí.",
+"Asume que una transición más abrupta siempre implica mejor control musical."
+],
+"tutor_feedback_strategy": "Reencuadrar la pendiente como una decisión de compromiso entre limpieza y naturalidad. Conviene devolver al alumno hacia pendientes suaves como criterio general y dejar las extremas para tareas diagnósticas o necesidades muy concretas.",
+"suggested_reframe": "Las pendientes abruptas no son la norma de musicalidad; suelen ser herramientas excepcionales y deben justificarse por función, no por costumbre.",
+"related_terms": [
+"pendiente",
+"overshot",
+"rotación de fase",
+"mezcla Tetris",
+"high-pass"
+],
+"severity": "high",
+"validation_notes": [
+"El propio módulo admite usos de pendientes muy altas en diagnóstico, por ejemplo en pasabanda abrupto antes de correlación."
+],
+"requires_validation": true
+},
+{
+"error_id": "M04_ERR_005",
+"error_title": "Creer que un low shelf negativo no rota fase",
+"misconception": "Si en vez de high-pass uso un low shelf para quitar graves, evito el daño de fase.",
+"why_it_is_incorrect": "El módulo desmonta ese mito de forma explícita. Todo filtro o ecualización IIR que modifica amplitud rota fase. La diferencia entre un shelf y un filtro de corte no es que uno preserve fase y el otro no, sino la forma de la intervención.",
+"why_it_matters": "Esta confusión lleva a elegir herramientas por un supuesto beneficio inexistente y a evaluar mal las consecuencias temporales de la ecualización.",
+"how_to_detect_it": [
+"El alumno afirma que el shelf 'salva la fase'.",
+"Oposición rígida entre HPF como dañino y shelf como inocuo.",
+"Justifica la elección del shelf únicamente por una supuesta preservación de fase."
+],
+"tutor_feedback_strategy": "Corregir el mito sin absolutismos: no se trata de demonizar una herramienta, sino de entender que ambas pueden rotar fase si son IIR. Luego conviene comparar la forma de intervención y el objetivo musical real.",
+"suggested_reframe": "Low shelf y high-pass IIR pueden rotar fase; la elección correcta depende de la forma de atenuación que necesitas, no de una falsa inmunidad de fase.",
+"related_terms": [
+"low shelf",
+"high-pass",
+"IIR",
+"rotación de fase",
+"shelving"
+],
+"severity": "high",
+"validation_notes": [
+"La corrección se formula dentro del marco del módulo para filtros y EQ IIR."
+],
+"requires_validation": true
+},
+{
+"error_id": "M04_ERR_006",
+"error_title": "Tomar la fase lineal como solución superior por defecto",
+"misconception": "Si un EQ tiene fase lineal, esa siempre es la opción más correcta y de mayor calidad.",
+"why_it_is_incorrect": "El módulo no la presenta como superior por defecto. La fase lineal evita rotación relativa entre frecuencias, pero introduce latencia alta y pre-ringing. En material transiente puede ensuciar el ataque y crear un artefacto serio antes del golpe.",
+"why_it_matters": "Este error empuja a usar una herramienta costosa y potencialmente dañina sin evaluar si el compromiso temporal conviene para ese material o tarea.",
+"how_to_detect_it": [
+"El alumno elige fase lineal por principio, sin describir el problema que quiere resolver.",
+"Habla de fase lineal como si no tuviera costos.",
+"No considera transitorios, latencia ni pre-ringing."
+],
+"tutor_feedback_strategy": "Plantear la decisión como un intercambio de daños posibles. Conviene hacer que el alumno nombre qué quiere evitar y qué está dispuesto a asumir a cambio.",
+"suggested_reframe": "La fase lineal no es una mejora universal; es otra clase de compromiso que a veces conviene y a veces no.",
+"related_terms": [
+"fase lineal",
+"pre-ringing",
+"latencia",
+"rotación de fase",
+"transientes"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo la favorece en ciertos escenarios de split y reconstrucción, pero pide prudencia especial en material percusivo."
+],
+"requires_validation": true
+},
+{
+"error_id": "M04_ERR_007",
+"error_title": "Confundir EQ estática con EQ dinámica",
+"misconception": "Si una banda molesta alguna vez, conviene dejarla recortada todo el tiempo; o, al revés, todo problema frecuencial debería resolverse con EQ dinámica.",
+"why_it_is_incorrect": "El módulo establece un criterio temporal claro: la EQ estática corresponde a problemas permanentes, mientras que la EQ dinámica se reserva para problemas ocasionales o intermitentes. No son intercambiables sin costo.",
+"why_it_matters": "Elegir mal destruye material útil por corregir algo que aparece solo a ratos, o deja sin resolver un problema constante por depender de una activación innecesaria.",
+"how_to_detect_it": [
+"El alumno propone un recorte fijo para sibilancias o estridencias claramente intermitentes.",
+"Usa EQ dinámica aunque el problema esté presente de forma estable.",
+"No diferencia entre evento ocasional y desbalance permanente."
+],
+"tutor_feedback_strategy": "Pedir primero una descripción temporal del problema: si está siempre o si aparece por momentos. La corrección debe seguir esa permanencia antes de discutir plugin o curva.",
+"suggested_reframe": "La EQ estática sirve para problemas permanentes; la dinámica, para fenómenos intermitentes que no conviene castigar todo el tiempo.",
+"related_terms": [
+"ecualización estática",
+"ecualización dinámica",
+"multibanda",
+"range",
+"umbral"
+],
+"severity": "medium",
+"validation_notes": [
+"El módulo usa ejemplos como sibilancia, platillos ocasionalmente ofensivos y estridencia vocal puntual para fijar el criterio."
+],
+"requires_validation": true
+},
+{
+"error_id": "M04_ERR_008",
+"error_title": "Creer que dividir y recombinar bandas es trivial",
+"misconception": "Si separo una señal con un HPF y un LPF en la misma frecuencia, al sumarlas recupero el original sin problema.",
+"why_it_is_incorrect": "El módulo muestra que HPF y LPF estándar cortando ambos a -3 dB en el mismo punto no reconstruyen neutralmente al recombinarse. Pueden producir refuerzo en el cruce y problemas de fase. Para reconstrucción correcta se exige lógica Linkwitz-Riley a -6 dB y, preferiblemente, fase lineal.",
+"why_it_matters": "Este error arruina splits, multibandas por ruteo y cruces de procesamiento paralelo, generando coloraciones no deseadas y fallos de suma.",
+"how_to_detect_it": [
+"El alumno arma un split sin considerar el diseño del crossover.",
+"Asume que compartir la misma frecuencia de corte basta para recomponer.",
+"No contempla prueba nula, suma acústica ni fase en el cruce."
+],
+"tutor_feedback_strategy": "Corregir desde la idea de reconstrucción matemática, no solo desde ecualización tonal. Conviene explicar que dividir una señal ya es un problema de cruce y suma, no solo de recorte espectral.",
+"suggested_reframe": "Separar y recombinar bandas exige diseño de crossover; no alcanza con poner un HPF y un LPF estándar en la misma frecuencia.",
+"related_terms": [
+"crossover",
+"Linkwitz-Riley",
+"fase lineal",
+"high-pass",
+"low-pass"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo formula como preferencia la fase lineal para reconstrucción perfecta."
+],
+"requires_validation": true
+},
+{
+"error_id": "M04_ERR_009",
+"error_title": "Confundir DC Offset con asimetría de la onda",
+"misconception": "Si la forma de onda se ve cargada hacia un lado, basta con aplicar un HPF bajo porque siempre es DC Offset.",
+"why_it_is_incorrect": "El módulo distingue ambos fenómenos. El DC Offset es corriente continua parásita en 0 Hz que desplaza la onda del centro. La asimetría puede tener la onda centrada pero con picos cargados hacia un lado por relaciones internas de fase entre armónicos. El tratamiento correcto no es el mismo: HPF muy bajo para DC Offset y all-pass para asimetría.",
+"why_it_matters": "Usar la herramienta equivocada deja el problema sin resolver y puede alterar el timbre o el headroom de manera innecesaria.",
+"how_to_detect_it": [
+"El alumno usa HPF como corrección automática ante cualquier forma de onda desbalanceada visualmente.",
+"Habla de DC Offset y asimetría como sinónimos.",
+"No verifica si la onda está realmente desplazada del centro o solo cargada hacia un lado."
+],
+"tutor_feedback_strategy": "Pedir diagnóstico antes de procesar: primero determinar si hay desplazamiento real del centro o asimetría de picos. Luego asociar cada caso con su herramienta correspondiente.",
+"suggested_reframe": "DC Offset y asimetría pueden parecerse visualmente, pero son fenómenos distintos y no se corrigen con la misma herramienta.",
+"related_terms": [
+"DC Offset",
+"asimetría",
+"all-pass",
+"high-pass",
+"headroom"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo exige validación auditiva y de diagnóstico antes de usar all-pass para reordenar armónicos."
+],
+"requires_validation": true
+},
+{
+"error_id": "M04_ERR_010",
+"error_title": "Querer limpiar el low-end recién en el master",
+"misconception": "Es más eficiente poner un filtro en el mix bus o master para controlar todo el low-end de la mezcla.",
+"why_it_is_incorrect": "El módulo rechaza este criterio como norma general. Si el material sobrante podía ordenarse en cada pista según su registro y función, dejar que llegue al master ya es un error de base. Corregir tan tarde traslada problemas evitables a la etapa más sensible.",
+"why_it_matters": "Eso concentra basura acumulada en el bus final, complica el trabajo del limitador y sustituye decisiones puntuales por una corrección global más tosca.",
+"how_to_detect_it": [
+"El alumno propone resolver la limpieza general de graves desde el master.",
+"No distingue entre residuos específicos por pista y balance global del mix bus.",
+"Usa el master como atajo para un ordenamiento que pudo hacerse antes."
+],
+"tutor_feedback_strategy": "Devolver la discusión al origen del problema. Conviene preguntar qué pistas están aportando contenido innecesario y corregir primero allí antes de tocar el bus final.",
+"suggested_reframe": "Como criterio general, la limpieza evitable debe resolverse en las pistas o subgrupos que la generan, no descargarse al master.",
+"related_terms": [
+"mix bus",
+"master",
+"high-pass",
+"headroom",
+"registro útil"
+],
+"severity": "medium",
+"validation_notes": [
+"La formulación del módulo es de criterio general, no de prohibición absoluta para cualquier intervención de bus final."
+],
+"requires_validation": true
+},
+{
+"error_id": "M04_ERR_011",
+"error_title": "Confiar ciegamente en números, serigrafía o presets de ejemplo",
+"misconception": "Si la perilla marca una frecuencia o el profesor mostró un valor en un ejemplo, ese número ya sirve como verdad exacta o preset universal.",
+"why_it_is_incorrect": "El módulo advierte que en hardware clásico y modelados la serigrafía no garantiza exactitud matemática, y que los valores mostrados en sesión son ejemplos de criterio, no recetas fijas. Además, el botón Learn o decisiones automáticas pueden ser técnicamente razonables sin ser musicalmente correctas.",
+"why_it_matters": "Este error reemplaza escucha y diagnóstico por obediencia al dibujo, al número o al automatismo, debilitando criterio técnico y musical.",
+"how_to_detect_it": [
+"El alumno replica valores de HPF o frecuencias concretas como si fueran presets del módulo.",
+"Defiende una decisión solo porque la perilla o el plugin la muestra así.",
+"Acepta automatismos de cruce o análisis sin comprobar si sirven para la intención musical."
+],
+"tutor_feedback_strategy": "Recentrar la corrección en escucha, función y contexto. Los números deben leerse como referencias operativas o puntos de partida, nunca como garantía suficiente.",
+"suggested_reframe": "Los valores y marcas visuales orientan, pero no reemplazan la escucha ni convierten un ejemplo puntual en regla universal.",
+"related_terms": [
+"serigrafía",
+"Learn",
+"high-pass",
+"crossover",
+"criterio contextual"
+],
+"severity": "medium",
+"validation_notes": [
+"La advertencia aplica con especial fuerza a hardware clásico, modelados analógicos y ejemplos pedagógicos del módulo."
+],
+"requires_validation": true
+}
+]
 }

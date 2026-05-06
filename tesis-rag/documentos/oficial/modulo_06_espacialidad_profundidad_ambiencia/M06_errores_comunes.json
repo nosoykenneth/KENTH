@@ -1,20 +1,331 @@
 ﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M06",
-    "module_order":  6,
-    "module_title":  "Espacialidad, profundidad y ambiencia",
-    "module_slug":  "espacialidad-profundidad-ambiencia",
-    "short_description":  "Modulo sobre construccion de espacio, profundidad, paneo y ambiencia en mezcla.",
-    "learning_scope":  "Delimita decisiones de imagen estereo, profundidad, reverberacion, delay y percepcion espacial.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "common_errors",
-    "filename":  "M06_errores_comunes.json",
-    "purpose":  "Skeleton base para observaciones pedagogicas del modulo. No contiene errores comunes finales.",
-    "items":  [
-
-              ]
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M06",
+"module_order": 6,
+"module_title": "Espacialidad, profundidad y ambiencia",
+"module_slug": "espacialidad-profundidad-ambiencia",
+"short_description": "Módulo centrado en la construcción perceptual y técnica del espacio en mezcla: ambiente, profundidad, reflexiones, reverb, planos y criterios de escucha.",
+"learning_scope": "Delimita cómo se construyen cercanía, lejanía, tamaño de sala e imagen espacial mediante relación entre sonido directo y reflejado, reflexiones tempranas, RT60, paneo, fase, ruteo y uso de ambientes naturales o artificiales.",
+"doc_type": "common_errors",
+"source_origin": "course",
+"filename": "M06_errores_comunes.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m06",
+"purpose": "Errores comunes del modulo para retroalimentacion del tutor IA. No reemplaza la guia canonica.",
+"errors": [
+{
+"error_id": "M06_ERR_001",
+"error_title": "Reducir la ambiencia a una reverb",
+"misconception": "Si una mezcla necesita ambiente, basta con poner una reverb o alargar la cola.",
+"why_it_is_incorrect": "En el módulo, la ambiencia es más amplia que la cola reverberante: incluye posición de la fuente, relación entre sonido directo y reflejado, reflexiones tempranas, rebotes y contexto espacial. La reverb es solo una parte del fenómeno.",
+"why_it_matters": "Si el alumno iguala ambiente con cola, tiende a lavar la mezcla y a perder las herramientas más finas de profundidad y tridimensionalidad.",
+"how_to_detect_it": [
+"Habla de 'poner ambiente' como sinónimo de subir una reverb.",
+"Solo describe parámetros de cola y no menciona directo, reflexiones o plano.",
+"Propone una solución espacial basada únicamente en wet/dry o decay."
+],
+"tutor_feedback_strategy": "Corregir sin dogmatismo y devolver la conversación al sistema completo: primero directo vs. reflejado, luego reflexiones tempranas, plano y recién después cola reverberante.",
+"suggested_reframe": "La ambiencia no es solo cola de reverb; es la relación completa entre fuente, reflexiones y espacio percibido.",
+"related_terms": [
+"ambiencia",
+"reverberación",
+"reflexiones tempranas",
+"sonido directo",
+"campo reverberante"
+],
+"severity": "high",
+"validation_notes": [
+"En el módulo se presenta como corrección estable: ambiente y reverb no son equivalentes."
+],
+"requires_validation": false
+},
+{
+"error_id": "M06_ERR_002",
+"error_title": "Asumir que más reverb siempre empuja atrás",
+"misconception": "Para mandar una fuente al fondo, solo hay que subirle más reverb.",
+"why_it_is_incorrect": "El módulo enseña que la profundidad depende de la relación entre señal seca, tiempo de llegada de las reflexiones, densidad de ambiente y duración del decaimiento. No se reduce a cantidad de reverb.",
+"why_it_matters": "Este error suele hundir la mezcla, borrar frente y destruir inteligibilidad sin construir un plano convincente.",
+"how_to_detect_it": [
+"Resuelve la profundidad solo con más nivel de efecto.",
+"No considera predelay o diferencia temporal entre directo y reflejado.",
+"Describe cercanía o lejanía únicamente en términos de wet."
+],
+"tutor_feedback_strategy": "Llevar al alumno a pensar en plano y no solo en cantidad de efecto. Pedirle que separe qué cambia en el tiempo de llegada, qué cambia en la proporción seca y qué cambia en la densidad del ambiente.",
+"suggested_reframe": "Una fuente se percibe más atrás por cómo se relacionan el directo, el tiempo de las reflexiones y la proporción de ambiente, no solo por cuánta reverb tiene.",
+"related_terms": [
+"profundidad",
+"predelay",
+"sonido directo",
+"reflexiones tempranas",
+"plano"
+],
+"severity": "high",
+"validation_notes": [
+"La cantidad de ambiente sí participa, pero en el módulo no se la trata como criterio suficiente por sí sola."
+],
+"requires_validation": true
+},
+{
+"error_id": "M06_ERR_003",
+"error_title": "Ignorar el tempo al ajustar la cola",
+"misconception": "La duración de la reverb se puede fijar a oído sin relacionarla con el pulso o la figuración.",
+"why_it_is_incorrect": "El módulo subordina la duración del campo reverberante al tempo y al comportamiento rítmico del material. También usa RT60 como referencia técnica para pensar el decaimiento.",
+"why_it_matters": "Cuando la cola invade el siguiente evento importante, el groove se embarra y los elementos se van hacia atrás aunque el nivel del efecto no parezca excesivo.",
+"how_to_detect_it": [
+"El alumno ajusta decay sin mencionar tempo, pulso o huecos musicales.",
+"La cola tapa el siguiente golpe o frase relevante.",
+"Habla del RT60 como dato aislado y no como decisión musical."
+],
+"tutor_feedback_strategy": "Hacer que compare la cola con el ritmo real del material. No basta con decir 'está larga'; conviene ubicar qué golpe, sílaba o acento está siendo tapado.",
+"suggested_reframe": "La duración del ambiente debe convivir con el tempo y la figuración; el RT60 se piensa musicalmente, no solo técnicamente.",
+"related_terms": [
+"RT60",
+"decaimiento",
+"tempo",
+"reverberación",
+"groove"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo lo formula como criterio fuerte de mezcla, no como prohibición absoluta de colas largas en cualquier estética."
+],
+"requires_validation": true
+},
+{
+"error_id": "M06_ERR_004",
+"error_title": "Confundir reflexión temprana con eco útil",
+"misconception": "Cualquier retardo corto sigue funcionando como profundidad y no llega a percibirse como eco.",
+"why_it_is_incorrect": "El módulo usa alrededor de 50 ms como frontera orientativa entre reflexión temprana y eco, con posible desprendimiento perceptual desde 30 ms en material muy percusivo. No todo delay corto refuerza; algunos ya se separan.",
+"why_it_matters": "Si el alumno se pasa de tiempo creyendo que sigue dentro del plano espacial, puede introducir ecos reconocibles, duplicación perceptual y desorden rítmico.",
+"how_to_detect_it": [
+"Usa predelays o reflexiones cortas sin revisar si ya se desprenden del directo.",
+"Dice que sigue siendo 'solo profundidad' aunque ya se escuche repetición.",
+"Trabaja material percusivo con tiempos que rompen la fusión perceptual."
+],
+"tutor_feedback_strategy": "No corregir con un número rígido, sino con una escucha guiada: pedirle que identifique en qué punto deja de sentirse cuerpo o espacio y empieza a sentirse repetición separada.",
+"suggested_reframe": "Las reflexiones tempranas refuerzan mientras se integran al directo; cuando se separan perceptualmente, ya entran en terreno de eco.",
+"related_terms": [
+"reflexiones tempranas",
+"eco",
+"predelay",
+"profundidad",
+"material percusivo"
+],
+"severity": "high",
+"validation_notes": [
+"El umbral se presenta en el módulo como referencia sensible al contexto, no como valor universal fijo."
+],
+"requires_validation": true
+},
+{
+"error_id": "M06_ERR_005",
+"error_title": "Fabricar estéreo duplicando y retrasando una pista",
+"misconception": "Duplicar digitalmente una pista y atrasar una copia es una forma válida de abrirla sin consecuencias serias.",
+"why_it_is_incorrect": "El módulo lo corrige como falso estéreo: un delay fijo entre duplicados genera filtro peine estático y destruye la suma mono. El doubling espacial válido es una segunda interpretación real.",
+"why_it_matters": "Este error puede sonar abierto en estéreo pero degradarse al plegar a mono, además de producir una modulación falsa y rígida.",
+"how_to_detect_it": [
+"Propone abrir una voz o guitarra con una copia idéntica retrasada.",
+"No distingue entre doubling real y duplicación digital.",
+"Aparecen problemas claros de monocompatibilidad o comb filtering."
+],
+"tutor_feedback_strategy": "Marcar la diferencia entre microvariación orgánica y duplicación idéntica. Sugerir volver a grabar si se busca apertura real y estable.",
+"suggested_reframe": "La apertura espacial convincente por doblaje viene de diferencias reales de interpretación, no de duplicar una toma idéntica con delay fijo.",
+"related_terms": [
+"doubling real",
+"falso estéreo",
+"filtro peine",
+"monocompatibilidad",
+"delay"
+],
+"severity": "high",
+"validation_notes": [
+"En el módulo se presenta como error técnico claro, no como simple preferencia estética."
+],
+"requires_validation": false
+},
+{
+"error_id": "M06_ERR_006",
+"error_title": "Invertir polaridad L/R para obtener amplitud",
+"misconception": "Invertir la polaridad de un lado es una forma útil de ensanchar la mezcla sin afectar la perspectiva.",
+"why_it_is_incorrect": "El módulo advierte que esa operación puede no mostrar cancelación eléctrica obvia en el master, pero sí rompe la frontalidad y vuelve artificial la imagen espacial.",
+"why_it_matters": "La mezcla puede parecer más ancha a primera escucha, pero pierde referencia frontal y puede producir extrañeza, mareo o una espacialidad poco natural.",
+"how_to_detect_it": [
+"El alumno describe una anchura muy grande pero sin frente claro.",
+"Hay sensación rara o inestable en la imagen estéreo.",
+"Se propone invertir polaridad entre canales como recurso principal de width."
+],
+"tutor_feedback_strategy": "Señalar que amplitud aparente no equivale a buena perspectiva. Invitar a escuchar no solo ancho, sino también frontalidad y estabilidad de la escena.",
+"suggested_reframe": "No toda ampliación lateral mejora la espacialidad; si se rompe la referencia frontal, la escena deja de ser creíble.",
+"related_terms": [
+"polaridad",
+"imagen estéreo",
+"frontalidad",
+"perspectiva espacial",
+"monocompatibilidad"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo la trata como ruptura de perspectiva espacial, no como ensanchamiento neutro."
+],
+"requires_validation": false
+},
+{
+"error_id": "M06_ERR_007",
+"error_title": "Aplicar post-fader como dogma absoluto",
+"misconception": "Los delays y reverbs siempre deben ir post-fader, sin excepción.",
+"why_it_is_incorrect": "El módulo enseña post-fader como regla general, pero corrige el absolutismo: el pre-fader puede usarse deliberadamente para que al bajar el directo quede el ambiente y la fuente parezca alejarse.",
+"why_it_matters": "Si el alumno lo toma como ley cerrada, pierde una herramienta específica para construir distancia y perspectiva.",
+"how_to_detect_it": [
+"Responde 'siempre post-fader' sin matizar.",
+"No contempla el caso en que el ambiente deba conservarse al bajar el directo.",
+"Trata el pre-fader como error en cualquier situación espacial."
+],
+"tutor_feedback_strategy": "Mantener la regla práctica, pero introducir la excepción con claridad. El objetivo no es relativizar todo, sino mostrar cuándo el pre-fader tiene sentido espacial.",
+"suggested_reframe": "Post-fader es la base práctica; pre-fader puede ser un recurso intencional cuando se quiere forzar sensación de alejamiento.",
+"related_terms": [
+"post-fader",
+"pre-fader",
+"reverb",
+"delay",
+"alejamiento"
+],
+"severity": "medium",
+"validation_notes": [
+"El módulo lo presenta como excepción espacial concreta, no como sustituto general del post-fader."
+],
+"requires_validation": true
+},
+{
+"error_id": "M06_ERR_008",
+"error_title": "Alinear room mics por automatismo",
+"misconception": "Si los room mics no se alinean con los cercanos, están técnicamente mal y conviene corregirlos.",
+"why_it_is_incorrect": "El módulo insiste en que la llegada tardía de los room mics es precisamente parte del fenómeno espacial buscado. Alinearlos borra distancia, tamaño y perspectiva lejana.",
+"why_it_matters": "Este error destruye depth real capturado en tracking y convierte un espacio natural en algo más plano y pequeño.",
+"how_to_detect_it": [
+"El alumno alinea room mics como rutina sin justificar el objetivo.",
+"Habla de 'corregir' todo desfase temporal de sala.",
+"Tras la alineación, la batería o la sala pierden aire y tamaño."
+],
+"tutor_feedback_strategy": "Diferenciar fase problemática de retraso espacial útil. Corregir el automatismo y pedir que evalúe qué función cumple realmente ese retardo en la escena.",
+"suggested_reframe": "No todo retraso entre micrófonos es un defecto; en room mics, muchas veces es parte del tamaño y la profundidad que se quieren conservar.",
+"related_terms": [
+"room mics",
+"alineación",
+"profundidad",
+"sala",
+"perspectiva"
+],
+"severity": "high",
+"validation_notes": [
+"En el módulo se formula como regla espacial fuerte: no destruir la llegada tardía que construye la sala."
+],
+"requires_validation": false
+},
+{
+"error_id": "M06_ERR_009",
+"error_title": "Filtrar room mics agresivamente sin costo espacial",
+"misconception": "Un high-pass fuerte en los room mics solo limpia graves y no altera el tamaño de la sala.",
+"why_it_is_incorrect": "El módulo advierte que cortar graves de forma agresiva en la ambiencia también achica el recinto percibido. No es una limpieza neutra.",
+"why_it_matters": "El alumno puede perder sensación de gran sala aunque el resultado parezca más limpio en solo.",
+"how_to_detect_it": [
+"Aplica high-pass severo a los room mics como rutina de limpieza.",
+"Describe el tratamiento solo en términos tonales y no espaciales.",
+"Después del filtrado, la sala se vuelve más pequeña o menos envolvente."
+],
+"tutor_feedback_strategy": "Hacer que compare el before/after en tamaño y no solo en limpieza. Proponer prudencia en pendientes y considerar antes el nivel global del room.",
+"suggested_reframe": "En room mics, filtrar graves no solo cambia tono; también puede reducir tamaño y base espacial del recinto.",
+"related_terms": [
+"room mics",
+"high-pass",
+"sala",
+"ambiencia",
+"tamaño percibido"
+],
+"severity": "medium",
+"validation_notes": [
+"El costo espacial depende del grado de filtrado y del objetivo estético, pero el módulo lo trata como advertencia importante."
+],
+"requires_validation": true
+},
+{
+"error_id": "M06_ERR_010",
+"error_title": "Rutear el ambiente desde una señal equivocada",
+"misconception": "Da igual si la reverb recibe la señal limpia o la suma paralela comprimida, y el compresor del bus puede dispararse desde la propia reverb.",
+"why_it_is_incorrect": "El módulo corrige dos puntos: conviene excitar el ambiente desde el canal limpio cuando hay paralelos muy planchados, y si se comprime la reverb o el delay, el sidechain debe venir de la señal seca original, no del propio efecto.",
+"why_it_matters": "Si el campo reverberante nace de una señal rígida o se auto-dispara, pierde respiración, claridad y relación natural con la fuente directa.",
+"how_to_detect_it": [
+"Manda a la reverb la suma total de voces o paralelos muy comprimidos sin evaluar el efecto espacial.",
+"Comprime la reverb tomando como detector la propia reverb.",
+"El ambiente suena planchado, rígido o no deja cantar limpio el ataque."
+],
+"tutor_feedback_strategy": "Separar la corrección en dos capas: desde qué señal conviene alimentar el ambiente y desde qué señal conviene disparar su ducking. En ambos casos, devolver prioridad a la fuente seca.",
+"suggested_reframe": "Para un ambiente más vivo y legible, suele convenir enviarlo desde la señal limpia y hacer su ducking con sidechain desde la fuente directa.",
+"related_terms": [
+"canal limpio",
+"señal paralela",
+"ducking",
+"sidechain",
+"reverb",
+"delay"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo lo presenta como corrección operativa fuerte dentro de los casos mostrados; la formulación final debe mantenerse prudente fuera de ese marco."
+],
+"requires_validation": true
+},
+{
+"error_id": "M06_ERR_011",
+"error_title": "Creer que una sola reverb es obligatoria para la coherencia",
+"misconception": "Si distintos instrumentos usan reverbs diferentes, la mezcla deja de sentirse en un mismo espacio.",
+"why_it_is_incorrect": "El módulo corrige el mito de la reverb única. Sostiene que pueden convivir ambientes distintos, incluso cortos y largos, si el criterio de planos, contraste y comunión espacial está bien resuelto.",
+"why_it_matters": "Este error empobrece la construcción de planos y obliga a soluciones uniformes aunque el arreglo pida profundidades distintas.",
+"how_to_detect_it": [
+"Descarta varias reverbs por principio y no por escucha.",
+"Asocia coherencia espacial con una sola instancia de ambiente para todo.",
+"Evita planos diferenciados por miedo a 'romper el cuarto'."
+],
+"tutor_feedback_strategy": "Quitar el absolutismo sin empujar al caos. El tutor debe mostrar que la coherencia no depende de una sola reverb, sino de cómo se integran los planos.",
+"suggested_reframe": "La coherencia espacial no exige una sola reverb; exige criterio consistente en planos, contraste y relación entre ambientes.",
+"related_terms": [
+"coherencia espacial",
+"reverb única",
+"planos",
+"ambientes por familias",
+"contraste"
+],
+"severity": "medium",
+"validation_notes": [
+"El módulo abre criterio y no impone una receta única; por eso conviene corregir este error de forma prudente."
+],
+"requires_validation": true
+},
+{
+"error_id": "M06_ERR_012",
+"error_title": "Juzgar la espacialidad solo con auriculares",
+"misconception": "Si el paneo y la profundidad funcionan en auriculares, la escena espacial ya está resuelta.",
+"why_it_is_incorrect": "El módulo distingue con claridad entre auriculares y monitores: en auriculares se pierde gran parte del cruce interaural y el campo estéreo se simplifica artificialmente. Eso altera la lectura real de paneo, tamaño y profundidad.",
+"why_it_matters": "Una mezcla espacial cerrada en auriculares puede quedar desproporcionada al pasar a monitores, especialmente en apertura lateral y balances de ambiente.",
+"how_to_detect_it": [
+"El alumno toma decisiones finales de espacio sin contrastar en monitores.",
+"Describe la imagen estéreo desde una lógica de aislamiento por canal.",
+"La mezcla cambia demasiado de tamaño o ubicación al pasar de auriculares a parlantes."
+],
+"tutor_feedback_strategy": "No negar el uso de auriculares, pero sí bajarles jerarquía como referencia única. El tutor debe explicar que el problema no es solo tonal, sino perceptual e interaural.",
+"suggested_reframe": "Los auriculares sirven, pero no reemplazan la verificación espacial en monitores cuando se decide paneo, profundidad y tamaño de escena.",
+"related_terms": [
+"auriculares",
+"monitores",
+"localización horizontal",
+"cruce interaural",
+"imagen estéreo"
+],
+"severity": "medium",
+"validation_notes": [
+"El módulo no prohíbe mezclar con auriculares; advierte contra tomarlos como referencia espacial suficiente por sí solos."
+],
+"requires_validation": true
+}
+]
 }

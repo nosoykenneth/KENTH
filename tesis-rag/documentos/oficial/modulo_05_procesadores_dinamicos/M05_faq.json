@@ -1,19 +1,377 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M05",
-    "module_order":  5,
-    "module_title":  "Procesadores dinamicos",
-    "module_slug":  "procesadores-dinamicos",
-    "short_description":  "Modulo sobre control de dinamica mediante procesadores como compresores, expansores, gates y limitadores.",
-    "learning_scope":  "Delimita el uso de procesadores dinamicos para controlar envolvente, rango dinamico y estabilidad de la mezcla.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "faq",
-    "filename":  "M05_faq.json",
-    "items":  [
-
-              ]
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M05",
+  "module_order": 5,
+  "module_title": "Procesadores dinámicos",
+  "module_slug": "procesadores-dinamicos",
+  "short_description": "Doctrina base del control dinámico aplicada a compresión, expansión, compuertas, limitación y sidechain.",
+  "learning_scope": "Delimita la lógica del control dinámico, sus parámetros, detectores, topologías y aplicaciones correctivas o artísticas sin convertir ejemplos concretos en reglas universales.",
+  "doc_type": "faq",
+  "source_origin": "course",
+  "filename": "M05_faq.json",
+  "version": "0.1",
+  "status": "ready_for_indexing",
+  "curation_source": "borrador_autoral_m05",
+  "items": [
+    {
+      "faq_id": "M05_FAQ_001",
+      "question": "¿Para qué existe la compresión dentro de este módulo?",
+      "canonical_answer": "En este módulo, la compresión se entiende como una respuesta al problema de administrar señales con variaciones de nivel amplias dentro de soportes o contextos con menor tolerancia dinámica. Su función no se limita a bajar picos: también puede estabilizar, densificar o reorganizar la envolvente, según el objetivo.",
+      "short_answer": "Sirve para administrar la dinámica, no solo para bajar picos.",
+      "stable_answer": "La compresión controla la relación entre partes más fuertes y más suaves de una señal según un objetivo técnico o artístico.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "fundamentos",
+      "learning_objective": "Reconocer la función general del control dinámico dentro del módulo.",
+      "tags": [
+        "compresion",
+        "fundamentos",
+        "dinamica"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "La compresión solo sirve para que todo suene más fuerte."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_002",
+      "question": "¿Un compresor equivale a bajar un fader automáticamente?",
+      "canonical_answer": "No. El compresor actúa sobre el excedente que supera el umbral, y esa intervención depende del ratio y de la envolvente temporal. Por eso su comportamiento no coincide matemáticamente con una simple automatización de nivel.",
+      "short_answer": "No. No actúa como un fader parejo.",
+      "stable_answer": "Un compresor modifica de forma no lineal la señal que cruza el umbral.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "logica de compresion",
+      "learning_objective": "Distinguir compresión real de una reducción uniforme de nivel.",
+      "tags": [
+        "threshold",
+        "ratio",
+        "automatizacion",
+        "compresor"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Comprimir y automatizar volumen es lo mismo."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_003",
+      "question": "¿Cómo debo entender attack y release en este módulo?",
+      "canonical_answer": "Se entienden como velocidades de transición, no como tiempos de espera. Attack describe qué tan rápido el procesador alcanza su acción cuando la señal supera el umbral. Release describe qué tan rápido retorna cuando la señal deja de exigir reducción o expansión.",
+      "short_answer": "Son velocidades de cambio, no demoras previas.",
+      "stable_answer": "Attack y release describen la rapidez con que el procesador entra y sale de su acción.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "parametros",
+      "learning_objective": "Corregir la interpretación errónea de attack y release.",
+      "tags": [
+        "attack",
+        "release",
+        "envolvente",
+        "parametros"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "El attack es el tiempo que espera antes de actuar.",
+        "El release es un delay después de comprimir."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_004",
+      "question": "¿Cuál es la diferencia práctica entre detector Peak y detector RMS?",
+      "canonical_answer": "Peak sigue variaciones instantáneas y suele ser más apropiado para picos o transientes. RMS responde al promedio de energía y suele producir una reacción más estable para nivelación o pegamento. La elección depende del problema que se intenta resolver.",
+      "short_answer": "Peak sigue picos; RMS sigue energía promedio.",
+      "stable_answer": "Peak es más sensible a transientes y RMS a la energía global de la señal.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "deteccion",
+      "learning_objective": "Elegir el tipo de detector según la conducta buscada.",
+      "tags": [
+        "peak",
+        "rms",
+        "detector",
+        "sidechain"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "RMS siempre es mejor.",
+        "Peak siempre suena más profesional."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_005",
+      "question": "¿Sidechain y ducking significan exactamente lo mismo?",
+      "canonical_answer": "No exactamente. Sidechain es la ruta de detección que gobierna al procesador. Ducking es una aplicación concreta de sidechain externo en la que una señal hace descender a otra. Todo ducking usa una lógica de sidechain, pero no todo sidechain es ducking.",
+      "short_answer": "No. El ducking es un caso particular de sidechain.",
+      "stable_answer": "Sidechain es la lógica de control; ducking es una aplicación específica de esa lógica.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "sidechain",
+      "learning_objective": "Distinguir una técnica específica de la arquitectura general que la posibilita.",
+      "tags": [
+        "sidechain",
+        "ducking",
+        "key input",
+        "ruteo"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Sidechain solo significa bajar la música cuando entra la voz."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_006",
+      "question": "¿Qué cambia entre compresor multibanda y ecualizador dinámico?",
+      "canonical_answer": "El compresor multibanda divide la señal en zonas amplias del espectro mediante crossovers y resulta más apto para control global por regiones. El ecualizador dinámico interviene de forma más puntual y selectiva sobre bandas concretas. No son sinónimos, aunque ambos trabajen con lógica dinámica.",
+      "short_answer": "Multibanda controla regiones amplias; EQ dinámico corrige puntos más puntuales.",
+      "stable_answer": "La diferencia principal está en el alcance espectral y en la forma de construir la intervención.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "herramientas dinamicas",
+      "learning_objective": "Elegir entre dos herramientas emparentadas pero no equivalentes.",
+      "tags": [
+        "multibanda",
+        "eq dinamico",
+        "crossovers",
+        "bandas"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Da igual usar multibanda o EQ dinámico."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_007",
+      "question": "¿Un solo compresor debería resolver picos, nivelación y densidad al mismo tiempo?",
+      "canonical_answer": "En este módulo, la respuesta prudente es que no conviene asumir eso como norma. Cuando los objetivos pertenecen a zonas distintas de la envolvente, suele ser más coherente repartir funciones entre varias etapas en serie que pedirle todo a un solo compresor.",
+      "short_answer": "No necesariamente. A menudo conviene repartir funciones en serie.",
+      "stable_answer": "Cuando hay objetivos dinámicos distintos, varias etapas moderadas suelen ser más claras que una sola etapa forzada.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [
+        "LA-2A",
+        "1176"
+      ],
+      "topic": "compresion en serie",
+      "learning_objective": "Entender la lógica de distribuir funciones dinámicas.",
+      "tags": [
+        "serie",
+        "transientes",
+        "nivelacion",
+        "densidad"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Un buen compresor debe hacer todo solo."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_008",
+      "question": "¿El make-up gain siempre se debe aplicar después de comprimir?",
+      "canonical_answer": "No. El make-up gain puede ser útil para recuperar nivel, pero también puede elevar ruido, respiraciones, bleed, sibilancias u otra información no deseada. En este módulo se trata como una decisión crítica, no como un paso automático.",
+      "short_answer": "No. Puede falsear el resultado y subir problemas que no querías resaltar.",
+      "stable_answer": "El make-up gain debe decidirse según el resultado real, no por costumbre.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ganancia de salida",
+      "learning_objective": "Evitar automatismos que alteren la evaluación del procesamiento.",
+      "tags": [
+        "make-up gain",
+        "nivel",
+        "comparacion",
+        "ruido"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Siempre hay que devolver exactamente los dB reducidos."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_009",
+      "question": "¿Cómo comparo si una compresión realmente mejoró algo?",
+      "canonical_answer": "La comparación debe hacerse con niveles percibidos igualados. Si la señal procesada queda más fuerte, es fácil confundir volumen con mejora. En este módulo, la igualdad de nivel no es un detalle opcional: es una condición para juzgar con criterio.",
+      "short_answer": "Compara a igual volumen percibido.",
+      "stable_answer": "Sin igualar niveles, el juicio sobre la compresión queda contaminado por el volumen.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "evaluacion",
+      "learning_objective": "Aprender a validar una decisión dinámica sin autoengaño.",
+      "tags": [
+        "ab",
+        "nivel",
+        "evaluacion",
+        "criterio"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si suena más fuerte, ya mejoró."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_010",
+      "question": "¿Una compuerta me quita el hiss o hum mientras el instrumento está sonando?",
+      "canonical_answer": "No. La compuerta solo puede cerrar cuando la señal cae por debajo del umbral. Si el instrumento está sonando y el ruido viene incrustado en esa misma señal, el ruido pasará con ella. En ese caso, el módulo distingue la necesidad de otras herramientas.",
+      "short_answer": "No. La compuerta no limpia ruido incrustado mientras la fuente está activa.",
+      "stable_answer": "La compuerta silencia pausas; no separa ruido embebido durante la ejecución.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "gate",
+      "learning_objective": "Evitar atribuir a la compuerta una función que no cumple.",
+      "tags": [
+        "gate",
+        "ruido",
+        "hiss",
+        "hum"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Pon una compuerta y desaparece todo el ruido."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_011",
+      "question": "¿Por qué las envolventes demasiado rápidas pueden ser problemáticas en graves?",
+      "canonical_answer": "Porque en material grave una envolvente excesivamente rápida puede interferir con el desarrollo físico del ciclo de onda y generar distorsión o sensación de ronquido. El módulo conserva esta advertencia como criterio fuerte, aunque su aplicación exacta requiere escucha contextual.",
+      "short_answer": "Porque pueden mutilar el ciclo grave y generar distorsión.",
+      "stable_answer": "En graves conviene tratar con cautela ataques y releases extremadamente rápidos.",
+      "pending_validation_notes": [
+        "Los valores concretos deben ajustarse según frecuencia, fuente y contexto."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "graves y distorsion",
+      "learning_objective": "Entender por qué el tiempo de la onda importa en dinámica.",
+      "tags": [
+        "graves",
+        "attack",
+        "release",
+        "distorsion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Cuanto más rápido, mejor controlado queda el grave."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_012",
+      "question": "¿Conviene comprimir otra vez en mastering si la mezcla ya fue comprimida?",
+      "canonical_answer": "No existe una obligación doctrinal de hacerlo. Si la mezcla ya posee consistencia dinámica suficiente, el proceso posterior puede requerir apenas una intervención mínima o incluso ninguna compresión adicional antes de la limitación.",
+      "short_answer": "No es obligatorio.",
+      "stable_answer": "La necesidad de compresión adicional depende del estado real de la mezcla, no de una cadena fija.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "mastering",
+      "learning_objective": "Evitar cadenas obligatorias por costumbre.",
+      "tags": [
+        "mastering",
+        "mix bus",
+        "glue",
+        "limitacion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "En mastering siempre hay que comprimir otra vez."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_013",
+      "question": "¿Qué riesgo hay en usar dual mono sobre un bus estéreo?",
+      "canonical_answer": "El riesgo principal es desarmar la imagen estéreo, porque cada lado reacciona por separado. En algunos contextos eso puede ser útil, pero dentro del módulo se trata como una decisión delicada y no como un ajuste inocuo.",
+      "short_answer": "Puede volver inestable la imagen estéreo.",
+      "stable_answer": "En buses estéreo, el comportamiento independiente de cada canal puede alterar la percepción espacial.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "estereo",
+      "learning_objective": "Comprender las consecuencias espaciales del modo de enlace.",
+      "tags": [
+        "dual mono",
+        "stereo link",
+        "imagen",
+        "bus"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Dual mono siempre da más apertura y por eso siempre conviene."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_014",
+      "question": "¿Por qué el orden de cadena importa tanto antes del compresor?",
+      "canonical_answer": "Porque lo que ocurra antes modifica la señal que oye el detector. Un filtrado previo puede limpiar información irrelevante, pero también alterar la forma de onda y cambiar la respuesta del compresor. Por eso el orden del flujo se considera parte de la decisión dinámica.",
+      "short_answer": "Porque cambia lo que el detector interpreta como problema.",
+      "stable_answer": "El compresor reacciona a la señal que recibe, no a la intención del usuario.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [
+        "SSL"
+      ],
+      "topic": "flujo de señal",
+      "learning_objective": "Relacionar ruteo previo con conducta del detector.",
+      "tags": [
+        "orden de cadena",
+        "detectores",
+        "filtros",
+        "ssl"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Da igual filtrar antes o después del compresor."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_015",
+      "question": "¿Qué es un de-esser dentro de la lógica del módulo?",
+      "canonical_answer": "Es un caso particular de procesamiento dinámico en el que el detector se vuelve especialmente sensible a la zona de sibilancia. No se lo presenta como una simple ecualización fija, sino como un control dinámico selectivo.",
+      "short_answer": "Es dinámica selectiva sobre la sibilancia.",
+      "stable_answer": "El de-esser es una forma de compresión disparada por una banda problemática de alta frecuencia.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "de-esser",
+      "learning_objective": "Entender la sibilancia como problema dinámico e intermitente.",
+      "tags": [
+        "de-esser",
+        "sibilancia",
+        "sidechain",
+        "voz"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Un de-esser es solo bajar agudos fijos."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M05_FAQ_016",
+      "question": "¿La compresión paralela puede traer problemas de fase?",
+      "canonical_answer": "Puede introducir microalteraciones, especialmente si la rama paralela añade comportamientos no totalmente neutros. En el módulo eso no se presenta como una contraindicación automática, sino como un factor a vigilar dentro del color o carácter buscado.",
+      "short_answer": "Sí, puede introducir microalteraciones, aunque no siempre son destructivas.",
+      "stable_answer": "La compresión paralela puede modificar la relación entre ramas, pero ese efecto debe juzgarse en contexto.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "compresion paralela",
+      "learning_objective": "Valorar la compresión paralela sin idealizarla ni demonizarla.",
+      "tags": [
+        "paralela",
+        "fase",
+        "color",
+        "blend"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "La compresión paralela nunca genera ninguna alteración."
+      ],
+      "requires_validation": true
+    }
+  ]
 }

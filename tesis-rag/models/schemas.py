@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import TypedDict
 
 # ==========================================
@@ -34,6 +34,7 @@ class Consulta(BaseModel):
     imagen: str = ""
     usar_internet: bool = False
     session_id: str = ""
+    historial: list = Field(default_factory=list)
     source_client: str = ""
     course_id: str = ""
     lesson_id: str = ""

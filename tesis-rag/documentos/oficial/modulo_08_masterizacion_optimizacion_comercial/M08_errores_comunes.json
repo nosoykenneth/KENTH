@@ -1,20 +1,286 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M08",
-    "module_order":  8,
-    "module_title":  "Masterizacion y optimizacion comercial",
-    "module_slug":  "masterizacion-optimizacion-comercial",
-    "short_description":  "Modulo sobre preparacion final, control tecnico y optimizacion comercial del master.",
-    "learning_scope":  "Delimita criterios de traduccion, nivel, limitacion, entrega y revision final para distribucion.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "common_errors",
-    "filename":  "M08_errores_comunes.json",
-    "purpose":  "Skeleton base para observaciones pedagogicas del modulo. No contiene errores comunes finales.",
-    "items":  [
-
-              ]
+{
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M08",
+"module_order": 8,
+"module_title": "Masterización y optimización comercial",
+"module_slug": "masterizacion-optimizacion-comercial",
+"short_description": "Módulo centrado en el mastering como cierre técnico, comercial y artístico prudente, con foco en traducción, loudness, limitación, True Peak, correcciones técnicas y entrega final.",
+"learning_scope": "Delimita qué problemas sí puede abordar el mastering sobre la suma estéreo, cómo optimizar loudness y traducción sin destruir dinámica, y qué decisiones siguen perteneciendo a la mezcla o al contexto real de distribución.",
+"doc_type": "common_errors",
+"source_origin": "course",
+"filename": "M08_errores_comunes.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m08",
+"purpose": "Errores comunes del modulo para retroalimentacion del tutor IA. No reemplaza la guia canonica.",
+"errors": [
+{
+"error_id": "M08_ERR_001",
+"error_title": "Usar el mastering para arreglar una mala mezcla",
+"misconception": "Si la mezcla quedó desequilibrada, opaca, mal resuelta o con problemas de espacio, el mastering lo corrige al final.",
+"why_it_is_incorrect": "El mastering trabaja sobre la suma estéreo completa. Puede disimular o parchear algunos problemas, pero no reemplaza decisiones de balance, arreglo, color, espacio o control interno que debieron resolverse antes.",
+"why_it_matters": "Empuja correcciones demasiado globales sobre un archivo ya consolidado, empeora compromisos técnicos y retrasa el diagnóstico real del problema.",
+"how_to_detect_it": [
+"El alumno dice que \"eso se arregla en el master\" ante un problema claramente interno de mezcla.",
+"Intenta corregir balances, profundidad o conflictos entre elementos individuales desde el estéreo final.",
+"Habla del mastering como si fuera una segunda mezcla completa."
+],
+"tutor_feedback_strategy": "Corregir el supuesto sin dramatizar. Señalar que el mastering sí puede mejorar la traducción final, pero pedir primero identificar si la causa pertenece a la mezcla. Si el problema está antes, recomendar volver a esa etapa.",
+"suggested_reframe": "El mastering puede optimizar y corregir de forma global, pero no sustituye una mezcla bien resuelta.",
+"related_terms": [
+"mastering",
+"mezcla",
+"suma estéreo",
+"etapa técnica",
+"traducción"
+],
+"severity": "high",
+"validation_notes": [
+"En el módulo se presenta como advertencia estructural fuerte: el mastering puede poner parches, no rehacer el trabajo previo."
+],
+"requires_validation": false
+},
+{
+"error_id": "M08_ERR_002",
+"error_title": "Masterizar ciegamente a -14 LUFS por Spotify",
+"misconception": "La forma correcta de masterizar para plataformas es dejar todo a -14 LUFS integrados porque ese es el valor de Spotify.",
+"why_it_is_incorrect": "El módulo distingue entre normalización de ganancia y criterio real de entrega comercial. Spotify puede normalizar, pero eso no vuelve universal ese target ni agota el contexto competitivo del master.",
+"why_it_matters": "Puede llevar a masters demasiado tímidos frente a referencias comerciales cuando la normalización está desactivada o cuando el contexto de género pide otra densidad.",
+"how_to_detect_it": [
+"El alumno usa -14 LUFS como regla fija e indiscutible.",
+"Confunde target de plataforma con objetivo artístico-comercial del máster.",
+"Ignora género, competencia, PLR o contexto de reproducción real."
+],
+"tutor_feedback_strategy": "Reconocer que -14 LUFS sirve como referencia de normalización, pero no como mandamiento universal. Reubicar la discusión en traducción real, género, rango dinámico y destino comercial.",
+"suggested_reframe": "Spotify normaliza alrededor de -14 LUFS, pero el loudness de entrega se decide con criterio contextual, no por obediencia ciega al target de plataforma.",
+"related_terms": [
+"LUFS",
+"normalización",
+"Spotify",
+"loudness",
+"PLR",
+"True Peak"
+],
+"severity": "high",
+"validation_notes": [
+"El propio módulo da referencias contextuales distintas, como alrededor de -10 LUFS para pop/rock y zonas más agresivas para urbano, sin presentarlas como ley universal."
+],
+"requires_validation": true
+},
+{
+"error_id": "M08_ERR_003",
+"error_title": "Bajar el master fader para entregar headroom",
+"misconception": "Para cumplir con una entrega a -6 dB basta con bajar el master fader antes de exportar la mezcla.",
+"why_it_is_incorrect": "El módulo advierte que, si la exportación se hace en punto fijo, bajar el nivel del archivo para \"regalar headroom\" implica pérdida de resolución. La atenuación segura puede hacerse luego en entorno flotante dentro del mastering.",
+"why_it_matters": "Se degrada innecesariamente el archivo fuente y se castiga toda la mezcla por una exigencia de nivel que puede resolverse después sin ese costo.",
+"how_to_detect_it": [
+"El alumno propone exportar la mezcla varios dB más abajo solo para cumplir una cifra de headroom.",
+"Habla de bajar el master fader como paso obligatorio previo al mastering.",
+"No distingue entre exportación en punto fijo y atenuación interna en float."
+],
+"tutor_feedback_strategy": "Corregir con base técnica. Explicar que una cosa es la mezcla exportada y otra la ganancia de trabajo dentro del mastering. Mantener el foco en no perder resolución por un procedimiento innecesario.",
+"suggested_reframe": "No conviene bajar el master fader de la mezcla exportada en punto fijo para \"regalar headroom\"; si hace falta atenuar, eso puede hacerse luego en el flujo de mastering en float.",
+"related_terms": [
+"headroom",
+"24 bits",
+"punto fijo",
+"float",
+"trim",
+"resolución"
+],
+"severity": "high",
+"validation_notes": [
+"La advertencia es especialmente fuerte cuando el archivo se entrega en punto fijo; el módulo sí acepta la atenuación interna posterior en entorno flotante."
+],
+"requires_validation": true
+},
+{
+"error_id": "M08_ERR_004",
+"error_title": "Filtrar subsónicas por rutina",
+"misconception": "Siempre conviene poner un HPF global a 20 Hz o similar por seguridad, aunque no se haya diagnosticado nada raro.",
+"why_it_is_incorrect": "El módulo insiste en que no se filtra \"por las dudas\". Un HPF también rota fase y puede producir overshoot o alterar el comportamiento del master sin aportar una mejora real si no había un problema detectado.",
+"why_it_matters": "Puede empeorar headroom, modificar el low-end sin necesidad y añadir una corrección que no estaba justificada por el archivo.",
+"how_to_detect_it": [
+"El alumno propone un HPF global automático al inicio del mastering.",
+"Usa el filtrado como rutina fija sin revisar espectro completo.",
+"No distingue entre subsónicas reales y pendiente grave sana."
+],
+"tutor_feedback_strategy": "Pedir diagnóstico antes de procesar. Llevar al alumno a revisar espectro completo y a decidir si el material realmente presenta acumulación anómala en la zona subgrave.",
+"suggested_reframe": "Las subsónicas se corrigen solo cuando el análisis lo justifica; un HPF global no es un gesto inocuo ni una obligación automática.",
+"related_terms": [
+"subsónicas",
+"HPF",
+"overshoot",
+"espectro",
+"RX",
+"headroom"
+],
+"severity": "medium",
+"validation_notes": [
+"El módulo acepta el filtrado cuando hay evidencia espectral de acumulación anómala; lo que rechaza es el filtrado reflejo sin diagnóstico."
+],
+"requires_validation": true
+},
+{
+"error_id": "M08_ERR_005",
+"error_title": "Cerrar a mono el grave problemático sin diagnosticar el origen",
+"misconception": "Si el low-end está ancho o en contrafase, lo correcto es colapsarlo a mono y ya.",
+"why_it_is_incorrect": "El módulo aclara que muchos problemas de fase en graves son, en el fondo, problemas de tiempo. Si el origen es temporal, cerrar a mono puede empeorar la cancelación en vez de corregirla.",
+"why_it_matters": "Se puede perder energía de graves, destruir información útil y tomar una decisión irreversible sobre la imagen baja sin haber resuelto la causa real.",
+"how_to_detect_it": [
+"El alumno usa Mono Maker como primera respuesta automática.",
+"Propone estrechar graves sin revisar correlación, goniómetro ni desfase temporal.",
+"Confunde apertura lateral con problema necesariamente corregible por colapso mono."
+],
+"tutor_feedback_strategy": "Reorientar el diagnóstico hacia tiempo, correlación y banda afectada. Explicar que antes de estrechar conviene verificar si una corrección temporal resuelve mejor el problema.",
+"suggested_reframe": "Si el low-end está en conflicto, primero hay que diagnosticar si el problema es de tiempo o de imagen; cerrar a mono no siempre corrige y a veces empeora.",
+"related_terms": [
+"low-end",
+"fase",
+"offset temporal",
+"Mono Maker",
+"correlator",
+"vinilo"
+],
+"severity": "high",
+"validation_notes": [
+"La corrección depende del origen del problema: si es temporal, el módulo privilegia ajuste de tiempo; si no lo es, puede haber otras decisiones complementarias."
+],
+"requires_validation": true
+},
+{
+"error_id": "M08_ERR_006",
+"error_title": "Usar un clipper en el master estéreo para resolver el loudness",
+"misconception": "Para lograr más volumen final basta con poner un clipper en el master y dejar que recorte los picos del tema completo.",
+"why_it_is_incorrect": "El módulo ubica el uso del clipper en la mezcla, especialmente en buses percusivos, no como solución bruta sobre el estéreo final. En el master, el recorte afecta simultáneamente todo lo que coincide con esos picos.",
+"why_it_matters": "Puede introducir distorsión global, endurecer el material y empeorar la relación entre pegada, claridad y musicalidad del tema completo.",
+"how_to_detect_it": [
+"El alumno propone el clipper como atajo principal de loudness en mastering.",
+"Quiere resolver picos de bombo o percusión recortando todo el estéreo.",
+"No distingue entre preparación de loudness desde mezcla y optimización final del master."
+],
+"tutor_feedback_strategy": "Desplazar el enfoque del atajo al origen del problema. Explicar que el control agresivo de picos conviene distribuirlo antes, donde el material todavía está separado y la distorsión no arrastra a todo el mix.",
+"suggested_reframe": "Si el loudness extremo depende de controlar picos puntuales, eso suele prepararse mejor en mezcla; en mastering conviene evitar que un clipper castigue todo el estéreo por igual.",
+"related_terms": [
+"clipper",
+"loudness",
+"mezcla",
+"buses percusivos",
+"master estéreo",
+"distorsión"
+],
+"severity": "high",
+"validation_notes": [
+"La advertencia del módulo es fuerte y está vinculada al uso del clipper como solución principal de volumen sobre el estéreo final."
+],
+"requires_validation": false
+},
+{
+"error_id": "M08_ERR_007",
+"error_title": "Comparar procesamientos a distinto volumen",
+"misconception": "Si al activar el limitador o un proceso el tema suena mejor, ya quedó validada la mejora.",
+"why_it_is_incorrect": "El módulo presenta la comparación isométrica como condición obligatoria. Sin igualar volumen de entrada y salida, el oído suele confundir \"más fuerte\" con \"mejor\".",
+"why_it_matters": "Conduce a decisiones sesgadas, sobreprocesamiento y falsas mejoras que se desmoronan cuando se iguala nivel.",
+"how_to_detect_it": [
+"El alumno evalúa limitadores o maximización sin compensación de volumen.",
+"Describe una mejora basada solo en que la versión procesada \"pega más\" o \"suena más grande\".",
+"No ajusta gain, ceiling o modo 1:1 para comparar correctamente."
+],
+"tutor_feedback_strategy": "Interrumpir el juicio prematuro y forzar una comparación compensada. Pedir que escuche al mismo volumen exacto antes de decidir si hubo mejora real o solo aumento de nivel.",
+"suggested_reframe": "Una mejora de mastering debe sobrevivir a la comparación al mismo volumen; si solo gana por sonar más fuerte, todavía no está validada.",
+"related_terms": [
+"comparación isométrica",
+"gain compensation",
+"ceiling",
+"modo 1:1",
+"limitador"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo la trata como trampa psicoacústica central de la etapa comercial."
+],
+"requires_validation": false
+},
+{
+"error_id": "M08_ERR_008",
+"error_title": "Cargar todo el loudness a un único limitador final",
+"misconception": "Si el master necesita mucho nivel, lo más simple es pedirle todo el trabajo a un solo limitador al final.",
+"why_it_is_incorrect": "El módulo propone repartir el esfuerzo cuando el salto de nivel es alto. Concentrar demasiados dB en una sola etapa incrementa daño sobre transientes, espacialidad y comportamiento espectral.",
+"why_it_matters": "Aumenta el riesgo de distorsión, intermodulación, pérdida de punch y sensación de canción aplastada.",
+"how_to_detect_it": [
+"El alumno intenta obtener grandes saltos de loudness con un solo limitador.",
+"Habla de subir muchos dB finales en una única instancia.",
+"No contempla limitación multietapa ni reparto de trabajo por bandas o funciones."
+],
+"tutor_feedback_strategy": "Corregir el diseño del flujo, no solo el parámetro final. Explicar que cuando la exigencia de nivel es grande, conviene distribuir el esfuerzo entre etapas y escuchar cuánto daño aporta cada una.",
+"suggested_reframe": "Si el master necesita una subida fuerte de nivel, conviene repartir el trabajo entre etapas antes que exigirle todo a un único limitador final.",
+"related_terms": [
+"limitación multietapa",
+"multibanda",
+"single-band",
+"transientes",
+"loudness",
+"distorsión de intermodulación"
+],
+"severity": "high",
+"validation_notes": [
+"La necesidad exacta de repartir el trabajo depende del material y del salto de nivel buscado, pero el principio del módulo es no cargar todo el esfuerzo a una sola etapa."
+],
+"requires_validation": true
+},
+{
+"error_id": "M08_ERR_009",
+"error_title": "Confundir DC Offset con asimetría de onda",
+"misconception": "Si la forma de onda se ve rara o despareja, seguro tiene DC Offset y se corrige con un HPF.",
+"why_it_is_incorrect": "El módulo separa dos fenómenos distintos. El DC Offset desplaza toda la señal respecto del eje central; la asimetría puede mantener la señal centrada pero con semiperiodos desiguales por relaciones internas de fase. No se corrigen igual.",
+"why_it_matters": "Aplicar la corrección equivocada deja intacto el problema real y puede añadir otro procesamiento innecesario.",
+"how_to_detect_it": [
+"El alumno diagnostica DC Offset solo por ver picos desparejos.",
+"Propone HPF ultrabajo para cualquier asimetría visual.",
+"No distingue entre señal corrida y señal centrada pero asimétrica."
+],
+"tutor_feedback_strategy": "Pedir que describa qué ve exactamente: corrimiento completo del eje o diferencia entre semiperiodos. Luego asociar cada caso con su corrección específica sin mezclar fenómenos.",
+"suggested_reframe": "DC Offset y asimetría no son lo mismo: si toda la señal está corrida se corrige de una forma; si está centrada pero despareja, la herramienta correcta es otra.",
+"related_terms": [
+"DC Offset",
+"asimetría",
+"All-Pass",
+"HPF ultrabajo",
+"headroom",
+"fase"
+],
+"severity": "medium",
+"validation_notes": [
+"El módulo trata esta distinción como técnica y estable: el error aparece cuando se confunden diagnóstico visual y corrección."
+],
+"requires_validation": false
+},
+{
+"error_id": "M08_ERR_010",
+"error_title": "Omitir dither al bajar a 16 bits o evitarlo por miedo al ruido",
+"misconception": "Si ya hay aliasing o si no quiero meter ruido, mejor no usar dither al convertir a 16 bits.",
+"why_it_is_incorrect": "El módulo distingue entre aliasing, truncado y dithering. Al reducir resolución sin dither aparece error de cuantización con una degradación más áspera que el ruido controlado que introduce el dither.",
+"why_it_matters": "La entrega final a 16 bits puede degradarse de forma audible y perder finura en información de bajo nivel por un ahorro mal entendido.",
+"how_to_detect_it": [
+"El alumno trata dither y aliasing como si fueran el mismo problema.",
+"Describe el dither como adorno prescindible en vez de corrección final.",
+"Quiere truncar directamente de 24 a 16 bits para no sumar ruido."
+],
+"tutor_feedback_strategy": "Separar los fenómenos con precisión. Explicar que el dither no corrige aliasing, pero sí evita un daño peor al bajar resolución. Recordar además que su lugar es el final del flujo cuando el formato realmente lo exige.",
+"suggested_reframe": "Si la entrega final requiere 16 bits, el dither no es maquillaje: es la forma prudente de evitar la distorsión áspera del truncado.",
+"related_terms": [
+"dither",
+"truncado",
+"noise shaping",
+"16 bits",
+"aliasing",
+"cuantización"
+],
+"severity": "high",
+"validation_notes": [
+"El módulo lo presenta como obligatorio cuando la entrega final baja a 16 bits; si no hay reducción de resolución, la decisión no aplica de la misma manera."
+],
+"requires_validation": true
+}
+]
 }

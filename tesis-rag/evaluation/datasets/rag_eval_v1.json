@@ -1,0 +1,98 @@
+[
+  {
+    "id": "reg_001_out_of_domain_napoleon",
+    "question": "quien es napoleon",
+    "expected_route": "bloqueo",
+    "expected_answer_type": "out_of_domain",
+    "should_block": true,
+    "notes": "Regresion critica: no debe activarse M04 por el token corto q dentro de quien."
+  },
+  {
+    "id": "reg_002_ambiguous_foam_interface",
+    "question": "que relacion tiene la espuma con la interfaz",
+    "expected_answer_type": "clarification",
+    "should_clarify": true,
+    "notes": "Regresion critica: debe pedir aclaracion o responder seguro, sin inventar relacion tecnica."
+  },
+  {
+    "id": "reg_003_processed_audio_clarification",
+    "question": "puedo ecualizar con mis audios ya procesados",
+    "expected_answer_type": "clarification",
+    "should_clarify": true,
+    "notes": "Regresion critica: debe distinguir mezcla/master, stems o efectos impresos."
+  },
+  {
+    "id": "reg_004_headroom_direct",
+    "question": "que es el headroom",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "forbid_visible_source_label": true,
+    "notes": "Regresion critica: concepto directo grounded y sin Fuente X visible."
+  },
+  {
+    "id": "reg_005_compression_vs_eq",
+    "question": "diferencia entre compresion y ecualizacion",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Regresion critica: comparacion multiconcepto."
+  },
+  {
+    "id": "reg_006_lookup_cutoff_frequency",
+    "question": "en que modulo hablan de frecuencia de corte",
+    "expected_route": "teoria",
+    "expected_intent": "busqueda_fuente",
+    "expected_answer_type": "source_lookup",
+    "should_have_sources": true,
+    "notes": "Regresion critica: lookup debe seguir funcionando."
+  },
+  {
+    "id": "eval_007_direct_concept_polarity",
+    "question": "que es la polaridad",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Concepto directo del curso."
+  },
+  {
+    "id": "eval_008_comparison_series_parallel",
+    "question": "diferencia entre procesamiento en serie y paralelo",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Comparacion tecnica del flujo de senal."
+  },
+  {
+    "id": "eval_009_lookup_mono",
+    "question": "donde se habla de revisar en mono",
+    "expected_route": "teoria",
+    "expected_intent": "busqueda_fuente",
+    "expected_answer_type": "source_lookup",
+    "should_have_sources": true,
+    "notes": "Lookup por fuente/metadatos."
+  },
+  {
+    "id": "eval_010_ambiguous_followup",
+    "question": "y eso cuando conviene",
+    "expected_answer_type": "clarification",
+    "should_clarify": true,
+    "notes": "Pregunta ambigua sin historial."
+  },
+  {
+    "id": "eval_011_out_of_domain_weather",
+    "question": "como va a estar el clima manana",
+    "expected_route": "bloqueo",
+    "expected_answer_type": "out_of_domain",
+    "should_block": true,
+    "notes": "Fuera de dominio general."
+  },
+  {
+    "id": "eval_012_practical_diagnostic",
+    "question": "tengo un tema y no se si le falta ecualizacion compresion distorsion o subir volumen que hago",
+    "expected_route": "teoria",
+    "expected_answer_type": "rag_answer",
+    "should_have_sources": true,
+    "notes": "Pregunta practica de diagnostico y decision."
+  }
+]

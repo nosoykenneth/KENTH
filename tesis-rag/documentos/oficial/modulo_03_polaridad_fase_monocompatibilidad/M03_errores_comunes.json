@@ -1,20 +1,262 @@
 ﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M03",
-    "module_order":  3,
-    "module_title":  "Polaridad, fase y monocompatibilidad",
-    "module_slug":  "polaridad-fase-monocompatibilidad",
-    "short_description":  "Modulo sobre relaciones temporales, polaridad, fase y compatibilidad mono.",
-    "learning_scope":  "Delimita problemas de suma, cancelacion, correlacion e imagen mono/estereo dentro de la mezcla.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "common_errors",
-    "filename":  "M03_errores_comunes.json",
-    "purpose":  "Skeleton base para observaciones pedagogicas del modulo. No contiene errores comunes finales.",
-    "items":  [
-
-              ]
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M03",
+"module_order": 3,
+"module_title": "Polaridad, fase y monocompatibilidad",
+"module_slug": "polaridad-fase-monocompatibilidad",
+"short_description": "Errores comunes vinculados a polaridad, desfase, suma mono, lectura de herramientas de medicion y decisiones de correccion en grabacion, mezcla y mastering.",
+"learning_scope": "Este archivo cubre malentendidos frecuentes sobre diferencia entre polaridad y fase, cancelacion parcial o total, monocompatibilidad, lectura de correlacion y gonio, relaciones entre microfonos y canales L/R, comb filtering, correccion temporal, limites del alineamiento y efectos de procesos como EQ, crossovers, compresion paralela y all-pass sobre la coherencia de fase.",
+"doc_type": "common_errors",
+"source_origin": "course",
+"filename": "M03_errores_comunes.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m03",
+"purpose": "Errores comunes del modulo para retroalimentacion del tutor IA. No reemplaza la guia canonica.",
+"errors": [
+{
+"error_id": "M03_ERR_001",
+"error_title": "Confundir polaridad con fase",
+"misconception": "Invertir polaridad y corregir fase son la misma operacion.",
+"why_it_is_incorrect": "La polaridad es una inversion binaria y absoluta de positivo a negativo. La fase es una relacion temporal entre señales y puede variar continuamente en grados o en tiempo. Una inversion de polaridad no equivale, por definicion, a resolver cualquier desfase temporal.",
+"why_it_matters": "Si el alumno trata ambos problemas como si fueran uno solo, puede aplicar una correccion equivocada y empeorar la suma, la imagen estereo o la monocompatibilidad.",
+"how_to_detect_it": [
+"Usa la palabra fase para referirse al boton de inversion de polaridad.",
+"Propone invertir polaridad como solucion general a cualquier desfase.",
+"Describe una señal invertida como si simplemente estuviera corrida en el tiempo."
+],
+"tutor_feedback_strategy": "Separar primero ambos conceptos y pedir que identifique si el problema es binario o temporal. Conviene hacer que el alumno nombre la operacion correcta antes de proponer la correccion.",
+"suggested_reframe": "Primero distingo si estoy ante una inversion de polaridad o ante un desfase temporal entre señales. No son el mismo problema ni se corrigen igual.",
+"related_terms": [
+"polaridad",
+"fase",
+"inversion de polaridad",
+"desfase"
+],
+"severity": "high",
+"validation_notes": [],
+"requires_validation": false
+},
+{
+"error_id": "M03_ERR_002",
+"error_title": "Tratar 180 grados como sinonimo conceptual de invertir polaridad",
+"misconception": "Una onda a 180 grados y una inversion de polaridad son exactamente lo mismo.",
+"why_it_is_incorrect": "Pueden parecer equivalentes en un caso visual simplificado, pero no describen el mismo tipo de operacion. En un caso hay desplazamiento o rotacion temporal; en el otro hay inversion binaria de signo. El material insiste en mantener esa diferencia conceptual.",
+"why_it_matters": "Borrar esta distincion vuelve impreciso el diagnostico y dificulta decidir si hay que mover tiempo, invertir polaridad o revisar otra relacion entre señales.",
+"how_to_detect_it": [
+"Dice que una onda arranca en negativo en vez de decir que arranca desplazada.",
+"Explica 180 grados como si siempre implicara el mismo procedimiento que invertir polaridad.",
+"No diferencia entre rotacion temporal y cambio de signo."
+],
+"tutor_feedback_strategy": "Corregir la formulacion sin dramatizar y devolver al alumno al criterio operativo: una cosa es describir posicion angular y otra describir inversion binaria.",
+"suggested_reframe": "Puedo encontrar una relacion de 180 grados entre señales, pero eso no elimina la diferencia entre desplazamiento temporal e inversion de polaridad.",
+"related_terms": [
+"180 grados",
+"rotacion de fase",
+"polaridad",
+"ciclo"
+],
+"severity": "medium",
+"validation_notes": [
+"La semejanza visual puede inducir confusion en ejemplos muy simplificados, por eso conviene corregir el concepto sin sobregeneralizar."
+],
+"requires_validation": true
+},
+{
+"error_id": "M03_ERR_003",
+"error_title": "Suponer que la monocompatibilidad ya no importa",
+"misconception": "Como hoy casi todo se escucha en estereo, revisar mono ya no es necesario.",
+"why_it_is_incorrect": "El material sostiene que la monocompatibilidad sigue siendo una exigencia practica. Existen contextos reales donde la escucha se aproxima a mono o a una suma acustica no controlada, y una mezcla que se desarma fuera del sweet spot queda tecnicamente fragil.",
+"why_it_matters": "Ignorar la revision en mono permite que pasen desapercibidas perdidas de graves, centros inestables, cancelaciones parciales y falsas aperturas estereo.",
+"how_to_detect_it": [
+"Declara que chequear mono es una costumbre antigua.",
+"Solo evalua la mezcla en estereo y nunca colapsa a mono.",
+"Descarta problemas de centro o graves porque en auriculares todo suena ancho."
+],
+"tutor_feedback_strategy": "Reencuadrar la revision mono como chequeo de robustez, no como nostalgia tecnica. Pedir que identifique que elementos primarios sobreviven o colapsan al cerrar la mezcla.",
+"suggested_reframe": "La mezcla puede abrirse en estereo, pero debe sostener sus elementos primarios cuando la escucha se aproxima a mono o pierde el sweet spot.",
+"related_terms": [
+"monocompatibilidad",
+"suma mono",
+"sweet spot",
+"centro"
+],
+"severity": "high",
+"validation_notes": [],
+"requires_validation": false
+},
+{
+"error_id": "M03_ERR_004",
+"error_title": "Leer el correlator como verdad total",
+"misconception": "Si el correlator no marca negativo, toda la mezcla esta bien; si cae, toda la mezcla esta mal.",
+"why_it_is_incorrect": "La lectura del correlator esta arrastrada por la frecuencia dominante y no representa de manera neutra todas las bandas al mismo tiempo. Ademas, el material indica que importa la tendencia general y no el pico instantaneo, y que en ciertos casos conviene medir por bandas.",
+"why_it_matters": "Este error lleva a diagnosticos falsos: se pueden ocultar problemas en medios-agudos por un grave dominante o sobrerreaccionar ante aperturas aceptables en elementos secundarios.",
+"how_to_detect_it": [
+"Interpreta un valor instantaneo como sentencia final.",
+"No diferencia entre promedio estructural y pico aislado.",
+"Asume que una lectura positiva garantiza que no hay regiones conflictivas."
+],
+"tutor_feedback_strategy": "Hacer que el alumno relacione la lectura con la fuente dominante y con el rol musical de lo que suena. Sugerir lectura lenta y, si hace falta, chequeo por bandas.",
+"suggested_reframe": "El correlator orienta, pero debo leerlo con contexto: tendencia, banda conflictiva y funcion musical del material.",
+"related_terms": [
+"correlator",
+"correlacion",
+"balistica",
+"medicion por bandas",
+"frecuencia dominante"
+],
+"severity": "high",
+"validation_notes": [],
+"requires_validation": false
+},
+{
+"error_id": "M03_ERR_005",
+"error_title": "Buscar +1 en todo el material",
+"misconception": "Todo debe quedar perfectamente en fase y lo ideal es mantener correlacion maxima en todos los elementos.",
+"why_it_is_incorrect": "El dossier diferencia entre elementos primarios, secundarios y terciarios. Los primarios exigen mayor rigor de suma y centro, pero no todo material debe cerrarse hacia una coherencia maxima. En muchos secundarios y efectos, una apertura mayor puede ser un costo estetico aceptado.",
+"why_it_matters": "Este criterio rigido puede destruir amplitud, movimiento y decisiones artisticas utiles por perseguir una falsa pureza tecnica.",
+"how_to_detect_it": [
+"Quiere corregir cualquier apertura como si fuera un defecto.",
+"Juzga toda desviacion del +1 como error tecnico.",
+"No distingue entre voz, bajo o bombo y capas envolventes o efectos breves."
+],
+"tutor_feedback_strategy": "Corregir por jerarquia funcional. Pedir primero que identifique que elemento esta comprometido y si la perdida en mono afecta el nucleo de la mezcla o solo una capa secundaria.",
+"suggested_reframe": "La exigencia de suma no es identica para todo. Los elementos primarios piden mas rigor; otros pueden abrirse si el costo mono es controlado y musicalmente conveniente.",
+"related_terms": [
+"elementos primarios",
+"elementos secundarios",
+"elementos terciarios",
+"correlacion",
+"monocompatibilidad"
+],
+"severity": "medium",
+"validation_notes": [
+"El punto dulce y el grado de apertura aceptable dependen del rol musical del elemento y del contexto de la mezcla."
+],
+"requires_validation": true
+},
+{
+"error_id": "M03_ERR_006",
+"error_title": "Creer que duplicar y retrasar reemplaza el doubling real",
+"misconception": "Para lograr el mismo efecto que dos tomas reales basta duplicar una pista y retrasar un lado.",
+"why_it_is_incorrect": "El material distingue con claridad entre doubling real y falso estereo. La duplicacion con delay genera comb filtering estatico y un ahuecamiento fuerte al colapsar a mono. El doubling real introduce microvariaciones humanas de tiempo y pitch que vuelven ese peine movil y perceptualmente mas organico.",
+"why_it_matters": "Confundir ambos metodos lleva a decisiones que aparentan anchura en estereo pero deterioran el timbre y la monocompatibilidad.",
+"how_to_detect_it": [
+"Propone duplicar una toma mono y retrasarla para simular doble grabacion.",
+"Llama doubling a una copia con delay fijo.",
+"Describe un ancho artificial sin revisar el colapso a mono."
+],
+"tutor_feedback_strategy": "Marcar la diferencia entre pseudoanchura y doblaje real. Conviene devolver al alumno al comportamiento de la suma mono y al caracter estatico del peine.",
+"suggested_reframe": "Duplicar y retrasar puede crear falso estereo, pero no reemplaza una doble toma real. Si busco comportamiento organico, no debo tratarlos como equivalentes.",
+"related_terms": [
+"doubling",
+"falso estereo",
+"comb filtering",
+"mono"
+],
+"severity": "high",
+"validation_notes": [],
+"requires_validation": false
+},
+{
+"error_id": "M03_ERR_007",
+"error_title": "Usar mono maker como cura de un problema temporal",
+"misconception": "Si los graves por debajo de cierta frecuencia se llevan mal en mono, basta cerrarlos al centro con un mono maker.",
+"why_it_is_incorrect": "El material rechaza esta idea de forma explicita. Si el problema entre L y R es temporal, colapsar amplitud al centro no repara el desfase; puede consolidar la cancelacion. La formulacion doctrinal del modulo es que los problemas de tiempo se arreglan con tiempo.",
+"why_it_matters": "Aplicar una solucion de amplitud a un problema temporal puede destruir el low-end en vez de recuperarlo.",
+"how_to_detect_it": [
+"Propone convertir el grave a mono sin revisar la relacion temporal entre canales.",
+"Usa mono maker como solucion automatica de monocompatibilidad.",
+"Confunde cierre al centro con alineacion temporal."
+],
+"tutor_feedback_strategy": "Llevar al alumno a diagnosticar primero si el conflicto esta en amplitud o en tiempo. Sugerir correccion por offset o realineacion en la banda afectada antes de colapsar por reflejo.",
+"suggested_reframe": "Si el conflicto del grave es temporal, debo corregir tiempo o alineacion; colapsar a mono no reemplaza esa reparacion.",
+"related_terms": [
+"mono maker",
+"offset temporal",
+"monocompatibilidad grave",
+"L/R",
+"tiempo"
+],
+"severity": "high",
+"validation_notes": [],
+"requires_validation": false
+},
+{
+"error_id": "M03_ERR_008",
+"error_title": "Alinear todo en bateria como si existiera una solucion perfecta",
+"misconception": "La bateria debe quedar completamente alineada entre todos sus microfonos, incluidos overheads y room mics.",
+"why_it_is_incorrect": "El dossier muestra que en bateria no existe una alineacion perfecta para todo simultaneamente. Ajustar un punto puede desbalancear otro, como ocurre con la tecnica del piolin. Ademas, los room mics no deben alinearse automaticamente porque su funcion es llegar tarde y aportar distancia.",
+"why_it_matters": "Este error puede destruir balance de platillos, profundidad espacial y naturalidad del kit por perseguir una coherencia imposible.",
+"how_to_detect_it": [
+"Intenta dejar coincidiendo todas las transientes del kit sin jerarquia.",
+"Alinea room mics automaticamente con los close mics.",
+"Asume que si una parte mejora, todo el kit necesariamente mejora."
+],
+"tutor_feedback_strategy": "Introducir jerarquia y costo-beneficio. Hacer que el alumno defina que referencia protege y que esta dispuesto a sacrificar. En el material, el tambor recibe prioridad operativa.",
+"suggested_reframe": "En bateria corrijo con criterio de prioridades, no con fantasia de perfeccion total. Algunas relaciones se optimizan y otras se aceptan como compromiso del sistema.",
+"related_terms": [
+"overheads",
+"room mics",
+"alineacion",
+"tambor",
+"tecnica del piolin"
+],
+"severity": "high",
+"validation_notes": [
+"La prioridad del tambor aparece sostenida con fuerza en el material, pero su aplicacion concreta sigue siendo sensible al contexto del kit y del arreglo."
+],
+"requires_validation": true
+},
+{
+"error_id": "M03_ERR_009",
+"error_title": "Creer que ecualizar despues de alinear no reabre problemas de fase",
+"misconception": "Una vez alineadas las pistas, puedo ecualizar sin afectar esa relacion; los shelves ademas casi no cuentan.",
+"why_it_is_incorrect": "El modulo establece que todo EQ IIR o analogico rota fase, incluido el shelving. Por eso, una relacion temporal corregida antes puede moverse otra vez despues de ecualizar cada pieza por separado.",
+"why_it_matters": "Ignorar esta rotacion puede hacer que una alineacion aparentemente resuelta vuelva a degradarse sin que el alumno entienda por que cambio la suma.",
+"how_to_detect_it": [
+"Declara que el EQ posterior no afecta la coherencia temporal.",
+"Supone que un shelving no rota fase de forma relevante.",
+"No reevalua relaciones de suma despues de ecualizar."
+],
+"tutor_feedback_strategy": "Volver al principio de que no hay filtros gratis. El tutor debe recordar que preservar una relacion previa exige revisar que hizo el procesamiento posterior sobre esa relacion.",
+"suggested_reframe": "Si alineo primero y luego ecualizo con filtros que rotan fase, tengo que volver a verificar la relacion entre pistas; el alineamiento no queda congelado.",
+"related_terms": [
+"EQ IIR",
+"shelving",
+"rotacion de fase",
+"fase lineal",
+"pre-ringing"
+],
+"severity": "medium",
+"validation_notes": [
+"El impacto exacto depende del tipo de filtro, frecuencia, pendiente y material, pero el principio general de que la EQ puede reabrir el conflicto esta claramente sostenido."
+],
+"requires_validation": true
+},
+{
+"error_id": "M03_ERR_010",
+"error_title": "Confundir asimetria con DC offset",
+"misconception": "Si una onda se ve cargada hacia arriba o hacia abajo, siempre es DC offset y se corrige con high-pass.",
+"why_it_is_incorrect": "El material separa ambos problemas. El DC offset desplaza toda la onda por una componente cercana a 0 Hz y puede corregirse con high-pass bajo. La asimetria, en cambio, puede deberse a la relacion de fase interna entre armonicos de una misma señal y no se corrige con el mismo recurso.",
+"why_it_matters": "Si el alumno diagnostica mal, aplica una correccion que no resuelve el problema real y puede perder informacion util sin mejorar la limitabilidad ni la forma de onda.",
+"how_to_detect_it": [
+"Recomienda high-pass cada vez que observa desbalance visual en la onda.",
+"No diferencia entre desplazamiento completo y asimetria de picos.",
+"Ignora la opcion de all-pass o rotor de fase para reorganizar fase interna."
+],
+"tutor_feedback_strategy": "Pedir que describa exactamente que ve en la forma de onda antes de decidir la herramienta. El tutor debe separar desplazamiento de centro y asimetria de picos como diagnosticos distintos.",
+"suggested_reframe": "No toda asimetria es DC offset. Primero identifico si la onda esta desplazada o si el problema esta en la relacion interna entre armonicos.",
+"related_terms": [
+"asimetria",
+"DC offset",
+"all-pass",
+"rotor de fase",
+"high-pass"
+],
+"severity": "high",
+"validation_notes": [],
+"requires_validation": false
+}
+]
 }

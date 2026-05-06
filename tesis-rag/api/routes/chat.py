@@ -1,13 +1,41 @@
 from fastapi import APIRouter
 from models.schemas import Consulta
 from services.agent_service import super_agente
-from services.db_service import get_chat_messages, add_message, save_trace, save_interaction_trace
+from services.db_service import get_chat_messages, add_message, save_trace, save_interaction_trace, ensure_chat_exists
 import json
 import time
 import uuid
 from datetime import datetime
 
 router = APIRouter()
+
+
+def _normalizar_historial(raw_historial, max_messages: int = 10):
+    if not isinstance(raw_historial, list):
+        return []
+
+    normalizado = []
+    anterior = None
+    for msg in raw_historial:
+        if not isinstance(msg, dict):
+            continue
+        role = msg.get("role")
+        content = msg.get("content")
+        if role not in ("user", "assistant"):
+            continue
+        if not isinstance(content, str):
+            continue
+        content = content.strip()
+        if not content:
+            continue
+
+        item = {"role": role, "content": content}
+        if item == anterior:
+            continue
+        normalizado.append(item)
+        anterior = item
+
+    return normalizado[-max_messages:]
 
 
 @router.post("/chat")
@@ -28,25 +56,39 @@ def chat_endpoint(consulta: Consulta):
         }
     )
 
-    # Extraer historial si viene empaquetado en el contexto o si hay session_id.
-    historial = []
+    # Extraer historial por prioridad: DB de sesion, payload directo, o contexto legacy.
+    historial = _normalizar_historial(consulta.historial)
     contexto = consulta.contexto_leccion
 
     if consulta.session_id:
         db_messages = get_chat_messages(consulta.session_id)
-        for msg in db_messages:
-            historial.append({"role": msg["role"], "content": msg["content"]})
-    else:
+        historial_db = _normalizar_historial([
+            {"role": msg["role"], "content": msg["content"]}
+            for msg in db_messages
+        ])
+        if historial_db:
+            historial = historial_db
+
+    if not historial:
         try:
             data_json = json.loads(consulta.contexto_leccion)
             if isinstance(data_json, dict):
-                historial = data_json.get("historial", [])
+                historial = _normalizar_historial(data_json.get("historial", []))
                 contexto = data_json.get("context", "")
         except Exception:
             pass
 
-    # Si hay session_id, guardamos el mensaje del usuario.
+    # Si hay session_id, aseguramos que la sesion exista antes de guardar mensajes.
     if consulta.session_id:
+        source_client = (consulta.source_client or "").strip().lower()
+        user_hint = f"{source_client}_user" if source_client else "system"
+        title_hint = "Chat Moodle" if source_client == "moodle" else "Chat auto-creado"
+
+        ensure_chat_exists(
+            chat_id=consulta.session_id,
+            user_id=user_hint,
+            title=title_hint
+        )
         add_message(consulta.session_id, "user", consulta.pregunta, consulta.imagen)
 
     # Fase 1: la pregunta queda limpia para retrieval.

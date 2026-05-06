@@ -1,19 +1,404 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M07",
-    "module_order":  7,
-    "module_title":  "Practica integradora de mezcla",
-    "module_slug":  "practica-integradora-mezcla",
-    "short_description":  "Modulo de integracion practica de criterios tecnicos y esteticos de mezcla.",
-    "learning_scope":  "Integra ganancia, fase, ecualizacion, dinamica, espacialidad y balance en ejercicios de mezcla completos.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "glossary",
-    "filename":  "M07_glosario.json",
-    "terms":  [
-
-              ]
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M07",
+  "module_order": 7,
+  "module_title": "Práctica integradora de mezcla",
+  "module_slug": "practica-integradora-mezcla",
+  "short_description": "Borrador canónico de trabajo sobre la integración de decisiones técnicas y artísticas en la mezcla.",
+  "learning_scope": "Delimita criterios de diagnóstico, jerarquía de planos, ruteo, dinámica, espacialidad, continuidad entre canciones y preservación de sesión dentro de la práctica integradora de mezcla.",
+  "doc_type": "glossary",
+  "source_origin": "course",
+  "filename": "M07_glosario.json",
+  "version": "0.1",
+  "status": "ready_for_indexing",
+  "curation_source": "borrador_autoral_m07",
+  "terms": [
+    {
+      "term_id": "M07_TERM_001",
+      "term": "Práctica integradora de mezcla",
+      "abbreviation": "",
+      "definition": "En este módulo, la práctica integradora de mezcla es el trabajo de articular decisiones de diagnóstico, balance, ruteo, dinámica, espacialidad, continuidad y preservación de sesión dentro de una sola lógica operativa. No se reduce a aplicar procesos aislados ni a optimizar pistas por separado.",
+      "stable_definition": "La práctica integradora de mezcla es la organización coherente de decisiones técnicas y artísticas dentro de una mezcla.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "marco general",
+      "tags": [
+        "mezcla",
+        "integración",
+        "criterio"
+      ],
+      "common_confusion": "Confundirla con una suma de plugins o con una simple lista de pasos fijos.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_002",
+      "term": "Problema tridimensional",
+      "abbreviation": "",
+      "definition": "Nombre operativo que el módulo da a la lectura de problemas en tres ejes: tiempo, nivel y frecuencia. Sirve para decidir qué herramienta corresponde antes de intervenir.",
+      "stable_definition": "Es la clasificación del problema en tiempo, nivel o frecuencia.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "diagnóstico",
+      "tags": [
+        "tiempo",
+        "nivel",
+        "frecuencia",
+        "diagnóstico"
+      ],
+      "common_confusion": "Creer que todos los problemas de mezcla pertenecen a la frecuencia.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_003",
+      "term": "Jerarquía de planos",
+      "abbreviation": "",
+      "definition": "Distribución deliberada de cercanía, protagonismo y fondo dentro de una mezcla. En el módulo, esta jerarquía se define según función musical, concepto y clima emocional.",
+      "stable_definition": "Es la organización de qué elemento lidera, cuál acompaña y cuál queda al fondo.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "balance",
+      "tags": [
+        "planos",
+        "protagonismo",
+        "profundidad"
+      ],
+      "common_confusion": "Tratar todos los elementos como si debieran ocupar el mismo frente.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_004",
+      "term": "Canción hilo conductor",
+      "abbreviation": "",
+      "definition": "Canción elegida como referencia estructural y tímbrica para ordenar la mezcla de un proyecto de varias piezas. Desde ella se trasladan criterios base a las demás canciones, con ajustes específicos cuando haga falta.",
+      "stable_definition": "Es la canción que sirve como molde inicial para mantener continuidad en un proyecto de varias canciones.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "workflow de álbum",
+      "tags": [
+        "álbum",
+        "continuidad",
+        "referencia"
+      ],
+      "common_confusion": "Pensar que su función es volver idénticas todas las canciones.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_005",
+      "term": "Estructura base",
+      "abbreviation": "",
+      "definition": "Conjunto de decisiones relativamente estables que pueden sostener continuidad entre canciones: ruteos, subgrupos, balances operativos, consola, compresión grupal y arquitectura general de efectos.",
+      "stable_definition": "Es la base técnica y sonora compartida que ayuda a mantener identidad de proyecto.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "workflow de álbum",
+      "tags": [
+        "estructura",
+        "ruteo",
+        "continuidad"
+      ],
+      "common_confusion": "Confundirla con una plantilla rígida que no admite ajustes por canción.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_006",
+      "term": "Pegamento",
+      "abbreviation": "",
+      "definition": "Término usado en el módulo para la sensación de cohesión entre elementos de una mezcla. No se atribuye solo al bus final, sino también a decisiones previas de interacción, balance, filtrado, dinámica y espacialidad.",
+      "stable_definition": "Es la cohesión percibida entre los elementos de la mezcla.",
+      "pending_validation_notes": [
+        "Su formulación es operativa y no describe una variable única medible."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "cohesión",
+      "tags": [
+        "glue",
+        "cohesión",
+        "mix bus"
+      ],
+      "common_confusion": "Reducirlo a un solo compresor en el Mix Bus.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_007",
+      "term": "Mezcla Tetris",
+      "abbreviation": "",
+      "definition": "Forma crítica de nombrar una mezcla excesivamente separada por filtros abruptos o cortes extremos, donde se intenta que los instrumentos no se toquen nunca y luego se busca recomponer cohesión al final.",
+      "stable_definition": "Es una mezcla demasiado fragmentada y separada de forma artificial.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "doctrina estética",
+      "tags": [
+        "filtros",
+        "separación",
+        "glue"
+      ],
+      "common_confusion": "Creer que más aislamiento siempre produce una mejor mezcla.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_008",
+      "term": "Bus",
+      "abbreviation": "",
+      "definition": "Ruta interna de audio que conduce señal de un punto a otro dentro de la sesión. En sí mismo no equivale al canal de procesamiento ni al retorno visible.",
+      "stable_definition": "Es la ruta interna por la que viaja el audio.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ruteo",
+      "tags": [
+        "bus",
+        "señal",
+        "routing"
+      ],
+      "common_confusion": "Usar 'bus' y 'auxiliar' como si fueran exactamente lo mismo.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_009",
+      "term": "Auxiliar",
+      "abbreviation": "",
+      "definition": "Canal de destino que recibe señal a través de un bus y permite insertar procesamiento, ajustar nivel, definir salida y construir retornos o submezclas.",
+      "stable_definition": "Es el canal que recibe audio desde un bus y sobre el que se puede procesar y balancear.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ruteo",
+      "tags": [
+        "auxiliar",
+        "retorno",
+        "subgrupo"
+      ],
+      "common_confusion": "Confundirlo con la ruta invisible por donde viaja el audio.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_010",
+      "term": "Mix Bus",
+      "abbreviation": "",
+      "definition": "Etapa auxiliar o de suma previa al Master Fader donde puede reunirse la mezcla completa para control, impresión o procesamiento general. En el módulo se diferencia del Master Fader por su función operativa dentro de la arquitectura.",
+      "stable_definition": "Es una etapa de suma previa al Master Fader usada para control global de mezcla.",
+      "pending_validation_notes": [
+        "La implementación concreta depende del flujo de trabajo de cada sesión."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "ruteo",
+      "tags": [
+        "mix bus",
+        "master",
+        "suma"
+      ],
+      "common_confusion": "Pensar que siempre es lo mismo que el Master Fader.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_011",
+      "term": "Master Fader",
+      "abbreviation": "",
+      "definition": "Control maestro de salida usado en el módulo sobre todo para medición, análisis y supervisión final. Su función no se equipara automáticamente a la del Mix Bus auxiliar.",
+      "stable_definition": "Es el control maestro de salida de la sesión.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ruteo",
+      "tags": [
+        "master fader",
+        "medición",
+        "salida"
+      ],
+      "common_confusion": "Usarlo conceptualmente como sinónimo estricto de Mix Bus.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_012",
+      "term": "Compresión individual",
+      "abbreviation": "",
+      "definition": "Compresión aplicada a una pista específica para controlar picos, nivel o envolvente propios de esa toma antes de llevar el problema al grupo.",
+      "stable_definition": "Es la compresión que corrige necesidades propias de una pista individual.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "dinámica",
+      "tags": [
+        "compresión",
+        "pista",
+        "control"
+      ],
+      "common_confusion": "Esperar que un grupo resuelva primero defectos particulares de una sola capa.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_013",
+      "term": "Compresión de grupo",
+      "abbreviation": "",
+      "definition": "Compresión aplicada después de estabilizar las pistas individuales, con el fin de amalgamar el conjunto o darle comportamiento compartido sin perseguir defectos que pertenecen a una sola toma.",
+      "stable_definition": "Es la compresión usada para integrar varias pistas ya relativamente controladas.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "dinámica",
+      "tags": [
+        "compresión",
+        "grupo",
+        "glue"
+      ],
+      "common_confusion": "Usarla como primera respuesta frente a un pico aislado de una sola pista.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_014",
+      "term": "Ducking Mid Only",
+      "abbreviation": "",
+      "definition": "Forma de ducking en la que la reducción ocurre solo en el canal Mid y, de ser necesario, en una zona espectral específica. En el módulo sirve para despejar el centro sin destruir la amplitud lateral del material.",
+      "stable_definition": "Es una reducción dinámica limitada al centro de la imagen estéreo.",
+      "pending_validation_notes": [
+        "Su implementación exacta depende del procesador disponible."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "dinámica y espacialidad",
+      "tags": [
+        "ducking",
+        "mid",
+        "sidechain",
+        "estéreo"
+      ],
+      "common_confusion": "Creer que ducking siempre significa bajar toda la señal completa.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_015",
+      "term": "Doubling real",
+      "abbreviation": "",
+      "definition": "Duplicación obtenida mediante una segunda interpretación real del músico o la voz. En el módulo se valora por sus variaciones naturales de tiempo y afinación, que generan amplitud más orgánica.",
+      "stable_definition": "Es una segunda interpretación real usada para ensanchar o reforzar una parte.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "producción y estéreo",
+      "tags": [
+        "doubling",
+        "interpretación",
+        "estéreo"
+      ],
+      "common_confusion": "Confundirlo con copiar y retrasar digitalmente una sola toma.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_016",
+      "term": "Falso estéreo",
+      "abbreviation": "",
+      "definition": "Apertura artificial obtenida al duplicar una pista mono y alterar sus copias con retrasos fijos u otros trucos que pueden degradar la monocompatibilidad. El módulo lo distingue del doubling real.",
+      "stable_definition": "Es una apertura estéreo artificial que puede generar cancelaciones al colapsar a mono.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "estéreo",
+      "tags": [
+        "falso estéreo",
+        "mono",
+        "fase"
+      ],
+      "common_confusion": "Tomarlo como equivalente funcional de una toma doble real.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_017",
+      "term": "Bleed",
+      "abbreviation": "",
+      "definition": "Filtración de una fuente en el micrófono de otra. En el módulo no se trata como defecto universal, sino como fenómeno cuya conveniencia depende de estética, género y objetivo de mezcla.",
+      "stable_definition": "Es la entrada no aislada de otras fuentes en un micrófono o pista.",
+      "pending_validation_notes": [
+        "El material del módulo lo trata como decisión contextual."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "captura y mezcla",
+      "tags": [
+        "bleed",
+        "batería",
+        "captura"
+      ],
+      "common_confusion": "Asumir que toda filtración debe eliminarse por completo.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_018",
+      "term": "Envío pre-fader",
+      "abbreviation": "",
+      "definition": "Envío cuyo nivel no sigue automáticamente al fader principal del canal. En el módulo aparece como recurso útil cuando se quiere modificar la relación entre señal seca y ambiente para construir distancia.",
+      "stable_definition": "Es un envío independiente del fader principal de la pista.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ruteo y espacialidad",
+      "tags": [
+        "pre-fader",
+        "envíos",
+        "profundidad"
+      ],
+      "common_confusion": "Pensar que los envíos temporales deben ser siempre post-fader.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_019",
+      "term": "PLR",
+      "abbreviation": "Peak to Loudness Ratio",
+      "definition": "Referencia de relación entre pico y sonoridad promedio usada en el módulo para recordar que la mezcla no debe evaluarse solo por cantidad de nivel. Ayuda a proteger impacto y respiración antes de procesos posteriores.",
+      "stable_definition": "Es una referencia de distancia entre pico y promedio sonoro.",
+      "pending_validation_notes": [
+        "Las referencias numéricas asociadas en el módulo deben leerse con prudencia."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "dinámica macro",
+      "tags": [
+        "plr",
+        "pico",
+        "promedio",
+        "dinámica"
+      ],
+      "common_confusion": "Confundirlo con una invitación a aplastar la mezcla para competir.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_020",
+      "term": "Strip Silence",
+      "abbreviation": "",
+      "definition": "Proceso de limpieza que elimina tramos sin audio útil y deja silencios reales en la línea de tiempo. En el módulo también se valora por su impacto en eficiencia operativa cuando la sesión usa procesamiento dinámico de plugins.",
+      "stable_definition": "Es una limpieza de silencios que puede mejorar orden y eficiencia de sesión.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "archivo y eficiencia",
+      "tags": [
+        "strip silence",
+        "sesión",
+        "cpu"
+      ],
+      "common_confusion": "Pensar que solo sirve para ordenar visualmente y no tiene efecto operativo.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_021",
+      "term": "Dynamic Plugin Processing",
+      "abbreviation": "",
+      "definition": "Comportamiento por el cual el sistema puede reducir procesamiento cuando no hay audio activo en un tramo. En el módulo aparece asociado a una sesión bien limpiada y no consolidada innecesariamente.",
+      "stable_definition": "Es una optimización que aprovecha silencios reales para reducir procesamiento cuando no hay audio.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "archivo y eficiencia",
+      "tags": [
+        "cpu",
+        "optimización",
+        "sesión"
+      ],
+      "common_confusion": "Creer que se conserva igual aunque luego se consoliden todos los vacíos.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M07_TERM_022",
+      "term": "Preservación de sesión",
+      "abbreviation": "",
+      "definition": "Conjunto de decisiones destinadas a que la mezcla siga siendo abrible, entendible y transportable en el futuro. Incluye impresión de instrumentos virtuales, limpieza de ruteo y generación de una copia final ordenada.",
+      "stable_definition": "Es el cuidado técnico para que la sesión pueda mantenerse y reabrirse con seguridad.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "archivo",
+      "tags": [
+        "sesión",
+        "archivo",
+        "respaldo"
+      ],
+      "common_confusion": "Tratarla como un trámite ajeno a la mezcla.",
+      "requires_validation": true
+    }
+  ]
 }

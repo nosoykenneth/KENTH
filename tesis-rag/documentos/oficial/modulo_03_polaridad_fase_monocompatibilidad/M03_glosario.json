@@ -1,196 +1,361 @@
-﻿{
+{
   "course_id": "mezcla_masterizacion_kenth",
   "module_id": "M03",
   "module_order": 3,
   "module_title": "Polaridad, fase y monocompatibilidad",
   "module_slug": "polaridad-fase-monocompatibilidad",
-  "short_description": "Modulo sobre relaciones entre polaridad, fase y compatibilidad mono dentro del proceso de mezcla.",
-  "learning_scope": "Delimita el analisis de polaridad, fase, suma de señales y traduccion mono.",
+  "short_description": "Distinge polaridad y fase, ordena la lógica de suma y cancelación, y delimita criterios prácticos de monocompatibilidad y diagnóstico.",
+  "learning_scope": "Comprender la diferencia entre polaridad y fase, leer relaciones de suma y cancelación, evaluar monocompatibilidad, diagnosticar conflictos entre señales y aplicar criterios prudentes de corrección según función musical.",
   "doc_type": "glossary",
   "source_origin": "course",
   "filename": "M03_glosario.json",
-  "version": "0.2",
-  "status": "draft_author_review",
+  "version": "0.1",
+  "status": "ready_for_indexing",
   "curation_source": "borrador_autoral_m03",
   "terms": [
     {
       "term_id": "M03_TERM_001",
       "term": "Polaridad",
       "abbreviation": "",
-      "definition": "Orientacion de una señal respecto de su referencia.",
-      "stable_definition": "La polaridad puede invertirse, pero no debe confundirse automaticamente con fase.",
-      "pending_validation_notes": [
-        "Validar formulacion exacta del curso."
-      ],
+      "definition": "Condición binaria de una señal en la que su orientación positiva y negativa puede mantenerse o invertirse.",
+      "stable_definition": "No debe confundirse con fase: no describe un desplazamiento gradual, sino una inversión absoluta.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Conceptos base",
-      "tags": ["polaridad", "senal"],
-      "common_confusion": "Usarla como sinonimo de fase.",
+      "topic": "fundamentos",
+      "tags": [
+        "polaridad",
+        "inversion"
+      ],
+      "common_confusion": "Llamar fase a cualquier inversión de polaridad.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_002",
-      "term": "Inversion de polaridad",
+      "term": "Fase",
       "abbreviation": "",
-      "definition": "Operacion que invierte la orientacion de una señal respecto de su referencia.",
-      "stable_definition": "Es una accion puntual sobre la señal y no debe venderse como solucion universal.",
-      "pending_validation_notes": [
-        "Validar si el curso usa este termino o si la interfaz docente habla de invertir fase."
-      ],
+      "definition": "Relación temporal entre señales que puede expresarse como desplazamiento en el tiempo o como relación angular dentro de un ciclo.",
+      "stable_definition": "En este módulo, la fase siempre se entiende de forma relacional: importa respecto de otra referencia.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Operaciones basicas",
-      "tags": ["polaridad", "inversion"],
-      "common_confusion": "Creer que siempre corrige problemas de fase.",
+      "topic": "fundamentos",
+      "tags": [
+        "fase",
+        "tiempo",
+        "angulo"
+      ],
+      "common_confusion": "Usarla como sinónimo de polaridad o tratarla como una propiedad aislada de una sola pista.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_003",
-      "term": "Fase",
+      "term": "Monocompatibilidad",
       "abbreviation": "",
-      "definition": "Relacion entre señales que influye en como se combinan al sumarse.",
-      "stable_definition": "La fase debe entenderse como relacion entre señales, no como una etiqueta unica para cualquier problema.",
-      "pending_validation_notes": [
-        "Validar nivel de formalidad matematica que usara el curso."
-      ],
+      "definition": "Capacidad de una señal o mezcla de conservar estabilidad útil al colapsarse a una suma mono.",
+      "stable_definition": "No exige que todo suene idéntico al estéreo, pero sí que la mezcla no se desarme en lo esencial.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Conceptos base",
-      "tags": ["fase", "suma_de_senales"],
-      "common_confusion": "Reducirla solo a un boton o a una inversion.",
+      "topic": "mono y estereo",
+      "tags": [
+        "mono",
+        "traduccion",
+        "compatibilidad"
+      ],
+      "common_confusion": "Asumir que ya no importa porque el destino principal es estéreo.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_004",
-      "term": "Desfase",
+      "term": "Cancelación ideal",
       "abbreviation": "",
-      "definition": "Diferencia en la relacion entre señales que puede afectar su suma.",
-      "stable_definition": "El desfase puede alterar el resultado audible cuando señales relacionadas se combinan.",
-      "pending_validation_notes": [
-        "Validar si el curso diferencia desfase temporal, espectral u otras formulaciones."
-      ],
+      "definition": "Caso límite en que dos señales equivalentes se oponen de manera tal que su suma tiende a anularse.",
+      "stable_definition": "En el módulo funciona como extremo teórico útil para entender relaciones de fase, no como la descripción de todos los problemas reales.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Relaciones entre señales",
-      "tags": ["desfase", "fase", "suma"],
-      "common_confusion": "Usarlo como diagnostico automatico sin contexto.",
+      "topic": "suma y cancelacion",
+      "tags": [
+        "cancelacion",
+        "suma",
+        "ideal"
+      ],
+      "common_confusion": "Tratar cualquier pérdida parcial de cuerpo como si fuera cancelación total.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_005",
-      "term": "Suma de señales",
+      "term": "Suma coherente",
       "abbreviation": "",
-      "definition": "Combinacion de dos o mas señales cuyo resultado depende de su relacion mutua.",
-      "stable_definition": "La suma puede reforzar o debilitar componentes segun el contexto.",
-      "pending_validation_notes": [
-        "Validar si el curso desarrolla suma con ejemplos propios y hasta que nivel de detalle."
-      ],
+      "definition": "Suma en la que dos señales guardan nivel y relación temporal suficientemente cercanos como para interferir de forma relevante.",
+      "stable_definition": "Puede producir refuerzo o debilitamiento perceptible según la relación entre ambas señales.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Operacion basica",
-      "tags": ["suma", "senal", "mezcla"],
-      "common_confusion": "Pensar que el resultado depende solo del volumen.",
+      "topic": "suma y cancelacion",
+      "tags": [
+        "suma",
+        "coherencia",
+        "interferencia"
+      ],
+      "common_confusion": "Pensar que cualquier combinación de dos señales siempre interferirá de la misma manera.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_006",
-      "term": "Cancelacion parcial",
+      "term": "Suma no coherente",
       "abbreviation": "",
-      "definition": "Perdida o reduccion de informacion cuando señales relacionadas se combinan de forma poco favorable.",
-      "stable_definition": "No implica necesariamente desaparicion total de la señal.",
-      "pending_validation_notes": [
-        "Validar ejemplos y formulacion oficial del curso."
-      ],
+      "definition": "Comportamiento de suma entre señales cuya diferencia de nivel o de relación relevante hace despreciable la interferencia audible o medible.",
+      "stable_definition": "El módulo la usa para explicar por qué no toda fuga o duplicación genera un conflicto serio.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Efectos de suma",
-      "tags": ["cancelacion", "fase", "suma"],
-      "common_confusion": "Usarla para describir cualquier cambio tonal leve.",
+      "topic": "suma y cancelacion",
+      "tags": [
+        "suma",
+        "no_coherente",
+        "nivel"
+      ],
+      "common_confusion": "Suponer que dos señales siempre se pelean aunque una quede muy por debajo de la otra.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_007",
-      "term": "Filtro peine",
-      "abbreviation": "Comb Filter",
-      "definition": "Alteracion espectral asociada a la suma de señales muy parecidas con diferencias de llegada o de relacion temporal.",
-      "stable_definition": "Debe tratarse como un fenomeno de suma entre señales similares, no como etiqueta para cualquier timbre raro.",
-      "pending_validation_notes": [
-        "Validar el nivel de detalle con que el curso lo explica y si se usa este termino de forma central."
-      ],
+      "term": "Correlator",
+      "abbreviation": "",
+      "definition": "Medidor que ofrece una referencia de relación entre canales o señales, normalmente en un rango que va de coincidencia favorable a oposición extrema.",
+      "stable_definition": "Es una herramienta de diagnóstico y tendencia, no un juez absoluto del estado completo de la mezcla.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Efectos de suma",
-      "tags": ["comb_filter", "filtro_peine", "fase", "suma"],
-      "common_confusion": "Diagnosticarlo automaticamente sin escuchar contexto.",
+      "topic": "medicion",
+      "tags": [
+        "correlator",
+        "medicion",
+        "fase"
+      ],
+      "common_confusion": "Interpretar un valor puntual como verdad total de toda la mezcla.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_008",
-      "term": "Monocompatibilidad",
+      "term": "Goniómetro",
       "abbreviation": "",
-      "definition": "Capacidad de una mezcla o fuente para conservar una traduccion funcional al reducirse a mono.",
-      "stable_definition": "No exige que mono y estereo suenen identicos.",
-      "pending_validation_notes": [
-        "Validar definicion exacta que quedara como doctrina del curso."
-      ],
+      "definition": "Herramienta visual que representa la geometría de una señal estéreo y permite inferir concentración al centro, apertura o tendencia a relaciones problemáticas.",
+      "stable_definition": "Se interpreta en conjunto con escucha y otras mediciones.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Traduccion",
-      "tags": ["mono", "monocompatibilidad", "traduccion"],
-      "common_confusion": "Creer que obliga a mezclar todo en mono.",
+      "topic": "medicion",
+      "tags": [
+        "goniometro",
+        "estereo",
+        "visualizacion"
+      ],
+      "common_confusion": "Creer que una forma más ancha siempre implica mejor imagen estéreo.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_009",
-      "term": "Colapso a mono",
+      "term": "Osciloscopio",
       "abbreviation": "",
-      "definition": "Reduccion de una señal o mezcla estereo a una representacion mono.",
-      "stable_definition": "Sirve como prueba de traduccion y de relacion entre señales.",
-      "pending_validation_notes": [
-        "Validar si el curso usa literalmente este termino o equivalente."
-      ],
+      "definition": "Visualizador de forma de onda útil para observar superposición, corrimiento o diferencia temporal entre señales.",
+      "stable_definition": "Ayuda a ver relaciones, pero no reemplaza la escucha ni el juicio musical.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Verificacion tecnica",
-      "tags": ["mono", "colapso", "estereo"],
-      "common_confusion": "Pensar que siempre empeora el audio por definicion.",
+      "topic": "medicion",
+      "tags": [
+        "osciloscopio",
+        "onda",
+        "comparacion"
+      ],
+      "common_confusion": "Tomar coincidencia visual como garantía automática de buen resultado sonoro.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_010",
-      "term": "Correlacion",
+      "term": "Comb filtering",
       "abbreviation": "",
-      "definition": "Indicador usado para observar de forma orientativa la relacion entre canales o señales.",
-      "stable_definition": "Es una ayuda visual y no reemplaza la escucha contextual.",
-      "pending_validation_notes": [
-        "Validar si el curso incorpora correlometro o medidor equivalente como termino oficial."
-      ],
+      "definition": "Patrón de sumas y cancelaciones alternadas que aparece al combinar señales relacionadas con un pequeño retraso entre sí.",
+      "stable_definition": "Puede colorear el timbre de forma marcada y suele percibirse como ahuecamiento o textura artificial.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Medicion",
-      "tags": ["correlacion", "medidor", "mono"],
-      "common_confusion": "Tomar el medidor como veredicto definitivo.",
+      "topic": "interferencia temporal",
+      "tags": [
+        "comb_filtering",
+        "retraso",
+        "coloracion"
+      ],
+      "common_confusion": "Confundirlo con cualquier ecualización extraña o con una simple pérdida de volumen.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_011",
-      "term": "Goniometro",
+      "term": "Falso estéreo",
       "abbreviation": "",
-      "definition": "Herramienta visual usada para observar de forma orientativa la distribucion de la imagen estereo.",
-      "stable_definition": "Puede ayudar a leer amplitud e imagen, pero no sustituye la escucha ni la prueba en mono.",
-      "pending_validation_notes": [
-        "Validar si el curso realmente lo trata como termino central del modulo."
-      ],
+      "definition": "Apertura aparente generada artificialmente, por ejemplo al duplicar una señal y retrasar uno de sus lados.",
+      "stable_definition": "No equivale al doubling real y puede producir un peine estático al colapsar.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Medicion",
-      "tags": ["goniometro", "imagen_estereo", "medicion"],
-      "common_confusion": "Interpretarlo como prueba autosuficiente de que la mezcla esta bien o mal.",
+      "topic": "imagen estereo",
+      "tags": [
+        "falso_estereo",
+        "delay",
+        "anchura"
+      ],
+      "common_confusion": "Creer que cualquier señal paneada doble ya es un doubling auténtico.",
       "requires_validation": true
     },
     {
       "term_id": "M03_TERM_012",
-      "term": "Imagen estereo",
+      "term": "Doubling real",
       "abbreviation": "",
-      "definition": "Percepcion de distribucion espacial entre canales izquierdo y derecho.",
-      "stable_definition": "Debe evaluarse junto con estabilidad y traduccion mono.",
+      "definition": "Duplicación lograda mediante una nueva interpretación, con diferencias microscópicas naturales de tiempo y afinación respecto de la primera toma.",
+      "stable_definition": "Su comportamiento en fase no es idéntico al de una copia retrasada artificialmente.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "imagen estereo",
+      "tags": [
+        "doubling",
+        "doblaje",
+        "interpretacion"
+      ],
+      "common_confusion": "Equipararlo a copiar y retrasar la misma pista.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_013",
+      "term": "Regla 3 a 1",
+      "abbreviation": "",
+      "definition": "Referencia práctica usada para reducir la relevancia de interferencias entre dos captaciones al mantener una diferencia espacial que favorezca una diferencia de nivel suficiente.",
+      "stable_definition": "En el módulo aparece como apoyo para pensar cuándo una suma deja de ser perceptivamente crítica.",
       "pending_validation_notes": [
-        "Validar formulacion exacta del curso."
+        "Su aplicación exacta depende del contexto de captación y no debe simplificarse como garantía universal."
       ],
       "brand_or_model_mentions": [],
-      "topic": "Espacialidad basica",
-      "tags": ["estereo", "imagen", "mezcla"],
-      "common_confusion": "Asumir que mas amplitud siempre es mejor.",
+      "topic": "captacion y microfonia",
+      "tags": [
+        "3_a_1",
+        "microfonia",
+        "interferencia"
+      ],
+      "common_confusion": "Tomarla como fórmula infalible para cualquier situación de múltiples micrófonos.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_014",
+      "term": "Offset temporal",
+      "abbreviation": "",
+      "definition": "Desplazamiento deliberado de una señal respecto de otra para modificar su relación de suma y cancelación.",
+      "stable_definition": "En este módulo es una vía de corrección cuando el conflicto de fondo es temporal.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "correccion",
+      "tags": [
+        "offset",
+        "tiempo",
+        "alineacion"
+      ],
+      "common_confusion": "Usarlo como sinónimo de cualquier ajuste de fase o de cualquier inversión.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_015",
+      "term": "Fase lineal",
+      "abbreviation": "",
+      "definition": "Modo de procesamiento que busca preservar relaciones de fase relativas entre componentes espectrales, evitando cierta rotación propia de otros diseños.",
+      "stable_definition": "No es un recurso gratuito: puede introducir latencia y pre-ringing.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "procesamiento",
+      "tags": [
+        "fase_lineal",
+        "eq",
+        "multibanda"
+      ],
+      "common_confusion": "Asumir que resuelve cualquier problema sin consecuencias secundarias.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_016",
+      "term": "Pre-ringing",
+      "abbreviation": "",
+      "definition": "Energía o anticipación perceptible que aparece antes de un transiente como consecuencia de ciertos modos de procesamiento.",
+      "stable_definition": "En el módulo se presenta como uno de los costos posibles al privilegiar fase lineal.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "procesamiento",
+      "tags": [
+        "pre_ringing",
+        "transiente",
+        "fase_lineal"
+      ],
+      "common_confusion": "Pensar que solo importa en teoría y nunca puede afectar la decisión práctica.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_017",
+      "term": "Asimetría de onda",
+      "abbreviation": "",
+      "definition": "Condición en la que una onda puede permanecer centrada y aun así mostrar picos desbalanceados hacia arriba y hacia abajo.",
+      "stable_definition": "El módulo la vincula con relaciones internas de fase y la separa de un desplazamiento DC puro.",
+      "pending_validation_notes": [
+        "Las estrategias avanzadas de corrección requieren validación editorial antes de formularse como recomendación cerrada."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "forma de onda",
+      "tags": [
+        "asimetria",
+        "onda",
+        "armonicidad"
+      ],
+      "common_confusion": "Confundirla con DC offset por simple inspección visual.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_018",
+      "term": "DC offset",
+      "abbreviation": "",
+      "definition": "Desplazamiento del centro de una onda respecto del eje de referencia, asociado a un componente cercano a continua.",
+      "stable_definition": "No describe por sí mismo una asimetría armónica interna de la señal.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "forma de onda",
+      "tags": [
+        "dc_offset",
+        "onda",
+        "desplazamiento"
+      ],
+      "common_confusion": "Llamar DC offset a cualquier forma de onda que no parezca simétrica.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_019",
+      "term": "All-pass",
+      "abbreviation": "",
+      "definition": "Proceso que modifica relaciones de fase sin buscar alterar de forma principal la magnitud espectral.",
+      "stable_definition": "En el módulo aparece como herramienta vinculada a reorganización interna de fase en casos específicos.",
+      "pending_validation_notes": [
+        "Su uso correctivo debe mantenerse prudente hasta validación editorial final."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "correccion avanzada",
+      "tags": [
+        "all_pass",
+        "rotor_de_fase",
+        "asimetria"
+      ],
+      "common_confusion": "Pensar que funciona como un ecualizador común o que corrige cualquier problema de forma automática.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M03_TERM_020",
+      "term": "Crossovers de reconstrucción",
+      "abbreviation": "",
+      "definition": "Diseños de división por bandas pensados para que, al recombinarse, las partes recuperen una suma estable y sin error relevante.",
+      "stable_definition": "Su valor en el módulo está en mostrar que dividir y recombinar señales exige cuidar relación de fase y nivel en el punto de cruce.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "procesamiento por bandas",
+      "tags": [
+        "crossovers",
+        "reconstruccion",
+        "multibanda"
+      ],
+      "common_confusion": "Creer que basta con poner un low-pass y un high-pass a la misma frecuencia para reconstruir sin consecuencias.",
       "requires_validation": true
     }
   ]

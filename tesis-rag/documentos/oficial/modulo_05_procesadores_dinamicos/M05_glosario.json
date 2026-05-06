@@ -1,19 +1,445 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M05",
-    "module_order":  5,
-    "module_title":  "Procesadores dinamicos",
-    "module_slug":  "procesadores-dinamicos",
-    "short_description":  "Modulo sobre control de dinamica mediante procesadores como compresores, expansores, gates y limitadores.",
-    "learning_scope":  "Delimita el uso de procesadores dinamicos para controlar envolvente, rango dinamico y estabilidad de la mezcla.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "glossary",
-    "filename":  "M05_glosario.json",
-    "terms":  [
-
-              ]
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M05",
+  "module_order": 5,
+  "module_title": "Procesadores dinámicos",
+  "module_slug": "procesadores-dinamicos",
+  "short_description": "Doctrina base del control dinámico aplicada a compresión, expansión, compuertas, limitación y sidechain.",
+  "learning_scope": "Delimita la lógica del control dinámico, sus parámetros, detectores, topologías y aplicaciones correctivas o artísticas sin convertir ejemplos concretos en reglas universales.",
+  "doc_type": "glossary",
+  "source_origin": "course",
+  "filename": "M05_glosario.json",
+  "version": "0.1",
+  "status": "ready_for_indexing",
+  "curation_source": "borrador_autoral_m05",
+  "terms": [
+    {
+      "term_id": "M05_TERM_001",
+      "term": "Threshold",
+      "abbreviation": "",
+      "definition": "Nivel a partir del cual el procesador comienza a actuar sobre la señal según su lógica interna.",
+      "stable_definition": "Es el punto de disparo que define cuándo empieza la intervención dinámica.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "parametros",
+      "tags": [
+        "threshold",
+        "umbral",
+        "dinamica"
+      ],
+      "common_confusion": "Confundirlo con el nivel final deseado o con un volumen de salida.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_002",
+      "term": "Ratio",
+      "abbreviation": "",
+      "definition": "Relación matemática que determina la severidad con la que se reduce o expande la señal una vez que supera o cae respecto del umbral, según el tipo de procesador.",
+      "stable_definition": "Describe cuánta intervención dinámica se aplica una vez activado el procesamiento.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "parametros",
+      "tags": [
+        "ratio",
+        "compresion",
+        "expansion"
+      ],
+      "common_confusion": "Creer que el ratio actúa sobre toda la señal por igual.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_003",
+      "term": "Attack",
+      "abbreviation": "",
+      "definition": "Velocidad con la que el procesador alcanza su acción cuando la señal cruza el umbral.",
+      "stable_definition": "No es una espera previa, sino la rapidez de entrada del procesamiento.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "parametros",
+      "tags": [
+        "attack",
+        "tiempo",
+        "envolvente"
+      ],
+      "common_confusion": "Interpretarlo como un delay antes de que el compresor empiece a trabajar.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_004",
+      "term": "Release",
+      "abbreviation": "",
+      "definition": "Velocidad con la que el procesador vuelve hacia unidad cuando la señal deja de exigir acción.",
+      "stable_definition": "Es la rapidez de salida del procesamiento dinámico.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "parametros",
+      "tags": [
+        "release",
+        "tiempo",
+        "envolvente"
+      ],
+      "common_confusion": "Pensar que es una pausa fija posterior al procesamiento.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_005",
+      "term": "Knee",
+      "abbreviation": "",
+      "definition": "Forma de transición entre la zona sin acción y la zona de intervención dinámica.",
+      "stable_definition": "Define si la entrada en acción es más brusca o más progresiva.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "parametros",
+      "tags": [
+        "knee",
+        "transicion",
+        "compresion"
+      ],
+      "common_confusion": "Reducirlo a un adorno sin efecto real sobre la conducta del procesador.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_006",
+      "term": "Make-up gain",
+      "abbreviation": "",
+      "definition": "Ganancia de compensación aplicada después del procesamiento para recuperar nivel aparente o real.",
+      "stable_definition": "Es una compensación posterior que debe usarse con criterio, no de forma automática.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ganancia de salida",
+      "tags": [
+        "make-up gain",
+        "nivel",
+        "salida"
+      ],
+      "common_confusion": "Asumir que siempre debe devolver exactamente los dB reducidos.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_007",
+      "term": "Hold",
+      "abbreviation": "",
+      "definition": "Tiempo durante el cual el procesador sostiene su estado antes de comenzar a liberar o cerrar.",
+      "stable_definition": "Sirve para estabilizar la acción antes del retorno o del cierre.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "parametros",
+      "tags": [
+        "hold",
+        "tiempo",
+        "compresion",
+        "gate"
+      ],
+      "common_confusion": "Pensar que solo existe en compuertas o que no afecta la naturalidad del resultado.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_008",
+      "term": "Look-ahead",
+      "abbreviation": "",
+      "definition": "Mecanismo mediante el cual la señal útil se retrasa internamente para que el detector pueda anticipar la acción.",
+      "stable_definition": "Es una forma de anticipación construida con retraso interno de la señal.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "arquitectura",
+      "tags": [
+        "look-ahead",
+        "anticipacion",
+        "detector"
+      ],
+      "common_confusion": "Entenderlo como si el procesador realmente viera el futuro sin costo ni compensación.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_009",
+      "term": "Sidechain",
+      "abbreviation": "",
+      "definition": "Ruta de detección que gobierna la respuesta del procesador dinámico.",
+      "stable_definition": "Es la señal que el detector escucha para decidir cómo actuar.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "deteccion",
+      "tags": [
+        "sidechain",
+        "detector",
+        "control"
+      ],
+      "common_confusion": "Reducirlo solo al efecto popular de ducking.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_010",
+      "term": "Key Input",
+      "abbreviation": "",
+      "definition": "Entrada externa usada para alimentar el sidechain con una señal distinta de la que se procesa en la salida principal.",
+      "stable_definition": "Permite que una señal externa gobierne la acción dinámica.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ruteo",
+      "tags": [
+        "key input",
+        "sidechain",
+        "ruteo"
+      ],
+      "common_confusion": "Confundirlo con una simple entrada adicional de audio audible en la salida.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_011",
+      "term": "Detector Peak",
+      "abbreviation": "Peak",
+      "definition": "Modo de detección que responde con prioridad a variaciones instantáneas y transientes.",
+      "stable_definition": "Sigue picos rápidos de la señal.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "deteccion",
+      "tags": [
+        "peak",
+        "detector",
+        "transientes"
+      ],
+      "common_confusion": "Asumir que siempre produce mejor control sin efectos secundarios.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_012",
+      "term": "Detector RMS",
+      "abbreviation": "RMS",
+      "definition": "Modo de detección que responde al promedio de energía de la señal y suele generar una acción más estable.",
+      "stable_definition": "Sigue la energía promedio en lugar de centrarse en cada pico instantáneo.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "deteccion",
+      "tags": [
+        "rms",
+        "detector",
+        "energia"
+      ],
+      "common_confusion": "Confundir RMS con lentitud obligatoria o con falta de precisión.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_013",
+      "term": "Feed-forward",
+      "abbreviation": "",
+      "definition": "Arquitectura en la que el detector toma la señal antes del elemento reductor de ganancia.",
+      "stable_definition": "Suele ofrecer una respuesta más precisa o agresiva porque detecta antes de reducir.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "arquitectura",
+      "tags": [
+        "feed-forward",
+        "arquitectura",
+        "detector"
+      ],
+      "common_confusion": "Creer que es siempre superior por definición.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_014",
+      "term": "Feedback",
+      "abbreviation": "",
+      "definition": "Arquitectura en la que el detector toma la señal después de que ya fue afectada por la reducción.",
+      "stable_definition": "Suele producir conductas más suaves o estables según el diseño.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "arquitectura",
+      "tags": [
+        "feedback",
+        "arquitectura",
+        "detector"
+      ],
+      "common_confusion": "Pensar que solo describe un efecto tonal y no una lógica real de detección.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_015",
+      "term": "Stereo Link",
+      "abbreviation": "",
+      "definition": "Modo de enlace en el que la acción dinámica de un canal influye sobre el otro dentro de una señal estéreo.",
+      "stable_definition": "Sirve para preservar la relación espacial entre ambos lados.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "estereo",
+      "tags": [
+        "stereo link",
+        "estereo",
+        "bus"
+      ],
+      "common_confusion": "Suponer que el enlace total siempre es la mejor opción en cualquier material.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_016",
+      "term": "Dual Mono",
+      "abbreviation": "",
+      "definition": "Modo en el que cada canal de una señal estéreo reacciona de forma independiente.",
+      "stable_definition": "Permite acción separada por canal, pero puede alterar la imagen estéreo.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "estereo",
+      "tags": [
+        "dual mono",
+        "estereo",
+        "canales"
+      ],
+      "common_confusion": "Usarlo en buses estéreo como si fuera un ajuste neutro.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_017",
+      "term": "Upward Expansion",
+      "abbreviation": "",
+      "definition": "Procesamiento que eleva selectivamente el nivel de ciertas partes de la señal según el umbral y la lógica configurada.",
+      "stable_definition": "Es una forma de expansión que enfatiza partes activas en vez de reducirlas.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "expansion",
+      "tags": [
+        "upward expansion",
+        "expansion",
+        "transientes"
+      ],
+      "common_confusion": "Confundirlo con subir el fader general.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_018",
+      "term": "Downward Expansion",
+      "abbreviation": "",
+      "definition": "Procesamiento que reduce el nivel de lo que cae por debajo del umbral, de forma más o menos severa.",
+      "stable_definition": "Es una reducción progresiva o intensa de la información débil según el ajuste.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "expansion",
+      "tags": [
+        "downward expansion",
+        "expansion",
+        "umbral"
+      ],
+      "common_confusion": "Tratarlo como si siempre fuera una compuerta totalmente cerrada.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_019",
+      "term": "Gate",
+      "abbreviation": "",
+      "definition": "Forma extrema o severa de expansión descendente orientada a cerrar el paso de la señal cuando no cumple la condición de apertura.",
+      "stable_definition": "Es una compuerta que puede silenciar o atenuar con fuerza la señal débil.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "gate",
+      "tags": [
+        "gate",
+        "compuerta",
+        "expansion"
+      ],
+      "common_confusion": "Creer que sirve para eliminar cualquier ruido en cualquier situación.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_020",
+      "term": "Range",
+      "abbreviation": "",
+      "definition": "Límite máximo de atenuación que aplicará una compuerta o un expansor.",
+      "stable_definition": "Delimita cuánto puede caer la señal en vez de obligarla siempre al silencio absoluto.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "gate",
+      "tags": [
+        "range",
+        "atenuacion",
+        "compuerta"
+      ],
+      "common_confusion": "Pensar que una compuerta solo puede estar abierta o cerrada por completo.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_021",
+      "term": "Limiter",
+      "abbreviation": "",
+      "definition": "Procesador dinámico de comportamiento extremo orientado a impedir que la señal supere un nivel establecido.",
+      "stable_definition": "Es una forma de control muy severa sobre picos o techo máximo.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "limitacion",
+      "tags": [
+        "limiter",
+        "limitacion",
+        "picos"
+      ],
+      "common_confusion": "Tratarlo como un compresor común con solo más ratio.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_022",
+      "term": "De-esser",
+      "abbreviation": "",
+      "definition": "Procesador dinámico selectivo orientado a controlar sibilancias mediante una detección especialmente sensible a esa zona.",
+      "stable_definition": "Es dinámica selectiva sobre una banda de alta frecuencia problemática.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "de-essing",
+      "tags": [
+        "de-esser",
+        "sibilancia",
+        "voz"
+      ],
+      "common_confusion": "Reducirlo a una simple ecualización fija de agudos.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_023",
+      "term": "Multiband Compressor",
+      "abbreviation": "",
+      "definition": "Procesador dinámico que divide el espectro en varias bandas amplias y controla cada una por separado.",
+      "stable_definition": "Permite administrar regiones del espectro con lógica dinámica independiente.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "herramientas dinamicas",
+      "tags": [
+        "multibanda",
+        "compresion",
+        "bandas"
+      ],
+      "common_confusion": "Pensar que es idéntico a un ecualizador dinámico.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_024",
+      "term": "Dynamic EQ",
+      "abbreviation": "",
+      "definition": "Ecualizador que modifica de forma dinámica la ganancia de una banda concreta cuando se cumple una condición de detección.",
+      "stable_definition": "Es una ecualización selectiva e intermitente gobernada por lógica dinámica.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "herramientas dinamicas",
+      "tags": [
+        "eq dinamico",
+        "ecualizacion",
+        "dinamica"
+      ],
+      "common_confusion": "Confundirlo con un multibanda solo porque ambos reaccionan dinámicamente.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M05_TERM_025",
+      "term": "Oversampling",
+      "abbreviation": "",
+      "definition": "Proceso de aumento interno de la frecuencia de muestreo usado para reducir artefactos en procesamientos dinámicos exigentes.",
+      "stable_definition": "Ayuda a que la intervención severa genere menos problemas de aliasing en ciertos contextos.",
+      "pending_validation_notes": [
+        "Su conveniencia exacta depende del contexto de sesión y del procesador usado."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "procesamiento digital",
+      "tags": [
+        "oversampling",
+        "aliasing",
+        "digital"
+      ],
+      "common_confusion": "Asumir que más oversampling siempre mejora todo sin costo ni matices.",
+      "requires_validation": true
+    }
+  ]
 }

@@ -1,176 +1,446 @@
-﻿{
+{
   "course_id": "mezcla_masterizacion_kenth",
   "module_id": "M01",
   "module_order": 1,
   "module_title": "Fundamentos fisicos, acustica y medicion",
   "module_slug": "fundamentos-fisicos-acustica-medicion",
-  "short_description": "Modulo base sobre fundamentos fisicos, acustica y medicion aplicados al audio.",
-  "learning_scope": "Delimita los conceptos fisicos, acusticos y de medicion que sostienen las decisiones tecnicas del curso.",
+  "short_description": "Fundamentos físicos, acústicos y de medición que sostienen la escucha crítica y la toma de decisiones técnicas del curso.",
+  "learning_scope": "Delimita relaciones entre señal, percepción, sala, monitoreo y medición técnica, sin convertir todavía la ecualización, la dinámica o la espacialidad en el núcleo doctrinal.",
   "doc_type": "faq",
   "source_origin": "course",
   "filename": "M01_faq.json",
-  "version": "0.2",
-  "status": "draft_author_review",
+  "version": "0.1",
+  "status": "ready_for_indexing",
   "curation_source": "borrador_autoral_m01",
   "items": [
     {
       "faq_id": "M01_FAQ_001",
-      "question": "Frecuencia y tono son lo mismo?",
-      "canonical_answer": "No conviene tratarlos como equivalentes perfectos. En este modulo, la frecuencia se trabaja como una magnitud fisica medible, mientras que el tono se aborda como una percepcion. Esta distincion ayuda a evitar confundir descripcion tecnica con experiencia auditiva.",
-      "short_answer": "No. Frecuencia y tono se relacionan, pero no son exactamente lo mismo.",
-      "stable_answer": "El modulo distingue entre la magnitud fisica de la frecuencia y la percepcion auditiva del tono.",
-      "pending_validation_notes": [
-        "Validar la formulacion exacta del curso sobre percepcion de tono.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Frecuencia y tono significan lo mismo?",
+      "canonical_answer": "No conviene tratarlos como sinónimos. En el marco del módulo, la frecuencia es una magnitud física medible, mientras que el tono es una percepción auditiva. Esa diferencia importa porque una misma frecuencia puede percibirse de forma distinta según el nivel y el contexto.",
+      "short_answer": "No. Frecuencia es dato físico; tono es percepción.",
+      "stable_answer": "El módulo distingue entre frecuencia objetiva y tono percibido.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Distincion entre fisica y percepcion",
-      "learning_objective": "Separar fenomenos fisicos y perceptuales.",
-      "tags": ["frecuencia", "tono", "psicoacustica"],
+      "topic": "psicoacustica_basica",
+      "learning_objective": "Separar fenómeno físico y percepción auditiva.",
+      "tags": [
+        "frecuencia",
+        "tono",
+        "percepcion",
+        "fundamentos"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No decir que frecuencia y tono son sinonimos perfectos."
+        "frecuencia y tono son exactamente lo mismo",
+        "si dos señales tienen la misma frecuencia siempre se oyen igual"
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M01_FAQ_002",
-      "question": "Para que sirve entender la longitud de onda en mezcla o monitoreo?",
-      "canonical_answer": "Sirve para relacionar la senal con el espacio fisico en el que se escucha. En este modulo, la longitud de onda ayuda a interpretar por que ciertas frecuencias interactuan de forma mas evidente con las dimensiones de una sala y con la posicion de escucha.",
-      "short_answer": "Ayuda a entender como ciertas frecuencias interactuan con la sala y el espacio.",
-      "stable_answer": "La longitud de onda conecta el comportamiento de la senal con el entorno fisico de escucha.",
-      "pending_validation_notes": [
-        "Validar si el curso desarrolla ejemplos concretos de sala y longitud de onda.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Qué diferencia hay entre una onda simple y una onda compleja?",
+      "canonical_answer": "Una onda simple se toma aquí como una senoidal de una sola frecuencia. Una onda compleja es la suma de varias senoidales. Si esa suma mantiene un patrón repetitivo, sigue siendo periódica y puede organizarse alrededor de una frecuencia fundamental; si no mantiene esa regularidad, la señal entra en un comportamiento aperiódico.",
+      "short_answer": "La simple contiene una sola frecuencia; la compleja combina varias.",
+      "stable_answer": "El módulo usa la senoidal como onda simple y la suma de senoidales como onda compleja.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Relacion entre senal y espacio",
-      "learning_objective": "Conectar fundamentos fisicos con escucha en sala.",
-      "tags": ["longitud_de_onda", "sala", "acustica"],
+      "topic": "senal_y_periodicidad",
+      "learning_objective": "Comprender periodicidad, complejidad y organización espectral.",
+      "tags": [
+        "onda_simple",
+        "onda_compleja",
+        "periodicidad",
+        "fundamental"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No reducir la longitud de onda a una formula memorizada sin contexto."
+        "onda compleja significa desorden total",
+        "toda onda compleja es automáticamente inarmónica"
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M01_FAQ_003",
-      "question": "Un oscilograma ya me muestra todo lo importante de una señal?",
-      "canonical_answer": "No. Un oscilograma ayuda a observar la señal en el tiempo, pero no reemplaza una lectura espectral cuando la pregunta tiene que ver con contenido frecuencial. En este modulo se insiste en distinguir entre dominio temporal y dominio frecuencial.",
-      "short_answer": "No. El oscilograma muestra la señal en el tiempo, no todo su contenido espectral.",
-      "stable_answer": "Ver la forma de onda no equivale a comprender por completo el espectro de la señal.",
-      "pending_validation_notes": [
-        "Validar el nivel exacto de detalle con que el curso compara oscilograma y analizador.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿La frecuencia fundamental siempre es la de mayor amplitud?",
+      "canonical_answer": "No conviene asumirlo como regla universal. Dentro del módulo, la fundamental es la frecuencia que organiza el período de una onda compleja periódica, no necesariamente la componente de mayor amplitud en todos los casos. Confundir ambas cosas puede llevar a lecturas erradas del material sonoro.",
+      "short_answer": "No necesariamente.",
+      "stable_answer": "La fundamental organiza el período, pero no debe definirse solo por amplitud.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Representaciones de la señal",
-      "learning_objective": "Distinguir dominio temporal y frecuencial.",
-      "tags": ["oscilograma", "fft", "espectro"],
+      "topic": "senal_y_periodicidad",
+      "learning_objective": "Distinguir función estructural y magnitud de amplitud.",
+      "tags": [
+        "fundamental",
+        "amplitud",
+        "armonia",
+        "onda_compleja"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No decir que mirar la forma de onda basta para diagnosticar todo."
+        "la fundamental es siempre el pico más alto del espectro"
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M01_FAQ_004",
-      "question": "Si una mezcla se ve plana en el analizador, ya está bien balanceada?",
-      "canonical_answer": "No necesariamente. Una lectura visual puede ser util, pero no debe convertirse en criterio unico. El modulo insiste en que una grafica espectral debe interpretarse junto con la escucha, la distribucion del espectro y el contexto de la mezcla.",
-      "short_answer": "No. Una grafica util no reemplaza la escucha ni el contexto.",
-      "stable_answer": "La medicion visual complementa, pero no sustituye, la interpretacion auditiva.",
-      "pending_validation_notes": [
-        "Validar como el curso formula la relacion entre espectro visual y percepcion.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Por qué no conviene juzgar una mezcla a distinto volumen?",
+      "canonical_answer": "Porque el oído no responde linealmente a todo el espectro en todos los niveles. El módulo conserva las curvas isofónicas como base para entender que, al subir el volumen, suelen parecer más presentes graves y agudos. Eso puede producir la falsa sensación de mejora cuando en realidad solo cambió la percepción.",
+      "short_answer": "Porque el balance percibido cambia con el nivel.",
+      "stable_answer": "El módulo advierte que el volumen altera la percepción tonal.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Interpretacion de analizadores",
-      "learning_objective": "Evitar depender solo de la visualizacion espectral.",
-      "tags": ["fft", "analizador", "balance_espectral"],
+      "topic": "psicoacustica_basica",
+      "learning_objective": "Evitar sesgos perceptivos al comparar balance tonal.",
+      "tags": [
+        "curvas_isofonicas",
+        "nivel",
+        "mezcla",
+        "percepcion"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No decir que una mezcla correcta debe verse plana por definicion."
+        "si suena mejor más duro, entonces está mejor mezclado"
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M01_FAQ_005",
-      "question": "Por que la sala importa tanto si mis monitores son buenos?",
-      "canonical_answer": "Porque la escucha final no depende solo del monitor, sino tambien del entorno en el que ese monitor trabaja. Reflexiones, acumulaciones y cancelaciones en la sala pueden alterar de forma importante lo que el estudiante percibe como balance real.",
-      "short_answer": "Porque la sala modifica lo que realmente escuchas, incluso con buenos monitores.",
-      "stable_answer": "La calidad del monitor no elimina por si sola los problemas acusticos del entorno.",
-      "pending_validation_notes": [
-        "Validar ejemplos del curso sobre reflexiones tempranas y modos de sala.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿La espuma o los paneles absorbentes corrigen por sí solos un problema grave de sala?",
+      "canonical_answer": "El módulo pide no simplificarlo así. Los graves inflados no deberían tratarse como si siempre se resolvieran con espuma o paneles ligeros. Se distingue entre absorción, resonancia y difusión, y se deja abierto que ciertas cancelaciones severas pueden exigir decisiones de reposicionamiento o incluso cambios más estructurales.",
+      "short_answer": "No conviene asumirlo así.",
+      "stable_answer": "La absorción simple no se presenta como solución universal para problemas graves.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Acustica aplicada",
-      "learning_objective": "Entender la influencia de la sala sobre la escucha.",
-      "tags": ["sala", "monitoreo", "reflexiones", "modos"],
+      "topic": "acustica_de_sala",
+      "learning_objective": "Distinguir tipos de tratamiento y límites de cada uno.",
+      "tags": [
+        "sala",
+        "graves",
+        "paneles",
+        "resonadores",
+        "difusion"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No vender un monitor como solucion total del entorno de escucha."
+        "pon espuma y el grave queda resuelto",
+        "todo problema de sala se arregla con paneles"
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M01_FAQ_006",
-      "question": "Da igual como coloque mis monitores si ya suenan bien?",
-      "canonical_answer": "No conviene asumir eso. La posicion relativa de los monitores, la altura de escucha, la cercania a superficies y la geometria general de monitoreo pueden modificar la percepcion del balance y de la imagen. El modulo lo trabaja como criterio basico de escucha fiable.",
-      "short_answer": "No. La posicion de los monitores influye en lo que percibes.",
-      "stable_answer": "La geometria de escucha afecta la interpretacion del audio.",
-      "pending_validation_notes": [
-        "Validar recomendaciones exactas de angulo, altura y desacople antes de volverlas doctrina cerrada.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Por qué mover los monitores o acercarlos a la pared cambia tanto el grave?",
+      "canonical_answer": "Porque el sistema de escucha interactúa con la sala. En el material del módulo, acercar el monitor a la pared puede aumentar el grave, mientras que al alejarlo puede aparecer cancelación por trayecto de ida y vuelta. La consecuencia práctica es que no todo cambio percibido pertenece a la mezcla; parte puede venir del posicionamiento.",
+      "short_answer": "Porque pared y recorrido alteran la respuesta percibida.",
+      "stable_answer": "La posición del monitor modifica la interacción con la sala y cambia el grave.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Posicion de escucha",
-      "learning_objective": "Reconocer la importancia del posicionamiento de monitoreo.",
-      "tags": ["monitores", "sweet_spot", "escucha"],
+      "topic": "monitoreo",
+      "learning_objective": "Entender la relación entre ubicación física y respuesta de escucha.",
+      "tags": [
+        "monitores",
+        "pared",
+        "grave",
+        "posicionamiento",
+        "sala"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No convertir una referencia geometrica en regla universal sin contexto."
+        "si falta grave solo súbelo con EQ",
+        "la posición del monitor casi no importa"
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M01_FAQ_007",
-      "question": "Los auriculares reemplazan completamente a los monitores?",
-      "canonical_answer": "No conviene presentarlos como equivalentes perfectos. En este modulo se usan para mostrar que distintos medios de escucha entregan informacion distinta, especialmente en relacion con espacio, sala y traduccion. Eso no obliga a prohibirlos, pero si a reconocer sus limites.",
-      "short_answer": "No son equivalentes perfectos; cada medio de escucha tiene limites.",
-      "stable_answer": "Auriculares y monitores no entregan exactamente la misma informacion de escucha.",
-      "pending_validation_notes": [
-        "Validar si el curso recomienda practicas concretas de uso combinado.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Conviene compensar con EQ un mal posicionamiento de monitores?",
+      "canonical_answer": "No como respuesta principal. El módulo advierte que un mal posicionamiento físico, especialmente en relación con tweeters, pared o desacople, no debería maquillarse primero con ecualización. La lógica canónica es corregir antes lo que pertenece a ubicación y sistema de escucha, y solo después evaluar si una corrección técnica adicional tiene sentido.",
+      "short_answer": "No debería ser la primera solución.",
+      "stable_answer": "Primero se corrige el problema físico; luego se evalúa la EQ del sistema.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Comparacion de medios de escucha",
-      "learning_objective": "Reconocer limites y utilidades de distintos entornos de escucha.",
-      "tags": ["auriculares", "monitores", "traduccion"],
+      "topic": "monitoreo",
+      "learning_objective": "Priorizar causas físicas antes que compensaciones electrónicas.",
+      "tags": [
+        "monitores",
+        "eq",
+        "tweeter",
+        "posicionamiento",
+        "escucha"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No decir que es imposible trabajar con auriculares en cualquier circunstancia.",
-        "No decir que auriculares y monitores son lo mismo."
+        "si están mal puestos, ecualízalos y listo"
       ],
       "requires_validation": true
     },
     {
       "faq_id": "M01_FAQ_008",
-      "question": "Llenar la sala de espuma resuelve por completo los problemas acusticos?",
-      "canonical_answer": "No conviene asumirlo. El modulo sugiere que el tratamiento acustico no debe simplificarse a una sola solucion ni a una cobertura indiscriminada de superficies. Primero hay que entender que problema se quiere controlar y como ese problema se manifiesta en la escucha.",
-      "short_answer": "No. El tratamiento acustico no se resuelve solo llenando la sala de espuma.",
-      "stable_answer": "El control acustico requiere criterio, no una solucion unica aplicada sin diagnostico.",
-      "pending_validation_notes": [
-        "Validar si el curso desarrolla metodos concretos de diagnostico de reflexiones o resonancias.",
-        "Agregar evidencia solo cuando exista una fuente oficial propia validada."
-      ],
+      "question": "¿Es mejor mezclar con auriculares abiertos o cerrados?",
+      "canonical_answer": "Dentro del marco del módulo, la recomendación operativa favorece auriculares abiertos para mezclar, porque suelen introducir menos resonancias internas y menos coloración grave que los cerrados. Eso no vuelve inútiles a los cerrados, pero sí marca que no conviene tomar ambos formatos como si ofrecieran la misma referencia.",
+      "short_answer": "El módulo favorece abiertos para mezclar.",
+      "stable_answer": "Los abiertos se presentan como referencia más estable para mezcla.",
+      "pending_validation_notes": [],
       "brand_or_model_mentions": [],
-      "topic": "Tratamiento acustico basico",
-      "learning_objective": "Evitar soluciones simplistas de acondicionamiento.",
-      "tags": ["tratamiento_acustico", "sala", "reflexiones"],
+      "topic": "sistemas_de_escucha",
+      "learning_objective": "Reconocer diferencias funcionales entre tipos de auricular.",
+      "tags": [
+        "auriculares",
+        "abiertos",
+        "cerrados",
+        "mezcla",
+        "referencia"
+      ],
       "evidence_sources": [],
       "do_not_say": [
-        "No vender la espuma como solucion total sin contexto."
+        "cerrado y abierto sirven exactamente igual para mezclar"
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_009",
+      "question": "¿Qué significa la regla 8:1 entre impedancia del auricular y salida del amplificador?",
+      "canonical_answer": "Se conserva como regla operativa del módulo: la impedancia del auricular debería ser aproximadamente ocho veces mayor que la impedancia de salida del amplificador. La idea práctica es evitar alteraciones de respuesta, reducir pérdida de damping y mantener un grave más controlado. Debe leerse como orientación técnica útil, no como ley universal independiente del diseño completo del sistema.",
+      "short_answer": "Es una regla práctica para mantener mejor control y respuesta.",
+      "stable_answer": "El módulo usa 8:1 como referencia operativa entre auricular y salida.",
+      "pending_validation_notes": [
+        "La relación 8:1 debe tratarse como orientación práctica y no como dogma universal."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "sistemas_de_escucha",
+      "learning_objective": "Relacionar impedancia de carga y control del transductor.",
+      "tags": [
+        "impedancia",
+        "damping",
+        "auriculares",
+        "amplificador",
+        "grave"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "la impedancia no importa",
+        "8:1 garantiza perfección en cualquier sistema"
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_010",
+      "question": "¿Para qué sirve realmente el analizador de espectro?",
+      "canonical_answer": "El módulo lo presenta como herramienta de verificación técnica. Sirve para observar subsónicos, acumulaciones, distorsiones o tendencias energéticas que el oído no localiza con la misma claridad. No se propone como sustituto de la escucha, sino como una forma de disciplinarla y contrastarla.",
+      "short_answer": "Sirve para verificar lo que el oído no ve con precisión.",
+      "stable_answer": "El analizador apoya la escucha y ayuda a medir distribución espectral.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "learning_objective": "Usar medición espectral como apoyo técnico de escucha.",
+      "tags": [
+        "analizador",
+        "espectro",
+        "medicion",
+        "subsónicos",
+        "distorsion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "el analizador reemplaza al oído",
+        "si la curva se ve bien, la mezcla ya está bien"
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_011",
+      "question": "¿Por qué el slope o tilt del analizador debería ir en cero para uso técnico?",
+      "canonical_answer": "Porque el módulo distingue entre una visualización pensada para parecer perceptualmente equilibrada y una lectura técnica de distribución energética. Si el analizador está inclinado para compensar perceptualmente, puede dejar de mostrar con claridad qué está ocurriendo físicamente en el espectro. Llevar el slope a cero busca devolverle función de medición.",
+      "short_answer": "Para leer energía real y no una curva compensada perceptualmente.",
+      "stable_answer": "El módulo prefiere slope en cero para uso técnico del analizador.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "learning_objective": "Distinguir visualización perceptual y lectura instrumental.",
+      "tags": [
+        "slope",
+        "tilt",
+        "analizador",
+        "medicion",
+        "calibracion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "da igual cómo esté calibrado el analizador"
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_012",
+      "question": "¿8192 puntos de FFT es una regla fija?",
+      "canonical_answer": "No debería presentarse como regla fija. En el módulo aparece como un equilibrio operativo útil entre resolución espectral e inmediatez temporal. La enseñanza estable no es el número en sí, sino el compromiso entre ver mejor la frecuencia o seguir mejor el cambio en el tiempo.",
+      "short_answer": "No. Es una referencia operativa, no una ley.",
+      "stable_answer": "La enseñanza estable es el compromiso tiempo-resolución, no un número absoluto.",
+      "pending_validation_notes": [
+        "El valor 8192 se conserva como referencia práctica del módulo."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_espectral",
+      "learning_objective": "Comprender el compromiso técnico de la FFT.",
+      "tags": [
+        "fft",
+        "resolucion",
+        "tiempo",
+        "analizador",
+        "medicion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "si no usas 8192 estás midiendo mal"
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_013",
+      "question": "¿Qué diferencia hay entre +4 dBu y -10 dBV?",
+      "canonical_answer": "Son referencias operativas distintas. En el módulo, +4 dBu se asocia al entorno profesional y -10 dBV al entorno doméstico o semiprofesional. La enseñanza práctica es que no conviene ignorar esa diferencia, porque adaptar mal niveles entre equipos puede generar saturación o señal demasiado baja y ruidosa.",
+      "short_answer": "+4 dBu y -10 dBV son estándares distintos de nivel operativo.",
+      "stable_answer": "El módulo distingue ambos estándares y advierte que su mala adaptación trae problemas.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "niveles_operativos",
+      "learning_objective": "Interpretar referencias de nivel y adaptación entre equipos.",
+      "tags": [
+        "dBu",
+        "dBV",
+        "niveles",
+        "referencia",
+        "adaptacion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "el switch +4/-10 es decorativo",
+        "todos los equipos trabajan igual de nivel"
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_014",
+      "question": "¿Puede existir señal útil por encima de 0 dBFS?",
+      "canonical_answer": "No en la formulación doctrinal del módulo. 0 dBFS se toma como el máximo codificable del sistema digital. Si aparece una lectura que excede ese umbral en el material final, la interpretación canónica es que ya hubo recorte y pérdida de información, no que el sistema esté entregando intacta una señal realmente superior.",
+      "short_answer": "No. 0 dBFS es el límite digital de codificación.",
+      "stable_answer": "El módulo usa 0 dBFS como techo de codificación digital.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_de_nivel",
+      "learning_objective": "Entender el límite de la escala digital.",
+      "tags": [
+        "dBFS",
+        "clip",
+        "digital",
+        "nivel",
+        "codificacion"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "si marca +3 dBFS está sonando tres dB más alto sin problema"
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_015",
+      "question": "¿LUFS es una ponderación?",
+      "canonical_answer": "No. El módulo distingue que LUFS es una forma de medición y que esa medición emplea ponderación K. La importancia práctica de este punto es evitar explicaciones imprecisas sobre lectura de sonoridad y, además, entender que exagerar agudos puede alterar la medición y la posterior normalización.",
+      "short_answer": "No. LUFS mide; la ponderación usada es K.",
+      "stable_answer": "El módulo diferencia medición LUFS y ponderación K.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "medicion_de_sonoridad",
+      "learning_objective": "Distinguir entre sistema de medición y ponderación aplicada.",
+      "tags": [
+        "LUFS",
+        "ponderacion_K",
+        "sonoridad",
+        "medicion",
+        "agudos"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "LUFS es la curva de ponderación",
+        "si subes agudos no afecta la lectura de sonoridad"
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_016",
+      "question": "¿Spotify comprime la dinámica musical para normalizar?",
+      "canonical_answer": "La formulación canónica de este módulo dice que no debe explicarse así. El material conserva que la normalización se entiende por ganancia y no como compresión de la dinámica musical en el sentido usual del curso. Por eso no conviene presentar la caída de nivel normalizado como si la plataforma estuviera rediseñando automáticamente la envolvente dinámica del tema.",
+      "short_answer": "No en la formulación del módulo: normaliza por ganancia.",
+      "stable_answer": "El módulo evita describir la normalización como compresión dinámica musical.",
+      "pending_validation_notes": [
+        "Este punto debe conservarse con formulación prudente si se extrapola fuera del marco del curso."
+      ],
+      "brand_or_model_mentions": [
+        "Spotify"
+      ],
+      "topic": "medicion_de_sonoridad",
+      "learning_objective": "Evitar simplificaciones sobre normalización de plataforma.",
+      "tags": [
+        "Spotify",
+        "normalizacion",
+        "LUFS",
+        "ganancia",
+        "streaming"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Spotify comprime tu mezcla para normalizarla"
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_017",
+      "question": "¿Qué es la fundamental ausente y por qué importa en reproducción pequeña?",
+      "canonical_answer": "En el marco del módulo, la fundamental ausente alude a situaciones en las que el sistema no reproduce físicamente cierta base grave, pero la percepción puede reconstruirla a partir de relaciones armónicas. Esto importa porque ayuda a entender por qué ciertos dispositivos pequeños pueden sugerir una base tonal que no están emitiendo de forma plena en la banda más baja.",
+      "short_answer": "Es la reconstrucción perceptiva de una base no reproducida plenamente.",
+      "stable_answer": "El módulo usa la fundamental ausente para explicar parte de la percepción grave en sistemas limitados.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "psicoacustica_basica",
+      "learning_objective": "Relacionar contenido armónico y reconstrucción perceptiva.",
+      "tags": [
+        "fundamental_ausente",
+        "graves",
+        "psicoacustica",
+        "reproduccion",
+        "armonicos"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "si la fundamental no está físicamente, no puede percibirse nada relacionado"
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M01_FAQ_018",
+      "question": "¿La corrección por EQ del sistema resuelve por completo un home studio?",
+      "canonical_answer": "No debería presentarse así. El módulo admite que una corrección por EQ del sistema puede aportar beneficio en ciertos entornos, pero también conserva sus costos potenciales, por ejemplo en fase o pre-ringing. La formulación prudente es que puede ayudar, no que reemplaza tratamiento, posicionamiento y criterio de escucha.",
+      "short_answer": "No. Puede ayudar, pero no sustituye todo lo demás.",
+      "stable_answer": "La EQ correctiva del sistema se trata como ayuda posible, no como solución total.",
+      "pending_validation_notes": [
+        "La utilidad de la corrección por EQ del sistema debe mantenerse con formulación prudente."
+      ],
+      "brand_or_model_mentions": [
+        "Sonarworks"
+      ],
+      "topic": "sistemas_de_escucha",
+      "learning_objective": "Poner en contexto los límites de la corrección electrónica.",
+      "tags": [
+        "eq_del_sistema",
+        "home_studio",
+        "fase",
+        "pre_ringing",
+        "monitoreo"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "con corrección por EQ ya no importa la sala",
+        "la EQ del sistema deja el monitor perfectamente plano"
       ],
       "requires_validation": true
     }

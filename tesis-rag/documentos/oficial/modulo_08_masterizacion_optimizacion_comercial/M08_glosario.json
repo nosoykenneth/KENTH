@@ -1,19 +1,447 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M08",
-    "module_order":  8,
-    "module_title":  "Masterizacion y optimizacion comercial",
-    "module_slug":  "masterizacion-optimizacion-comercial",
-    "short_description":  "Modulo sobre preparacion final, control tecnico y optimizacion comercial del master.",
-    "learning_scope":  "Delimita criterios de traduccion, nivel, limitacion, entrega y revision final para distribucion.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "glossary",
-    "filename":  "M08_glosario.json",
-    "terms":  [
-
-              ]
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M08",
+  "module_order": 8,
+  "module_title": "Masterización y optimización comercial",
+  "module_slug": "masterizacion-optimizacion-comercial",
+  "short_description": "Borrador canónico del módulo sobre mastering como cierre técnico, comercial y de traducción final del producto estéreo.",
+  "learning_scope": "Delimita la función del mastering, sus etapas técnica, comercial y artística, y los criterios prudentes de loudness, True Peak, limitación, dither, traducción y entrega.",
+  "doc_type": "glossary",
+  "source_origin": "course",
+  "filename": "M08_glosario.json",
+  "version": "0.1",
+  "status": "ready_for_indexing",
+  "curation_source": "borrador_autoral_m08",
+  "terms": [
+    {
+      "term_id": "M08_TERM_001",
+      "term": "Mastering",
+      "abbreviation": "",
+      "definition": "Etapa final de preparación del producto estéreo para distribución. En este módulo incluye revisión técnica, adaptación comercial y, cuando hace falta, un acabado artístico final.",
+      "stable_definition": "Preparación final del estéreo para su entrega y distribución.",
+      "pending_validation_notes": [
+        "La intensidad de intervención depende de cómo llegue la mezcla y del destino real del material."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "definicion_general",
+      "tags": [
+        "mastering",
+        "flujo",
+        "entrega"
+      ],
+      "common_confusion": "Confundir mastering con una segunda mezcla completa.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_002",
+      "term": "Traducción",
+      "abbreviation": "",
+      "definition": "Capacidad del master para sostener su funcionamiento fuera del entorno de trabajo, incluyendo plataformas, códecs con pérdida, normalización de reproducción y distintos sistemas de escucha.",
+      "stable_definition": "Funcionamiento estable del material en condiciones reales de reproducción.",
+      "pending_validation_notes": [
+        "La traducción siempre depende del contexto de distribución y escucha."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "traduccion",
+      "tags": [
+        "traduccion",
+        "reproduccion",
+        "distribucion"
+      ],
+      "common_confusion": "Pensar que traducir bien significa solo sonar bien en el estudio.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_003",
+      "term": "LUFS",
+      "abbreviation": "LUFS",
+      "definition": "Unidad de medida de loudness relativa a escala completa. En el módulo se usa para describir sonoridad percibida y no simplemente nivel de pico.",
+      "stable_definition": "Medida de sonoridad percibida en entorno digital.",
+      "pending_validation_notes": [
+        "La lectura útil depende de qué ventana de medición se esté considerando."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "loudness",
+      "tags": [
+        "lufs",
+        "loudness",
+        "medicion"
+      ],
+      "common_confusion": "Tratar LUFS como si fuera exactamente lo mismo que pico.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_004",
+      "term": "LUFS integrado",
+      "abbreviation": "",
+      "definition": "Valor promedio de loudness de la obra completa. Dentro del módulo es la referencia central cuando se habla de sonoridad global del tema o del máster.",
+      "stable_definition": "Promedio global de loudness de una pieza completa.",
+      "pending_validation_notes": [
+        "No debe extrapolarse como único criterio de calidad del máster."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "loudness",
+      "tags": [
+        "lufs_integrado",
+        "medicion",
+        "mastering"
+      ],
+      "common_confusion": "Usarlo como si por sí solo describiera toda la percepción del master.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_005",
+      "term": "Ponderación K",
+      "abbreviation": "",
+      "definition": "Ponderación perceptual usada por la medición de loudness del módulo. Da más peso relativo a ciertas zonas del espectro para aproximarse mejor a la percepción humana.",
+      "stable_definition": "Filtro perceptual usado en medición de loudness.",
+      "pending_validation_notes": [
+        "Su efecto práctico debe entenderse en relación con la lectura de loudness, no como una curva tonal de mezcla."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "loudness",
+      "tags": [
+        "ponderacion_k",
+        "loudness",
+        "percepcion"
+      ],
+      "common_confusion": "Pensar que es una ecualización creativa del material.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_006",
+      "term": "Normalización de ganancia",
+      "abbreviation": "",
+      "definition": "Ajuste de nivel de reproducción aplicado por una plataforma para acercar la sonoridad percibida entre temas. En el módulo se distingue de la compresión de datos y no se trata como compresión del rango dinámico por sí misma.",
+      "stable_definition": "Ajuste de nivel de reproducción, no equivalente a compresión de dinámica.",
+      "pending_validation_notes": [
+        "El comportamiento concreto puede variar según plataforma y configuración de escucha."
+      ],
+      "brand_or_model_mentions": [
+        "Spotify"
+      ],
+      "topic": "distribucion",
+      "tags": [
+        "normalizacion",
+        "ganancia",
+        "streaming"
+      ],
+      "common_confusion": "Creer que normalizar y comprimir el rango dinámico son la misma cosa.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_007",
+      "term": "True Peak",
+      "abbreviation": "TP",
+      "definition": "Criterio de pico que intenta anticipar comportamientos que el simple pico de muestra no muestra del todo, especialmente en reconstrucción y codificación. En el módulo se usa como referencia de seguridad técnica de entrega.",
+      "stable_definition": "Medida de pico pensada para estimar margen de seguridad más allá del sample peak.",
+      "pending_validation_notes": [
+        "El techo exacto sigue siendo sensible a formato, destino y estrategia comercial."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "entrega",
+      "tags": [
+        "true_peak",
+        "picos",
+        "streaming"
+      ],
+      "common_confusion": "Asumir que sample peak y True Peak siempre coinciden en comportamiento práctico.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_008",
+      "term": "Pico interesample",
+      "abbreviation": "",
+      "definition": "Pico que puede aparecer entre muestras durante reconstrucción o procesamiento posterior. El módulo lo considera parte de la razón por la que el control de True Peak importa en distribución real.",
+      "stable_definition": "Pico no evidente solo por lectura de muestra a muestra.",
+      "pending_validation_notes": [
+        "Su impacto práctico depende del proceso de reconstrucción y codificación."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "entrega",
+      "tags": [
+        "interesample",
+        "true_peak",
+        "reconstruccion"
+      ],
+      "common_confusion": "Pensar que si la muestra máxima no clippea, nada más puede excederse.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_009",
+      "term": "PLR",
+      "abbreviation": "PLR",
+      "definition": "Relación usada en el módulo como indicador de salud o deterioro dinámico tras la maximización. Se presenta como referencia sensible al género, no como cifra universal cerrada.",
+      "stable_definition": "Indicador relativo del espacio entre pico y sonoridad promedio.",
+      "pending_validation_notes": [
+        "Los rangos útiles cambian según estilo, arreglo e intención."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "dinamica",
+      "tags": [
+        "plr",
+        "factor_de_cresta",
+        "dinamica"
+      ],
+      "common_confusion": "Tomarlo como una meta fija idéntica para todo género.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_010",
+      "term": "Limitación multietapa",
+      "abbreviation": "",
+      "definition": "Estrategia de repartir la ganancia final entre varias etapas de control en lugar de cargar todo el esfuerzo a un único limitador final. En el módulo se conserva como principio para evitar destrucción innecesaria del material.",
+      "stable_definition": "Distribución del esfuerzo de maximización en varias etapas.",
+      "pending_validation_notes": [
+        "La cadena concreta y el reparto exacto dependen del material."
+      ],
+      "brand_or_model_mentions": [
+        "Waves L3 Multimaximizer",
+        "FabFilter Pro-L 2",
+        "Ozone Vintage Limiter"
+      ],
+      "topic": "maximizacion",
+      "tags": [
+        "limitacion",
+        "multietapa",
+        "loudness"
+      ],
+      "common_confusion": "Creer que cualquier cadena con varios limitadores mejora automáticamente el resultado.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_011",
+      "term": "Compresión ascendente",
+      "abbreviation": "",
+      "definition": "Recurso orientado a elevar información de bajo nivel para aumentar densidad percibida sin depender solo de bajar picos. En el módulo se presenta como vía potencialmente menos destructiva que otras formas de maximización.",
+      "stable_definition": "Proceso que hace más audibles señales bajas sin centrarse solo en recortar picos.",
+      "pending_validation_notes": [
+        "Su conveniencia depende del material y del comportamiento deseado en transientes y detalle."
+      ],
+      "brand_or_model_mentions": [
+        "Waves MV2",
+        "MB2",
+        "Pro-MB"
+      ],
+      "topic": "dinamica",
+      "tags": [
+        "compresion_ascendente",
+        "densidad",
+        "loudness"
+      ],
+      "common_confusion": "Pensar que siempre es más transparente que cualquier otra compresión.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_012",
+      "term": "Dither",
+      "abbreviation": "",
+      "definition": "Ruido controlado añadido cuando se reduce resolución para evitar que el error de cuantización se manifieste como distorsión más áspera. En el módulo aparece como corrección necesaria cuando la entrega final lo exige.",
+      "stable_definition": "Corrección usada al reducir bits para evitar degradación más dura por cuantización.",
+      "pending_validation_notes": [
+        "Solo corresponde cuando hay reducción real de resolución en la entrega."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "bit_depth",
+      "tags": [
+        "dither",
+        "cuantizacion",
+        "entrega"
+      ],
+      "common_confusion": "Tratarlo como un adorno opcional o como algo equivalente al truncado.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_013",
+      "term": "Noise shaping",
+      "abbreviation": "",
+      "definition": "Reubicación espectral del ruido de dither hacia zonas menos sensibles de la percepción. En el módulo se entiende como refinamiento del proceso de reducción de resolución.",
+      "stable_definition": "Modelado espectral del ruido asociado al dither.",
+      "pending_validation_notes": [
+        "No sustituye al dither; lo complementa."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "bit_depth",
+      "tags": [
+        "noise_shaping",
+        "dither",
+        "espectro"
+      ],
+      "common_confusion": "Confundirlo con una ecualización correctiva del master.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_014",
+      "term": "Truncado",
+      "abbreviation": "",
+      "definition": "Reducción de resolución sin corrección de cuantización. El módulo la asocia con una degradación más áspera y la opone doctrinalmente al uso correcto de dither cuando corresponde.",
+      "stable_definition": "Reducción de bits sin tratamiento correctivo.",
+      "pending_validation_notes": [
+        "Su efecto práctico depende del material y del nivel de señal comprometido."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "bit_depth",
+      "tags": [
+        "truncado",
+        "cuantizacion",
+        "distorsion"
+      ],
+      "common_confusion": "Creer que truncar es una forma neutra de pasar a menor resolución.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_015",
+      "term": "DC Offset",
+      "abbreviation": "",
+      "definition": "Desplazamiento de toda la señal respecto del eje central. En el módulo se lo trata como problema técnico que roba margen útil y que no debe confundirse con una simple asimetría de onda.",
+      "stable_definition": "Corrimiento de la señal respecto de su centro de referencia.",
+      "pending_validation_notes": [
+        "La corrección concreta depende de la causa y del entorno de trabajo."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "correccion_tecnica",
+      "tags": [
+        "dc_offset",
+        "headroom",
+        "tecnico"
+      ],
+      "common_confusion": "Confundir cualquier forma de onda desigual con DC offset.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_016",
+      "term": "Asimetría de onda",
+      "abbreviation": "",
+      "definition": "Situación en la que la señal permanece centrada, pero un semiperiodo sobresale más que el otro. El módulo la distingue del DC offset y la vincula con relaciones internas de fase entre componentes de la señal.",
+      "stable_definition": "Desigualdad entre semiciclos sin corrimiento completo del centro de la señal.",
+      "pending_validation_notes": [
+        "No toda asimetría requiere la misma corrección."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "correccion_tecnica",
+      "tags": [
+        "asimetria",
+        "fase",
+        "onda"
+      ],
+      "common_confusion": "Corregirla como si siempre fuera DC offset.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_017",
+      "term": "Monocompatibilidad",
+      "abbreviation": "",
+      "definition": "Capacidad del material para sostenerse razonablemente al colapsarse a mono. En el módulo aparece como asunto especialmente sensible en low-end y en ciertos destinos físicos.",
+      "stable_definition": "Estabilidad del material cuando la reproducción se reduce a mono.",
+      "pending_validation_notes": [
+        "El grado de exigencia cambia según el destino de reproducción."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "fase_low_end",
+      "tags": [
+        "monocompatibilidad",
+        "mono",
+        "fase"
+      ],
+      "common_confusion": "Creer que toda monocompatibilidad se resuelve cerrando información a mono sin diagnóstico.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_018",
+      "term": "Low-end estéreo",
+      "abbreviation": "",
+      "definition": "Comportamiento lateral de la zona grave. El módulo lo vigila porque puede comprometer correlación, traducción, estabilidad y, en algunos contextos, viabilidad de entrega.",
+      "stable_definition": "Componente estéreo de la banda grave del material.",
+      "pending_validation_notes": [
+        "Su tolerancia depende del arreglo, el destino y el origen del problema."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "fase_low_end",
+      "tags": [
+        "low_end",
+        "graves",
+        "estereo"
+      ],
+      "common_confusion": "Suponer que todo grave estéreo es automáticamente incorrecto.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_019",
+      "term": "Oversampling",
+      "abbreviation": "",
+      "definition": "Aumento interno de frecuencia de trabajo usado en procesos críticos para reducir artefactos derivados de operaciones no lineales o limitación severa. En el módulo se valora más este uso práctico que la simple obsesión por sample rates extremos de sesión.",
+      "stable_definition": "Muestreo interno aumentado para mejorar ciertos procesos de cálculo y reducir artefactos.",
+      "pending_validation_notes": [
+        "Su beneficio práctico depende del plugin, del proceso y de la severidad de intervención."
+      ],
+      "brand_or_model_mentions": [
+        "FabFilter Pro-L 2"
+      ],
+      "topic": "procesamiento",
+      "tags": [
+        "oversampling",
+        "aliasing",
+        "limitacion"
+      ],
+      "common_confusion": "Creer que oversampling y sample rate alto de sesión son exactamente la misma decisión.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_020",
+      "term": "Overshoot",
+      "abbreviation": "",
+      "definition": "Elevación de picos que puede aparecer como efecto colateral de ciertos filtrados, aun cuando se esté removiendo contenido. El módulo lo trata como advertencia relevante para headroom y control técnico.",
+      "stable_definition": "Aumento de pico inducido por procesamiento, especialmente filtrado.",
+      "pending_validation_notes": [
+        "Su magnitud depende del filtro y del material procesado."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "procesamiento",
+      "tags": [
+        "overshoot",
+        "filtro",
+        "headroom"
+      ],
+      "common_confusion": "Pensar que filtrar siempre baja picos por definición.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_021",
+      "term": "All-Pass / rotador de fase",
+      "abbreviation": "",
+      "definition": "Herramienta usada para modificar relaciones de fase sin operar como un simple filtro correctivo de contenido. En el módulo aparece como recurso pertinente ante ciertas asimetrías que no corresponden a DC offset.",
+      "stable_definition": "Proceso de fase útil para corregir ciertas relaciones internas sin confundirlas con DC offset.",
+      "pending_validation_notes": [
+        "Su uso correcto depende de un diagnóstico previo del problema."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "correccion_tecnica",
+      "tags": [
+        "all_pass",
+        "rotador_de_fase",
+        "asimetria"
+      ],
+      "common_confusion": "Usarlo como si fuera lo mismo que un HPF correctivo de DC.",
+      "requires_validation": true
+    },
+    {
+      "term_id": "M08_TERM_022",
+      "term": "Comparación isométrica",
+      "abbreviation": "",
+      "definition": "Comparación entre estados procesados y no procesados con nivel compensado. El módulo la considera condición mínima para juzgar si un cambio realmente mejora el material o solo lo hace sonar más fuerte.",
+      "stable_definition": "Comparación de procesos a igual volumen efectivo.",
+      "pending_validation_notes": [
+        "La precisión de la compensación influye directamente en la validez de la evaluación."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "evaluacion",
+      "tags": [
+        "comparacion",
+        "nivel",
+        "sesgo"
+      ],
+      "common_confusion": "Evaluar mejoras dejando el procesado más fuerte que la referencia.",
+      "requires_validation": true
+    }
+  ]
 }

@@ -1,19 +1,374 @@
-﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M06",
-    "module_order":  6,
-    "module_title":  "Espacialidad, profundidad y ambiencia",
-    "module_slug":  "espacialidad-profundidad-ambiencia",
-    "short_description":  "Modulo sobre construccion de espacio, profundidad, paneo y ambiencia en mezcla.",
-    "learning_scope":  "Delimita decisiones de imagen estereo, profundidad, reverberacion, delay y percepcion espacial.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "faq",
-    "filename":  "M06_faq.json",
-    "items":  [
-
-              ]
+{
+  "course_id": "mezcla_masterizacion_kenth",
+  "module_id": "M06",
+  "module_order": 6,
+  "module_title": "Espacialidad, profundidad y ambiencia",
+  "module_slug": "espacialidad-profundidad-ambiencia",
+  "short_description": "Delimita los fundamentos perceptuales, acústicos y operativos con los que el curso construye sensación de espacio, plano y profundidad en mezcla.",
+  "learning_scope": "Comprender cómo el módulo articula sonido directo, reflexiones, reverberación, paneo y ruteo para construir cercanía, lejanía, tamaño y coherencia espacial sin convertir recursos contextuales en reglas universales.",
+  "doc_type": "faq",
+  "source_origin": "course",
+  "filename": "M06_faq.json",
+  "version": "0.1",
+  "status": "ready_for_indexing",
+  "curation_source": "borrador_autoral_m06",
+  "items": [
+    {
+      "faq_id": "M06_FAQ_001",
+      "question": "¿Ambiencia y reverb significan lo mismo en este módulo?",
+      "canonical_answer": "No. En este módulo, la ambiencia es un concepto más amplio que la cola reverberante. Incluye la relación entre sonido directo, reflexiones, rebotes, posición de la fuente y contexto espacial general. La reverb puede ser una parte de esa construcción, pero no la agota.",
+      "short_answer": "No. La reverb es solo una parte posible de la ambiencia.",
+      "stable_answer": "La ambiencia se trabaja como fenómeno espacial amplio; la reverb no debe tomarse como sinónimo total.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "fundamentos espaciales",
+      "learning_objective": "Distinguir ambiencia de cola reverberante.",
+      "tags": [
+        "ambiencia",
+        "reverb",
+        "fundamentos"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Ambiencia es simplemente agregar reverb.",
+        "Si no hay cola larga, no hay ambiente."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_002",
+      "question": "¿La profundidad se logra solo subiendo la cantidad de reverb?",
+      "canonical_answer": "No conviene plantearlo así. El módulo entiende la profundidad como relación entre señal directa, tiempo de llegada de la información reflejada y proporción de ambiente. Más reverb puede alejar una fuente en algunos contextos, pero por sí sola no explica ni garantiza un plano convincente.",
+      "short_answer": "No. La profundidad depende del directo, del tiempo y del ambiente relativo.",
+      "stable_answer": "La cantidad de reverb no basta por sí sola para construir profundidad.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "profundidad",
+      "learning_objective": "Evitar la simplificación de profundidad por cantidad de reverb.",
+      "tags": [
+        "profundidad",
+        "reverb",
+        "plano"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Más reverb siempre significa más atrás."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_003",
+      "question": "¿Qué papel cumplen las reflexiones tempranas en la escena espacial?",
+      "canonical_answer": "Cumplen un papel central. El módulo propone construir primero la habitación perceptual mediante reflexiones tempranas, diferencias de tiempo y diferencias de nivel. Ese trabajo puede sostener sensación de tamaño, cercanía y tridimensionalidad incluso antes de pensar en colas largas.",
+      "short_answer": "Son clave para construir habitación, tamaño y plano.",
+      "stable_answer": "Las reflexiones tempranas son parte estructural de la espacialidad, no un detalle secundario.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "reflexiones tempranas",
+      "learning_objective": "Comprender la prioridad espacial de las primeras reflexiones.",
+      "tags": [
+        "early reflections",
+        "profundidad",
+        "habitación"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Lo importante es la cola; las reflexiones tempranas casi no importan."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_004",
+      "question": "¿Cuándo una reflexión deja de sentirse como profundidad y empieza a sentirse como eco?",
+      "canonical_answer": "El módulo maneja referencias orientativas, no una frontera absoluta. Como criterio de trabajo, una reflexión dentro de un rango cercano a 50 ms suele integrarse más al sonido original, mientras que por encima de ese rango puede empezar a desprenderse como eco reconocible. En material muy percusivo, esa separación puede sentirse antes. Conviene tratar esos valores como guías sensibles al contexto.",
+      "short_answer": "Hay umbrales orientativos, pero no una cifra universal fija.",
+      "stable_answer": "La transición entre reflexión y eco depende del material y debe usarse con prudencia.",
+      "pending_validation_notes": [
+        "Los umbrales temporales del módulo deben formularse como referencias contextuales."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "percepción temporal",
+      "learning_objective": "Usar con prudencia los límites entre reflexión y eco.",
+      "tags": [
+        "eco",
+        "reflexión",
+        "tiempo",
+        "percepción"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "A los 50 ms siempre es eco.",
+        "Debajo de 50 ms nunca se separa perceptualmente."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_005",
+      "question": "¿Conviene usar el predelay interno de la reverb o construirlo fuera?",
+      "canonical_answer": "Ambas posibilidades existen, pero el módulo da valor especial a construir el predelay manualmente antes de la reverb cuando se quiere diseñar el plano con más control. En ese caso, conviene dejar el predelay interno de la reverb en cero para no superponer dos controles con la misma función.",
+      "short_answer": "Puede construirse fuera para controlar mejor el plano; ahí el predelay interno conviene dejarlo en cero.",
+      "stable_answer": "El predelay externo puede servir como herramienta explícita de construcción de profundidad.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "ruteo espacial",
+      "learning_objective": "Entender el predelay como decisión de diseño de plano.",
+      "tags": [
+        "predelay",
+        "delay",
+        "reverb",
+        "ruteo"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Siempre usa el predelay interno y nada más.",
+        "Predelay externo e interno deben acumularse."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_006",
+      "question": "¿Los envíos a reverb y delay deben ir siempre post-fader?",
+      "canonical_answer": "Como regla práctica, sí conviene pensarlos en post-fader. Sin embargo, el módulo corrige el uso de 'siempre' y admite el pre-fader como excepción espacial cuando interesa que el ambiente quede más estable mientras el directo cae y la fuente parezca alejarse.",
+      "short_answer": "Post-fader es la norma práctica; pre-fader puede servir como recurso espacial puntual.",
+      "stable_answer": "No conviene tratar el post-fader como un absoluto sin excepciones.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "envíos y ruteo",
+      "learning_objective": "Distinguir norma operativa de excepción espacial.",
+      "tags": [
+        "post-fader",
+        "pre-fader",
+        "reverb",
+        "delay"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Los efectos temporales siempre van post-fader sin excepción."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_007",
+      "question": "¿Si ya existe room natural grabado, ya no hace falta ambiente artificial?",
+      "canonical_answer": "No necesariamente. El módulo distingue entre room natural capturado, room procesado como color o agresividad y ambiente artificial construido para profundidad o control espacial. A veces el room natural basta; otras veces no cumple la misma función que un espacio artificial diseñado en mezcla.",
+      "short_answer": "No necesariamente. Room natural y ambiente artificial no siempre cumplen la misma función.",
+      "stable_answer": "La presencia de room natural no elimina automáticamente la necesidad de construir espacio adicional.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "espacio natural vs artificial",
+      "learning_objective": "Separar funciones de room natural y ambiente artificial.",
+      "tags": [
+        "room",
+        "ambiente",
+        "profundidad",
+        "mezcla"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si hay room mics, nunca necesitas otro ambiente."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_008",
+      "question": "¿Todas las pistas deberían compartir una sola reverb para sonar coherentes?",
+      "canonical_answer": "El módulo no sostiene eso como regla universal. Puede haber coherencia espacial con una sola reverb, pero también con varias, siempre que la jerarquía de planos y el criterio general de escena estén bien resueltos. La coherencia no depende únicamente de la cantidad de reverbs distintas.",
+      "short_answer": "No es una obligación. La coherencia no depende solo de usar una sola reverb.",
+      "stable_answer": "Una sola reverb puede funcionar, pero no debe elevarse a doctrina obligatoria.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "coherencia espacial",
+      "learning_objective": "Evitar el mito operativo de la reverb única.",
+      "tags": [
+        "reverb",
+        "coherencia",
+        "plano",
+        "mezcla"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si usas más de una reverb, rompes el espacio."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_009",
+      "question": "¿Cómo saber si el ambiente está ayudando aunque no se escuche como efecto evidente?",
+      "canonical_answer": "Una verificación útil del módulo es mutear el retorno espacial. Si al hacerlo la mezcla pierde tamaño, realismo, aire o tridimensionalidad, el ambiente estaba cumpliendo su función aunque no llamara la atención como efecto. En este enfoque, el ambiente útil puede ser sutil.",
+      "short_answer": "Mutea el ambiente: si la escena colapsa, estaba funcionando.",
+      "stable_answer": "El ambiente eficaz no necesita volverse obvio para ser útil.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "diagnóstico espacial",
+      "learning_objective": "Evaluar ambiente por función y no solo por evidencia superficial.",
+      "tags": [
+        "diagnóstico",
+        "ambiente",
+        "tridimensionalidad"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si casi no se oye, entonces no sirve."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_010",
+      "question": "¿Qué error espacial aparece cuando hay demasiada reverb o demasiado ambiente?",
+      "canonical_answer": "El error típico es el hundimiento de la mezcla. El frente pierde definición, las transientes se diluyen y la escena se vuelve más lejana o borrosa de lo que conviene. En el módulo, la espacialidad deja de ser útil cuando empieza a empujar todo hacia atrás.",
+      "short_answer": "La mezcla se hunde: pierde frente, definición y claridad.",
+      "stable_answer": "Exceso de ambiente suele traducirse en pérdida de frente y legibilidad.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "errores comunes",
+      "learning_objective": "Reconocer el hundimiento como fallo espacial recurrente.",
+      "tags": [
+        "error",
+        "hundimiento",
+        "reverb",
+        "ambiente"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Si suena grande, entonces está bien aunque pierda frente."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_011",
+      "question": "¿La duración de la reverb puede elegirse solo por gusto?",
+      "canonical_answer": "El gusto importa, pero el módulo insiste en que la duración del campo reverberante debe convivir con el tiempo musical. Si la cola invade golpes o eventos importantes y embarra el pulso, la decisión espacial está mal resuelta para ese contexto.",
+      "short_answer": "No conviene elegirla aislada del tempo y de la figuración.",
+      "stable_answer": "La duración del ambiente debe dialogar con el tiempo musical.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "tiempo musical",
+      "learning_objective": "Relacionar duración del ambiente con ritmo y arreglo.",
+      "tags": [
+        "RT60",
+        "tempo",
+        "reverb",
+        "groove"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "La cola se ajusta solo por gusto.",
+        "Mientras guste, no importa si tapa el groove."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_012",
+      "question": "¿Conviene alinear temporalmente los room mics para que todo quede más coherente?",
+      "canonical_answer": "No como automatismo. En este módulo, la llegada tardía del room forma parte del tamaño y de la profundidad capturada. Alinear sin criterio puede borrar la distancia natural del recinto. Cualquier corrección de este tipo debe tratarse como una intervención sensible al contexto.",
+      "short_answer": "No por defecto. Esa llegada tardía suele ser parte de la sala.",
+      "stable_answer": "Alinear room mics sin criterio puede destruir profundidad y tamaño.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "room mics",
+      "learning_objective": "Proteger la función espacial de la llegada tardía del room.",
+      "tags": [
+        "room mics",
+        "alineación",
+        "profundidad",
+        "sala"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Alinea siempre los room mics para mejorar la mezcla."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_013",
+      "question": "¿Filtrar graves en los room mics solo limpia el sonido?",
+      "canonical_answer": "No necesariamente. El módulo advierte que un high-pass agresivo en los room mics también puede achicar el tamaño percibido de la sala. La limpieza tonal y la preservación espacial no siempre empujan en la misma dirección, así que conviene decidir con cautela.",
+      "short_answer": "No. También puede reducir el tamaño percibido del recinto.",
+      "stable_answer": "Filtrar room mics modifica no solo tono, sino también escala espacial.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "filtrado y sala",
+      "learning_objective": "Reconocer el impacto espacial del filtrado en ambiencias.",
+      "tags": [
+        "high-pass",
+        "room mics",
+        "sala",
+        "espacialidad"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Quitar graves en el room siempre mejora la sala."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_014",
+      "question": "¿Se puede juzgar la espacialidad igual en auriculares que en monitores?",
+      "canonical_answer": "No conviene asumir equivalencia. El módulo subraya que en monitores existe cruce interaural y mediación de la sala, mientras que en auriculares esa interacción se simplifica mucho. Eso puede distorsionar decisiones de paneo, anchura y profundidad si se juzgan solo desde auriculares.",
+      "short_answer": "No. La decodificación espacial cambia bastante entre ambos contextos.",
+      "stable_answer": "Auriculares y monitores no entregan la misma lectura espacial.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "monitoreo",
+      "learning_objective": "Entender el sesgo espacial de los auriculares.",
+      "tags": [
+        "auriculares",
+        "monitores",
+        "paneo",
+        "profundidad"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Da igual mezclar profundidad en auriculares o en monitores."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_015",
+      "question": "¿Duplicar una pista y retrasarla un poco sirve como sustituto limpio de un doubling real?",
+      "canonical_answer": "El módulo trata esa sustitución con desconfianza. El doubling real aporta microvariaciones orgánicas de timing y afinación. La duplicación digital con retraso fijo puede generar filtro peine estático y comprometer la suma mono. Por eso no conviene presentarla como equivalente estable.",
+      "short_answer": "No conviene asumir equivalencia. El doubling digital fijo puede generar problemas de peine y mono.",
+      "stable_answer": "El doubling real y la duplicación digital retrasada no deben tratarse como lo mismo.",
+      "pending_validation_notes": [],
+      "brand_or_model_mentions": [],
+      "topic": "apertura espacial",
+      "learning_objective": "Distinguir apertura orgánica de falso estéreo destructivo.",
+      "tags": [
+        "doubling",
+        "falso estéreo",
+        "filtro peine",
+        "mono"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Duplicar y retrasar siempre sustituye una doble toma real."
+      ],
+      "requires_validation": true
+    },
+    {
+      "faq_id": "M06_FAQ_016",
+      "question": "¿La monocompatibilidad siempre tiene prioridad absoluta sobre la espacialidad?",
+      "canonical_answer": "El módulo no lo formula de manera absoluta. Como norma general, conviene vigilar monocompatibilidad y correlación. Sin embargo, el material también deja abierto que, en contextos inmersivos o de lenguaje ambient, ciertos compromisos espaciales podrían aceptarse por decisión artística. Ese punto debe manejarse con formulación prudente y sin convertirlo en permiso universal.",
+      "short_answer": "En general conviene proteger la mono, pero el módulo no lo vuelve un absoluto sin contexto.",
+      "stable_answer": "La prioridad entre espacialidad y monocompatibilidad puede depender del lenguaje y requiere prudencia.",
+      "pending_validation_notes": [
+        "Este criterio debe tratarse como contenido sensible al contexto estético."
+      ],
+      "brand_or_model_mentions": [],
+      "topic": "límites y criterio",
+      "learning_objective": "Responder con prudencia sobre compromisos entre inmersión y mono.",
+      "tags": [
+        "monocompatibilidad",
+        "correlación",
+        "ambient",
+        "criterio"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "La mono nunca importa.",
+        "Cualquier correlación negativa es aceptable si suena ancho."
+      ],
+      "requires_validation": true
+    }
+  ]
 }

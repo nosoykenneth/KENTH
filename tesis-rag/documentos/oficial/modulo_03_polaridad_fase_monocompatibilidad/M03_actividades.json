@@ -1,20 +1,237 @@
 ﻿{
-    "course_id":  "mezcla_masterizacion_kenth",
-    "module_id":  "M03",
-    "module_order":  3,
-    "module_title":  "Polaridad, fase y monocompatibilidad",
-    "module_slug":  "polaridad-fase-monocompatibilidad",
-    "short_description":  "Modulo sobre relaciones temporales, polaridad, fase y compatibilidad mono.",
-    "learning_scope":  "Delimita problemas de suma, cancelacion, correlacion e imagen mono/estereo dentro de la mezcla.",
-    "source_origin":  "course",
-    "version":  "0.1",
-    "status":  "draft_pending_authoring",
-    "curation_source":  "estructura_base_curso",
-    "requires_validation":  true,
-    "doc_type":  "activities",
-    "filename":  "M03_actividades.json",
-    "purpose":  "Skeleton base para actividades Moodle del modulo. No contiene actividades finales.",
-    "activities":  [
-
-                   ]
+"course_id": "mezcla_masterizacion_kenth",
+"module_id": "M03",
+"module_order": 3,
+"module_title": "Polaridad, fase y monocompatibilidad",
+"module_slug": "polaridad-fase-monocompatibilidad",
+"short_description": "Módulo sobre la diferencia entre polaridad y fase, la suma mono, la monocompatibilidad, el diagnóstico por medición y la toma de decisiones técnicas según el rol musical de cada elemento.",
+"learning_scope": "Distinguir polaridad, fase, cancelación, suma coherente, correlación, filtrado peine y monocompatibilidad; diagnosticar problemas con herramientas visuales y criterios auditivos; decidir cuándo corregir, cuándo no corregir y cómo justificar compromisos entre imagen estéreo y solidez mono.",
+"doc_type": "activities",
+"source_origin": "course",
+"filename": "M03_actividades.json",
+"version": "0.1",
+"status": "draft_author_review",
+"curation_source": "borrador_autoral_m03",
+"purpose": "Borrador de actividades del modulo para uso posterior en tutor IA o Moodle. Requiere validacion pedagogica antes de publicarse.",
+"activities": [
+{
+"activity_id": "M03_ACT_001",
+"title": "Polaridad no es fase",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante distinga inversión de polaridad, desplazamiento temporal y desfase angular sin usar los términos como sinónimos.",
+"student_task": "Explica en tus propias palabras la diferencia entre polaridad y fase. Luego corrige esta frase: 'El botón de phase invierte la fase de la señal'. Incluye una referencia breve a por qué 180° puede parecer visualmente similar a una inversión, pero no significa lo mismo.",
+"evidence_to_submit": [
+"Definición breve de polaridad",
+"Definición breve de fase",
+"Corrección técnica de la frase propuesta",
+"Explicación corta de la diferencia entre desplazamiento a 180° e inversión de polaridad"
+],
+"ai_feedback_criteria": [
+"Debe indicar que la polaridad es binaria y absoluta",
+"Debe indicar que la fase implica relación temporal, desplazamiento o rotación",
+"Debe evitar afirmar que polaridad y fase son equivalentes",
+"Debe reconocer que el botón llamado 'phase' suele ser técnicamente inversión de polaridad",
+"Debe usar lenguaje claro sin convertir la explicación en una teoría externa"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"polaridad",
+"fase",
+"180 grados",
+"inversion de polaridad",
+"terminologia tecnica"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M03_ACT_002",
+"title": "Lectura prudente del correlator",
+"moodle_type": "ejercicio_de_diagnostico",
+"objective": "Evaluar si el estudiante interpreta el correlator según tendencia, frecuencia dominante y función musical, en vez de reaccionar de forma automática ante picos negativos.",
+"student_task": "Analiza este caso: una mezcla muestra el correlator cerca de +1 durante casi toda la canción, pero al escuchar en mono los platillos pierden brillo y aparecen raros. El bajo y el bombo permanecen sólidos. Explica por qué el correlator puede mostrar una lectura aparentemente segura y qué diagnóstico adicional harías antes de corregir.",
+"evidence_to_submit": [
+"Explicación de la influencia de la frecuencia dominante en el correlator",
+"Decisión sobre si el problema afecta elementos primarios o secundarios",
+"Propuesta de diagnóstico por bandas",
+"Conclusión sobre si corregirías de inmediato o medirías más"
+],
+"ai_feedback_criteria": [
+"Debe mencionar que el correlator puede estar dominado por el grave o por la frecuencia de mayor amplitud",
+"Debe distinguir entre estabilidad de elementos primarios y pérdida en elementos secundarios",
+"Debe proponer correlómetro multibanda o pasabanda antes del correlator",
+"Debe evitar tratar cualquier valor negativo puntual como error automático",
+"Debe justificar la decisión con relación a monocompatibilidad y rol musical"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"correlator",
+"frecuencia dominante",
+"diagnostico por bandas",
+"monocompatibilidad",
+"lectura prudente"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M03_ACT_003",
+"title": "Prioridad del tambor frente a overheads",
+"moodle_type": "aplicacion_practica_breve",
+"objective": "Comprobar que el estudiante entiende el orden de chequeo de polaridad y fase en batería acústica, especialmente entre top, bottom y overheads.",
+"student_task": "Ordena y justifica el procedimiento para revisar un tambor grabado con micrófono superior, micrófono inferior y overheads. Debes explicar qué comparas primero, qué inviertes, qué escuchas y por qué el tambor queda como referencia prioritaria.",
+"evidence_to_submit": [
+"Secuencia de revisión top/bottom",
+"Secuencia de revisión del grupo de tambor contra overheads",
+"Criterio auditivo para escoger la opción correcta",
+"Justificación de la prioridad del tambor"
+],
+"ai_feedback_criteria": [
+"Debe comenzar por emparejar niveles entre top y bottom",
+"Debe indicar que se invierte la polaridad de uno de los micrófonos y se elige la opción con más cuerpo o grave",
+"Debe explicar que luego se compara el grupo de tambor contra overheads",
+"Debe reconocer que no existe alineación perfecta para todo el kit",
+"Debe evitar proponer alinear todos los room mics automáticamente"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"tambor",
+"top bottom",
+"overheads",
+"polaridad",
+"bateria acustica",
+"prioridad del tambor"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M03_ACT_004",
+"title": "Falso estéreo contra doubling real",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante distinga el efecto técnico de duplicar y retrasar una pista frente a grabar dos tomas reales.",
+"student_task": "Compara el falso estéreo por duplicación con delay y el doubling real. Explica qué ocurre al cerrar a mono, por qué aparece filtrado peine y por qué el movimiento humano del doubling real cambia el resultado.",
+"evidence_to_submit": [
+"Descripción del falso estéreo por duplicación y delay",
+"Descripción del doubling real",
+"Explicación del filtrado peine estático",
+"Conclusión sobre el comportamiento en mono"
+],
+"ai_feedback_criteria": [
+"Debe indicar que duplicar una pista y retrasar un lado no equivale a grabarla dos veces",
+"Debe mencionar comb filtering o filtrado peine como consecuencia del retardo",
+"Debe explicar que el doubling real introduce variaciones microscópicas de tiempo y afinación",
+"Debe reconocer que el doubling real también puede tener costo de monocompatibilidad",
+"Debe evitar presentar el falso estéreo como reemplazo técnico limpio del doubling"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"falso estereo",
+"doubling real",
+"comb filtering",
+"delay",
+"mono"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M03_ACT_005",
+"title": "Graves desfasados y mono maker",
+"moodle_type": "analisis_guiado",
+"objective": "Evaluar si el estudiante entiende que un problema temporal en graves no se resuelve simplemente colapsando el low-end al centro.",
+"student_task": "Analiza este caso: en mastering, el grave pierde fuerza al pasar a mono. Alguien propone usar un mono maker por debajo de 120 Hz. Explica por qué esa solución puede fallar o empeorar el problema, y qué tipo de corrección corresponde si el origen es temporal.",
+"evidence_to_submit": [
+"Diagnóstico del problema como posible desfase temporal",
+"Crítica técnica al uso automático de mono maker",
+"Propuesta de corrección con offset temporal",
+"Frase o principio que resuma la decisión"
+],
+"ai_feedback_criteria": [
+"Debe indicar que colapsar a mono no corrige necesariamente un desfase temporal",
+"Debe explicar que el mono maker puede consolidar la cancelación o destruir el grave",
+"Debe proponer compensación temporal u offset entre canales como ruta pertinente",
+"Debe incluir la idea de que los problemas de tiempo se arreglan con tiempo",
+"Debe evitar recomendar corrección preventiva sin medición"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"mono maker",
+"graves",
+"offset temporal",
+"mastering",
+"monocompatibilidad"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M03_ACT_006",
+"title": "No hay filtros gratis",
+"moodle_type": "cuestionario_o_tarea_breve",
+"objective": "Comprobar que el estudiante reconoce los compromisos entre filtros IIR, fase lineal, latencia, pre-ringing y reconstrucción de bandas.",
+"student_task": "Responde brevemente: ¿por qué no basta decir que un filtro de fase lineal es siempre mejor que un filtro IIR o analógico? Incluye una explicación sobre rotación de fase, latencia, pre-ringing y el criterio de decisión según el problema real.",
+"evidence_to_submit": [
+"Explicación de la rotación de fase en filtros IIR o analógicos",
+"Explicación de la ventaja de la fase lineal",
+"Mención de latencia y pre-ringing",
+"Conclusión práctica sobre el compromiso técnico"
+],
+"ai_feedback_criteria": [
+"Debe reconocer que los filtros IIR o analógicos rotan fase",
+"Debe reconocer que la fase lineal puede evitar rotación relativa",
+"Debe mencionar latencia y pre-ringing como costos",
+"Debe evitar presentar la fase lineal como solución gratuita o universal",
+"Debe conectar la decisión con el principio de evaluar el daño o compromiso más aceptable"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"filtros",
+"fase lineal",
+"IIR",
+"pre-ringing",
+"latencia",
+"rotacion de fase"
+],
+"requires_validation": true
+},
+{
+"activity_id": "M03_ACT_007",
+"title": "Asimetría no es DC Offset",
+"moodle_type": "comparacion_conceptual",
+"objective": "Verificar que el estudiante separe el diagnóstico de DC Offset del diagnóstico de asimetría de onda por relación de fase interna entre armónicos.",
+"student_task": "Compara DC Offset y asimetría de onda. Explica qué está desplazado en cada caso, qué herramienta de corrección corresponde y por qué un high-pass no resuelve necesariamente una asimetría real.",
+"evidence_to_submit": [
+"Definición breve de DC Offset",
+"Definición breve de asimetría de onda",
+"Corrección adecuada para cada caso",
+"Justificación de por qué no usar high-pass para todo"
+],
+"ai_feedback_criteria": [
+"Debe indicar que el DC Offset desplaza toda la onda por componente cercana a 0 Hz",
+"Debe indicar que la asimetría puede venir de relaciones de fase internas entre armónicos",
+"Debe asociar DC Offset con high-pass bajo",
+"Debe asociar asimetría con all-pass o rotor de fase",
+"Debe evitar confundir centrado eléctrico de la onda con simetría de sus picos"
+],
+"related_errors": [],
+"teacher_decision_status": "pending_teacher_review",
+"validation_notes": [],
+"tags": [
+"DC Offset",
+"asimetria",
+"all-pass",
+"rotor de fase",
+"high-pass"
+],
+"requires_validation": true
+}
+]
 }
