@@ -23,7 +23,6 @@ import CheckoutSuccessView from '../modules/checkout/CheckoutSuccessView';
 import DashboardCatalog from '../modules/academy/DashboardCatalog';
 import CourseContentView from '../modules/academy/CourseContentView';
 import ProfileSettingsView from '../modules/academy/ProfileSettingsView';
-import TutorView from '../modules/academy/TutorView';
 import CourseSettingsView from '../modules/academy/CourseSettingsView';
 import PilotTutorDebugView from '../modules/academy/PilotTutorDebugView';
 
@@ -62,7 +61,7 @@ const AppRouter = () => {
             <Route index element={<DashboardCatalog />} />
             <Route path="course/:courseId" element={<CourseContentView />} />
             <Route path="profile" element={<ProfileSettingsView />} />
-            <Route path="tutor" element={<TutorView />} />
+            <Route path="tutor" element={<Navigate to="/dashboard" replace />} />
             <Route path="pilot" element={<PilotTutorDebugView />} />
             <Route path="admin/catalog" element={<AdminCommercialView />} />
             <Route path="admin/knowledge" element={<AdminKnowledgeView />} />

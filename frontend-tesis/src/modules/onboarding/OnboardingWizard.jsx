@@ -10,9 +10,23 @@ const getProfileCropStateKey = () => {
   return `moodle_profile_crop_state_${userId}`;
 };
 
+const getProfileCropSourceKey = () => {
+  const userId = localStorage.getItem('moodle_userid') || 'current';
+  return `moodle_profile_crop_source_${userId}`;
+};
+
 const persistCropState = (cropState) => {
   if (!cropState?.areaPercentages) return;
   localStorage.setItem(getProfileCropStateKey(), JSON.stringify(cropState));
+};
+
+const persistCropSource = (sourceImage) => {
+  if (!sourceImage) return;
+  try {
+    localStorage.setItem(getProfileCropSourceKey(), sourceImage);
+  } catch {
+    // La imagen original puede ser grande; si localStorage falla, el estado React sigue funcionando.
+  }
 };
 
 export default function OnboardingWizard() {
@@ -33,7 +47,10 @@ export default function OnboardingWizard() {
   });
 
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [cropSourceImage, setCropSourceImage] = useState('');
   const [imageToCrop, setImageToCrop] = useState(null);
+  const [cropperInitialState, setCropperInitialState] = useState(null);
+  const [pendingOriginalImage, setPendingOriginalImage] = useState('');
   const fileInputRef = React.useRef(null);
 
   const resetPhotoInput = () => {
@@ -47,7 +64,8 @@ export default function OnboardingWizard() {
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
-        setFormData(prev => ({ ...prev, pictureOriginalData: reader.result }));
+        setPendingOriginalImage(reader.result);
+        setCropperInitialState(null);
         setImageToCrop(reader.result);
       };
       reader.readAsDataURL(file);
@@ -55,16 +73,44 @@ export default function OnboardingWizard() {
   };
 
   const handleCropComplete = (croppedImage, cropState) => {
+    const sourceImage = pendingOriginalImage || cropSourceImage || formData.pictureOriginalData;
+
+    if (pendingOriginalImage) {
+      setCropSourceImage(pendingOriginalImage);
+      persistCropSource(pendingOriginalImage);
+    }
+
     setPhotoPreview(croppedImage);
-    setFormData(prev => ({ ...prev, pictureData: croppedImage, pictureCropState: cropState }));
+    setFormData(prev => ({
+      ...prev,
+      pictureData: croppedImage,
+      pictureOriginalData: sourceImage,
+      pictureCropState: cropState
+    }));
     persistCropState(cropState);
     setImageToCrop(null);
+    setCropperInitialState(null);
+    setPendingOriginalImage('');
     resetPhotoInput();
   };
 
   const handleCropCancel = () => {
+    setPendingOriginalImage('');
     setImageToCrop(null);
+    setCropperInitialState(null);
     resetPhotoInput();
+  };
+
+  const handleEditCurrentCrop = () => {
+    const sourceImage = cropSourceImage || formData.pictureOriginalData;
+    if (!sourceImage) {
+      setError('Primero sube una foto para poder editar el recorte.');
+      return;
+    }
+
+    setError('');
+    setCropperInitialState(formData.pictureCropState);
+    setImageToCrop(sourceImage);
   };
 
   const handleFinish = async () => {
@@ -168,6 +214,25 @@ export default function OnboardingWizard() {
             onChange={handlePhotoChange}
             accept="image/png, image/jpeg, image/jpg"
           />
+          <div className="flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current.click()}
+              className="px-4 py-2 rounded-xl bg-white/5 text-white/40 hover:text-white hover:bg-white/10 border border-white/10 transition-all text-[10px] uppercase tracking-widest font-black"
+            >
+              {photoPreview ? 'Cambiar foto' : 'Subir foto'}
+            </button>
+
+            {photoPreview && (
+              <button
+                type="button"
+                onClick={handleEditCurrentCrop}
+                className="px-4 py-2 rounded-xl bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500 hover:text-white border border-indigo-400/20 transition-all text-[10px] uppercase tracking-widest font-black"
+              >
+                Editar recorte
+              </button>
+            )}
+          </div>
           <p className="text-xs text-white/40 font-black uppercase tracking-widest">Haz clic en el círculo para subir foto</p>
         </div>
       )
@@ -288,6 +353,7 @@ export default function OnboardingWizard() {
           image={imageToCrop} 
           onCropComplete={handleCropComplete} 
           onCancel={handleCropCancel} 
+          initialCropState={cropperInitialState}
         />
       )}
     </div>

@@ -67,9 +67,6 @@ export default function AcademyLayout() {
   const [userRole, setUserRole] = useState(() => localStorage.getItem('moodle_rol') || 'student');
   
   useEffect(() => {
-    if (location.pathname === '/dashboard/tutor' && sidebarExpandida) {
-      setSidebarExpandida(false);
-    }
     const contentArea = document.getElementById('main-content-area');
     if (contentArea) contentArea.scrollTo(0, 0);
   }, [location.pathname]);
@@ -87,7 +84,6 @@ export default function AcademyLayout() {
         </div>
         <nav className={`flex flex-col gap-2 w-full px-4 mt-2 lg:mt-0 ${sidebarExpandida ? 'lg:px-6' : ''}`}>
           <NavItem to="/dashboard" label="Dashboard" sidebarExpandida={sidebarExpandida} icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>} />
-          <NavItem to="/dashboard/tutor" label="Tutor KENTH" isRGB={true} sidebarExpandida={sidebarExpandida} icon={(props) => <AssistantIcon {...props} />} />
           {(userRole === 'admin' || userRole === 'teacher') && (
             <>
               <NavItem to="/dashboard/admin/knowledge" label="Gestor IA" sidebarExpandida={sidebarExpandida} icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>} />

@@ -4,6 +4,7 @@ import { getCourseContents, getMyCourses } from '../../shared/services/courseSer
 import MoodleRenderer from '../../shared/components/ui/MoodleRenderer';
 import PageContainer from '../../shared/components/layout/PageContainer';
 import TutorAssistCard from '../../shared/components/ai/TutorAssistCard';
+import TutorView from './TutorView';
 import {
   buildActivityContext,
   activityContextFromMoodleModule,
@@ -12,6 +13,22 @@ import {
 import LinkLessonModal from '../../shared/components/ai/LinkLessonModal';
 import { listResourceLinks, getPilotLesson } from '../../shared/services/pilotService';
 import useResourceTimestamp from '../../shared/hooks/useResourceTimestamp';
+
+const FloatingAssistantIcon = () => (
+  <div className="relative w-7 h-7">
+    <div className="absolute inset-0 animate-kenth-rgb-hue transition-opacity duration-500 opacity-100">
+      <svg className="w-full h-full" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <linearGradient id="course-ai-rgb-gradient-static" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stopColor="#ff0000" />
+            <stop offset="100%" stopColor="#00ffff" />
+          </linearGradient>
+        </defs>
+        <path d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09zM18.259 8.715L18 9.75l-.259-1.035a3.375 3.375 0 00-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 002.456-2.455l.259-1.036.259 1.036a3.375 3.375 0 002.455 2.456l1.036.259-1.036.259a3.375 3.375 0 00-2.456 2.456zM16.894 20.567L16.5 21.75l-.394-1.183a2.25 2.25 0 00-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 001.423-1.423l.394-1.183.394 1.183a2.25 2.25 0 001.423 1.423l1.183.394-1.183.394a2.25 2.25 0 00-1.423 1.423z" stroke="url(#course-ai-rgb-gradient-static)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </div>
+  </div>
+);
 
 const HERRAMIENTAS_MOODLE = [
   { id: 'quiz', nombre: 'Cuestionario', icono: '✅', color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/20' },
@@ -63,6 +80,7 @@ export default function CourseContentView() {
   const [studioAbierto, setStudioAbierto] = useState(false);
   const [herramientaAvanzada, setHerramientaAvanzada] = useState('');
   const [studioCargando, setStudioCargando] = useState(true);
+  const [tutorCursoAbierto, setTutorCursoAbierto] = useState(false);
 
   const [seccionDestinoId, setSeccionDestinoId] = useState(1);
   const [esProfesor, setEsProfesor] = useState(false);
@@ -81,6 +99,7 @@ export default function CourseContentView() {
   const [linkedLessonDetail, setLinkedLessonDetail] = useState(null);
   // Panel del tutor en el visor: oculto por defecto, se abre con FAB.
   const [tutorAbierto, setTutorAbierto] = useState(false);
+  const [tutorMontado, setTutorMontado] = useState(false);
   // Hook preparado para timestamp real del H5P/video. Hoy queda en null
   // hasta que un bridge (tesis_view.php) emita 'kenth:resource_time'.
   const { currentTimestamp } = useResourceTimestamp({
@@ -92,6 +111,44 @@ export default function CourseContentView() {
   // el nuevo recurso por diff y abre LinkLessonModal automaticamente.
   // null cuando se trata de una edicion (no autoabrir).
   const idsCreacionRef = useRef(null);
+  const tutorUnmountTimerRef = useRef(null);
+
+  const abrirTutor = () => {
+    if (tutorUnmountTimerRef.current) {
+      window.clearTimeout(tutorUnmountTimerRef.current);
+      tutorUnmountTimerRef.current = null;
+    }
+    setTutorMontado(true);
+    setTutorAbierto(true);
+  };
+
+  const cerrarTutor = () => {
+    setTutorAbierto(false);
+  };
+
+  const avisarResizeRecursoEmbebido = () => {
+    window.dispatchEvent(new Event('resize'));
+
+    try {
+      const iframe = window.frames?.moodle_view_iframe;
+      iframe?.dispatchEvent(new Event('resize'));
+    } catch {
+      // El iframe puede no estar listo todavia o puede negar acceso si Moodle cambia de origen.
+    }
+  };
+
+  const abrirVisorRecurso = (mod) => {
+    if (!mod?.url) return;
+    setTutorAbierto(false);
+    setTutorMontado(false);
+    setVisorActivo(mod);
+  };
+
+  const cerrarVisorRecurso = () => {
+    setTutorAbierto(false);
+    setTutorMontado(false);
+    setVisorActivo(null);
+  };
 
   const cargarLinks = async () => {
     if (!id) return;
@@ -115,7 +172,32 @@ export default function CourseContentView() {
   // arranque oculto por defecto en cada leccion nueva.
   useEffect(() => {
     setTutorAbierto(false);
+    setTutorMontado(false);
   }, [visorActivo?.id]);
+
+  useEffect(() => () => {
+    if (tutorUnmountTimerRef.current) {
+      window.clearTimeout(tutorUnmountTimerRef.current);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!visorActivo?.id) return undefined;
+
+    const delays = [0, 120, 360, 700];
+    const timers = delays.map((delay) => (
+      window.setTimeout(avisarResizeRecursoEmbebido, delay)
+    ));
+
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [visorActivo?.id]);
+
+  useEffect(() => {
+    if (!visorActivo?.id) return undefined;
+
+    const timer = window.setTimeout(avisarResizeRecursoEmbebido, 560);
+    return () => window.clearTimeout(timer);
+  }, [visorActivo?.id, tutorAbierto]);
 
   useEffect(() => {
     if (!visorActivo) { setLinkedLessonDetail(null); return; }
@@ -147,7 +229,7 @@ export default function CourseContentView() {
         const respuesta = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_role.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(id)}`);
         const data = await respuesta.json();
         setEsProfesor(data.esProfesor);
-      } catch (error) { setEsProfesor(false); }
+      } catch { setEsProfesor(false); }
     };
     verificarPermisos();
   }, [id]);
@@ -193,7 +275,7 @@ export default function CourseContentView() {
         }
       }
       if (event.data === 'moodle_view_done') {
-        setVisorActivo(null);
+        cerrarVisorRecurso();
       }
     };
     window.addEventListener('message', handleMoodleMessage);
@@ -714,7 +796,7 @@ export default function CourseContentView() {
                             </div>
                           )}
 
-                          <div className="flex items-center gap-4 flex-1 min-w-0" onClick={() => mod.url && setVisorActivo(mod)}>
+                          <div className="flex items-center gap-4 flex-1 min-w-0" onClick={() => abrirVisorRecurso(mod)}>
                             <img src={mod.modicon} alt={mod.modname} className={`w-8 h-8 rounded flex-shrink-0 ${mod.visible === 0 ? 'opacity-50' : ''}`} />
                             <div className="flex flex-col flex-1 min-w-0">
                               <span className={`font-semibold text-kenth-text transition truncate ${mod.url && 'group-hover/card:text-kenth-brightred'} ${mod.visible === 0 ? 'line-through text-kenth-subtext' : ''}`}>
@@ -1010,6 +1092,41 @@ export default function CourseContentView() {
         </div>
       )}
 
+      {!visorActivo && (
+        <button
+          type="button"
+          onClick={() => setTutorCursoAbierto(true)}
+          title="Abrir tutor IA"
+          aria-label="Abrir tutor IA"
+          className="fixed bottom-6 right-6 z-40 flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-kenth-card/90 text-white shadow-[0_18px_45px_rgba(0,0,0,0.35)] backdrop-blur-xl transition-all duration-300 hover:scale-105 hover:border-kenth-brightred/40 hover:shadow-[0_18px_55px_rgba(195,7,63,0.28)] active:scale-95"
+        >
+          <span className="absolute inset-0 rounded-full bg-kenth-surface/20"></span>
+          <span className="absolute inset-1 rounded-full border border-white/5"></span>
+          <span className="relative z-10 flex items-center justify-center">
+            <FloatingAssistantIcon />
+          </span>
+        </button>
+      )}
+
+      {tutorCursoAbierto && (
+        <div className="fixed inset-0 z-[90] bg-black/85 p-3 md:p-8 backdrop-blur-xl animate-kenth-blur">
+          <div className="relative h-full w-full overflow-hidden rounded-[2rem] border border-kenth-border bg-kenth-bg shadow-[0_0_100px_rgba(0,0,0,0.65)]">
+            <button
+              type="button"
+              onClick={() => setTutorCursoAbierto(false)}
+              title="Cerrar tutor IA"
+              aria-label="Cerrar tutor IA"
+              className="absolute right-4 top-4 z-30 rounded-full border border-kenth-border bg-kenth-bg/80 p-3 text-kenth-subtext backdrop-blur-xl transition hover:border-kenth-brightred hover:bg-kenth-brightred hover:text-white"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+            <TutorView />
+          </div>
+        </div>
+      )}
+
       {visorActivo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-2 md:p-10 animate-kenth-blur">
           <div className="bg-kenth-card w-full h-full max-w-6xl rounded-[2.5rem] flex flex-col border border-kenth-border overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.6)] animate-kenth-pop">
@@ -1024,7 +1141,7 @@ export default function CourseContentView() {
                 </div>
               </div>
               <button 
-                onClick={() => setVisorActivo(null)} 
+                onClick={cerrarVisorRecurso} 
                 className="group relative overflow-hidden bg-kenth-surface/10 hover:bg-kenth-brightred text-kenth-subtext hover:text-white px-6 py-2.5 rounded-2xl transition-all duration-300 font-black text-[10px] tracking-widest uppercase flex items-center gap-3 border border-kenth-border hover:border-kenth-brightred hover:shadow-[0_0_20px_rgba(225,29,72,0.4)]"
               >
                 <span className="relative z-10 flex items-center gap-2">
@@ -1033,93 +1150,94 @@ export default function CourseContentView() {
                 </span>
               </button>
             </div>
-            <div className={`flex-1 w-full bg-kenth-bg relative flex flex-col overflow-hidden`}>
-              <div className={`flex-1 overflow-y-auto scrollbar-hide ${['h5pactivity', 'hvp'].includes(visorActivo?.modname) ? 'p-0' : 'p-4 md:p-10'}`}>
-                <MoodleRenderer modulo={visorActivo} />
-              </div>
+            
+            {(() => {
+              // Lógica de contexto y tutor (IIFE para mantener variables locales limpias)
+              const seccion = secciones.find(s => s.modules?.some(m => m.id === visorActivo.id)) || null;
+              const baseCtx = activityContextFromMoodleModule(
+                visorActivo,
+                seccion,
+                {
+                  timestamp: typeof currentTimestamp === 'number' ? currentTimestamp : null,
+                  page: null,
+                  overrides: {
+                    expectedAction: visorActivo.description ? 'Revisar y comprender el recurso abierto' : 'Explorar el recurso',
+                  },
+                }
+              );
 
-              {(() => {
-                // Contexto base derivado del modulo Moodle.
-                const seccion = secciones.find(s => s.modules?.some(m => m.id === visorActivo.id)) || null;
-                const baseCtx = activityContextFromMoodleModule(
-                  visorActivo,
-                  seccion,
-                  {
-                    // Inyectamos el timestamp real cuando el bridge lo emita.
-                    // Hoy es null en condiciones normales; el resolver de
-                    // bloque del backend degrada limpio en ese caso.
-                    timestamp: typeof currentTimestamp === 'number' ? currentTimestamp : null,
-                    page: null,
-                    overrides: {
-                      expectedAction: visorActivo.description
-                        ? 'Revisar y comprender el recurso abierto'
-                        : 'Explorar el recurso',
-                    },
+              const link = resourceLinks[String(visorActivo.id)];
+              const ctx = link
+                ? {
+                    ...baseCtx,
+                    current_axis: link.axis_id || baseCtx?.current_axis || '',
+                    current_lesson_id: link.lesson_id,
+                    resource_subtype: link.resource_subtype || baseCtx?.resource_subtype || '',
+                    learning_goal: linkedLessonDetail?.learning_goal || baseCtx?.learning_goal || '',
+                    expected_action: linkedLessonDetail?.expected_action || baseCtx?.expected_action || '',
                   }
-                );
+                : baseCtx;
 
-                // Si el recurso tiene leccion piloto enlazada, sobreescribimos
-                // los campos pedagogicos: lesson_id ya no es el cmid de
-                // Moodle, es el lesson_id piloto real (ej. "E3-L03"), y eje
-                // / objetivo / accion vienen del manifest piloto. El
-                // resource_id se mantiene como cmid para uso del frontend.
-                const link = resourceLinks[String(visorActivo.id)];
-                const ctx = link
-                  ? {
-                      ...baseCtx,
-                      current_axis: link.axis_id || baseCtx?.current_axis || '',
-                      current_lesson_id: link.lesson_id,
-                      resource_subtype: link.resource_subtype || baseCtx?.resource_subtype || '',
-                      learning_goal:
-                        linkedLessonDetail?.learning_goal || baseCtx?.learning_goal || '',
-                      expected_action:
-                        linkedLessonDetail?.expected_action || baseCtx?.expected_action || '',
-                    }
-                  : baseCtx;
+              const proactiveMessage = linkedLessonDetail?.proactive_message || '';
+              const ts = typeof currentTimestamp === 'number' ? currentTimestamp : null;
+              const currentBlock = (ts != null && Array.isArray(linkedLessonDetail?.blocks))
+                ? linkedLessonDetail.blocks.find((b) => (
+                    typeof b.start_time === 'number' &&
+                    typeof b.end_time === 'number' &&
+                    ts >= b.start_time && ts < b.end_time
+                  )) || null
+                : null;
 
-                const proactiveMessage = linkedLessonDetail?.proactive_message || '';
+              const suggested = (
+                Array.isArray(currentBlock?.preguntas_probables) &&
+                currentBlock.preguntas_probables.length
+              )
+                ? currentBlock.preguntas_probables
+                : (linkedLessonDetail?.suggested_prompts || null);
 
-                // Resolucion de bloque actual por timestamp real. Usamos
-                // los bloques que ya vinieron en linkedLessonDetail (no
-                // hay round-trip al backend). Si no hay timestamp aun, o
-                // si ningun bloque matchea, currentBlock queda null.
-                const ts = typeof currentTimestamp === 'number' ? currentTimestamp : null;
-                const currentBlock = (ts != null && Array.isArray(linkedLessonDetail?.blocks))
-                  ? linkedLessonDetail.blocks.find((b) => (
-                      typeof b.start_time === 'number' &&
-                      typeof b.end_time === 'number' &&
-                      ts >= b.start_time && ts < b.end_time
-                    )) || null
-                  : null;
+              const badge = link
+                ? {
+                    label: currentBlock ? `Bloque activo · ${currentBlock.block_id}` : 'Tutor contextual activo',
+                    detail: currentBlock
+                      ? `${link.lesson_id} · ${currentBlock.block_title || currentBlock.block_id}`
+                      : `${link.axis_id ? link.axis_id + ' · ' : ''}${link.lesson_id}${linkedLessonDetail?.lesson_title ? ' — ' + linkedLessonDetail.lesson_title : ''}`,
+                  }
+                : null;
 
-                // Chips: si hay bloque activo con preguntas_probables,
-                // mandan; si no, caemos al pool estatico por leccion.
-                const suggested = (
-                  Array.isArray(currentBlock?.preguntas_probables) &&
-                  currentBlock.preguntas_probables.length
-                )
-                  ? currentBlock.preguntas_probables
-                  : (linkedLessonDetail?.suggested_prompts || null);
+              return (
+                <div
+                  className="resource-view-grid flex-1 min-h-0 w-full bg-kenth-bg relative grid overflow-hidden"
+                  style={{ '--tutor-panel-width': tutorAbierto ? '380px' : '0px' }}
+                >
+                  {!tutorAbierto && (
+                    <button
+                      onClick={abrirTutor}
+                      title={link ? `Abrir tutor - ${link.lesson_id}` : 'Abrir tutor'}
+                      aria-label="Abrir tutor"
+                      className="absolute top-[20%] right-0 z-40 group flex h-12 w-12 items-center justify-center rounded-l-2xl border border-r-0 border-white/10 bg-kenth-brightred text-white shadow-[-10px_10px_30px_rgba(195,7,63,0.3)] transition-all duration-300 translate-x-1 hover:translate-x-0 hover:bg-kenth-red focus:outline-none focus:ring-2 focus:ring-white/40"
+                    >
+                      <span className="relative flex items-center justify-center">
+                        <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.8L3 20l1.2-3.6A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                        {link && (
+                          <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-kenth-brightred animate-pulse"></span>
+                        )}
+                      </span>
+                    </button>
+                  )}
+                  {/* Área de Contenido Principal (Video/H5P) */}
+                  <div className="min-w-0 min-h-0 flex flex-col relative">
+                    <div className={`flex-1 min-w-0 min-h-0 overflow-y-auto scrollbar-hide ${['h5pactivity', 'hvp'].includes(visorActivo?.modname) ? 'p-0' : 'p-4 md:p-10'}`}>
+                      <MoodleRenderer modulo={visorActivo} />
+                    </div>
 
-                const badge = link
-                  ? {
-                      label: currentBlock
-                        ? `Bloque activo · ${currentBlock.block_id}`
-                        : 'Tutor contextual activo',
-                      detail: currentBlock
-                        ? `${link.lesson_id} · ${currentBlock.block_title || currentBlock.block_id}`
-                        : `${link.axis_id ? link.axis_id + ' · ' : ''}${link.lesson_id}${linkedLessonDetail?.lesson_title ? ' — ' + linkedLessonDetail.lesson_title : ''}`,
-                    }
-                  : null;
-
-                return (
-                  <>
-                    {/* FAB del tutor: visible solo cuando el panel esta cerrado */}
-                    {!tutorAbierto && (
+                    {/* FAB del tutor: visible solo cuando el panel está cerrado */}
+                    {false && !tutorMontado && (
                       <button
                         onClick={() => setTutorAbierto(true)}
                         title={link ? `Abrir tutor · ${link.lesson_id}` : 'Abrir tutor'}
-                        className="absolute bottom-6 right-6 z-40 group flex items-center gap-3 bg-kenth-brightred text-white pl-4 pr-5 py-3 rounded-full shadow-[0_15px_40px_rgba(195,7,63,0.45)] hover:shadow-[0_15px_50px_rgba(195,7,63,0.6)] hover:scale-105 active:scale-95 transition-all border border-white/10"
+                        className="absolute top-[20%] right-0 z-40 group flex items-center gap-3 bg-kenth-brightred text-white pl-4 pr-3 py-3 rounded-l-2xl shadow-[-10px_10px_30px_rgba(195,7,63,0.3)] hover:pr-6 transition-all border border-white/10 border-r-0 translate-x-1 hover:translate-x-0"
                       >
                         <span className="relative flex items-center justify-center">
                           <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
@@ -1134,45 +1252,45 @@ export default function CourseContentView() {
                         </span>
                       </button>
                     )}
+                  </div>
 
-                    {/* Drawer lateral del tutor */}
-                    <div
-                      className={`absolute top-0 right-0 h-full w-full md:w-[380px] z-30 border-l border-kenth-border bg-kenth-bg/95 backdrop-blur-xl shadow-[-20px_0_60px_rgba(0,0,0,0.4)] transition-transform duration-300 ease-out flex flex-col ${tutorAbierto ? 'translate-x-0' : 'translate-x-full pointer-events-none'}`}
-                    >
-                      <div className="flex items-center justify-between px-4 py-3 border-b border-kenth-border">
-                        <div className="flex items-center gap-2 min-w-0">
-                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
-                          <p className="text-[10px] font-black uppercase tracking-widest text-kenth-text truncate">
-                            {link ? `Tutor · ${link.lesson_id}` : 'Tutor de la leccion'}
-                          </p>
-                        </div>
-                        <button
-                          onClick={() => setTutorAbierto(false)}
-                          title="Cerrar tutor"
-                          className="p-2 rounded-lg text-kenth-subtext hover:text-white hover:bg-kenth-surface/20 transition"
-                        >
-                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                          </svg>
-                        </button>
+                  {/* Drawer lateral del tutor */}
+                  {tutorMontado && (
+                    <div className="absolute md:relative top-0 right-0 h-full w-full min-w-0 z-30 border-l border-kenth-border bg-kenth-bg/95 backdrop-blur-xl shadow-[-20px_0_60px_rgba(0,0,0,0.4)] flex flex-col overflow-hidden">
+                    <div className="kenth-tutor-content-reveal flex items-center justify-between px-4 py-3 border-b border-kenth-border bg-kenth-surface/5">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-kenth-text truncate">
+                          {link ? `Tutor · ${link.lesson_id}` : 'Tutor de la lección'}
+                        </p>
                       </div>
-
-                      <div className="flex-1 overflow-y-auto p-4">
-                        <TutorAssistCard
-                          variant="lesson"
-                          titulo={link ? `Ayuda · ${link.lesson_id}` : 'Ayuda con esta lección'}
-                          contexto={`Lección actual: ${visorActivo.name}. Tipo: ${visorActivo.modname}. Descripción: ${visorActivo.description}`}
-                          activityContext={ctx}
-                          proactiveMessage={proactiveMessage}
-                          suggestedPrompts={suggested}
-                          badge={badge}
-                        />
-                      </div>
+                      <button
+                        onClick={cerrarTutor}
+                        title="Cerrar tutor"
+                        className="p-2 rounded-lg text-kenth-subtext hover:text-white hover:bg-kenth-surface/20 transition"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
                     </div>
-                  </>
-                );
-              })()}
-            </div>
+
+                    <div className="kenth-tutor-content-reveal flex-1 overflow-y-auto p-4">
+                      <TutorAssistCard
+                        variant="lesson"
+                        titulo={link ? `Ayuda · ${link.lesson_id}` : 'Ayuda con esta lección'}
+                        contexto={`Lección actual: ${visorActivo.name}. Tipo: ${visorActivo.modname}. Descripción: ${visorActivo.description}`}
+                        activityContext={ctx}
+                        proactiveMessage={proactiveMessage}
+                        suggestedPrompts={suggested}
+                        badge={badge}
+                      />
+                    </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             <div className="h-1 w-full bg-gradient-to-r from-transparent via-kenth-brightred/50 to-transparent" />
           </div>
         </div>

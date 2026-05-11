@@ -211,10 +211,10 @@ export default function MoodleRenderer({ modulo }) {
     case 'h5pactivity':
     case 'hvp':
       return (
-        <div className="w-full h-full flex justify-center items-center p-4 md:p-8 bg-kenth-bg">
+        <div className="w-full min-w-0 h-full flex justify-center items-center overflow-hidden p-3 md:p-4 bg-kenth-bg">
           
           {/* El marco visible: Le damos el tamaño exacto del video + la barra útil */}
-          <div className="relative w-full max-w-[950px] rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.2)] bg-kenth-bg animate-kenth-pop delay-300">
+          <div className="relative w-full min-w-0 max-w-[900px] rounded-2xl overflow-hidden shadow-[0_0_60px_rgba(0,0,0,0.2)] bg-kenth-bg animate-kenth-pop delay-300">
             
             {/* 1. EL ESPACIO DEL VIDEO: 16:9 exacto */}
             <div style={{ paddingTop: '56.25%' }}></div>
