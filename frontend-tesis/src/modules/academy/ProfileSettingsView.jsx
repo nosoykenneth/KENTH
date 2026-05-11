@@ -1,12 +1,60 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { showNotification } from '../../shared/components/ui/Notification';
 import PageContainer from '../../shared/components/layout/PageContainer';
+import AvatarCropper from '../../shared/components/ui/AvatarCropper';
+
+const getProfileCropSourceKey = () => {
+  const userId = localStorage.getItem('moodle_userid') || 'current';
+  return `moodle_profile_crop_source_${userId}`;
+};
+
+const getProfileCropStateKey = () => {
+  const userId = localStorage.getItem('moodle_userid') || 'current';
+  return `moodle_profile_crop_state_${userId}`;
+};
+
+const readStoredCropState = () => {
+  try {
+    return JSON.parse(localStorage.getItem(getProfileCropStateKey()) || 'null');
+  } catch {
+    return null;
+  }
+};
+
+const persistCropState = (cropState) => {
+  if (!cropState?.areaPercentages) return;
+  localStorage.setItem(getProfileCropStateKey(), JSON.stringify(cropState));
+};
+
+const toMoodleProxyUrl = (url) => {
+  if (!url || url.startsWith('data:image')) return url;
+  return url.replace(/^https?:\/\/localhost\//, '/moodle_api/');
+};
+
+const prepareMoodleImageUrl = (url, token) => {
+  const proxyUrl = toMoodleProxyUrl(url);
+  if (!proxyUrl || proxyUrl.startsWith('data:image') || proxyUrl.includes('token=')) {
+    return proxyUrl;
+  }
+
+  return proxyUrl + (proxyUrl.includes('?') ? `&token=${token}` : `?token=${token}`);
+};
+
+const bustImageCache = (url) => {
+  if (!url || url.startsWith('data:image')) return url;
+  return url + (url.includes('?') ? '&' : '?') + `_crop=${Date.now()}`;
+};
 
 export default function ProfileSettingsView() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   
   const [avatarPreview, setAvatarPreview] = useState('https://i.pravatar.cc/150?img=5');
+  const [cropSourceImage, setCropSourceImage] = useState(null);
+  const [imageToCrop, setImageToCrop] = useState(null);
+  const [cropperInitialState, setCropperInitialState] = useState(null);
+  const [profileCropState, setProfileCropState] = useState(() => readStoredCropState());
+  const [pendingOriginalImage, setPendingOriginalImage] = useState('');
   const fileInputRef = useRef(null);
   
   const [formData, setFormData] = useState({
@@ -22,11 +70,15 @@ export default function ProfileSettingsView() {
   const token = localStorage.getItem('moodle_token');
 
   useEffect(() => {
-    let currentPic = localStorage.getItem('moodle_userpictureurl');
+    const cropSourceKey = getProfileCropSourceKey();
+    const storedCropSource = prepareMoodleImageUrl(localStorage.getItem(cropSourceKey), token);
+    if (storedCropSource) {
+      setCropSourceImage(storedCropSource);
+      localStorage.setItem(cropSourceKey, storedCropSource);
+    }
+
+    let currentPic = prepareMoodleImageUrl(localStorage.getItem('moodle_userpictureurl'), token);
     if (currentPic) {
-      if (!currentPic.includes('token=')) {
-        currentPic += currentPic.includes('?') ? `&token=${token}` : `?token=${token}`;
-      }
       setAvatarPreview(currentPic);
     }
 
@@ -34,17 +86,36 @@ export default function ProfileSettingsView() {
       .then(res => res.json())
       .then(res => {
         if (res.success) {
-          setFormData(prev => ({...prev, ...res.data}));
+          // Sanitizamos los datos para evitar nulls que rompan los inputs controlados
+          const sanitizedData = {};
+          Object.keys(res.data).forEach(key => {
+            sanitizedData[key] = res.data[key] === null ? '' : res.data[key];
+          });
+          
+          setFormData(prev => ({...prev, ...sanitizedData}));
+
+          if (res.data.picturecropstate) {
+            setProfileCropState(res.data.picturecropstate);
+            persistCropState(res.data.picturecropstate);
+          }
+          
+          if (res.data.originalpictureurl) {
+            const editableUrl = prepareMoodleImageUrl(res.data.originalpictureurl, token);
+            setCropSourceImage(editableUrl);
+            localStorage.setItem(cropSourceKey, editableUrl);
+          }
+
           if (res.data.pictureurl) {
-            let picUrl = res.data.pictureurl;
-            if (!picUrl.includes('token=')) {
-              picUrl += picUrl.includes('?') ? `&token=${token}` : `?token=${token}`;
-            }
+            const picUrl = prepareMoodleImageUrl(res.data.pictureurl, token);
             setAvatarPreview(picUrl);
             localStorage.setItem('moodle_userpictureurl', picUrl);
             window.dispatchEvent(new Event('perfilActualizado')); 
           }
         }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error("Error al cargar perfil:", err);
         setLoading(false);
       });
   }, [token]);
@@ -54,18 +125,64 @@ export default function ProfileSettingsView() {
     if (file) {
       if (file.size > 1024 * 1024 * 1024) {
         showNotification('error', 'La imagen es demasiado grande. Máximo 1GB.');
+        e.target.value = '';
         return;
       }
 
-      const objectUrl = URL.createObjectURL(file);
-      setAvatarPreview(objectUrl);
-
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, pictureData: reader.result }));
+      reader.onload = () => {
+        setPendingOriginalImage(reader.result);
+        setCropperInitialState(null);
+        setImageToCrop(reader.result);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleCropComplete = (croppedImage, cropState) => {
+    if (pendingOriginalImage) {
+      setCropSourceImage(pendingOriginalImage);
+      try {
+        localStorage.setItem(getProfileCropSourceKey(), pendingOriginalImage);
+      } catch (err) {
+        console.warn('No se pudo persistir la imagen original para recorte:', err);
+      }
+    }
+
+    if (cropState?.areaPercentages) {
+      setProfileCropState(cropState);
+      persistCropState(cropState);
+      setFormData(prev => ({ ...prev, pictureCropState: cropState }));
+    }
+
+    setAvatarPreview(croppedImage);
+    setFormData(prev => ({ ...prev, pictureData: croppedImage }));
+    setImageToCrop(null);
+    setCropperInitialState(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleCropCancel = () => {
+    if (pendingOriginalImage) {
+      setPendingOriginalImage('');
+    }
+    setImageToCrop(null);
+    setCropperInitialState(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleEditCurrentCrop = () => {
+    if (!cropSourceImage) {
+      showNotification('error', 'No se pudo preparar la imagen actual para recorte.');
+      return;
+    }
+
+    setCropperInitialState(profileCropState);
+    setImageToCrop(bustImageCache(cropSourceImage));
   };
 
   const handleSubmit = async (e) => {
@@ -73,10 +190,16 @@ export default function ProfileSettingsView() {
     setSaving(true);
 
     try {
+      const payload = {
+        ...formData,
+        ...(profileCropState ? { pictureCropState: profileCropState } : {}),
+        ...(pendingOriginalImage ? { pictureOriginalData: pendingOriginalImage } : {}),
+      };
+
       const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(payload)
       });
       const res = await response.json();
 
@@ -84,8 +207,18 @@ export default function ProfileSettingsView() {
         showNotification('success', '¡Perfil sincronizado con éxito!');
         localStorage.setItem('moodle_userfullname', res.newfullname);
         if (res.newpictureurl) {
-          localStorage.setItem('moodle_userpictureurl', res.newpictureurl);
+          localStorage.setItem('moodle_userpictureurl', prepareMoodleImageUrl(res.newpictureurl, token));
         }
+        if (res.originalpictureurl) {
+          const editableUrl = prepareMoodleImageUrl(res.originalpictureurl, token);
+          setCropSourceImage(editableUrl);
+          localStorage.setItem(getProfileCropSourceKey(), editableUrl);
+        }
+        if (res.picturecropstate) {
+          setProfileCropState(res.picturecropstate);
+          persistCropState(res.picturecropstate);
+        }
+        setPendingOriginalImage('');
         window.dispatchEvent(new Event('perfilActualizado')); 
       } else {
         showNotification('error', res.error || 'Hubo un error al guardar');
@@ -106,7 +239,8 @@ export default function ProfileSettingsView() {
   }
 
   return (
-    <PageContainer className="max-w-4xl">
+    <>
+      <PageContainer className="max-w-4xl">
       <h1 className="text-4xl md:text-5xl font-extrabold text-kenth-text mb-2 uppercase tracking-tighter italic">
         Ajustes de <span className="text-kenth-brightred">Perfil</span>
       </h1>
@@ -123,33 +257,49 @@ export default function ProfileSettingsView() {
               </div>
             </div>
           </div>
-          <p className="text-xs text-kenth-subtext mt-4 uppercase tracking-widest font-bold">Clic para cambiar foto</p>
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <button
+              type="button"
+              onClick={() => fileInputRef.current.click()}
+              className="px-4 py-2 rounded-xl bg-kenth-surface/10 text-kenth-subtext hover:text-kenth-text hover:bg-kenth-surface/20 border border-kenth-border transition-all text-[10px] uppercase tracking-widest font-black"
+            >
+              Cambiar foto
+            </button>
+
+            <button
+              type="button"
+              onClick={handleEditCurrentCrop}
+              className="px-4 py-2 rounded-xl bg-kenth-brightred/10 text-kenth-brightred hover:bg-kenth-brightred hover:text-white border border-kenth-brightred/20 transition-all text-[10px] uppercase tracking-widest font-black"
+            >
+              Editar recorte
+            </button>
+          </div>
           <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/png, image/jpeg, image/jpg" className="hidden" />
         </div>
 
         <div className="space-y-2">
           <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Nombre</label>
-          <input type="text" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner" value={formData.firstname} onChange={(e) => setFormData({...formData, firstname: e.target.value})} required />
+          <input type="text" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner" value={formData.firstname || ''} onChange={(e) => setFormData(prev => ({...prev, firstname: e.target.value}))} required />
         </div>
         <div className="space-y-2">
           <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Apellido</label>
-          <input type="text" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner" value={formData.lastname} onChange={(e) => setFormData({...formData, lastname: e.target.value})} required />
+          <input type="text" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner" value={formData.lastname || ''} onChange={(e) => setFormData(prev => ({...prev, lastname: e.target.value}))} required />
         </div>
         <div className="space-y-2 md:col-span-2">
           <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Correo Electrónico</label>
-          <input type="email" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner" value={formData.email} onChange={(e) => setFormData({...formData, email: e.target.value})} required />
+          <input type="email" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner" value={formData.email || ''} onChange={(e) => setFormData(prev => ({...prev, email: e.target.value}))} required />
         </div>
         <div className="space-y-2">
           <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Ciudad</label>
-          <input type="text" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner" value={formData.city} onChange={(e) => setFormData({...formData, city: e.target.value})} />
+          <input type="text" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all shadow-inner" value={formData.city || ''} onChange={(e) => setFormData(prev => ({...prev, city: e.target.value}))} />
         </div>
         <div className="space-y-2">
           <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">País (Código ISO: EC, ES, US...)</label>
-          <input type="text" maxLength="2" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all uppercase shadow-inner placeholder:text-kenth-subtext" placeholder="Ej: EC" value={formData.country} onChange={(e) => setFormData({...formData, country: e.target.value})} />
+          <input type="text" maxLength="2" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all uppercase shadow-inner placeholder:text-kenth-subtext" placeholder="Ej: EC" value={formData.country || ''} onChange={(e) => setFormData(prev => ({...prev, country: e.target.value}))} />
         </div>
         <div className="space-y-2 md:col-span-2">
           <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext ml-2">Biografía / Experiencia Musical</label>
-          <textarea rows="5" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all resize-none shadow-inner leading-relaxed" value={formData.description} onChange={(e) => setFormData({...formData, description: e.target.value})} />
+          <textarea rows="5" className="w-full bg-kenth-surface/10 text-kenth-text border border-transparent focus:border-kenth-brightred p-4 rounded-2xl outline-none transition-all resize-none shadow-inner leading-relaxed" value={formData.description || ''} onChange={(e) => setFormData(prev => ({...prev, description: e.target.value}))} />
         </div>
         <div className="md:col-span-2 pt-4">
           <button type="submit" disabled={saving} className="w-full bg-kenth-brightred hover:bg-kenth-text hover:text-kenth-bg text-kenth-bg font-black py-4 md:py-5 rounded-2xl transition-all duration-500 shadow-xl shadow-kenth-brightred/20 uppercase tracking-tighter italic flex justify-center items-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed group overflow-hidden relative">
@@ -167,6 +317,17 @@ export default function ProfileSettingsView() {
           </button>
         </div>
       </form>
-    </PageContainer>
+      </PageContainer>
+
+      {imageToCrop && (
+        <AvatarCropper
+          image={imageToCrop}
+          onCropComplete={handleCropComplete}
+          onCancel={handleCropCancel}
+          variant="brand"
+          initialCropState={cropperInitialState}
+        />
+      )}
+    </>
   );
 }

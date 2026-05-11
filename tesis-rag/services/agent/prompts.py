@@ -3,6 +3,8 @@ TEXT_MODEL_NAME = "llama3.2:3b"
 PROMPT_COMMON_RULES = (
     "--- REGLAS COMUNES DEL TUTOR ---\n"
     "- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n"
+    "- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n"
+    "- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n"
     "- Distingue explicitamente fuente del curso de fuente externa.\n"
     "- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n"
     "- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n"

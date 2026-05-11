@@ -1,4 +1,5 @@
-﻿import os
+import os
+import re
 
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
@@ -16,9 +17,9 @@ from services.agent.routing import (
     _respuesta_aclaracion_ambigua,
     _tiene_termino_tecnico_curso,
     _tokens_lookup,
-    _modulo_fuerte_pregunta,
+    _eje_fuerte_pregunta,
     _normalizar_texto,
-    _module_id_meta,
+    _axis_id_meta,
 )
 
 EMBEDDING_MODEL_NAME = "nomic-embed-text"
@@ -31,12 +32,18 @@ SPECIFIC_UNSUPPORTED_TERMS = [
     "ableton", "logic", "fl studio", "cubase", "pro tools", "reaper",
     "massive", "sylenth", "vital", "kontakt", "oversampling"
 ]
+CURRENT_AXIS_BOOST = 0.35
+PREVIOUS_AXIS_SUPPORT_BOOST = 0.16
+FUTURE_AXIS_DEFAULT_PENALTY = -0.30
+FUTURE_AXIS_REQUESTED_BOOST = 0.24
 
 embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL_NAME)
 
 
 def _get_vector_store():
     return Chroma(persist_directory=VECTOR_STORE_DIR, embedding_function=embeddings)
+
+
 def _reescribir_query_contextual(pregunta: str, historial: list, contexto_leccion: str = ""):
     if not _es_pregunta_ambigua(pregunta):
         return pregunta, ""
@@ -94,13 +101,127 @@ def _resumen_metadata_debug(meta: dict):
     return {
         "filename": meta.get("filename") or os.path.basename(meta.get("source", "")),
         "doc_type": meta.get("doc_type"),
-        "module": meta.get("module") or meta.get("modulo"),
+        "axis": meta.get("axis") or meta.get("eje") or meta.get("module") or meta.get("modulo"),
+        "layer": meta.get("layer") or meta.get("capa"),
         "topic": meta.get("topic") or meta.get("tema"),
         "resource_title": meta.get("resource_title") or meta.get("recurso_recomendado") or meta.get("recurso"),
         "page": meta.get("page"),
         "start_time": meta.get("start_time"),
         "url": meta.get("url") or meta.get("url_video")
     }
+
+
+def _axis_number_from_value(value):
+    if value in ("", None):
+        return None
+    if isinstance(value, (int, float)):
+        return int(value)
+    text = str(value)
+    match = re.search(r"(\d+)", text)
+    if not match:
+        return None
+    try:
+        return int(match.group(1))
+    except Exception:
+        return None
+
+
+def _axis_number_from_meta(meta: dict):
+    axis = (
+        meta.get("axis")
+        or meta.get("eje")
+        or meta.get("axis_id")
+        or meta.get("axis_number")
+        or meta.get("module")
+        or meta.get("modulo")
+        or meta.get("module_id")
+    )
+    number = _axis_number_from_value(axis)
+    if number is not None:
+        return number
+
+    source = " ".join([
+        str(meta.get("source", "")),
+        str(meta.get("filename", "")),
+    ])
+    return _axis_number_from_value(source)
+
+
+def _axis_label(axis_number):
+    return f"Eje {axis_number}" if axis_number is not None else ""
+
+
+def _current_axis_number(state: dict):
+    if not state:
+        return None
+
+    envelope = state.get("tutor_envelope")
+    ctx = getattr(envelope, "activity_context", None) if envelope else None
+    if ctx:
+        number = _axis_number_from_value(getattr(ctx, "current_axis", ""))
+        if number is not None:
+            return number
+
+    activity_context = state.get("activity_context")
+    if isinstance(activity_context, dict):
+        number = _axis_number_from_value(activity_context.get("current_axis"))
+        if number is not None:
+            return number
+
+    return _axis_number_from_value(state.get("course_module", ""))
+
+
+def _question_axis_number(pregunta: str):
+    axis = _eje_fuerte_pregunta(pregunta)
+    return _axis_number_from_value(axis)
+
+
+def _is_future_axis_question(state: dict, pregunta: str):
+    current = _current_axis_number(state)
+    requested = _question_axis_number(pregunta)
+    return (
+        current is not None
+        and requested is not None
+        and requested > current
+    )
+
+
+def _curriculum_relation(state: dict, axis_number):
+    current = _current_axis_number(state)
+    if current is None or axis_number is None:
+        return "unknown"
+    if axis_number < current:
+        return "previous"
+    if axis_number == current:
+        return "current"
+    return "future"
+
+
+def _curriculum_priority_adjustment(item: dict, pregunta: str, state: dict = None):
+    current = _current_axis_number(state or {})
+    if current is None:
+        return 0.0
+
+    axis_number = _axis_number_from_meta(item["document"].metadata or {})
+    if axis_number is None:
+        return 0.0
+
+    requested = _question_axis_number(pregunta)
+
+    if requested is not None and requested > current:
+        if axis_number == requested:
+            return FUTURE_AXIS_REQUESTED_BOOST
+        if axis_number == current:
+            return 0.14
+        if axis_number < current:
+            return 0.08
+        return -0.18
+
+    if axis_number == current:
+        return CURRENT_AXIS_BOOST
+    if axis_number < current:
+        return PREVIOUS_AXIS_SUPPORT_BOOST
+    return FUTURE_AXIS_DEFAULT_PENALTY
 
 
 def _debug_resultados_retrieval(resultados: list, etiqueta: str):
@@ -174,7 +295,7 @@ def _es_pregunta_comparativa_multiconcepto(pregunta: str):
     )
 
 
-def _prioridad_evidencia(item: dict, pregunta: str):
+def _prioridad_evidencia(item: dict, pregunta: str, state: dict = None):
     doc = item["document"]
     meta = doc.metadata or {}
     pregunta_norm = _normalizar_texto(pregunta)
@@ -190,26 +311,50 @@ def _prioridad_evidencia(item: dict, pregunta: str):
     token_matches = sum(1 for token in tokens if token in texto)
     prioridad = float(item.get("score") or 0) + min(0.30, token_matches * 0.06)
 
-    # Para preguntas conceptuales, FAQ, glosario y guia canonica son las
-    # fuentes autorales principales del Modulo 4.
-    filename = (meta.get("filename") or "").lower()
-    modulo_fuerte = _modulo_fuerte_pregunta(pregunta)
-    if modulo_fuerte and _module_id_meta(meta) == modulo_fuerte:
+    # Prioridad por Eje
+    axis_meta = _axis_id_meta(meta)
+    axis_fuerte = _eje_fuerte_pregunta(pregunta)
+    if axis_fuerte and axis_meta == axis_fuerte:
         prioridad += 0.70
-    elif modulo_fuerte and _module_id_meta(meta):
+    elif axis_fuerte and axis_meta:
         prioridad -= 0.20
 
-    if filename.endswith(("_faq.json", "_glosario.json", "_guia_canonica.md")):
-        prioridad += 0.06
+    prioridad += _curriculum_priority_adjustment(item, pregunta, state)
 
-    if filename in {"m04_faq.json", "m04_glosario.json", "m04_guia_canonica.md"}:
-        prioridad += 0.08
+    filename = (meta.get("filename") or "").lower()
+
+    # Prioridad por Capa/Layer
+    layer = (meta.get("layer") or meta.get("capa") or "general").lower()
+    
+    es_conceptual = _es_pregunta_conceptual_directa(pregunta) or bool(_concepto_definicion_directa(pregunta)) or "diferencia" in pregunta_norm
+    es_operativa = any(word in pregunta_norm for word in ["error", "falla", "matriz", "heuristica", "criterio", "operativo", "saturacion", "clip", "que hago si", "como corrijo", "falla probable", "que error"])
+
+    # Boost a chunks definicionales si es conceptual
+    if es_conceptual:
+        patrones_def = [" se define como ", " es un ", " es una ", " diferencia entre ", " definicion", " concepto tecnico ", " tabla ", " criterio "]
+        if any(p in texto for p in patrones_def) or filename.endswith("_glosario.json"):
+            prioridad += 0.18
+
+    # Sesgo suave por Capa (no exclusion)
+    if es_conceptual:
+        if layer == "canonico":
+            prioridad += 0.12
+        elif layer == "limpio":
+            prioridad += 0.08
+    elif es_operativa:
+        if layer == "limpio":
+            prioridad += 0.12
+        elif layer == "canonico":
+            prioridad += 0.08
+
+    if filename.endswith(("_faq.json", "_glosario.json", "_guia_canonica.md", "_paquete_limpio.md")):
+        prioridad += 0.06
 
     if (
         "diferencia" in pregunta_norm
         and "filtro" in pregunta_norm
         and "ecualizacion" in pregunta_norm
-        and filename == "m04_guia_canonica.md"
+        and ("guia_canonica" in filename or "canonico" in filename)
     ):
         prioridad += 0.45
     if "frecuencia de corte" in pregunta_norm and "frecuencia de corte" in texto:
@@ -257,7 +402,26 @@ def _concepto_definicion_directa(pregunta: str):
 
 
 def _ordenar_para_respuesta_directa(evidencias: list, pregunta: str):
-    modulo_fuerte = _modulo_fuerte_pregunta(pregunta)
+    axis_fuerte = _eje_fuerte_pregunta(pregunta)
+    pregunta_norm = _normalizar_texto(pregunta)
+    if "bus" in pregunta_norm and "auxiliar" in pregunta_norm:
+        def prioridad_bus_auxiliar(item):
+            doc = item["document"]
+            meta = doc.metadata or {}
+            texto = _normalizar_texto(doc.page_content or "")
+            filename = (meta.get("filename") or "").lower()
+            topic = _normalizar_texto(meta.get("topic", "") or meta.get("tema", ""))
+            score = float(item.get("score") or 0)
+            if "faq" in filename and "ruteo" in topic:
+                score += 30
+            if "glosario" in filename and "ruteo" in topic:
+                score += 25
+            if "canonico" in filename and "bus" in texto and "auxiliar" in texto:
+                score += 20
+            return score
+
+        return sorted(evidencias, key=prioridad_bus_auxiliar, reverse=True)[:5]
+
     if _es_pregunta_comparativa_multiconcepto(pregunta):
         conceptos = _conceptos_relevantes_pregunta(pregunta)
 
@@ -271,14 +435,14 @@ def _ordenar_para_respuesta_directa(evidencias: list, pregunta: str):
             ]))
             filename = (meta.get("filename") or "").lower()
             cobertura = sum(1 for concepto in conceptos if _concepto_aparece_en_texto(concepto, texto))
-            score = cobertura * 10
-            if modulo_fuerte and _module_id_meta(meta) == modulo_fuerte:
+            score = _prioridad_evidencia(item, pregunta) + (cobertura * 10)
+            if axis_fuerte and _axis_id_meta(meta) == axis_fuerte:
                 score += 12
-            if filename == "m04_guia_canonica.md":
+            if "canonico" in filename or "guia_canonica" in filename:
                 score += 4
-            if filename == "m04_faq.json":
+            if "faq" in filename:
                 score += 3
-            if filename == "m04_glosario.json":
+            if "glosario" in filename:
                 score += 3
             return score
 
@@ -298,26 +462,24 @@ def _ordenar_para_respuesta_directa(evidencias: list, pregunta: str):
             meta.get("filename", ""),
         ]))
         filename = (meta.get("filename") or "").lower()
-        score = 0
+        score = _prioridad_evidencia(item, pregunta)
         if concepto and concepto in texto:
             score += 10
-        if modulo_fuerte and _module_id_meta(meta) == modulo_fuerte:
+        if axis_fuerte and _axis_id_meta(meta) == axis_fuerte:
             score += 12
-        if filename == "m04_glosario.json":
+        if "glosario" in filename:
             score += 4
-        if filename == "m04_faq.json":
+        if "faq" in filename:
             score += 3
-        if filename == "m04_guia_canonica.md":
+        if "canonico" in filename:
             score += 1
         return score
 
     ordenadas = sorted(evidencias, key=prioridad, reverse=True)
-    # Evita que chunks amplios de la guia contaminen definiciones directas
-    # con contenido vecino como EQ correctiva/tonal.
     return ordenadas[:4]
 
 
-def _buscar_evidencia(pregunta: str, modo_lookup: bool = False):
+def _buscar_evidencia(pregunta: str, modo_lookup: bool = False, state: dict = None):
     """Recupera documentos con score y filtra evidencia debil."""
     try:
         db = _get_vector_store()
@@ -355,7 +517,10 @@ def _buscar_evidencia(pregunta: str, modo_lookup: bool = False):
         vistos.add(clave)
         unicas.append(item)
 
-    unicas.sort(key=lambda item: _prioridad_evidencia(item, pregunta), reverse=True)
+    unicas.sort(key=lambda item: _prioridad_evidencia(item, pregunta, state), reverse=True)
+    for item in unicas:
+        axis_number = _axis_number_from_meta(item["document"].metadata or {})
+        item["axis_relation"] = _curriculum_relation(state or {}, axis_number)
     _debug_resultados_retrieval(unicas, "semantic+lexical merged")
     return unicas
 
@@ -363,7 +528,6 @@ def _buscar_evidencia(pregunta: str, modo_lookup: bool = False):
 def _extraer_frases_lookup(pregunta: str):
     """Extrae frases compuestas significativas de la pregunta para busqueda lexica."""
     texto = _normalizar_texto(pregunta)
-    # Eliminar las palabras de intenciÃ³n de lookup para quedarnos con el concepto
     for sw in ["que recurso reviso para entender", "que recurso reviso para",
                "que recurso reviso", "que recurso debo", "que debo revisar",
                "donde explican", "donde se explica", "en que clase se explica mejor lo del",
@@ -379,16 +543,13 @@ def _extraer_frases_lookup(pregunta: str):
             texto = texto[len(sw):].strip()
             break
 
-    # Eliminar stopwords sueltas restantes
     palabras = [w for w in texto.split() if w not in LOOKUP_STOPWORDS and len(w) > 2]
     if not palabras:
         return [], []
 
-    # La frase completa como concepto principal
     frase_completa = " ".join(palabras)
     frases = [frase_completa]
 
-    # Si la frase tiene 3+ palabras, generar bigramas
     if len(palabras) >= 3:
         for i in range(len(palabras) - 1):
             frases.append(f"{palabras[i]} {palabras[i+1]}")
@@ -424,17 +585,14 @@ def _buscar_evidencia_lexica_lookup(pregunta: str):
         ])
         texto_limpio = _normalizar_texto(texto)
 
-        # Coincidencia por frases compuestas (mÃ¡s preciso que tokens sueltos)
         frase_matches = sum(1 for frase in frases if frase in texto_limpio)
         token_matches = sum(1 for token in tokens if token in texto_limpio)
 
         if frase_matches == 0 and token_matches == 0:
             continue
 
-        # Score base: las frases valen mucho mÃ¡s que tokens sueltos
         score = 0.30 + (frase_matches * 0.18) + (token_matches * 0.05)
 
-        # Bonus por metadatos estructurados
         recurso = _normalizar_texto(meta.get("resource_title") or meta.get("recurso_recomendado") or "")
         tema = _normalizar_texto(meta.get("topic") or meta.get("tema") or "")
         clase = _normalizar_texto(meta.get("lesson_title") or "")
@@ -445,10 +603,8 @@ def _buscar_evidencia_lexica_lookup(pregunta: str):
             if frase in tema or frase in clase:
                 score += 0.15
 
-        # Bonus contextual: si pide minuto y el chunk tiene start_time
         if pide_minuto and meta.get("start_time") not in ("", None):
             score += 0.20
-        # Bonus contextual: si pide pÃ¡gina/pdf y el chunk tiene page
         if pide_pagina and meta.get("page") not in ("", None):
             score += 0.10
 
@@ -490,11 +646,10 @@ def _prioridad_lookup(item: dict, pregunta: str):
     return prioridad
 
 
-def _buscar_evidencia_lookup(pregunta: str):
-    semanticas = _buscar_evidencia(pregunta, modo_lookup=True)
+def _buscar_evidencia_lookup(pregunta: str, state: dict = None):
+    semanticas = _buscar_evidencia(pregunta, modo_lookup=True, state=state)
     lexicas = _buscar_evidencia_lexica_lookup(pregunta)
 
-    # Si el lÃ©xico encontrÃ³ matches con frases compuestas, darles boost en el merge
     for item in lexicas:
         phrase_hits = item.pop("phrase_hits", 0)
         if phrase_hits >= 1:
@@ -515,6 +670,9 @@ def _buscar_evidencia_lookup(pregunta: str):
         unicas.append(item)
 
     unicas.sort(key=lambda item: _prioridad_lookup(item, pregunta), reverse=True)
+    for item in unicas:
+        axis_number = _axis_number_from_meta(item["document"].metadata or {})
+        item["axis_relation"] = _curriculum_relation(state or {}, axis_number)
     _debug_resultados_retrieval(unicas, "lookup merged")
     return unicas[:6]
 
@@ -530,7 +688,9 @@ def _formatear_fuente(meta: dict, score: float, index: int):
         "page": meta.get("page") if meta.get("page") not in ("", None) else None,
         "start_time": meta.get("start_time") if meta.get("start_time") not in ("", None) else None,
         "end_time": meta.get("end_time") if meta.get("end_time") not in ("", None) else None,
-        "module": meta.get("module") or meta.get("modulo") or "",
+        "axis": meta.get("axis") or meta.get("eje") or meta.get("axis_id") or meta.get("module") or meta.get("modulo") or "",
+        "axis_relation": "",
+        "layer": meta.get("layer") or meta.get("capa") or "",
         "submodule": meta.get("submodule") or meta.get("submodulo") or "",
         "lesson_title": meta.get("lesson_title") or "",
         "topic": meta.get("topic") or meta.get("tema") or "",
@@ -567,6 +727,7 @@ def _chunks_desde_evidencias(evidencias: list):
     for index, item in enumerate(evidencias or [], start=1):
         meta = item["document"].metadata or {}
         fuente = _formatear_fuente(meta, item.get("score", 0), index)
+        fuente["axis_relation"] = item.get("axis_relation", "")
         chunks.append(fuente)
     return chunks
 
@@ -580,6 +741,7 @@ def _construir_contexto_evidencia(evidencias: list):
         score = item["score"]
         meta = doc.metadata or {}
         fuente = _formatear_fuente(meta, score, index)
+        fuente["axis_relation"] = item.get("axis_relation", "")
         fuentes.append(fuente)
 
         texto_crudo += f"[{_fuente_a_texto(fuente)}]\n"
@@ -654,7 +816,7 @@ def _formatear_fuente_lookup(meta: dict):
     lineas = []
     recurso = meta.get("resource_title") or meta.get("recurso_recomendado") or meta.get("recurso") or ""
     clase = meta.get("lesson_title") or meta.get("topic") or meta.get("tema") or ""
-    modulo = meta.get("module") or meta.get("modulo") or ""
+    axis = meta.get("axis") or meta.get("eje") or meta.get("module") or meta.get("modulo") or ""
     submodulo = meta.get("submodule") or meta.get("submodulo") or ""
     page = meta.get("page")
     start_time = meta.get("start_time")
@@ -667,8 +829,8 @@ def _formatear_fuente_lookup(meta: dict):
         lineas.append(f"  - Recurso: {recurso}")
     if clase:
         lineas.append(f"  - Clase/tema: {clase}")
-    if modulo:
-        detalle = f"Modulo {modulo}"
+    if axis:
+        detalle = f"Eje {axis}"
         if submodulo:
             detalle += f", submodulo {submodulo}"
         lineas.append(f"  - Ubicacion: {detalle}")
@@ -690,11 +852,11 @@ def _formatear_documento_oficial_lookup(meta: dict):
     filename = meta.get("filename") or os.path.basename(meta.get("source", "")) or "archivo sin nombre"
     doc_type = meta.get("doc_type") or "documento"
     topic = meta.get("topic") or meta.get("tema") or ""
-    modulo = meta.get("module") or meta.get("modulo") or ""
+    axis = meta.get("axis") or meta.get("eje") or meta.get("module") or meta.get("modulo") or ""
 
     lineas = [f"  - Documento: {filename} ({doc_type})"]
-    if modulo:
-        lineas.append(f"  - Modulo: {modulo}")
+    if axis:
+        lineas.append(f"  - Eje: {axis}")
     if topic:
         lineas.append(f"  - Contenido asociado: {topic}")
     return lineas
@@ -704,7 +866,7 @@ def _respuesta_lookup(pregunta: str, evidencias: list):
     if not evidencias:
         return (
             "No encontre ubicaciones oficiales validadas ni documentos oficiales indexados para esa consulta. "
-            "Prueba indicando el concepto exacto o modulo."
+            "Prueba indicando el concepto exacto o eje."
         )
 
     pregunta_limpia = _normalizar_texto(pregunta)
@@ -742,7 +904,6 @@ def _respuesta_lookup(pregunta: str, evidencias: list):
         if recursos:
             candidatos = recursos
 
-    # Deduplicar por filename para no repetir el mismo archivo
     vistos_files = set()
     fuentes_unicas = []
     for item in candidatos:
@@ -770,7 +931,7 @@ def _respuesta_lookup(pregunta: str, evidencias: list):
     else:
         lineas = [
             "No hay ubicaciones oficiales validadas para esta consulta: no tengo pagina, minuto, URL ni recurso aprobado.",
-            "Lo que si hay son documentos oficiales indexados del modulo que puedes revisar:"
+            "Lo que si hay son documentos oficiales indexados que puedes revisar:"
         ]
         for idx, item in enumerate(fuentes_unicas, 1):
             meta = item["document"].metadata or {}
@@ -783,9 +944,9 @@ def _respuesta_lookup(pregunta: str, evidencias: list):
 
 def _respuesta_sin_evidencia(state: EstadoAgente):
     if state.get("imagen"):
-        detalle = "La captura ayuda, pero necesito que precises el modulo, clase, recurso o la parte concreta del DAW/plugin que quieres analizar."
+        detalle = "La captura ayuda, pero necesito que precises el eje, clase, recurso o la parte concreta del DAW/plugin que quieres analizar."
     else:
-        detalle = "Puedes precisar el modulo, clase, recurso o subir una captura relacionada para buscar mejor en la base del curso."
+        detalle = "Puedes precisar el eje, clase, recurso o subir una captura relacionada para buscar mejor en la base del curso."
 
     return (
         "No tengo suficiente respaldo en el material cargado del curso para responder eso con seguridad. "
@@ -797,30 +958,26 @@ def _respuesta_sin_evidencia(state: EstadoAgente):
 def _query_retrieval_con_aliases(pregunta: str):
     pregunta_norm = _normalizar_texto(pregunta)
     concepto_directo = _concepto_definicion_directa(pregunta)
-    modulo_fuerte = _modulo_fuerte_pregunta(pregunta)
 
-    if modulo_fuerte == "M01":
-        return f"M01 fundamentos acustica medicion frecuencia tono sala. Pregunta original: {pregunta}"
-    if modulo_fuerte == "M02":
-        return f"M02 estructura de ganancia flujo de senal ruteo serie paralelo bus envio headroom. Pregunta original: {pregunta}"
-    if modulo_fuerte == "M03":
-        return f"M03 polaridad fase mono monocompatibilidad correlacion correlator goniometro filtro peine. Pregunta original: {pregunta}"
-    if modulo_fuerte == "M04":
-        return f"M04 filtros ecualizacion frecuencia de corte pendiente factor q fase lineal. Pregunta original: {pregunta}"
-    if modulo_fuerte == "M05":
-        return f"M05 procesadores dinamicos compresor compresion threshold ratio ataque release make-up gain. Pregunta original: {pregunta}"
-    if modulo_fuerte == "M07":
-        return f"M07 practica integradora mezcla criterio jerarquia contexto costo de intervencion plugins a todo. Pregunta original: {pregunta}"
-
-    # Alias corto: en M04, "Q" se usa como factor Q. Para retrieval,
-    # expandimos la consulta porque "q" sola es demasiado corta para Chroma
-    # y para la busqueda lexica.
     if concepto_directo == "factor q" or (
         "factor q" not in pregunta_norm
         and f" q " in f" {pregunta_norm} "
         and any(patron in pregunta_norm for patron in ["que es", "que significa", "define"])
     ):
         return f"factor q. Pregunta original: {pregunta}"
+
+    if (
+        ("comprim" in pregunta_norm or "compres" in pregunta_norm)
+        and (
+            "ecualizador" in pregunta_norm
+            or "ecualizacion" in pregunta_norm
+            or " eq " in f" {pregunta_norm} "
+        )
+    ):
+        return (
+            "compresion multibanda ecualizacion dinamica compresor ecualizador "
+            f"Pregunta original: {pregunta}"
+        )
 
     return pregunta
 
@@ -830,6 +987,26 @@ def _preparar_retrieval(state: EstadoAgente):
     contexto_leccion = state.get("contexto_leccion", "").strip()
     historial = state.get("historial", [])
     pregunta_limpia = _normalizar_texto(pregunta)
+
+    # Vertical slice piloto: si hay un bloque activo, el referente
+    # ambiguo ("eso", "esto", "aqui") ya esta resuelto por el bloque.
+    # Expandimos la query con el titulo del bloque y saltamos los gates
+    # de aclaracion para no perder el contexto que ya viaja en el envelope.
+    envelope = state.get("tutor_envelope")
+    pilot_block = getattr(envelope, "pilot_block", None) if envelope else None
+    if pilot_block:
+        if not _es_pregunta_ambigua(pregunta):
+            return _query_retrieval_con_aliases(pregunta), False, ""
+        lesson = getattr(envelope, "pilot_lesson", None) or {}
+        concepts = ", ".join(pilot_block.get("concepts") or [])
+        referente = ". ".join([
+            lesson.get("lesson_title", ""),
+            pilot_block.get("block_title", ""),
+            concepts,
+            pilot_block.get("summary", ""),
+        ]).strip(". ")
+        if referente:
+            return f"{pregunta}. Contexto activo: {referente}"[:500], False, ""
 
     if "espuma" in pregunta_limpia and "interfaz" in pregunta_limpia:
         return (
@@ -871,14 +1048,6 @@ def _preparar_retrieval(state: EstadoAgente):
 
 
 def _debe_incluir_historial_en_prompt(pregunta: str, query_retrieval: str):
-    # Regla anti-contaminacion conversacional:
-    # 1. Si una pregunta ambigua ya fue resuelta, la query_retrieval contiene
-    #    el referente validado; no volvemos a meter el historial completo.
-    # 2. Si la pregunta actual NO es ambigua y ya trae terminos tecnicos,
-    #    es conceptual directa o compara varios conceptos, se responde con
-    #    la evidencia recuperada para esa pregunta, no con el subtema anterior.
-    # 3. Solo conservamos historial para preguntas realmente dependientes de
-    #    contexto que no hayan quedado resueltas antes del prompt final.
     if query_retrieval != pregunta:
         return False
 
@@ -905,8 +1074,3 @@ def _intent_efectivo_para_prompt(state: EstadoAgente, pregunta: str, referente_r
     if any(clave in pregunta_norm for clave in claves_diagnostico):
         return "diagnostico_tecnico"
     return "aclaracion_concepto"
-
-
-# ==========================================
-# 2. NODOS DEL GRAFO
-

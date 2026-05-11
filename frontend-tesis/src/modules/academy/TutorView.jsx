@@ -21,7 +21,7 @@ export default function TutorView() {
   const loadSessions = async () => {
     try {
       setLoading(true);
-      const data = await getChatSessions(userId);
+      const data = await getChatSessions();
       setSessions(data);
       if (data.length > 0 && !activeSessionId) {
         setActiveSessionId(data[0].id);
@@ -35,7 +35,7 @@ export default function TutorView() {
 
   const handleNewChat = async () => {
     try {
-      const newSession = await createChatSession(userId, "Nuevo Chat " + new Date().toLocaleTimeString());
+      const newSession = await createChatSession("Nuevo Chat " + new Date().toLocaleTimeString());
       setSessions([newSession, ...sessions]);
       setActiveSessionId(newSession.id);
     } catch (error) {

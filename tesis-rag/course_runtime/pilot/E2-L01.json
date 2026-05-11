@@ -1,0 +1,124 @@
+{
+  "lesson_id": "E2-L01",
+  "axis_id": "Eje 2",
+  "lesson_title": "HPF y LPF: cuando filtrar de verdad",
+  "resource_id": "res_E2-L01_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje2_Guiones_KENTH_v2.md",
+  "learning_goal": "Distinguir cuando un filtro elimina basura, cuando delimita registro y cuando hace ceder espacio en mezcla.",
+  "expected_action": "Aplicar HPF o LPF inicial con punto de corte y pendiente razonados, verificando solo y mezcla.",
+  "blocks": [
+    {
+      "block_id": "E2-L01-B1",
+      "start_time": 0,
+      "end_time": 35,
+      "block_title": "Apertura",
+      "summary": "Problema visible en analizador. El alumno duda si la energia grave pertenece al instrumento o es basura. Aun no se decide nada.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["analizador", "energia grave", "diagnostico previo"],
+      "preguntas_probables": [
+        "Como se si eso de abajo es basura o cuerpo real?"
+      ],
+      "tutor_focus": "Orientar al alumno a observar antes de cortar. No dar receta. Reforzar que filtrar no es por costumbre."
+    },
+    {
+      "block_id": "E2-L01-B2",
+      "start_time": 35,
+      "end_time": 80,
+      "block_title": "Planteamiento del problema",
+      "summary": "Se distingue cortar por costumbre vs filtrar con criterio. Aparece la pregunta de fondo: por que filtrar aqui.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["criterio operativo", "higiene de senal", "intencion antes de tocar"],
+      "preguntas_probables": [
+        "Entonces no todas las pistas llevan HPF?",
+        "Filtrar es EQ correctivo?"
+      ],
+      "tutor_focus": "Aclarar que la decision se toma por evidencia auditiva y por contexto, no por receta universal."
+    },
+    {
+      "block_id": "E2-L01-B3",
+      "start_time": 80,
+      "end_time": 200,
+      "block_title": "Demostracion practica en solo",
+      "summary": "Lectura en solo, barrido del HPF, escucha de lo que desaparece al subir el corte. Fase de exploracion auditiva del filtro.",
+      "interaction_mode": "practica",
+      "concepts": ["HPF", "barrido", "punto de corte", "escucha en solo"],
+      "preguntas_probables": [
+        "El HPF siempre se mueve desde abajo?",
+        "Hasta que punto puedo subirlo?",
+        "El HPF se decide en solo o en mezcla?"
+      ],
+      "tutor_focus": "Acompanar la escucha. El solo solo sirve para detectar basura obvia, no para validar el corte final."
+    },
+    {
+      "block_id": "E2-L01-B4",
+      "start_time": 200,
+      "end_time": 290,
+      "block_title": "Demostracion practica en mezcla",
+      "summary": "Mezcla completa con bajo y piano. El HPF que parecia agresivo en solo deja respirar a la mezcla. Conflicto solo vs contexto.",
+      "interaction_mode": "practica",
+      "concepts": ["mezcla", "convivencia", "ceder espacio", "bajo vs piano"],
+      "preguntas_probables": [
+        "Si en solo suena mejor sin corte, por que en mezcla si conviene?",
+        "Como se cuanto ceder?"
+      ],
+      "tutor_focus": "El veredicto del filtro se decide en mezcla. Si el corte ayuda al conjunto pero adelgaza en solo, esta bien."
+    },
+    {
+      "block_id": "E2-L01-B5",
+      "start_time": 290,
+      "end_time": 360,
+      "block_title": "Teoria aplicada",
+      "summary": "Tres preguntas que justifican el filtrado: que se quita, por que ahi, que pasa con la mezcla. Marco para razonar el filtro.",
+      "interaction_mode": "teoria",
+      "concepts": ["criterio de filtrado", "tres preguntas", "EQ correctivo vs higiene"],
+      "preguntas_probables": [
+        "Filtrar es EQ correctivo o es otra cosa?",
+        "Que diferencia hay entre limpiar y adelgazar?"
+      ],
+      "tutor_focus": "Dar marco corto: tres preguntas, sin recetas de Hz. Si el alumno pide numeros, redirigir al contexto."
+    },
+    {
+      "block_id": "E2-L01-B6",
+      "start_time": 360,
+      "end_time": 410,
+      "block_title": "Criterio de decision",
+      "summary": "Cuando conservar y cuando ceder espacio. La decision depende del rol de la pista en la mezcla, no del instrumento aislado.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["rol en mezcla", "ceder espacio", "decision contextual"],
+      "preguntas_probables": [
+        "Corto en solo o en mezcla?",
+        "Como se cual pista cede primero?"
+      ],
+      "tutor_focus": "La decision es contextual. La misma pista puede llevar HPF distinto en otra mezcla."
+    },
+    {
+      "block_id": "E2-L01-B7",
+      "start_time": 410,
+      "end_time": 460,
+      "block_title": "Errores frecuentes",
+      "summary": "Falsas reglas: HPF a 80 Hz para todo, pendiente fuerte siempre mejor, LPF solo para cosas raras. Se desmontan.",
+      "interaction_mode": "troubleshooting",
+      "concepts": ["falsas reglas", "pendiente", "LPF perspectiva"],
+      "preguntas_probables": [
+        "Pendiente fuerte siempre es mejor?",
+        "El LPF tambien puede usarse por perspectiva?",
+        "Entonces no todas las pistas llevan HPF?"
+      ],
+      "tutor_focus": "Corregir reglas rigidas. Pendiente fuerte cambia caracter, no solo limpia. LPF si vale para alejar."
+    },
+    {
+      "block_id": "E2-L01-B8",
+      "start_time": 460,
+      "end_time": 480,
+      "block_title": "Cierre",
+      "summary": "Sintesis del bloque. El filtro decide rol, no solo limpia.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis", "siguiente paso"],
+      "preguntas_probables": [
+        "Que hago ahora con esa pista?"
+      ],
+      "tutor_focus": "Confirmar idea principal y orientar a seguir con la siguiente leccion del eje."
+    }
+  ]
+}

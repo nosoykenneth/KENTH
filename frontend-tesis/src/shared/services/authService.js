@@ -43,7 +43,9 @@ export const completeOnboarding = async (token, userData) => {
     firstname: userData.firstname,
     lastname: userData.lastname,
     password: userData.password,
-    pictureData: userData.pictureData || ''
+    pictureData: userData.pictureData || '',
+    pictureOriginalData: userData.pictureOriginalData || '',
+    pictureCropState: userData.pictureCropState ? JSON.stringify(userData.pictureCropState) : ''
   });
 
   const response = await fetch(`${ONBOARDING_URL}`, {

@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import TypedDict
+from typing import Any, Dict, Optional, TypedDict
 
 # ==========================================
 # ESTADO DEL GRAFO
@@ -23,6 +23,10 @@ class EstadoAgente(TypedDict, total=False):
     trace_id: str
     model_used: str
     prompt_id: str
+    # Capa 2/3 del tutor contextual: viaja como bloque ya renderizado
+    # mas el envelope estructurado por si nodos posteriores lo necesitan.
+    activity_context_block: str
+    tutor_envelope: Any
 
 
 # ==========================================
@@ -36,5 +40,9 @@ class Consulta(BaseModel):
     session_id: str = ""
     historial: list = Field(default_factory=list)
     source_client: str = ""
+    user_id: str = ""
     course_id: str = ""
     lesson_id: str = ""
+    # Capa 2: contexto de actividad actual del alumno.
+    # Se acepta como dict crudo y se hidrata en el backend via context_service.
+    activity_context: Optional[Dict[str, Any]] = None

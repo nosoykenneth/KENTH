@@ -1,0 +1,20 @@
+{
+    "axis_id": "Eje 4",
+    "axis_number": 4,
+    "axis_slug": "eje_4_energia_movimiento",
+    "axis_title": "Eje 4 - Energía y movimiento",
+    "pedagogical_role": "Controla la energía y el movimiento dinámico de la mezcla: compresión, transitorios y automatización de volumen",
+    "primary_sources": [
+        "01_contenido_canonico.md",
+        "02_paquete_limpio.md"
+    ],
+    "derived_sources": [
+        "03_glosario.json",
+        "04_heuristicas.json",
+        "05_errores_frecuentes.json",
+        "06_faq.json",
+        "07_recursos.json"
+    ],
+    "allowed_for_indexing": true,
+    "notes": "Fuentes primarias aprobadas para indexación RAG."
+}

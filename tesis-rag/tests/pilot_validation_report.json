@@ -1,0 +1,200 @@
+[
+  {
+    "idx": 1,
+    "lesson": "E2-L01",
+    "timestamp": 10,
+    "expected_block": "E2-L01-B1",
+    "resolved_block": "E2-L01-B1",
+    "block_match": true,
+    "block_in_prompt": false,
+    "answer": "Necesito una precision minima para no inventar: a que parametro, herramienta o parte de la clase te refieres?",
+    "ruta": "teoria",
+    "intent": "ambigua",
+    "answer_type": "clarification",
+    "evidence_level": "bajo",
+    "warnings": [
+      {
+        "code": "AMBIGUOUS_REFERENCE",
+        "message": "La pregunta depende de un referente no claro."
+      }
+    ],
+    "n_prompts_captured": 0,
+    "prompt_sample_head": ""
+  },
+  {
+    "idx": 2,
+    "lesson": "E2-L01",
+    "timestamp": 250,
+    "expected_block": "E2-L01-B4",
+    "resolved_block": "E2-L01-B4",
+    "block_match": true,
+    "block_in_prompt": true,
+    "answer": "Anclado al bloque E2-L01-B4 - Demostracion practica en mezcla (200s - 290s) de la lección piloto E2-L01 - HPF y LPF: cuando filtrar de verdad.\n\nLa evidencia del curso sugiere que el veredicto del filtro se decide en mezcla. Según la heurística operativa reformulable \"El EQ correctivo puede decidirse en solo; el EQ estético requiere el contexto de la mezcla para validarse\", es importante verificar cualquier decisión de EQ en el contexto de la mezcla, especialmente cuando el resultado suena exagerado en solo.\n\nAdemás, según la heurística \"La frecuencia de corte no es donde comienza la atenuación; una pendiente suave puede estar atenuando varias octavas antes de la FC nominal\", es importante considerar el contexto de la mezcla al aplicar un filtro.\n\nEn resumen, aunque el HPF se puede decidir en solo, es importante considerar el contexto de la mezcla para tomar una decisión estética y correctiva.",
+    "ruta": "teoria",
+    "intent": "aclaracion_concepto",
+    "answer_type": "rag_answer",
+    "evidence_level": "medio",
+    "warnings": [
+      {
+        "code": "LOW_EVIDENCE",
+        "message": "La evidencia recuperada tiene relevancia moderada."
+      }
+    ],
+    "n_prompts_captured": 1,
+    "prompt_sample_head": "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen literalmente en la evidencia o en la pregunta del alumno.\n7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n9. Si hay incertidumbre, pide una aclaracion breve.\n10. Mantente conciso, profesional y pedagogico.\n\n11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje salvo que el alumno "
+  },
+  {
+    "idx": 3,
+    "lesson": "E2-L01",
+    "timestamp": 430,
+    "expected_block": "E2-L01-B7",
+    "resolved_block": "E2-L01-B7",
+    "block_match": true,
+    "block_in_prompt": true,
+    "answer": "Anclado al bloque E2-L01-B7 - Errores frecuentes.\n\nLa respuesta a esta pregunta depende de cómo se utilice la pendiente en el filtro. La pendiente no solo limpia, sino que también cambia el carácter del sonido. Si se utiliza una pendiente fuerte, puede eliminar más \"basura\" (ruido) y hacer que el sonido suene más claro y definido. Sin embargo, si se utiliza una pendiente muy fuerte, puede alterar la calidad del sonido y hacer que suene artificial o \"estudiado\".\n\nEn general, no hay una regla fija de que la pendiente siempre sea mejor. La elección de la pendiente depende del tipo de sonido que se está tratando de producir y del efecto que se desea lograr.\n\nLa evidencia del curso sugiere que el uso de una pendiente fuerte puede ser beneficioso para eliminar ruido, pero también es importante considerar el impacto en la calidad del sonido. En algunos casos, una pendiente más suave puede ser preferible para mantener un sonido más natural y auténtico.\n\nEn resumen, no hay una respuesta única a esta pregunta, y depende de cómo se utilice la pendiente en el filtro.",
+    "ruta": "teoria",
+    "intent": "aclaracion_concepto",
+    "answer_type": "rag_answer",
+    "evidence_level": "medio",
+    "warnings": [
+      {
+        "code": "LOW_EVIDENCE",
+        "message": "La evidencia recuperada tiene relevancia moderada."
+      }
+    ],
+    "n_prompts_captured": 1,
+    "prompt_sample_head": "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen literalmente en la evidencia o en la pregunta del alumno.\n7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n9. Si hay incertidumbre, pide una aclaracion breve.\n10. Mantente conciso, profesional y pedagogico.\n\n11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje salvo que el alumno "
+  },
+  {
+    "idx": 4,
+    "lesson": "E3-L03",
+    "timestamp": 60,
+    "expected_block": "E3-L03-B2",
+    "resolved_block": "E3-L03-B2",
+    "block_match": true,
+    "block_in_prompt": true,
+    "answer": "Anclado al bloque E3-L03-B2 - Planteamiento del problema.\n\nLa diferencia clave entre EQ correctivo y EQ estético es que el correctivo se aplica para resolver problemas concretos en la señal, como resonancias o excesos de energía, mientras que el estético se utiliza para dar carácter tonal deliberado al instrumento, como peso, brillo o presencia.\n\nLa intención cambia el método: si se busca corregir un problema específico, se necesita una intervención correctiva; si se busca crear un efecto estético, se necesita una intervención estética.\n\nEn resumen, la EQ correctiva actúa sobre problemas concretos en la señal, mientras que la EQ estética actúa sobre el carácter tonal del instrumento para darle un efecto específico.",
+    "ruta": "teoria",
+    "intent": "aclaracion_concepto",
+    "answer_type": "rag_answer",
+    "evidence_level": "medio",
+    "warnings": [
+      {
+        "code": "LOW_EVIDENCE",
+        "message": "La evidencia recuperada tiene relevancia moderada."
+      }
+    ],
+    "n_prompts_captured": 1,
+    "prompt_sample_head": "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen literalmente en la evidencia o en la pregunta del alumno.\n7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n9. Si hay incertidumbre, pide una aclaracion breve.\n10. Mantente conciso, profesional y pedagogico.\n\n11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje salvo que el alumno "
+  },
+  {
+    "idx": 5,
+    "lesson": "E3-L03",
+    "timestamp": 380,
+    "expected_block": "E3-L03-B6",
+    "resolved_block": "E3-L03-B6",
+    "block_match": true,
+    "block_in_prompt": false,
+    "answer": "Necesito una precision minima para no inventar: a que parametro, herramienta o parte de la clase te refieres?",
+    "ruta": "teoria",
+    "intent": "ambigua",
+    "answer_type": "clarification",
+    "evidence_level": "bajo",
+    "warnings": [
+      {
+        "code": "AMBIGUOUS_REFERENCE",
+        "message": "La pregunta depende de un referente no claro."
+      }
+    ],
+    "n_prompts_captured": 0,
+    "prompt_sample_head": ""
+  },
+  {
+    "idx": 6,
+    "lesson": "E3-L03",
+    "timestamp": 130,
+    "expected_block": "E3-L03-B3",
+    "resolved_block": "E3-L03-B3",
+    "block_match": true,
+    "block_in_prompt": true,
+    "answer": "Barrido y boost son herramientas separadas. El barrido sirve para localizar resonancias o zonas problemáticas en el espectro, mientras que el boost es una herramienta de busqueda. Después de identificar la zona con el barrido, se invierte a corte. No se deja como decisión final.\n\nLa evidencia del curso sugiere que el barrido sirve para encontrar la zona, no dejar el boost. En la operación práctica 02_paquete_limpio, se describe que \"El oído detecta mejor el exceso que la falta\" y que \"aplicar ganancia elevada en una campana de Q alto y recorrer el espectro mientras el instrumento suena, hasta identificar la frecuencia que molesta o se destaca negativamente; luego cortar en esa zona\".\n\nPor lo tanto, la respuesta correcta es que el barrido es para encontrar la zona, no dejar el boost.",
+    "ruta": "teoria",
+    "intent": "aclaracion_concepto",
+    "answer_type": "rag_answer",
+    "evidence_level": "medio",
+    "warnings": [
+      {
+        "code": "LOW_EVIDENCE",
+        "message": "La evidencia recuperada tiene relevancia moderada."
+      }
+    ],
+    "n_prompts_captured": 1,
+    "prompt_sample_head": "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen literalmente en la evidencia o en la pregunta del alumno.\n7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n9. Si hay incertidumbre, pide una aclaracion breve.\n10. Mantente conciso, profesional y pedagogico.\n\n11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje salvo que el alumno "
+  },
+  {
+    "idx": 7,
+    "lesson": "E4-L01",
+    "timestamp": 120,
+    "expected_block": "E4-L01-B3",
+    "resolved_block": "E4-L01-B3",
+    "block_match": true,
+    "block_in_prompt": true,
+    "answer": "Anclado al bloque E4-L01-B3 - Threshold.\n\nEl threshold es un control de ganancia de entrada en un compresor. Bajar el threshold X dB sube la señal X dB, pero limita lo que supera ese umbral. En otras palabras, el threshold no se elige por número, sino mirando la gráfica de respuesta (GR) y escuchando qué entra en el compresor.\n\nLa evidencia del curso dice que \"El threshold actúa como control de ganancia de entrada: bajar el threshold X dB sube la señal X dB pero limita lo que supera ese umbral\".\n\nEn resumen, el threshold no es un número objetivo, sino un control dinámico que permite ajustar la cantidad de compresión aplicada a la señal. Bajo el threshold no significa mejor control, sino más constante.\n\nReferencia: md | score: 0.64 | tipo: operacion_practica",
+    "ruta": "teoria",
+    "intent": "aclaracion_concepto",
+    "answer_type": "rag_answer",
+    "evidence_level": "medio",
+    "warnings": [
+      {
+        "code": "LOW_EVIDENCE",
+        "message": "La evidencia recuperada tiene relevancia moderada."
+      }
+    ],
+    "n_prompts_captured": 1,
+    "prompt_sample_head": "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen literalmente en la evidencia o en la pregunta del alumno.\n7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n9. Si hay incertidumbre, pide una aclaracion breve.\n10. Mantente conciso, profesional y pedagogico.\n\n11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje salvo que el alumno "
+  },
+  {
+    "idx": 8,
+    "lesson": "E4-L01",
+    "timestamp": 200,
+    "expected_block": "E4-L01-B4",
+    "resolved_block": "E4-L01-B4",
+    "block_match": true,
+    "block_in_prompt": true,
+    "answer": "Anclado al bloque E4-L01-B4 - Ratio, la respuesta es que mas ratio no siempre es mejor. Se compara 2:1, 4:1 y 8:1 en el mismo material. Un ratio alto contiene más firme pero achata. No es mejor control automatico. Depende del material y del rol.\n\nLa evidencia del curso sugiere que un ataque excesivamente rápido en percusivos puede destruir los transitorios y reducir el impacto, por lo que es importante verificar que el compresor no esté sacrificando la definición del bombo o del tambor. Además, se recomienda utilizar un compresor digital transparente en el mix bus para gestionar picos extremos, reservando modelos analógicos para el glue.\n\nEn resumen, un ratio alto puede proporcionar más firmeza, pero no es una garantía de mejor control. Es importante considerar el tipo de material y el rol del compresor al ajustar los parámetros.",
+    "ruta": "teoria",
+    "intent": "aclaracion_concepto",
+    "answer_type": "rag_answer",
+    "evidence_level": "medio",
+    "warnings": [
+      {
+        "code": "LOW_EVIDENCE",
+        "message": "La evidencia recuperada tiene relevancia moderada."
+      }
+    ],
+    "n_prompts_captured": 1,
+    "prompt_sample_head": "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen literalmente en la evidencia o en la pregunta del alumno.\n7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n9. Si hay incertidumbre, pide una aclaracion breve.\n10. Mantente conciso, profesional y pedagogico.\n\n11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje salvo que el alumno "
+  },
+  {
+    "idx": 9,
+    "lesson": "E4-L01",
+    "timestamp": 270,
+    "expected_block": "E4-L01-B5",
+    "resolved_block": "E4-L01-B5",
+    "block_match": true,
+    "block_in_prompt": true,
+    "answer": "Anclado al bloque E4-L01-B5 - Knee.\n\nEn este bloque, se discuten los tipos de transiciones en compresión, incluyendo soft knee y hard knee. Se menciona que el soft knee es gradual y puede sonar más natural, pero que el GR (rango dinámico) en la frontera entre soft knee y hard knee es ambiguo.\n\nEn cuanto a si el soft knee siempre es mejor para voz, no hay una respuesta clara en la evidencia del curso. Sin embargo, se menciona que el soft knee puede ser más musical y adecuado para instrumentos con un carácter armónico, como voces.\n\nPara responder a esta pregunta, podemos considerar los objetivos artísticos de la compresión. Según , \"Pegamento (glue):\" integrar elementos dispares en un conjunto cohesionado. Ratio bajo, soft knee, threshold moderado. La función del compresor es que los instrumentos \"se muevan juntos\" dinámicamente.\n\nEn este sentido, el soft knee puede ser más adecuado para voces porque permite una mayor cohesión y pegamento entre diferentes partes de la señal, lo que puede resultar en un sonido más natural y musical. Sin embargo, es importante tener en cuenta que el GR en la frontera entre soft knee y hard knee es ambiguo, por lo que no hay una respuesta clara sobre si el soft knee siempre es mejor para voz.\n\nEn resumen, aunque el soft knee puede ser más musical y adecuado para voces, no hay una respuesta clara en la evidencia del curso. Es importante considerar los objetivos artísticos de la compresión y elegir el tipo de transición que se adapte mejor a cada situación específica.\n\nRecomendación: es recomendable escuchar diferentes tipos de transiciones en compresión, incluyendo soft knee y hard knee, para determinar cuál se adapta mejor al sonido y estilo deseado.",
+    "ruta": "teoria",
+    "intent": "aclaracion_concepto",
+    "answer_type": "rag_answer",
+    "evidence_level": "medio",
+    "warnings": [
+      {
+        "code": "LOW_EVIDENCE",
+        "message": "La evidencia recuperada tiene relevancia moderada."
+      }
+    ],
+    "n_prompts_captured": 1,
+    "prompt_sample_head": "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen literalmente en la evidencia o en la pregunta del alumno.\n7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n9. Si hay incertidumbre, pide una aclaracion breve.\n10. Mantente conciso, profesional y pedagogico.\n\n11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje salvo que el alumno "
+  }
+]

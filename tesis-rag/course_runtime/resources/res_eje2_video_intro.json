@@ -1,0 +1,12 @@
+{
+  "resource_id": "res_eje2_video_intro",
+  "type": "video",
+  "title": "Introduccion al Eje 2 - Integridad de la senal",
+  "axis_id": "Eje 2",
+  "lesson_id": "lesson_eje2_intro",
+  "source_uri": "",
+  "duration_seconds": null,
+  "language": "es",
+  "tags": ["eje2", "introduccion"],
+  "metadata": {}
+}

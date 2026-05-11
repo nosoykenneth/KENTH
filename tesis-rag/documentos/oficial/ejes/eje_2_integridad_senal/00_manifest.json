@@ -1,0 +1,20 @@
+{
+    "axis_id": "Eje 2",
+    "axis_number": 2,
+    "axis_slug": "eje_2_integridad_senal",
+    "axis_title": "Eje 2 - Integridad de la señal",
+    "pedagogical_role": "Prepara e higieniza la señal antes de procesar: filtros HPF/LPF, corrección de fase y limpieza de ruido",
+    "primary_sources": [
+        "01_contenido_canonico.md",
+        "02_paquete_limpio.md"
+    ],
+    "derived_sources": [
+        "03_glosario.json",
+        "04_heuristicas.json",
+        "05_errores_frecuentes.json",
+        "06_faq.json",
+        "07_recursos.json"
+    ],
+    "allowed_for_indexing": true,
+    "notes": "Fuentes primarias aprobadas para indexación RAG."
+}

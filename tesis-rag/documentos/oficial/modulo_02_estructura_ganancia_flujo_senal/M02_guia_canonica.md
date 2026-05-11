@@ -63,6 +63,10 @@ En este módulo, la estructura de ganancia no se agota en números. También dep
 
 La consecuencia doctrinal es clara: una sesión bien organizada no solo mantiene niveles razonables; también entrega cada tipo de señal al lugar adecuado, en el orden adecuado y con la lógica de ruteo correspondiente.
 
+#### Distinción operativa entre bus y auxiliar
+
+En este módulo, no conviene usar “bus” y “auxiliar” como si fueran exactamente lo mismo. El **bus** es la ruta interna por la que viaja la señal dentro de la sesión. El **auxiliar** es el canal que recibe esa ruta y permite procesarla, sumarla o redirigirla. Ambos trabajan juntos, pero no cumplen la misma función: uno actúa como conducto y el otro como punto de recepción y operación.
+
 ### 6. La adaptación entre dominios no debe tratarse como detalle menor
 
 El módulo insiste en que una salida de línea debe alimentar una entrada preparada para línea, y en que no conviene asumir que el conector por sí solo define el tipo real de señal. La adaptación entre niveles y sensibilidades sigue siendo parte de la estructura de ganancia, no un asunto accesorio.

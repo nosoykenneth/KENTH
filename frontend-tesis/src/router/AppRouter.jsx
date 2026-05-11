@@ -25,6 +25,7 @@ import CourseContentView from '../modules/academy/CourseContentView';
 import ProfileSettingsView from '../modules/academy/ProfileSettingsView';
 import TutorView from '../modules/academy/TutorView';
 import CourseSettingsView from '../modules/academy/CourseSettingsView';
+import PilotTutorDebugView from '../modules/academy/PilotTutorDebugView';
 
 // Admin
 import AdminCommercialView from '../modules/admin/AdminCommercialView';
@@ -62,6 +63,7 @@ const AppRouter = () => {
             <Route path="course/:courseId" element={<CourseContentView />} />
             <Route path="profile" element={<ProfileSettingsView />} />
             <Route path="tutor" element={<TutorView />} />
+            <Route path="pilot" element={<PilotTutorDebugView />} />
             <Route path="admin/catalog" element={<AdminCommercialView />} />
             <Route path="admin/knowledge" element={<AdminKnowledgeView />} />
             <Route path="settings/:courseId" element={<CourseSettingsView />} />

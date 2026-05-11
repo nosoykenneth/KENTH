@@ -1,5 +1,15 @@
+import warnings
+
+from langchain_core._api.deprecation import LangChainPendingDeprecationWarning
 from fastapi import FastAPI
-from api.routes import chat, documents, chat_sessions
+
+warnings.filterwarnings(
+    "ignore",
+    message=r"The default value of `allowed_objects` will change in a future version\..*",
+    category=LangChainPendingDeprecationWarning,
+)
+
+from api.routes import chat, documents, chat_sessions, pilot
 from services.db_service import init_db
 
 # Inicializar base de datos
@@ -15,6 +25,7 @@ app = FastAPI(
 app.include_router(chat.router)
 app.include_router(documents.router)
 app.include_router(chat_sessions.router)
+app.include_router(pilot.router)
 
 if __name__ == "__main__":
     import uvicorn

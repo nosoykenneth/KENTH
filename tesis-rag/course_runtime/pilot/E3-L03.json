@@ -1,0 +1,123 @@
+{
+  "lesson_id": "E3-L03",
+  "axis_id": "Eje 3",
+  "lesson_title": "EQ correctivo vs EQ estetico",
+  "resource_id": "res_E3-L03_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje3_Guiones_KENTH_v2.md",
+  "learning_goal": "Identificar la intencion (correctiva o estetica) antes de tocar una banda de EQ.",
+  "expected_action": "Clasificar la intervencion como correctiva o estetica y cambiar el metodo de escucha segun esa intencion.",
+  "blocks": [
+    {
+      "block_id": "E3-L03-B1",
+      "start_time": 0,
+      "end_time": 35,
+      "block_title": "Apertura",
+      "summary": "Bajo con resonancia y al mismo tiempo necesidad de carcter. Dos tareas distintas que tienden a mezclarse.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["resonancia", "caracter tonal", "dos tareas mezcladas"],
+      "preguntas_probables": [
+        "Como se si estoy corrigiendo o coloreando?"
+      ],
+      "tutor_focus": "Antes de tocar EQ, separar el problema: hay algo que molesta y algo que falta. No es la misma intervencion."
+    },
+    {
+      "block_id": "E3-L03-B2",
+      "start_time": 35,
+      "end_time": 80,
+      "block_title": "Planteamiento del problema",
+      "summary": "Definicion del eje: EQ correctivo quita problema, EQ estetico construye caracter. Son metodos de escucha distintos.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["EQ correctivo", "EQ estetico", "intencion"],
+      "preguntas_probables": [
+        "Que diferencia hay entre EQ correctivo y EQ estetico?",
+        "Esto lo evaluo en solo o en contexto?"
+      ],
+      "tutor_focus": "Diferencia clave: correctivo se valida en solo y en mezcla; estetico se decide en mezcla. La intencion cambia el metodo."
+    },
+    {
+      "block_id": "E3-L03-B3",
+      "start_time": 80,
+      "end_time": 190,
+      "block_title": "Demostracion practica correctiva",
+      "summary": "Barrido para localizar resonancia, corte estrecho, retiro del boost. El barrido sirve para encontrar la zona, no para dejar el boost.",
+      "interaction_mode": "practica",
+      "concepts": ["barrido", "Q estrecho", "boost transitorio", "corte correctivo"],
+      "preguntas_probables": [
+        "El barrido siempre se hace con boost y Q alto?",
+        "El barrido es para dejar el boost o solo para encontrar la zona?",
+        "Que pasa si corto algo que en solo se oye bien?"
+      ],
+      "tutor_focus": "El boost del barrido es solo herramienta de busqueda. Despues se invierte a corte. No se deja como decision final."
+    },
+    {
+      "block_id": "E3-L03-B4",
+      "start_time": 190,
+      "end_time": 290,
+      "block_title": "Demostracion practica estetica",
+      "summary": "Construccion tonal en contexto de mezcla. Boost amplios, Q bajo, decisiones por gusto y rol del instrumento.",
+      "interaction_mode": "practica",
+      "concepts": ["boost amplio", "Q bajo", "caracter", "decision en contexto"],
+      "preguntas_probables": [
+        "Por que esto ya no se decide en solo?",
+        "Todo boost es estetico?"
+      ],
+      "tutor_focus": "Estetico se valida en mezcla. Si suena raro en solo pero aporta al conjunto, es valido."
+    },
+    {
+      "block_id": "E3-L03-B5",
+      "start_time": 290,
+      "end_time": 350,
+      "block_title": "Teoria aplicada",
+      "summary": "Marco: no todo corte es correctivo, no todo boost es estetico. La intencion la define el problema, no la direccion de la banda.",
+      "interaction_mode": "teoria",
+      "concepts": ["intencion vs direccion", "marco conceptual"],
+      "preguntas_probables": [
+        "Toda sustraccion es correctiva?",
+        "Todo boost es estetico?"
+      ],
+      "tutor_focus": "Romper la asociacion automatica corte=correctivo, boost=estetico. La direccion no fija la intencion."
+    },
+    {
+      "block_id": "E3-L03-B6",
+      "start_time": 350,
+      "end_time": 400,
+      "block_title": "Criterio de decision",
+      "summary": "Como elegir el metodo de escucha. Si el problema es claro en solo, es correctivo. Si depende del conjunto, es estetico.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["metodo de escucha", "solo vs contexto"],
+      "preguntas_probables": [
+        "Esto lo escucho en solo o en contexto?",
+        "Como se cuando cambiar de metodo?"
+      ],
+      "tutor_focus": "El criterio se decide preguntando: este problema existe sin la mezcla? Si si, correctivo. Si no, estetico."
+    },
+    {
+      "block_id": "E3-L03-B7",
+      "start_time": 400,
+      "end_time": 450,
+      "block_title": "Errores frecuentes",
+      "summary": "Validar correctivo solo en solo, validar estetico solo en solo, mezclar ambas tareas en una misma banda.",
+      "interaction_mode": "corregir_criterio",
+      "concepts": ["error de validacion", "tareas mezcladas"],
+      "preguntas_probables": [
+        "Un canal puede sonar peor en solo y mejor en mezcla?",
+        "Puedo correctivo y estetico en el mismo EQ?"
+      ],
+      "tutor_focus": "Si, una pista puede sonar peor en solo y mejor en contexto. No es error: es la idea del estetico."
+    },
+    {
+      "block_id": "E3-L03-B8",
+      "start_time": 450,
+      "end_time": 470,
+      "block_title": "Cierre",
+      "summary": "Sintesis: identificar intencion antes de tocar. Esto organiza toda la logica del EQ.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis", "intencion primero"],
+      "preguntas_probables": [
+        "Y ahora que sigue?"
+      ],
+      "tutor_focus": "Confirmar idea principal: intencion antes de parametros."
+    }
+  ]
+}

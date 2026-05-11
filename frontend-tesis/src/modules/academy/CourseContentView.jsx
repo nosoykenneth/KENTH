@@ -1,8 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getCourseContents, getMyCourses } from '../../shared/services/courseService';
 import MoodleRenderer from '../../shared/components/ui/MoodleRenderer';
 import PageContainer from '../../shared/components/layout/PageContainer';
+import TutorAssistCard from '../../shared/components/ai/TutorAssistCard';
+import {
+  buildActivityContext,
+  activityContextFromMoodleModule,
+  INTERACTION_MODES,
+} from '../../shared/services/activityContext';
+import LinkLessonModal from '../../shared/components/ai/LinkLessonModal';
+import { listResourceLinks, getPilotLesson } from '../../shared/services/pilotService';
+import useResourceTimestamp from '../../shared/hooks/useResourceTimestamp';
 
 const HERRAMIENTAS_MOODLE = [
   { id: 'quiz', nombre: 'Cuestionario', icono: '✅', color: 'text-orange-400', bg: 'bg-orange-400/10', border: 'border-orange-400/20' },
@@ -62,6 +71,63 @@ export default function CourseContentView() {
   const [draggedMod, setDraggedMod] = useState(null);
   const [dropIndicator, setDropIndicator] = useState(null);
 
+  // Vinculacion recurso <-> leccion piloto del tutor contextual.
+  // resourceLinks: { [resource_id]: link } cargado en bulk por curso.
+  const [resourceLinks, setResourceLinks] = useState({});
+  const [linkModalRecurso, setLinkModalRecurso] = useState(null);
+  // Detalle de la leccion piloto enlazada al visorActivo (si la tiene).
+  // Se usa para que el TutorAssistCard reciba learning_goal/expected_action
+  // del manifest piloto en lugar del description de Moodle.
+  const [linkedLessonDetail, setLinkedLessonDetail] = useState(null);
+  // Panel del tutor en el visor: oculto por defecto, se abre con FAB.
+  const [tutorAbierto, setTutorAbierto] = useState(false);
+  // Hook preparado para timestamp real del H5P/video. Hoy queda en null
+  // hasta que un bridge (tesis_view.php) emita 'kenth:resource_time'.
+  const { currentTimestamp } = useResourceTimestamp({
+    enabled: Boolean(visorActivo),
+    resourceId: visorActivo?.id ?? null,
+  });
+  // Snapshot de cmids antes de abrir el studio en modo CREACION.
+  // Si esta seteado al recibir 'moodle_studio_done', el handler detecta
+  // el nuevo recurso por diff y abre LinkLessonModal automaticamente.
+  // null cuando se trata de una edicion (no autoabrir).
+  const idsCreacionRef = useRef(null);
+
+  const cargarLinks = async () => {
+    if (!id) return;
+    try {
+      const links = await listResourceLinks(id);
+      const map = {};
+      links.forEach((l) => { map[String(l.resource_id)] = l; });
+      setResourceLinks(map);
+    } catch (e) {
+      console.warn('[LINKS] No se pudieron cargar los vinculos', e);
+    }
+  };
+
+  useEffect(() => { cargarLinks(); /* eslint-disable-next-line */ }, [id]);
+
+  // Al abrir un recurso en el visor: si tiene leccion piloto enlazada,
+  // cargamos su manifest una vez para alimentar al tutor con datos
+  // pedagogicos (learning_goal, expected_action) ya curados. Si no hay
+  // vinculo, se limpia el detalle y el tutor opera sin contexto piloto.
+  // Al cambiar de recurso abierto, cerramos el panel del tutor para que
+  // arranque oculto por defecto en cada leccion nueva.
+  useEffect(() => {
+    setTutorAbierto(false);
+  }, [visorActivo?.id]);
+
+  useEffect(() => {
+    if (!visorActivo) { setLinkedLessonDetail(null); return; }
+    const link = resourceLinks[String(visorActivo.id)];
+    if (!link?.lesson_id) { setLinkedLessonDetail(null); return; }
+    let alive = true;
+    getPilotLesson(link.lesson_id)
+      .then((d) => { if (alive) setLinkedLessonDetail(d); })
+      .catch(() => { if (alive) setLinkedLessonDetail(null); });
+    return () => { alive = false; };
+  }, [visorActivo, resourceLinks]);
+
   const [editandoSeccionId, setEditandoSeccionId] = useState(null);
   const [nuevoNombreSeccion, setNuevoNombreSeccion] = useState('');
   const [seccionEnMovimientoId, setSeccionEnMovimientoId] = useState(null);
@@ -96,10 +162,35 @@ export default function CourseContentView() {
   }, [menuActivo, menuSeccionActivo]);
 
   useEffect(() => {
-    const handleMoodleMessage = (event) => {
+    const handleMoodleMessage = async (event) => {
       if (event.data === 'moodle_studio_done') {
         setStudioAbierto(false);
-        fetchContenido();
+        const idsAntes = idsCreacionRef.current;
+        idsCreacionRef.current = null;
+
+        // Si veniamos de una creacion (no edicion), refrescamos a mano
+        // para poder detectar el nuevo recurso por diff y abrir el modal
+        // de "Enlazar leccion" justo despues.
+        if (idsAntes) {
+          const token = localStorage.getItem('moodle_token');
+          try {
+            const datos = await getCourseContents(token, id);
+            setSecciones(datos);
+            let nuevoMod = null;
+            for (const sec of datos) {
+              for (const m of (sec.modules || [])) {
+                if (!idsAntes.has(String(m.id))) { nuevoMod = m; break; }
+              }
+              if (nuevoMod) break;
+            }
+            if (nuevoMod) setLinkModalRecurso(nuevoMod);
+          } catch (err) {
+            console.error('Error refrescando tras creacion Moodle', err);
+            fetchContenido();
+          }
+        } else {
+          fetchContenido();
+        }
       }
       if (event.data === 'moodle_view_done') {
         setVisorActivo(null);
@@ -107,7 +198,8 @@ export default function CourseContentView() {
     };
     window.addEventListener('message', handleMoodleMessage);
     return () => window.removeEventListener('message', handleMoodleMessage);
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const fetchContenido = async () => {
     const token = localStorage.getItem('moodle_token');
@@ -561,7 +653,22 @@ export default function CourseContentView() {
                     </div>
                   </div>
                 ) : (
-                  seccion.summary && <div className="text-kenth-subtext text-sm mb-4 relative z-10" dangerouslySetInnerHTML={{ __html: seccion.summary }}></div>
+                  <>
+                    {seccion.summary && <div className="text-kenth-subtext text-sm mb-4 relative z-10" dangerouslySetInnerHTML={{ __html: seccion.summary }}></div>}
+                    <div className="mb-6 max-w-md">
+                      <TutorAssistCard
+                        variant="module"
+                        titulo={`Tutor: ${seccion.name || `Tema ${seccion.section}`}`}
+                        contexto={`Módulo: ${seccion.name}. Resumen: ${seccion.summary}`}
+                        activityContext={buildActivityContext({
+                          lessonId: `course-${id}-section-${seccion.id}`,
+                          section: seccion.name || `Tema ${seccion.section}`,
+                          learningGoal: seccion.summary || '',
+                          interactionMode: INTERACTION_MODES.TEORIA,
+                        })}
+                      />
+                    </div>
+                  </>
                 )}
 
                 <div className="flex flex-col gap-1 mt-4 relative z-10">
@@ -613,7 +720,17 @@ export default function CourseContentView() {
                               <span className={`font-semibold text-kenth-text transition truncate ${mod.url && 'group-hover/card:text-kenth-brightred'} ${mod.visible === 0 ? 'line-through text-kenth-subtext' : ''}`}>
                                 {mod.name} {mod.visible === 0 && <span className="text-xs text-red-500 ml-2 no-underline tracking-widest">(Oculto a estudiantes)</span>}
                               </span>
-                              <span className="text-[10px] text-kenth-subtext uppercase tracking-widest font-bold">{mod.modplural}</span>
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="text-[10px] text-kenth-subtext uppercase tracking-widest font-bold">{mod.modplural}</span>
+                                {resourceLinks[String(mod.id)] && (
+                                  <span
+                                    className="text-[9px] uppercase tracking-widest font-black px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
+                                    title={`Tutor contextual activo para ${resourceLinks[String(mod.id)].lesson_id}`}
+                                  >
+                                    Leccion enlazada · {resourceLinks[String(mod.id)].lesson_id}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                           </div>
 
@@ -634,6 +751,15 @@ export default function CourseContentView() {
                                   <button onClick={() => abrirEdicion(mod)} className="w-full text-left px-4 py-2.5 text-sm text-kenth-subtext hover:bg-kenth-surface/10 hover:text-kenth-text flex items-center gap-3 transition">
                                     <svg className="w-4 h-4 text-kenth-subtext" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                                     Editar ajustes
+                                  </button>
+                                  <button
+                                    onClick={() => { setMenuActivo(null); setLinkModalRecurso(mod); }}
+                                    className="w-full text-left px-4 py-2.5 text-sm text-kenth-subtext hover:bg-kenth-surface/10 hover:text-kenth-text flex items-center gap-3 transition"
+                                  >
+                                    <svg className="w-4 h-4 text-kenth-brightred" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 015.656 5.656l-3 3a4 4 0 01-5.656-5.656m-1.656-1.656a4 4 0 00-5.656 5.656l3 3a4 4 0 005.656-5.656" />
+                                    </svg>
+                                    {resourceLinks[String(mod.id)] ? 'Cambiar leccion' : 'Enlazar leccion'}
                                   </button>
                                   <button onClick={() => ejecutarAccion(mod.visible !== 0 ? 'hide' : 'show', mod.id, secIdx)} className="w-full text-left px-4 py-2.5 text-sm text-kenth-subtext hover:bg-kenth-surface/10 hover:text-kenth-text flex items-center gap-3 transition">
                                     <svg className="w-4 h-4 text-kenth-subtext/60" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d={mod.visible !== 0 ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.879L21 21" : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542 7-4.477 0-8.268-2.943-9.542 7-4.477 0-8.268-2.943-9.542-7z"} /></svg>
@@ -727,6 +853,13 @@ export default function CourseContentView() {
                      disabled={idInvalido}
                      onClick={() => {
                        if (idInvalido) return;
+                       // Snapshot de cmids actuales antes de crear, para
+                       // detectar el nuevo recurso al cerrarse Moodle.
+                       const setIds = new Set();
+                       secciones.forEach((sec) =>
+                         (sec.modules || []).forEach((m) => setIds.add(String(m.id))),
+                       );
+                       idsCreacionRef.current = setIds;
                        setHerramientaAvanzada(herramientaAvanzada === herramienta.id ? herramienta.id + ' ' : herramienta.id);
                        setChooserAbierto(false);
                        setStudioCargando(true);
@@ -900,12 +1033,159 @@ export default function CourseContentView() {
                 </span>
               </button>
             </div>
-            <div className={`flex-1 w-full bg-kenth-bg relative scrollbar-hide ${['h5pactivity', 'hvp'].includes(visorActivo?.modname) ? 'p-0 overflow-hidden min-h-0' : 'p-4 md:p-10 overflow-y-auto min-h-0'}`}>
-              <MoodleRenderer modulo={visorActivo} />
+            <div className={`flex-1 w-full bg-kenth-bg relative flex flex-col overflow-hidden`}>
+              <div className={`flex-1 overflow-y-auto scrollbar-hide ${['h5pactivity', 'hvp'].includes(visorActivo?.modname) ? 'p-0' : 'p-4 md:p-10'}`}>
+                <MoodleRenderer modulo={visorActivo} />
+              </div>
+
+              {(() => {
+                // Contexto base derivado del modulo Moodle.
+                const seccion = secciones.find(s => s.modules?.some(m => m.id === visorActivo.id)) || null;
+                const baseCtx = activityContextFromMoodleModule(
+                  visorActivo,
+                  seccion,
+                  {
+                    // Inyectamos el timestamp real cuando el bridge lo emita.
+                    // Hoy es null en condiciones normales; el resolver de
+                    // bloque del backend degrada limpio en ese caso.
+                    timestamp: typeof currentTimestamp === 'number' ? currentTimestamp : null,
+                    page: null,
+                    overrides: {
+                      expectedAction: visorActivo.description
+                        ? 'Revisar y comprender el recurso abierto'
+                        : 'Explorar el recurso',
+                    },
+                  }
+                );
+
+                // Si el recurso tiene leccion piloto enlazada, sobreescribimos
+                // los campos pedagogicos: lesson_id ya no es el cmid de
+                // Moodle, es el lesson_id piloto real (ej. "E3-L03"), y eje
+                // / objetivo / accion vienen del manifest piloto. El
+                // resource_id se mantiene como cmid para uso del frontend.
+                const link = resourceLinks[String(visorActivo.id)];
+                const ctx = link
+                  ? {
+                      ...baseCtx,
+                      current_axis: link.axis_id || baseCtx?.current_axis || '',
+                      current_lesson_id: link.lesson_id,
+                      resource_subtype: link.resource_subtype || baseCtx?.resource_subtype || '',
+                      learning_goal:
+                        linkedLessonDetail?.learning_goal || baseCtx?.learning_goal || '',
+                      expected_action:
+                        linkedLessonDetail?.expected_action || baseCtx?.expected_action || '',
+                    }
+                  : baseCtx;
+
+                const proactiveMessage = linkedLessonDetail?.proactive_message || '';
+
+                // Resolucion de bloque actual por timestamp real. Usamos
+                // los bloques que ya vinieron en linkedLessonDetail (no
+                // hay round-trip al backend). Si no hay timestamp aun, o
+                // si ningun bloque matchea, currentBlock queda null.
+                const ts = typeof currentTimestamp === 'number' ? currentTimestamp : null;
+                const currentBlock = (ts != null && Array.isArray(linkedLessonDetail?.blocks))
+                  ? linkedLessonDetail.blocks.find((b) => (
+                      typeof b.start_time === 'number' &&
+                      typeof b.end_time === 'number' &&
+                      ts >= b.start_time && ts < b.end_time
+                    )) || null
+                  : null;
+
+                // Chips: si hay bloque activo con preguntas_probables,
+                // mandan; si no, caemos al pool estatico por leccion.
+                const suggested = (
+                  Array.isArray(currentBlock?.preguntas_probables) &&
+                  currentBlock.preguntas_probables.length
+                )
+                  ? currentBlock.preguntas_probables
+                  : (linkedLessonDetail?.suggested_prompts || null);
+
+                const badge = link
+                  ? {
+                      label: currentBlock
+                        ? `Bloque activo · ${currentBlock.block_id}`
+                        : 'Tutor contextual activo',
+                      detail: currentBlock
+                        ? `${link.lesson_id} · ${currentBlock.block_title || currentBlock.block_id}`
+                        : `${link.axis_id ? link.axis_id + ' · ' : ''}${link.lesson_id}${linkedLessonDetail?.lesson_title ? ' — ' + linkedLessonDetail.lesson_title : ''}`,
+                    }
+                  : null;
+
+                return (
+                  <>
+                    {/* FAB del tutor: visible solo cuando el panel esta cerrado */}
+                    {!tutorAbierto && (
+                      <button
+                        onClick={() => setTutorAbierto(true)}
+                        title={link ? `Abrir tutor · ${link.lesson_id}` : 'Abrir tutor'}
+                        className="absolute bottom-6 right-6 z-40 group flex items-center gap-3 bg-kenth-brightred text-white pl-4 pr-5 py-3 rounded-full shadow-[0_15px_40px_rgba(195,7,63,0.45)] hover:shadow-[0_15px_50px_rgba(195,7,63,0.6)] hover:scale-105 active:scale-95 transition-all border border-white/10"
+                      >
+                        <span className="relative flex items-center justify-center">
+                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.8L3 20l1.2-3.6A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                          </svg>
+                          {link && (
+                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-kenth-brightred animate-pulse"></span>
+                          )}
+                        </span>
+                        <span className="text-[10px] font-black uppercase tracking-widest">
+                          {link ? `Tutor · ${link.lesson_id}` : 'Tutor'}
+                        </span>
+                      </button>
+                    )}
+
+                    {/* Drawer lateral del tutor */}
+                    <div
+                      className={`absolute top-0 right-0 h-full w-full md:w-[380px] z-30 border-l border-kenth-border bg-kenth-bg/95 backdrop-blur-xl shadow-[-20px_0_60px_rgba(0,0,0,0.4)] transition-transform duration-300 ease-out flex flex-col ${tutorAbierto ? 'translate-x-0' : 'translate-x-full pointer-events-none'}`}
+                    >
+                      <div className="flex items-center justify-between px-4 py-3 border-b border-kenth-border">
+                        <div className="flex items-center gap-2 min-w-0">
+                          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
+                          <p className="text-[10px] font-black uppercase tracking-widest text-kenth-text truncate">
+                            {link ? `Tutor · ${link.lesson_id}` : 'Tutor de la leccion'}
+                          </p>
+                        </div>
+                        <button
+                          onClick={() => setTutorAbierto(false)}
+                          title="Cerrar tutor"
+                          className="p-2 rounded-lg text-kenth-subtext hover:text-white hover:bg-kenth-surface/20 transition"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+
+                      <div className="flex-1 overflow-y-auto p-4">
+                        <TutorAssistCard
+                          variant="lesson"
+                          titulo={link ? `Ayuda · ${link.lesson_id}` : 'Ayuda con esta lección'}
+                          contexto={`Lección actual: ${visorActivo.name}. Tipo: ${visorActivo.modname}. Descripción: ${visorActivo.description}`}
+                          activityContext={ctx}
+                          proactiveMessage={proactiveMessage}
+                          suggestedPrompts={suggested}
+                          badge={badge}
+                        />
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
             <div className="h-1 w-full bg-gradient-to-r from-transparent via-kenth-brightred/50 to-transparent" />
           </div>
         </div>
+      )}
+      {linkModalRecurso && (
+        <LinkLessonModal
+          resource={linkModalRecurso}
+          courseId={id}
+          onClose={(refresh) => {
+            setLinkModalRecurso(null);
+            if (refresh) cargarLinks();
+          }}
+        />
       )}
     </PageContainer>
   );

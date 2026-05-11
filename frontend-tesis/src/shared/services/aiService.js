@@ -55,15 +55,52 @@ export const askOllama = async (token, prompt, courseContext = '', imageBase64 =
 
 /**
  * API DIRECTA A FASTAPI (Para soportar sesiones sin modificar Moodle PHP)
+ *
+ * PRIVACIDAD: el user_id se envía en la cabecera X-User-Id.
+ * El backend lo usa como identidad autoritativa para ownership checks.
  */
 const RAG_API_URL = '/rag_api';
 
-export const askOllamaDirect = async (prompt, courseContext = '', imageBase64 = '', usarInternet = false, sessionId = '', historial = []) => {
+/**
+ * Helper: devuelve cabeceras estándar con autenticación.
+ * ENVÍA TOKEN MOODLE COMO BEARER PARA VALIDACIÓN SEGURA EN PRODUCCIÓN.
+ * Solo envía X-User-Id como fallback para desarrollo aislado.
+ */
+function _authHeaders(extra = {}) {
+  const token = localStorage.getItem('moodle_token') || '';
+  const userId = localStorage.getItem('moodle_userid') || '';
+  
+  const headers = {
+    'Content-Type': 'application/json',
+    ...extra,
+  };
+  
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  // En dev aislado (SQLite) se acepta esto, en prod FastAPI lo ignora
+  if (userId) {
+    headers['X-User-Id'] = userId;
+  }
+  
+  return headers;
+}
+
+export const askOllamaDirect = async (
+  prompt,
+  courseContext = '',
+  imageBase64 = '',
+  usarInternet = false,
+  sessionId = '',
+  historial = [],
+  activityContext = null
+) => {
   try {
     console.log('[AI DEBUG] Enviando consulta RAG', {
       hasImage: Boolean(imageBase64),
       imageLength: imageBase64 ? imageBase64.length : 0,
-      hasSession: Boolean(sessionId)
+      hasSession: Boolean(sessionId),
+      hasActivityContext: Boolean(activityContext)
     });
 
     const payload = {
@@ -72,14 +109,23 @@ export const askOllamaDirect = async (prompt, courseContext = '', imageBase64 = 
       imagen: imageBase64,
       usar_internet: usarInternet,
       session_id: sessionId,
-      historial
+      historial,
+      source_client: 'frontend',
+      // user_id en payload es hint; el header X-User-Id es autoritativo.
+      user_id: localStorage.getItem('moodle_userid') || ''
     };
+
+    // Capa 2/3: solo se incluye si hay contexto util. Asi el backend
+    // degrada limpio cuando el chat se usa fuera de una vista de curso.
+    if (activityContext) {
+      payload.activity_context = activityContext;
+      payload.course_id = activityContext.course_id || '';
+      payload.lesson_id = activityContext.current_lesson_id || '';
+    }
 
     const response = await fetch(`${RAG_API_URL}/chat`, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: _authHeaders(),
       body: JSON.stringify(payload)
     });
 
@@ -95,18 +141,20 @@ export const askOllamaDirect = async (prompt, courseContext = '', imageBase64 = 
   }
 };
 
-export const getChatSessions = async (userId) => {
-  const response = await fetch(`${RAG_API_URL}/chat-sessions/user/${userId}`);
+export const getChatSessions = async () => {
+  const response = await fetch(`${RAG_API_URL}/chat-sessions/`, {
+    headers: _authHeaders(),
+  });
   if (!response.ok) throw new Error('Error fetching sessions');
   const data = await response.json();
   return data.chats;
 };
 
-export const createChatSession = async (userId, title) => {
+export const createChatSession = async (title) => {
   const response = await fetch(`${RAG_API_URL}/chat-sessions/`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ user_id: userId, title })
+    headers: _authHeaders(),
+    body: JSON.stringify({ title })
   });
   if (!response.ok) throw new Error('Error creating session');
   const data = await response.json();
@@ -114,14 +162,19 @@ export const createChatSession = async (userId, title) => {
 };
 
 export const getChatMessages = async (sessionId) => {
-  const response = await fetch(`${RAG_API_URL}/chat-sessions/${sessionId}/messages`);
+  const response = await fetch(`${RAG_API_URL}/chat-sessions/${sessionId}/messages`, {
+    headers: _authHeaders(),
+  });
   if (!response.ok) throw new Error('Error fetching messages');
   const data = await response.json();
   return data.messages;
 };
 
 export const deleteChatSession = async (sessionId) => {
-  const response = await fetch(`${RAG_API_URL}/chat-sessions/${sessionId}`, { method: 'DELETE' });
+  const response = await fetch(`${RAG_API_URL}/chat-sessions/${sessionId}`, {
+    method: 'DELETE',
+    headers: _authHeaders(),
+  });
   if (!response.ok) throw new Error('Error deleting session');
   return response.json();
 };

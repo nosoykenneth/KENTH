@@ -116,6 +116,34 @@
       "requires_validation": true
     },
     {
+      "faq_id": "M08_FAQ_004B",
+      "question": "¿Spotify comprime la dinámica del tema para normalizarlo?",
+      "canonical_answer": "No conviene formularlo así. En el marco del módulo, Spotify se toma como ejemplo de plataforma que aplica normalización de ganancia de reproducción, no como un sistema que comprime automáticamente el rango dinámico del tema por el solo hecho de igualar loudness. El módulo distingue con claridad entre normalización de ganancia y compresión de datos o procesamiento dinámico.",
+      "short_answer": "No. Normalizar ganancia no es lo mismo que comprimir la dinámica del tema.",
+      "stable_answer": "La normalización de plataforma no debe confundirse con compresión automática del rango dinámico.",
+      "pending_validation_notes": [
+        "El comportamiento concreto puede variar según plataforma y configuración de escucha."
+      ],
+      "brand_or_model_mentions": [
+        "Spotify"
+      ],
+      "topic": "normalizacion_plataformas",
+      "learning_objective": "Distinguir normalización de reproducción de compresión del rango dinámico.",
+      "tags": [
+        "spotify",
+        "normalizacion",
+        "ganancia",
+        "loudness",
+        "streaming"
+      ],
+      "evidence_sources": [],
+      "do_not_say": [
+        "Spotify comprime la dinámica para normalizar.",
+        "Normalizar reproducción es lo mismo que comprimir el tema."
+      ],
+      "requires_validation": true
+    },
+    {
       "faq_id": "M08_FAQ_005",
       "question": "¿Por qué el módulo insiste en controlar True Peak?",
       "canonical_answer": "Porque el pico de muestra no alcanza para anticipar toda la realidad de reproducción. El módulo asocia el control de True Peak con picos interesample, codificación con pérdida y seguridad técnica en distribución. Aun así, reconoce que en la práctica comercial existe tensión entre margen técnico prudente y decisiones más agresivas.",

@@ -8,18 +8,19 @@ from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
 from langchain_ollama import OllamaEmbeddings
 from langchain_text_splitters import RecursiveCharacterTextSplitter
+from config import EMBED_MODEL, CHROMA_DIR
 
 
-embeddings = OllamaEmbeddings(model="nomic-embed-text")
+embeddings = OllamaEmbeddings(model=EMBED_MODEL)
 
 PDF_CHUNK_SIZE = 900
 PDF_CHUNK_OVERLAP = 160
 TRANSCRIPT_CHUNK_SIZE = 1200
 TRANSCRIPT_CHUNK_OVERLAP = 120
-
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOCUMENTS_DIR = os.path.join(BASE_DIR, "documentos")
 OFFICIAL_DIR = os.path.join(DOCUMENTS_DIR, "oficial")
+EJES_DIR = os.path.join(OFFICIAL_DIR, "ejes")
 LOCATION_DIR = os.path.join(DOCUMENTS_DIR, "localizacion")
 EXTERNAL_DIR = os.path.join(DOCUMENTS_DIR, "externo")
 NO_INDEX_DIR = os.path.join(DOCUMENTS_DIR, "no_indexar")
@@ -30,7 +31,7 @@ SAFE_EXTENSIONS = (".json", ".md", ".pdf")
 
 
 def get_vector_store():
-    return Chroma(persist_directory="./bd_vectorial", embedding_function=embeddings)
+    return Chroma(persist_directory=CHROMA_DIR, embedding_function=embeddings)
 
 
 def _normalizar_path(filepath: str) -> str:
@@ -50,8 +51,7 @@ def _esta_dentro(filepath: str, directory: str) -> bool:
 
 def _es_ruta_permitida(filepath: str) -> bool:
     return (
-        _esta_dentro(filepath, OFFICIAL_DIR)
-        or _esta_dentro(filepath, LOCATION_DIR)
+        _esta_dentro(filepath, EJES_DIR)
     ) and not (
         _esta_dentro(filepath, EXTERNAL_DIR)
         or _esta_dentro(filepath, NO_INDEX_DIR)
@@ -118,7 +118,11 @@ def es_documento_aprobado_para_indexar(filepath: str, explicar: bool = False):
     if not filepath.lower().endswith(SAFE_EXTENSIONS):
         razones.append("extension no soportada por ingesta segura")
     if not _es_ruta_permitida(filepath):
-        razones.append("ruta fuera de documentos/oficial o documentos/localizacion")
+        razones.append("ruta fuera de documentos/oficial/ejes")
+        
+    filename_lower = os.path.basename(filepath).lower()
+    if filename_lower not in ("01_contenido_canonico.md", "02_paquete_limpio.md"):
+        razones.append("solo se permite indexar 01_contenido_canonico.md y 02_paquete_limpio.md temporalmente")
 
     metadata = obtener_metadata_documental(filepath)
     status = metadata.get("status", "")
@@ -137,7 +141,7 @@ def es_documento_aprobado_para_indexar(filepath: str, explicar: bool = False):
 
 def get_safe_document_candidates():
     archivos = []
-    for root_dir in (OFFICIAL_DIR, LOCATION_DIR):
+    for root_dir in [EJES_DIR]:
         if not os.path.exists(root_dir):
             continue
         for root, dirs, files in os.walk(root_dir):
@@ -147,7 +151,7 @@ def get_safe_document_candidates():
                 and not _esta_dentro(os.path.join(root, d), NO_INDEX_DIR)
             ]
             for filename in files:
-                if filename.lower().endswith(SAFE_EXTENSIONS):
+                if filename.lower() in ("01_contenido_canonico.md", "02_paquete_limpio.md"):
                     archivos.append(os.path.join(root, filename))
     return archivos
 
@@ -173,10 +177,65 @@ def _stem(filename: str) -> str:
 
 
 def _inferir_modulo_desde_nombre(filename: str):
-    match = re.search(r"m[oó]dulo\s*(\d+)", filename, re.IGNORECASE)
-    if match:
-        return int(match.group(1))
+    # Soporte para Eje 0-7 y Modulo 1-8
+    match_eje = re.search(r"eje\s*(\d+)", filename, re.IGNORECASE)
+    if match_eje:
+        return int(match_eje.group(1))
+    match_mod = re.search(r"m[oó]dulo\s*(\d+)", filename, re.IGNORECASE)
+    if match_mod:
+        return int(match_mod.group(1))
     return ""
+
+
+def _inferir_eje_desde_path(filepath: str):
+    path = _normalizar_path(filepath).lower()
+    match = re.search(r"eje[_\s-]*(\d+)", path)
+    if match:
+        return f"Eje {int(match.group(1))}"
+    return ""
+
+
+def _normalizar_eje(valor):
+    if valor in ("", None):
+        return ""
+    if isinstance(valor, (int, float)):
+        return f"Eje {int(valor)}"
+    text = str(valor).strip()
+    match = re.search(r"(\d+)", text)
+    if match and ("eje" in text.lower() or text.isdigit()):
+        return f"Eje {int(match.group(1))}"
+    return text
+
+
+def _metadata_axis(doc_meta: dict, filepath: str):
+    axis = (
+        doc_meta.get("axis")
+        or doc_meta.get("eje")
+        or doc_meta.get("axis_id")
+        or doc_meta.get("module_id")
+        or doc_meta.get("axis_number")
+        or _inferir_eje_desde_path(filepath)
+        or _inferir_modulo_desde_nombre(os.path.basename(filepath))
+    )
+    return _normalizar_eje(axis)
+
+
+def _inferir_layer_desde_nombre(filename: str):
+    fn = filename.lower()
+    if "canonico" in fn or "guia_canonica" in fn:
+        return "canonico"
+    if "paquete_limpio" in fn or "limpio" in fn:
+        return "limpio"
+    return "general"
+
+
+def _metadata_layer(doc_meta: dict, filename: str):
+    return (
+        doc_meta.get("layer")
+        or doc_meta.get("capa")
+        or doc_meta.get("doc_layer")
+        or _inferir_layer_desde_nombre(filename)
+    )
 
 
 def _inferir_course(filepath: str) -> str:
@@ -196,6 +255,9 @@ def _crear_chunk_id(filepath: str, chunk_index: int, prefix: str = "", page="") 
 def _metadata_base(filepath: str, doc_type: str, chunk_index: int, chunk_id: str):
     filename = os.path.basename(filepath)
     doc_meta = obtener_metadata_documental(filepath)
+    axis = _metadata_axis(doc_meta, filepath)
+    layer = _metadata_layer(doc_meta, filename)
+    
     return {
         "source": _normalizar_path(filepath),
         "filename": filename,
@@ -205,6 +267,13 @@ def _metadata_base(filepath: str, doc_type: str, chunk_index: int, chunk_id: str
         "course": doc_meta.get("course_id", "") or _inferir_course(filepath),
         "course_id": doc_meta.get("course_id", ""),
         "module_id": doc_meta.get("module_id", ""),
+        "axis_id": doc_meta.get("axis_id", axis),
+        "axis_number": doc_meta.get("axis_number", ""),
+        "axis_title": doc_meta.get("axis_title", ""),
+        "axis": axis,
+        "eje": axis,
+        "layer": layer,
+        "capa": layer,
         "module_title": doc_meta.get("module_title", ""),
         "version": doc_meta.get("version", ""),
         "chunk_index": chunk_index,
@@ -214,12 +283,18 @@ def _metadata_base(filepath: str, doc_type: str, chunk_index: int, chunk_id: str
 
 def _metadata_pdf(filepath: str, page, chunk_index: int):
     filename = os.path.basename(filepath)
-    module = _inferir_modulo_desde_nombre(filename)
+    doc_meta = obtener_metadata_documental(filepath)
+    axis = _metadata_axis(doc_meta, filepath)
+    layer = _metadata_layer(doc_meta, filename)
     chunk_id = _crear_chunk_id(filepath, chunk_index, "pdf", page)
     metadata = _metadata_base(filepath, "pdf", chunk_index, chunk_id)
     metadata.update({
-        "module": module,
-        "modulo": module,
+        "module": axis,
+        "modulo": axis,
+        "axis": axis,
+        "eje": axis,
+        "layer": layer,
+        "capa": layer,
         "submodule": "",
         "submodulo": "",
         "lesson_title": _stem(filename),
@@ -339,15 +414,36 @@ def _metadata_transcripcion(filepath: str, item: dict, chunk_index: int, parent_
         or item.get("recurso_recomendado", "")
         or item.get("recurso", "")
     )
-    module = item.get("module", item.get("modulo", "")) or parent_meta.get("module_id", "")
+    axis = _normalizar_eje(
+        item.get("axis")
+        or item.get("eje")
+        or item.get("axis_id")
+        or item.get("module")
+        or item.get("modulo")
+        or parent_meta.get("axis_id")
+        or parent_meta.get("module_id")
+        or parent_meta.get("axis_number")
+        or _inferir_eje_desde_path(filepath)
+    )
     submodule = item.get("submodule", item.get("submodulo", ""))
+    layer = (
+        item.get("layer")
+        or item.get("capa")
+        or item.get("doc_layer")
+        or parent_meta.get("doc_layer")
+        or _inferir_layer_desde_nombre(filename)
+    )
     chunk_id = item.get("chunk_id", "") or _crear_chunk_id(filepath, chunk_index, item_id, start_time)
 
     metadata = _metadata_base(filepath, parent_meta.get("doc_type", "video_transcript"), chunk_index, chunk_id)
     metadata.update({
         "id": _valor_metadata(item_id),
-        "module": _valor_metadata(module),
-        "modulo": _valor_metadata(module),
+        "module": _valor_metadata(axis),
+        "modulo": _valor_metadata(axis),
+        "axis": _valor_metadata(axis),
+        "eje": _valor_metadata(axis),
+        "layer": _valor_metadata(layer),
+        "capa": _valor_metadata(layer),
         "submodule": _valor_metadata(submodule),
         "submodulo": _valor_metadata(submodule),
         "lesson_title": _valor_metadata(titulo),
@@ -378,8 +474,8 @@ def _metadata_transcripcion(filepath: str, item: dict, chunk_index: int, parent_
 def _texto_chunk(page_content: str, metadata: dict) -> str:
     partes = [
         f"Tipo de documento: {metadata.get('doc_type', '')}",
-        f"Modulo: {metadata.get('module', '')}",
-        f"Submodulo: {metadata.get('submodule', '')}",
+        f"Eje: {metadata.get('axis', '')}",
+        f"Capa: {metadata.get('layer', '')}",
         f"Clase: {metadata.get('lesson_title', '')}",
         f"Tema: {metadata.get('topic', '')}",
         f"Objetivo: {metadata.get('learning_objective', '')}",
@@ -457,7 +553,29 @@ def _crear_chunks_markdown(filepath: str):
     if not content:
         return []
 
-    text_splitter = RecursiveCharacterTextSplitter(
+    # REGLA: No romper filas de tablas markdown
+    class TableAwareSplitter(RecursiveCharacterTextSplitter):
+        def split_text(self, text: str):
+            # Si el texto parece contener tablas, usamos un separador que respete lineas
+            if "|" in text:
+                lines = text.split("\n")
+                chunks = []
+                current_chunk = []
+                current_size = 0
+                for line in lines:
+                    line_len = len(line) + 1
+                    if current_size + line_len > self._chunk_size and current_chunk:
+                        chunks.append("\n".join(current_chunk))
+                        current_chunk = []
+                        current_size = 0
+                    current_chunk.append(line)
+                    current_size += line_len
+                if current_chunk:
+                    chunks.append("\n".join(current_chunk))
+                return chunks
+            return super().split_text(text)
+
+    text_splitter = TableAwareSplitter(
         chunk_size=TRANSCRIPT_CHUNK_SIZE,
         chunk_overlap=TRANSCRIPT_CHUNK_OVERLAP,
     )
@@ -467,9 +585,16 @@ def _crear_chunks_markdown(filepath: str):
         chunk_index = len(chunks)
         chunk_id = _crear_chunk_id(filepath, chunk_index, "md")
         metadata = _metadata_base(filepath, metadata_doc.get("doc_type", "markdown"), chunk_index, chunk_id)
+        axis = _metadata_axis(metadata_doc, filepath)
+        layer = _metadata_layer(metadata_doc, os.path.basename(filepath))
+        
         metadata.update({
-            "module": metadata_doc.get("module_id", ""),
-            "modulo": metadata_doc.get("module_id", ""),
+            "module": axis,
+            "modulo": axis,
+            "axis": axis,
+            "eje": axis,
+            "layer": layer,
+            "capa": layer,
             "submodule": "",
             "submodulo": "",
             "lesson_title": metadata_doc.get("module_title", "") or _stem(os.path.basename(filepath)),
@@ -611,7 +736,7 @@ def rebuild_all_documents():
     """
     import chromadb
 
-    persist_dir = "./bd_vectorial"
+    persist_dir = CHROMA_DIR
 
     # Paso 1: Borrar la coleccion de Chroma usando su API nativa
     # (No podemos borrar la carpeta en Windows porque los archivos estan bloqueados

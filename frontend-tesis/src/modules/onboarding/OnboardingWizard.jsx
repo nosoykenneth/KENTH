@@ -3,6 +3,17 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { completeOnboarding } from '../../shared/services/authService';
 import Logo from '../../shared/components/ui/Logo';
+import AvatarCropper from '../../shared/components/ui/AvatarCropper';
+
+const getProfileCropStateKey = () => {
+  const userId = localStorage.getItem('moodle_userid') || 'current';
+  return `moodle_profile_crop_state_${userId}`;
+};
+
+const persistCropState = (cropState) => {
+  if (!cropState?.areaPercentages) return;
+  localStorage.setItem(getProfileCropStateKey(), JSON.stringify(cropState));
+};
 
 export default function OnboardingWizard() {
   const [step, setStep] = useState(1);
@@ -15,26 +26,45 @@ export default function OnboardingWizard() {
     firstname: localStorage.getItem('moodle_userfullname')?.split(' ')[0] || '',
     lastname: localStorage.getItem('moodle_userfullname')?.split(' ').slice(1).join(' ') || '',
     pictureData: '',
+    pictureOriginalData: '',
+    pictureCropState: null,
     password: '',
     confirmPassword: ''
   });
 
   const [photoPreview, setPhotoPreview] = useState(null);
+  const [imageToCrop, setImageToCrop] = useState(null);
   const fileInputRef = React.useRef(null);
+
+  const resetPhotoInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handlePhotoChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Preview inmediato con ObjectURL (como en ProfileSettings)
-      const objectUrl = URL.createObjectURL(file);
-      setPhotoPreview(objectUrl);
-
       const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData(prev => ({ ...prev, pictureData: reader.result }));
+      reader.onload = () => {
+        setFormData(prev => ({ ...prev, pictureOriginalData: reader.result }));
+        setImageToCrop(reader.result);
       };
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleCropComplete = (croppedImage, cropState) => {
+    setPhotoPreview(croppedImage);
+    setFormData(prev => ({ ...prev, pictureData: croppedImage, pictureCropState: cropState }));
+    persistCropState(cropState);
+    setImageToCrop(null);
+    resetPhotoInput();
+  };
+
+  const handleCropCancel = () => {
+    setImageToCrop(null);
+    resetPhotoInput();
   };
 
   const handleFinish = async () => {
@@ -60,6 +90,14 @@ export default function OnboardingWizard() {
       if (res?.newpictureurl) {
         localStorage.setItem('moodle_userpictureurl', res.newpictureurl);
         window.dispatchEvent(new Event('perfilActualizado'));
+      }
+      if (res?.originalpictureurl) {
+        const userId = localStorage.getItem('moodle_userid') || 'current';
+        try {
+          localStorage.setItem(`moodle_profile_crop_source_${userId}`, res.originalpictureurl);
+        } catch {
+          // La URL del original no es crÃ­tica para finalizar onboarding.
+        }
       }
 
       navigate('/dashboard', { replace: true });
@@ -244,6 +282,14 @@ export default function OnboardingWizard() {
           KENTH Studio • Configuración Inicial
         </p>
       </div>
+
+      {imageToCrop && (
+        <AvatarCropper 
+          image={imageToCrop} 
+          onCropComplete={handleCropComplete} 
+          onCancel={handleCropCancel} 
+        />
+      )}
     </div>
   );
 }

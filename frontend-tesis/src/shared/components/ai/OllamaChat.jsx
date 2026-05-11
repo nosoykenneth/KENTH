@@ -3,7 +3,7 @@ import { askOllamaDirect, getChatMessages } from '../../services/aiService';
 import { motion, AnimatePresence } from 'framer-motion';
 import ReactMarkdown from 'react-markdown';
 
-export default function OllamaChat({ contextoLeccion = '', sessionId = null, isExternalLoading = false, setExternalLoading = () => {} }) {
+export default function OllamaChat({ contextoLeccion = '', sessionId = null, isExternalLoading = false, setExternalLoading = () => {}, activityContext = null }) {
   const [pregunta, setPregunta] = useState('');
   const [internalLoading, setInternalLoading] = useState(false);
   const [historial, setHistorial] = useState([]); 
@@ -123,12 +123,13 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null, isE
 
     try {
       const data = await askOllamaDirect(
-        preguntaEnviada, 
-        contextoLeccion, 
-        imagenEnviada, 
-        usarInternet, 
+        preguntaEnviada,
+        contextoLeccion,
+        imagenEnviada,
+        usarInternet,
         requestSessionId,
-        historialParaBackend
+        historialParaBackend,
+        activityContext
       );
       
       // CRÍTICO: Verificamos si la sesión activa (según el ref) sigue siendo

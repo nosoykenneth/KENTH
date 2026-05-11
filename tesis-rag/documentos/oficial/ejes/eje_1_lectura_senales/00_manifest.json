@@ -1,0 +1,20 @@
+{
+    "axis_id": "Eje 1",
+    "axis_number": 1,
+    "axis_slug": "eje_1_lectura_senales",
+    "axis_title": "Eje 1 - Lectura de señales",
+    "pedagogical_role": "Desarrolla la capacidad de leer e interpretar señales visuales: metros, formas de onda y analizadores de espectro",
+    "primary_sources": [
+        "01_contenido_canonico.md",
+        "02_paquete_limpio.md"
+    ],
+    "derived_sources": [
+        "03_glosario.json",
+        "04_heuristicas.json",
+        "05_errores_frecuentes.json",
+        "06_faq.json",
+        "07_recursos.json"
+    ],
+    "allowed_for_indexing": true,
+    "notes": "Fuentes primarias aprobadas para indexación RAG."
+}

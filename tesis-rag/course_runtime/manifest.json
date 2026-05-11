@@ -1,0 +1,15 @@
+{
+  "course_id": "curso_mezcla_masterizacion",
+  "version": "0.1.0",
+  "description": "Indice runtime de lecciones por eje. Esqueleto base.",
+  "axes": [
+    { "axis_id": "Eje 0", "lessons": [] },
+    { "axis_id": "Eje 1", "lessons": [] },
+    { "axis_id": "Eje 2", "lessons": ["lesson_eje2_intro"] },
+    { "axis_id": "Eje 3", "lessons": [] },
+    { "axis_id": "Eje 4", "lessons": [] },
+    { "axis_id": "Eje 5", "lessons": [] },
+    { "axis_id": "Eje 6", "lessons": [] },
+    { "axis_id": "Eje 7", "lessons": [] }
+  ]
+}

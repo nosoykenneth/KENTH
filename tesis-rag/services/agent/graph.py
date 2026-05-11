@@ -5,6 +5,7 @@ from langchain_community.tools import DuckDuckGoSearchRun
 import concurrent.futures
 
 from models.schemas import EstadoAgente
+from config import TEXT_MODEL, VISION_MODEL
 from services.agent.prompts import _campos_pedagogicos, _prompt_por_intent
 from services.agent.routing import (
     _conceptos_relevantes_pregunta,
@@ -23,10 +24,13 @@ from services.agent.retrieval import (
     _chunks_desde_evidencias,
     _concepto_definicion_directa,
     _construir_contexto_evidencia,
+    _current_axis_number,
     _debe_incluir_historial_en_prompt,
     _es_pregunta_comparativa_multiconcepto,
     _formatear_fuente,
     _intent_efectivo_para_prompt,
+    _is_future_axis_question,
+    _question_axis_number,
     _ordenar_para_respuesta_directa,
     _preparar_retrieval,
     _respuesta_fuera_de_material,
@@ -42,6 +46,7 @@ from services.agent.vision import (
 from services.agent.verification import (
     _bloquear_localizacion_no_validada,
     _limpiar_citas_internas_rag,
+    _limitar_anticipo_eje_posterior,
     _recortar_relleno_sin_evidencia,
     _respuesta_conceptual_controlada,
     _verificar_respuesta,
@@ -50,11 +55,8 @@ from services.agent.verification import (
 # ==========================================
 # 1. INICIALIZACION DE MODELOS
 # ==========================================
-TEXT_MODEL_NAME = "llama3.2:3b"
-VISION_MODEL_NAME = "qwen3-vl:4b-instruct"
-
-llm_logico = ChatOllama(model=TEXT_MODEL_NAME, temperature=0.2)
-llm_vision = ChatOllama(model=VISION_MODEL_NAME, temperature=0.1)
+llm_logico = ChatOllama(model=TEXT_MODEL, temperature=0.2)
+llm_vision = ChatOllama(model=VISION_MODEL, temperature=0.1)
 buscador_web = DuckDuckGoSearchRun()
 
 
@@ -62,8 +64,6 @@ def nodo_rag(state: EstadoAgente):
 
     pregunta = state["pregunta"].strip()
 
-    # AUDIT FIX #3: Imagen AUDIO ahora hace retrieval ANTES de responder.
-    # La captura del alumno se conecta con material del curso si existe.
     if state.get("imagen"):
         print("[VISION GATE]: Clasificando si la imagen pertenece al dominio de audio...")
         if not _imagen_parece_audio(state["imagen"]):
@@ -80,14 +80,14 @@ def nodo_rag(state: EstadoAgente):
                         _warning("NO_AUDIO_IMAGE", "La imagen no parece relacionada con audio o el curso.")
                     ],
                     retrieved_chunks=[],
-                    model_used=VISION_MODEL_NAME
+                    model_used=VISION_MODEL
                 )
             }
         imagen_limpia = _limpiar_imagen_base64(state["imagen"])
 
         # Hacer retrieval con la pregunta o contexto de leccion para conectar imagen con curso
         query_imagen = pregunta or state.get("contexto_leccion", "").strip() or "captura DAW plugin mezcla masterizacion"
-        evidencias_imagen = _buscar_evidencia(query_imagen)
+        evidencias_imagen = _buscar_evidencia(query_imagen, state=state)
 
         if evidencias_imagen:
             print(f"[VISION+RAG]: Imagen AUDIO con {len(evidencias_imagen)} evidencias del curso.")
@@ -123,7 +123,7 @@ def nodo_rag(state: EstadoAgente):
                     state,
                     answer_type="image_feedback",
                     retrieved_chunks=_chunks_desde_evidencias(evidencias_imagen),
-                    model_used=VISION_MODEL_NAME
+                    model_used=VISION_MODEL
                 )
             }
         else:
@@ -139,7 +139,7 @@ def nodo_rag(state: EstadoAgente):
                         _warning("LOW_EVIDENCE", "La imagen parece de audio, pero no se recupero evidencia suficiente del curso.")
                     ],
                     retrieved_chunks=[],
-                    model_used=VISION_MODEL_NAME
+                    model_used=VISION_MODEL
                 )
             }
 
@@ -183,7 +183,7 @@ def nodo_rag(state: EstadoAgente):
 
     if _es_pregunta_lookup(pregunta):
         print("[AGENTE RAG]: Intencion lookup detectada. Priorizando metadatos concretos.")
-        evidencias_lookup = _buscar_evidencia_lookup(query_retrieval)
+        evidencias_lookup = _buscar_evidencia_lookup(query_retrieval, state=state)
         fuentes_lookup = [
             _formatear_fuente(item["document"].metadata or {}, item["score"], index)
             for index, item in enumerate(evidencias_lookup, start=1)
@@ -204,9 +204,8 @@ def nodo_rag(state: EstadoAgente):
             )
         }
 
-    evidencias = _buscar_evidencia(query_retrieval)
+    evidencias = _buscar_evidencia(query_retrieval, state=state)
 
-    # AUDIT FIX #4: Eliminado codigo muerto con imagen_limpia fuera de scope.
     if not evidencias:
         print("[AGENTE RAG]: Evidencia insuficiente. Respuesta segura sin invencion.")
         return {
@@ -282,6 +281,10 @@ def nodo_rag(state: EstadoAgente):
         "------------------------\n"
         if contexto_leccion else ""
     )
+    # Capa 2/3 del tutor contextual: bloque pre-renderizado por
+    # services.context_service. No contamina retrieval, solo orienta.
+    activity_context_block = state.get("activity_context_block", "")
+    contexto_actividad = f"{activity_context_block}\n" if activity_context_block else ""
     referencia_inferida = (
         f"Referencia contextual inferida para buscar: {query_retrieval}\n"
         if es_query_seguimiento else (
@@ -327,14 +330,39 @@ def nodo_rag(state: EstadoAgente):
     )
     regla_sin_localizacion = (
         "--- LOCALIZACION OFICIAL ---\n"
-        "La capa oficial de localizacion de M04 no tiene recursos ni ubicaciones aprobadas. "
+        "La capa oficial de localizacion (Ejes 0-7) no tiene recursos ni ubicaciones aprobadas por defecto. "
         "Los nombres Fuente/archivo solo indican evidencia recuperada, NO clase, pagina, minuto ni recurso recomendado. "
         "No presentes ubicaciones oficiales si la evidencia no trae pagina, minuto, URL o recurso validado.\n"
         "------------------------\n"
     )
 
-    # AUDIT FIX #2: Evidence gate REAL.
-    # Si evidence_level es medio, endurece el prompt para que el LLM sea mas cauteloso.
+    current_axis = _current_axis_number(state)
+    requested_axis = _question_axis_number(pregunta)
+    future_axis_question = _is_future_axis_question(state, pregunta)
+    regla_curricular = (
+        "--- POLITICA CURRICULAR Y FUENTES ---\n"
+        "Todo lo que uses para responder debe venir de una de estas categorias: "
+        "A) EVIDENCIA DEL CURSO recuperada por RAG; "
+        "B) CONTEXTO RUNTIME inyectado en este turno; "
+        "C) reglas del sistema/prompt/routing.\n"
+        "Jerarquia pedagogica: bloque activo = punto de partida; leccion actual = contexto inmediato; "
+        "ejes previos = soporte permitido; eje actual completo = expansion natural.\n"
+        "El contexto runtime orienta donde esta el alumno, pero no convierte por si solo una afirmacion tecnica "
+        "en evidencia documental del curso.\n"
+        "Puedes salir del bloque activo cuando la pregunta lo necesite, siempre anclando la respuesta al punto actual "
+        "y usando evidencia RAG o contexto runtime explicito.\n"
+    )
+    if current_axis is not None:
+        regla_curricular += f"Eje actual del alumno: Eje {current_axis}.\n"
+    if future_axis_question:
+        regla_curricular += (
+            f"La pregunta apunta a Eje {requested_axis}, que es posterior al eje actual. "
+            "Responde solo como anticipo controlado: una orientacion breve, sin clase exhaustiva, "
+            "y di explicitamente que se vera mas adelante. No desarrolles procedimientos completos de ese eje. "
+            "Maximo 4 frases. No menciones ids internos de bloque/leccion ni digas 'leccion piloto'.\n"
+        )
+    regla_curricular += "------------------------\n"
+
     if evidence_level == "alto":
         regla_evidence_gate = ""
     else:
@@ -350,6 +378,26 @@ def nodo_rag(state: EstadoAgente):
             "------------------------\n"
         )
 
+    # Vertical slice piloto: si llego un bloque activo del video, el orden
+    # de prioridad cambia. Primero el bloque (que esta viendo el alumno
+    # ahora), luego la metadata de la leccion, luego la evidencia RAG
+    # del eje. Esto evita que el RAG general opaque el bloque actual.
+    envelope_piloto = state.get("tutor_envelope")
+    tiene_bloque_piloto = bool(getattr(envelope_piloto, "pilot_block", None))
+
+    regla_prioridad_piloto = (
+        "--- ORDEN DE PRIORIDAD (PILOTO) ---\n"
+        "1. BLOQUE ACTIVO DEL VIDEO como punto de partida (lo que el alumno esta viendo justo ahora).\n"
+        "2. Metadata de la leccion piloto (learning_goal, expected_action).\n"
+        "3. EVIDENCIA DEL CURSO (RAG del eje actual y ejes previos) para profundizar conceptos.\n"
+        "4. Historial reciente y resto del contexto solo para resolver referencias.\n"
+        "Si la pregunta encaja en una de las preguntas probables del bloque, ancla la respuesta a ese bloque. "
+        "Puedes apoyarte en otros bloques, la leccion o ejes previos si la pregunta lo exige, "
+        "pero senala el puente y no reemplaces el punto actual por una clase lateral.\n"
+        "------------------------\n"
+        if tiene_bloque_piloto else ""
+    )
+
     instrucciones = (
         "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\n"
         "Tu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\n"
@@ -363,12 +411,15 @@ def nodo_rag(state: EstadoAgente):
         "6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen "
         "literalmente en la evidencia o en la pregunta del alumno.\n"
         "7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n"
-        "8. Nunca inventes URLs, modulos, recursos, DAWs, plugins, parametros ni valores en dB.\n"
+        "8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n"
         "9. Si hay incertidumbre, pide una aclaracion breve.\n"
         "10. Mantente conciso, profesional y pedagogico.\n\n"
-        "11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o modulo "
+        "11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje "
         "salvo que el alumno pregunte explicitamente donde revisar o pida fuentes. Esos datos ya viajan en el JSON.\n\n"
         f"{_prompt_por_intent(intent_efectivo)}"
+        f"{regla_curricular}"
+        f"{regla_prioridad_piloto}"
+        f"{contexto_actividad}"
         f"{regla_evidence_gate}"
         f"--- EVIDENCIA DEL CURSO ---\n{teoria}\n------------------------\n"
         f"{contexto_actual}"
@@ -384,11 +435,12 @@ def nodo_rag(state: EstadoAgente):
     print("[AGENTE RAG]: Generando respuesta de texto con evidencia del curso...")
     respuesta = llm_logico.invoke(instrucciones + "\nPregunta del alumno: " + pregunta).content
 
-    # AUDIT FIX #6: Verificador post-generacion
     respuesta = _verificar_respuesta(respuesta, fuentes, evidencias)
     respuesta = _bloquear_localizacion_no_validada(respuesta, fuentes)
     respuesta = _recortar_relleno_sin_evidencia(respuesta)
     respuesta = _limpiar_citas_internas_rag(respuesta)
+    if future_axis_question:
+        respuesta = _limitar_anticipo_eje_posterior(respuesta, requested_axis)
 
     print("[AGENTE RAG]: Respuesta generada y verificada.")
     return {
@@ -400,10 +452,14 @@ def nodo_rag(state: EstadoAgente):
             intent=intent_efectivo,
             answer_type="rag_answer",
             retrieved_chunks=_chunks_desde_evidencias(evidencias_para_respuesta),
-            warnings=[] if evidence_level == "alto" else [
-                _warning("LOW_EVIDENCE", "La evidencia recuperada tiene relevancia moderada.")
-            ],
-            model_used=TEXT_MODEL_NAME
+            warnings=(
+                ([_warning("FUTURE_AXIS_PREVIEW", f"La consulta apunta a Eje {requested_axis}, posterior al eje actual.")]
+                 if future_axis_question else [])
+                + ([] if evidence_level == "alto" else [
+                    _warning("LOW_EVIDENCE", "La evidencia recuperada tiene relevancia moderada.")
+                ])
+            ),
+            model_used=TEXT_MODEL
         )
     }
 
@@ -418,7 +474,7 @@ def nodo_perdido(state: EstadoAgente):
         or pregunta
         or "orientacion estudiante perdido mezcla masterizacion escucha critica"
     )
-    evidencias = _buscar_evidencia(query_retrieval)
+    evidencias = _buscar_evidencia(query_retrieval, state=state)
 
     if evidencias:
         teoria, fuentes = _construir_contexto_evidencia(evidencias)
@@ -460,7 +516,7 @@ def nodo_perdido(state: EstadoAgente):
             warnings=[] if fuentes else [
                 _warning("LOW_EVIDENCE", "Modo guia activo sin evidencia suficiente para recomendar recurso concreto.")
             ],
-            model_used=TEXT_MODEL_NAME
+            model_used=TEXT_MODEL
         )
     }
 
@@ -523,7 +579,7 @@ def nodo_web(state: EstadoAgente):
                 _warning("EXTERNAL_SOURCE_USED", "Esta respuesta usa busqueda externa y no cuenta como evidencia del curso.")
             ],
             retrieved_chunks=[],
-            model_used=TEXT_MODEL_NAME
+            model_used=TEXT_MODEL
         )
     }
 
@@ -534,7 +590,7 @@ def nodo_guardia(state: EstadoAgente):
     return {
         "respuesta_final": (
             "Solo puedo ayudarte con mezcla, masterizacion, audio, DAWs, plugins y contenido del curso. "
-            "Si tu duda esta relacionada con el curso, dime el modulo, clase o concepto que quieres revisar."
+            "Si tu duda esta relacionada con el curso, dime el eje, clase o concepto que quieres revisar."
         ),
         "evidencias": [],
         "evidence_level": "bajo",

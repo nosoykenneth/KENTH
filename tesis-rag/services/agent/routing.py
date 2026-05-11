@@ -1,5 +1,6 @@
 import os
 import unicodedata
+import re
 
 from models.schemas import EstadoAgente
 from services.agent.prompts import _campos_pedagogicos
@@ -52,98 +53,50 @@ TECHNICAL_CONCEPT_PATTERNS = [
     ("factor q", ["factor q", " q ", " q?", "q que", "que pendiente"]),
     ("fase lineal", ["fase lineal"]),
     ("ecualizacion dinamica", ["ecualizacion dinamica", "eq dinamica"]),
-    ("eq correctiva", ["eq correctiva", "ecualizacion correctiva"]),
-    ("eq tonal", ["eq tonal", "ecualizacion tonal"]),
+    ("eq correctiva", ["eq correctiva", "ecualizacion correctiva", "eq correctivo"]),
+    ("eq tonal", ["eq tonal", "ecualizacion tonal", "eq estetica", "eq estetico"]),
     ("ecualizacion", ["ecualizacion", "ecualizador", "eq"]),
     ("compresion", ["compresion", "compresor"]),
-    ("filtro", ["filtro", "frecuencia de corte"]),
+    ("filtro", ["filtro", "filtros", "filtrar", "filtrado", "hpf", "lpf"]),
     ("saturacion", ["saturacion"]),
     ("reverb", ["reverb", "reverberacion"]),
     ("delay", ["delay"]),
     ("mezcla integradora", ["mezclar bien", "plugins a todo", "aplicar plugins a todo", "criterio de mezcla", "escuchar en contexto"]),
+    ("panorama", ["panorama", "pan law", "ley de panorama", "paneo"]),
+    ("falso estereo", ["falso estereo"]),
+    ("mastering", ["mastering", "master", "masterizacion"]),
+    ("dither", ["dither", "noise shaping"]),
+    ("true peak", ["true peak", "dbtp"]),
+    ("plr", ["plr", "peak to loudness ratio", "peak-to-loudness"]),
+    ("mix bus", ["mix bus", "master fader", "bus master"]),
 ]
 LOOKUP_STOPWORDS.update({
     "cual", "cuÃƒÂ¡l", "significa", "cuando", "cuÃƒÂ¡ndo", "usar",
     "siempre", "mismo", "misma", "entre"
 })
 
-COURSE_MODULES = [
-    {
-        "id": "fundamentos_acustica_medicion",
-        "evaluation_category": "mezcla_general_ruteo",
-        "keywords": ["frecuencia", "amplitud", "acustica", "medicion", "analizador", "escucha"]
-    },
-    {
-        "id": "gain_staging_flujo_senal",
-        "evaluation_category": "estructura_ganancia",
-        "keywords": ["gain staging", "headroom", "nivel", "niveles", "entrada", "salida", "ruteo", "flujo de senal", "db"]
-    },
-    {
-        "id": "polaridad_fase_monocompatibilidad",
-        "evaluation_category": "fase_imagen_estereo",
-        "keywords": ["polaridad", "fase", "mono", "monocompatibilidad", "correlacion", "cancelacion", "estereo"]
-    },
-    {
-        "id": "filtros_ecualizacion",
-        "evaluation_category": "ecualizacion_modificacion_espectral",
-        "keywords": ["eq", "ecualizacion", "ecualizador", "filtro", "frecuencia", "q", "balance tonal", "espectral"]
-    },
-    {
-        "id": "procesadores_dinamicos",
-        "evaluation_category": "dinamica",
-        "keywords": ["compresion", "compresor", "dinamica", "threshold", "ataque", "release", "ratio", "limitador", "multibanda"]
-    },
-    {
-        "id": "espacialidad_profundidad_ambiencia",
-        "evaluation_category": "fase_imagen_estereo",
-        "keywords": ["espacialidad", "profundidad", "ambiencia", "reverb", "delay", "paneo", "imagen"]
-    },
-    {
-        "id": "practica_integradora_mezcla",
-        "evaluation_category": "mezcla_general_ruteo",
-        "keywords": ["mezcla", "balance", "integrar", "practica", "sesion", "bus", "buses", "ruteo"]
-    },
-    {
-        "id": "masterizacion_optimizacion_comercial",
-        "evaluation_category": "mastering",
-        "keywords": ["mastering", "masterizacion", "lufs", "limitador", "comercial", "optimizacion", "entrega", "streaming"]
-    },
+COURSE_AXES = [
+    {"id": "eje0_identidad_acustica", "evaluation_category": "fundamentos_acustica", "keywords": ["eje 0", "identidad", "frecuencia", "amplitud", "acustica", "medicion"]},
+    {"id": "eje1_estructura_flujo", "evaluation_category": "estructura_ganancia", "keywords": ["eje 1", "gain staging", "headroom", "flujo de senal", "ruteo", "db"]},
+    {"id": "eje2_espacio_fase", "evaluation_category": "fase_imagen_estereo", "keywords": ["eje 2", "polaridad", "fase", "mono", "estereo", "correlacion"]},
+    {"id": "eje3_identidad_espectral", "evaluation_category": "ecualizacion", "keywords": ["eje 3", "eq", "filtro", "frecuencia de corte", "balance tonal"]},
+    {"id": "eje4_control_dinamico", "evaluation_category": "dinamica", "keywords": ["eje 4", "compresion", "threshold", "ratio", "ataque", "release"]},
+    {"id": "eje5_dimension_ambiencia", "evaluation_category": "espacialidad", "keywords": ["eje 5", "reverb", "delay", "profundidad", "ambiencia"]},
+    {"id": "eje6_criterio_integracion", "evaluation_category": "mezcla_general", "keywords": ["eje 6", "mezcla", "integracion", "criterio", "jerarquia"]},
+    {"id": "eje7_optimizacion_entrega", "evaluation_category": "mastering", "keywords": ["eje 7", "mastering", "lufs", "limitador", "streaming"]},
 ]
 
-STRONG_MODULE_TERMS = {
-    "M01": [
-        "frecuencia", "tono", "curvas isofonicas", "sala", "resonadores",
-        "difusion", "tweeter", "fft", "ruido rosa", "ponderacion k",
-        "espuma", "graves inflados", "acustica"
-    ],
-    "M02": [
-        "estructura de ganancia", "fader", "trim", "clip gain",
-        "flujo de senal", "serie", "paralelo", "bus", "envio",
-        "subgrupo", "headroom", "pan law", "clipea", "clipping",
-        "master no clipea"
-    ],
-    "M03": [
-        "polaridad", "fase", "mono", "monocompatibilidad", "correlacion",
-        "correlator", "correlometro", "goniometro", "goniÃ³metro",
-        "inversion de polaridad", "invertir polaridad", "comb filtering",
-        "filtro peine", "revisar en mono"
-    ],
-    "M04": [
-        "frecuencia de corte", "filtro", "filtros", "pendiente",
-        "factor q", "ecualizacion", "ecualizador", "eq", "fase lineal"
-    ],
-    "M05": [
-        "compresor", "compresion", "threshold", "umbral", "ratio",
-        "ataque", "release", "makeup gain", "make-up gain", "sidechain",
-        "limitador", "expansor", "gate", "dinamica"
-    ],
-    "M07": [
-        "mezclar bien", "mezcla integradora", "priorizar decisiones",
-        "plugins a todo", "aplicar plugins a todo", "criterio de mezcla",
-        "jerarquia", "contexto", "costo de intervencion", "integracion",
-        "escuchar en contexto"
-    ],
+STRONG_AXIS_TERMS = {
+    "Eje 0": ["frecuencia", "tono", "curvas isofonicas", "sala", "resonadores", "acustica"],
+    "Eje 1": ["gain staging", "headroom", "fader", "trim", "clip gain", "flujo de senal", "bus", "envio"],
+    "Eje 2": ["polaridad", "fase", "mono", "monocompatibilidad", "correlacion", "estereo"],
+    "Eje 3": ["frecuencia de corte", "filtro", "pendiente", "factor q", "eq", "ecualizacion"],
+    "Eje 4": ["compresor", "compresion", "threshold", "ratio", "ataque", "release", "dinamica"],
+    "Eje 5": ["reverb", "delay", "espacialidad", "profundidad", "ambiencia"],
+    "Eje 6": ["mezcla integradora", "criterio de mezcla", "jerarquia", "contexto", "integracion"],
+    "Eje 7": ["mastering", "lufs", "limitador", "streaming", "normalizacion"],
 }
+
 def _normalizar_texto(texto: str):
     texto = (texto or "").strip().lower()
     texto = unicodedata.normalize("NFKD", texto)
@@ -153,31 +106,45 @@ def _normalizar_texto(texto: str):
     return texto.strip()
 
 
-def _modulo_fuerte_pregunta(texto: str):
+def _eje_fuerte_pregunta(texto: str):
     texto_norm = _normalizar_texto(texto)
-    mejor_modulo = ""
+    mejor_eje = ""
     mejor_score = 0
-    for modulo, terminos in STRONG_MODULE_TERMS.items():
+    for eje, terminos in STRONG_AXIS_TERMS.items():
         score = 0
         for termino in terminos:
             termino_norm = _normalizar_texto(termino)
             if termino_norm and termino_norm in texto_norm:
                 score += 2 if " " in termino_norm else 1
         if score > mejor_score:
-            mejor_modulo = modulo
+            mejor_eje = eje
             mejor_score = score
-    return mejor_modulo
+    return mejor_eje
 
 
-def _module_id_meta(meta: dict):
-    modulo = str(meta.get("module_id") or meta.get("module") or meta.get("modulo") or "")
-    if modulo.startswith("M") and len(modulo) >= 3:
-        return modulo[:3].upper()
-    if modulo.isdigit():
-        return f"M{int(modulo):02d}"
-    filename = (meta.get("filename") or os.path.basename(meta.get("source", "")) or "").upper()
-    if len(filename) >= 3 and filename.startswith("M") and filename[1:3].isdigit():
-        return filename[:3]
+def _axis_id_meta(meta: dict):
+    axis = str(
+        meta.get("axis")
+        or meta.get("eje")
+        or meta.get("axis_id")
+        or meta.get("axis_number")
+        or meta.get("module_id")
+        or ""
+    )
+    if axis.upper().startswith("EJE"):
+        return axis.title()
+    if axis.isdigit():
+        return f"Eje {axis}"
+    source_hint = " ".join([
+        meta.get("filename", ""),
+        meta.get("source", ""),
+    ]).upper()
+    filename = (source_hint or os.path.basename(meta.get("source", "")) or "").upper()
+    match = re.search(r"EJE\s*(\d+)", filename)
+    if not match:
+        match = re.search(r"EJE[_\s-]*(\d+)", filename)
+    if match:
+        return f"Eje {match.group(1)}"
     return ""
 
 
@@ -187,27 +154,31 @@ def _warning(code: str, message: str):
 
 def _inferir_modulo_categoria(pregunta: str, contexto_leccion: str = ""):
     texto = _normalizar_texto(f"{pregunta} {contexto_leccion}")
-    modulo_fuerte = _modulo_fuerte_pregunta(texto)
-    if modulo_fuerte:
-        for modulo in COURSE_MODULES:
-            if modulo_fuerte == "M01" and modulo["id"] == "fundamentos_acustica_medicion":
-                return modulo["id"], modulo["evaluation_category"]
-            if modulo_fuerte == "M02" and modulo["id"] == "gain_staging_flujo_senal":
-                return modulo["id"], modulo["evaluation_category"]
-            if modulo_fuerte == "M03" and modulo["id"] == "polaridad_fase_monocompatibilidad":
-                return modulo["id"], modulo["evaluation_category"]
-            if modulo_fuerte == "M04" and modulo["id"] == "filtros_ecualizacion":
-                return modulo["id"], modulo["evaluation_category"]
-            if modulo_fuerte == "M05" and modulo["id"] == "procesadores_dinamicos":
-                return modulo["id"], modulo["evaluation_category"]
-            if modulo_fuerte == "M07" and modulo["id"] == "practica_integradora_mezcla":
-                return modulo["id"], modulo["evaluation_category"]
+    eje_fuerte = _eje_fuerte_pregunta(texto)
+    if eje_fuerte:
+        for eje in COURSE_AXES:
+            if eje_fuerte == "Eje 0" and eje["id"] == "eje0_identidad_acustica":
+                return eje["id"], eje["evaluation_category"]
+            if eje_fuerte == "Eje 1" and eje["id"] == "eje1_estructura_flujo":
+                return eje["id"], eje["evaluation_category"]
+            if eje_fuerte == "Eje 2" and eje["id"] == "eje2_espacio_fase":
+                return eje["id"], eje["evaluation_category"]
+            if eje_fuerte == "Eje 3" and eje["id"] == "eje3_identidad_espectral":
+                return eje["id"], eje["evaluation_category"]
+            if eje_fuerte == "Eje 4" and eje["id"] == "eje4_control_dinamico":
+                return eje["id"], eje["evaluation_category"]
+            if eje_fuerte == "Eje 5" and eje["id"] == "eje5_dimension_ambiencia":
+                return eje["id"], eje["evaluation_category"]
+            if eje_fuerte == "Eje 6" and eje["id"] == "eje6_criterio_integracion":
+                return eje["id"], eje["evaluation_category"]
+            if eje_fuerte == "Eje 7" and eje["id"] == "eje7_optimizacion_entrega":
+                return eje["id"], eje["evaluation_category"]
+
     mejor = None
     mejor_score = 0
-
-    for modulo in COURSE_MODULES:
+    for eje in COURSE_AXES:
         score = 0
-        for keyword in modulo["keywords"]:
+        for keyword in eje["keywords"]:
             keyword_norm = _normalizar_texto(keyword)
             if not keyword_norm:
                 continue
@@ -217,7 +188,7 @@ def _inferir_modulo_categoria(pregunta: str, contexto_leccion: str = ""):
             elif keyword_norm in texto:
                 score += 1
         if score > mejor_score:
-            mejor = modulo
+            mejor = eje
             mejor_score = score
 
     if not mejor:
@@ -317,20 +288,21 @@ def _tiene_termino_tecnico_curso(texto: str):
                 return True
 
     palabras_tecnicas = [
-        "filtro", "filtros", "ecualizacion", "ecualizador", "eq",
+        "filtro", "filtros", "filtrar", "filtrado", "ecualizacion", "ecualizador", "eq",
+        "eq correctivo", "eq estetico", "eq correctiva", "eq estetica",
         "frecuencia de corte", "pendiente", "pendientes", "pendiente abrupta",
         "pendientes abruptas", "factor q", "fase lineal",
         "shelving", "campana", "notch", "hpf", "lpf", "layering",
-        "capa", "capas", "headroom", "ganancia", "mezcla", "masterizacion",
-        "frecuencia", "tono", "espuma", "graves", "sala", "serie", "paralelo",
-        "bus", "envio", "fader", "clipea", "clipping", "polaridad", "fase",
+        "capa", "capas", "headroom", "ganancia", "mezcla", "masterizacion", "mastering", "master",
+        "frecuencia", "tono", "espuma", "graves", "sala", "serie", "paralelo", "compresion paralela",
+        "bus", "mix bus", "master fader", "envio", "fader", "clipea", "clipping", "polaridad", "fase",
         "mono", "monocompatibilidad", "correlacion", "correlator", "goniometro",
-        "goniÃ³metro", "oversampling",
+        "goniÃ³metro", "oversampling", "panorama", "pan law", "paneo", "falso estereo",
         "tom", "toms", "resonancia", "resonancias", "gate", "compuerta",
         "doubling", "hiss", "plano", "planos", "ambiencia", "eco",
-        "reflexion", "reflexiones"
+        "reflexion", "reflexiones", "dither", "true peak", "plr", "solo"
     ]
-    return any(f" {_normalizar_texto(palabra)} " in texto_limpio for palabra in palabras_tecnicas)
+    return any(f" {_normalizar_texto(palabra)} " in texto_limpio for palabra in palabras_tecnicas)
 
 
 def _es_pregunta_conceptual_directa(pregunta: str):
@@ -360,7 +332,7 @@ def _es_pregunta_ambigua(pregunta: str):
 
     palabras = pregunta_limpia.split()
     referencias = ["eso", "esto", "ahi", "esa", "ese", "donde", "cual", "cuanto"]
-    if _modulo_fuerte_pregunta(pregunta) and not any(ref in palabras for ref in referencias):
+    if _eje_fuerte_pregunta(pregunta) and not any(ref in palabras for ref in referencias):
         return False
 
     indicadores_directos = [
@@ -379,8 +351,11 @@ def _es_pregunta_ambigua(pregunta: str):
         "cuantos db", "a cuantos db", "cuanto", "donde", "cual",
         "eso", "ahi", "esa", "ese", "como asi"
     ]
+    indicadores_frase = {"cuantos db", "a cuantos db", "como asi"}
+    indicadores_token = {"cuanto", "donde", "cual"}
     return len(palabras) <= AMBIGUOUS_MAX_WORDS and (
-        any(ind in pregunta_limpia for ind in indicadores if ind not in pronombres_referenciales)
+        any(ind in pregunta_limpia for ind in indicadores_frase)
+        or any(ind in palabras for ind in indicadores_token)
         or any(ind in palabras for ind in pronombres_referenciales)
     )
 
@@ -549,7 +524,7 @@ def _parece_consulta_del_dominio_curso(pregunta: str, contexto_leccion: str = ""
         "reverb", "delay", "eq", "ecualizacion", "compresion",
         "fase", "mono", "estereo", "frecuencia", "tono",
         "dinamica", "limitador", "headroom", "clip", "clipping",
-        "curso", "modulo", "clase", "leccion",
+        "curso", "modulo", "clase", "leccion", "eje",
         "vu", "0 vu", "db", "dbfs", "dbtp", "lufs", "true peak",
         "dither", "noise shaping", "master fader", "mix bus",
         "gain staging", "threshold", "ratio", "attack", "release",
@@ -558,7 +533,10 @@ def _parece_consulta_del_dominio_curso(pregunta: str, contexto_leccion: str = ""
         "analizador", "espectro", "spectrum", "spectrum analyzer",
         "plano", "planos", "balance", "ambiencia", "eco",
         "reflexion", "reflexiones", "room", "overhead", "tom",
-        "toms", "bleed", "pegamento", "glue", "auxiliar"
+        "toms", "bleed", "pegamento", "glue", "auxiliar",
+        "panorama", "pan law", "paneo", "filtrar", "filtrado", 
+        "eq correctiva", "eq estetica", "eq correctivo", "eq estetico", 
+        "plr", "falso estereo", "solo", "hpf", "lpf"
     ]
     return any(pista in texto for pista in pistas_dominio)
 
@@ -671,6 +649,3 @@ def nodo_supervisor(state: EstadoAgente):
     print(f"[SUPERVISOR]: Decision tomada -> {ruta}")
     print(f"[PEDAGOGIA]: {clasificacion}")
     return {"ruta": ruta, **clasificacion}
-
-
-

@@ -1,6 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Header, Depends
+from typing import Optional
+from api.dependencies import get_current_user_id
 from models.schemas import Consulta
 from services.agent_service import super_agente
+from services.context_service import build_envelope, render_context_block
 from services.db_service import get_chat_messages, add_message, save_trace, save_interaction_trace, ensure_chat_exists
 import json
 import time
@@ -39,7 +42,10 @@ def _normalizar_historial(raw_historial, max_messages: int = 10):
 
 
 @router.post("/chat")
-def chat_endpoint(consulta: Consulta):
+def chat_endpoint(
+    consulta: Consulta,
+    user_id: str = Depends(get_current_user_id),
+):
     trace_id = str(uuid.uuid4())
     timestamp = datetime.now().isoformat()
     started = time.perf_counter()
@@ -79,17 +85,43 @@ def chat_endpoint(consulta: Consulta):
             pass
 
     # Si hay session_id, aseguramos que la sesion exista antes de guardar mensajes.
+    # El user_id REAL viene del token Moodle validado (o fallback dev).
+    # El payload user_id se ignora totalmente por seguridad.
+    authenticated_user_id = user_id.strip()
     if consulta.session_id:
         source_client = (consulta.source_client or "").strip().lower()
-        user_hint = f"{source_client}_user" if source_client else "system"
+        user_for_session = authenticated_user_id or (f"{source_client}_user" if source_client else "system")
         title_hint = "Chat Moodle" if source_client == "moodle" else "Chat auto-creado"
 
         ensure_chat_exists(
             chat_id=consulta.session_id,
-            user_id=user_hint,
+            user_id=user_for_session,
             title=title_hint
         )
-        add_message(consulta.session_id, "user", consulta.pregunta, consulta.imagen)
+        add_message(consulta.session_id, "user", consulta.pregunta, consulta.imagen, user_id=user_for_session)
+
+    # Capa 2/3: hidrata contexto de actividad y estado de sesion sin
+    # contaminar la query vectorial. El bloque renderizado se inyecta
+    # al prompt como CONTEXTO ACTIVO; el envelope completo viaja en el
+    # estado por si nodos posteriores lo necesitan (recuperacion contextual).
+    envelope = build_envelope(
+        question=consulta.pregunta,
+        raw_activity_context=consulta.activity_context,
+        session_id=consulta.session_id,
+        has_image=bool(consulta.imagen),
+    )
+    activity_context_block = render_context_block(envelope)
+    runtime_context_trace = {
+        "has_activity_context": not envelope.activity_context.is_empty(),
+        "current_axis": envelope.activity_context.current_axis,
+        "current_lesson_id": envelope.activity_context.current_lesson_id,
+        "current_resource_id": envelope.activity_context.current_resource_id,
+        "current_timestamp": envelope.activity_context.current_timestamp,
+        "current_page": envelope.activity_context.current_page,
+        "pilot_lesson_id": (envelope.pilot_lesson or {}).get("lesson_id", ""),
+        "pilot_block_id": (envelope.pilot_block or {}).get("block_id", ""),
+        "runtime_source_category": "B_RUNTIME_CONTEXT" if activity_context_block else "",
+    }
 
     # Fase 1: la pregunta queda limpia para retrieval.
     # El contexto de leccion viaja separado para que el agente lo use como pista,
@@ -112,14 +144,15 @@ def chat_endpoint(consulta: Consulta):
         "retrieved_chunks": [],
         "trace_id": trace_id,
         "model_used": "",
-        "prompt_id": ""
+        "prompt_id": "",
+        "activity_context_block": activity_context_block,
+        "tutor_envelope": envelope,
     }
 
     resultado = super_agente.invoke(estado_inicial)
 
     respuesta = resultado["respuesta_final"]
 
-    # AUDIT FIX #1: Extraer trazas del resultado del grafo.
     fuentes = resultado.get("evidencias", [])
     evidence_level = resultado.get("evidence_level", "")
     ruta = resultado.get("ruta", "")
@@ -139,6 +172,7 @@ def chat_endpoint(consulta: Consulta):
         "timestamp": timestamp,
         "session_id": consulta.session_id,
         "source_client": consulta.source_client,
+        "user_id": authenticated_user_id,
         "course_id": consulta.course_id,
         "lesson_id": consulta.lesson_id,
         "pregunta": consulta.pregunta,
@@ -157,15 +191,20 @@ def chat_endpoint(consulta: Consulta):
         "modelo_usado": model_used,
         "prompt_id": prompt_id,
         "latencia_total_ms": latency_ms_total,
-        "warnings": warnings
+        "warnings": warnings,
+        "runtime_context": runtime_context_trace,
+        "source_policy": {
+            "A_INDEXED_RAG": bool(retrieved_chunks),
+            "B_RUNTIME_CONTEXT": bool(activity_context_block),
+            "C_SYSTEM_RULES": True,
+        }
     }
 
     save_interaction_trace(trace_id=trace_id, session_id=consulta.session_id, trace_data=trace_data)
 
     # Si hay session_id, guardamos el mensaje del asistente y su traza.
     if consulta.session_id:
-        msg = add_message(consulta.session_id, "assistant", respuesta)
-        # AUDIT FIX #5: Persistir traza RAG asociada al mensaje.
+        msg = add_message(consulta.session_id, "assistant", respuesta, user_id=authenticated_user_id)
         save_trace(
             message_id=msg["id"],
             ruta=ruta,
@@ -175,8 +214,6 @@ def chat_endpoint(consulta: Consulta):
             trace_id=trace_id
         )
 
-    # AUDIT FIX #1: Devolver campos adicionales sin romper compatibilidad.
-    # El frontend solo lee "respuesta", los campos nuevos son opcionales.
     return {
         "respuesta": respuesta,
         "answer_type": answer_type,
@@ -187,6 +224,8 @@ def chat_endpoint(consulta: Consulta):
         "evidence_level": evidence_level,
         "ruta": ruta,
         "warnings": warnings,
+        "runtime_context": runtime_context_trace,
+        "source_policy": trace_data["source_policy"],
         "trace_id": trace_id,
         "prompt_id": prompt_id
     }

@@ -1,4 +1,5 @@
 import re
+import os
 
 from services.agent.routing import _normalizar_texto
 
@@ -23,17 +24,21 @@ def _verificar_respuesta(respuesta: str, fuentes: list, evidencias: list):
         for url in urls_inventadas:
             respuesta = respuesta.replace(url, "[enlace no verificado - consulta el material del curso]")
 
-    # 2. Detectar mencion de modulos no presentes en evidencia
-    modulos_evidencia = set()
+    # 2. Detectar mencion de ejes no presentes en evidencia
+    ejes_evidencia = set()
     for item in evidencias:
         meta = item["document"].metadata or {}
-        mod = meta.get("module") or meta.get("modulo")
-        if mod:
-            modulos_evidencia.add(str(mod))
-    modulos_mencionados = set(re.findall(r'[Mm]odulo\s+(\d+)', respuesta))
-    modulos_inventados = modulos_mencionados - modulos_evidencia
-    if modulos_inventados:
-        problemas.append(f"Modulos mencionados sin evidencia: {modulos_inventados}")
+        eje = meta.get("axis") or meta.get("eje") or meta.get("module") or meta.get("modulo")
+        if eje:
+            # Normalizar para comparar (ej: "Eje 4" -> "4")
+            val = str(eje).lower().replace("eje", "").replace("axis", "").strip()
+            if val:
+                ejes_evidencia.add(val)
+    
+    ejes_mencionados = set(re.findall(r'(?:[Ee]je|[Aa]xis)\s*(\d+)', respuesta))
+    ejes_inventados = {e for e in ejes_mencionados if e not in ejes_evidencia}
+    if ejes_inventados:
+        problemas.append(f"Ejes mencionados sin evidencia: {ejes_inventados}")
 
     if problemas:
         print(f"[VERIFICADOR]: Problemas detectados: {problemas}")
@@ -52,7 +57,16 @@ def _fuentes_tienen_ubicacion_validada(fuentes: list):
         if fuente.get("url") not in ("", None):
             return True
         recurso = fuente.get("resource_title") or ""
-        if recurso and not _normalizar_texto(recurso).startswith("m04_"):
+        filename = os.path.splitext(fuente.get("filename") or "")[0]
+        recurso_norm = _normalizar_texto(recurso)
+        filename_norm = _normalizar_texto(filename)
+        recurso_generico = (
+            not recurso_norm
+            or recurso_norm == filename_norm
+            or recurso_norm in {"01_contenido_canonico", "02_paquete_limpio"}
+            or any(f"eje{i}" in recurso_norm for i in range(8))
+        )
+        if recurso and not recurso_generico:
             return True
     return False
 
@@ -67,7 +81,7 @@ def _bloquear_localizacion_no_validada(respuesta: str, fuentes: list):
         norm = _normalizar_texto(parrafo)
         recomienda_ubicacion = (
             ("recomiendo revisar" in norm or "puedes revisar" in norm or "revisa el recurso" in norm)
-            and any(token in norm for token in ["clase", "modulo", "recurso", "guia", "seccion"])
+            and any(token in norm for token in ["clase", "modulo", "eje", "axis", "recurso", "guia", "seccion"])
         )
         if recomienda_ubicacion:
             continue
@@ -75,7 +89,8 @@ def _bloquear_localizacion_no_validada(respuesta: str, fuentes: list):
         for oracion in parrafo.split(". "):
             oracion_norm = _normalizar_texto(oracion)
             cita_ubicacion_interna = (
-                "m04_" in oracion_norm
+                "eje" in oracion_norm
+                or "axis" in oracion_norm
                 or "fuente " in oracion_norm
                 or "score" in oracion_norm
                 or "archivo" in oracion_norm
@@ -120,9 +135,31 @@ def _limpiar_citas_internas_rag(respuesta: str):
     limpia = re.sub(r"\s*\([^)]*Fuente\s+\d+[^)]*\)", "", respuesta, flags=re.IGNORECASE)
     limpia = re.sub(r"\bFuente\s+\d+\s*\|[^.\n]*(?:\.|$)", "", limpia, flags=re.IGNORECASE)
     limpia = re.sub(r"\bFuente\s+\d+\b[:\-]?\s*", "", limpia, flags=re.IGNORECASE)
+    limpia = re.sub(r"\bE\d+-L\d{2}-B\d+\b\s*[-–—:]?\s*", "", limpia, flags=re.IGNORECASE)
+    limpia = re.sub(r"\bE\d+-L\d{2}\b\s*[-–—:]?\s*", "", limpia, flags=re.IGNORECASE)
+    limpia = re.sub(r"\bleccion piloto\b", "leccion actual", limpia, flags=re.IGNORECASE)
+    limpia = re.sub(r"\blección piloto\b", "leccion actual", limpia, flags=re.IGNORECASE)
     limpia = re.sub(r"[ \t]{2,}", " ", limpia)
     limpia = re.sub(r"\n{3,}", "\n\n", limpia)
     return limpia.strip()
+
+
+def _limitar_anticipo_eje_posterior(respuesta: str, requested_axis: int):
+    """Reduce respuestas de ejes posteriores a un anticipo breve."""
+    if not respuesta:
+        return respuesta
+
+    norm = _normalizar_texto(respuesta)
+    prefijo = (
+        f"Eso pertenece al Eje {requested_axis}, que veras mas adelante. "
+        if requested_axis is not None and "mas adelante" not in norm
+        else ""
+    )
+
+    texto = re.sub(r"\s+", " ", respuesta).strip()
+    oraciones = re.split(r"(?<=[.!?])\s+", texto)
+    recortada = " ".join(oraciones[:4]).strip()
+    return (prefijo + recortada).strip()
 
 
 def _respuesta_conceptual_controlada(pregunta: str):
@@ -163,6 +200,16 @@ def _respuesta_conceptual_controlada(pregunta: str):
             "segun parametros como ratio, ataque y release. En la practica no es un boton de mejora automatica; sirve para ordenar, sostener o moldear movimiento dinamico segun el problema."
         )
 
+    if (
+        ("comprimir" in q or "comprimo" in q or "compresion" in q)
+        and ("ecualizador" in q or "ecualizacion" in q or " eq " in f" {q} ")
+    ):
+        return (
+            "Tecnicamente no se comprime un ecualizador: se comprime una senal con un compresor y se ecualiza con un EQ. "
+            "Si te refieres a controlar una frecuencia solo cuando se dispara, eso se parece mas a ecualizacion dinamica o compresion multibanda. "
+            "Primero identifica el problema: balance tonal, resonancia puntual o exceso dinamico en una banda."
+        )
+
     if "master" in q and ("clipea" in q or "clip" in q) and "bien" in q:
         return (
             "No. Que el master no clipee solo indica que no esta superando ese limite de pico. "
@@ -198,4 +245,3 @@ def _respuesta_conceptual_controlada(pregunta: str):
         )
 
     return ""
-

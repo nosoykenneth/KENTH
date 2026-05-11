@@ -1,0 +1,16 @@
+fastapi
+uvicorn
+langgraph
+langchain-ollama
+langchain-core
+langchain-community
+duckduckgo-search
+ddgs
+requests
+pypdf
+chromadb
+langchain-chroma
+langchain-text-splitters
+pydantic
+python-multipart
+PyMySQL

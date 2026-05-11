@@ -12,6 +12,7 @@ QUESTIONS = [
     "quien es napoleon",
     "que relacion tiene la espuma con la interfaz",
     "puedo ecualizar con mis audios ya procesados",
+    "como comprimo un ecualizador",
     "que es el headroom",
     "diferencia entre compresion y ecualizacion",
     "en que modulo hablan de frecuencia de corte",
@@ -56,6 +57,10 @@ def _assert_gate(question: str, result: dict):
         assert answer_type == "clarification", result
         for term in ["mezcla/master", "stems", "efectos impresos"]:
             assert term in answer.lower(), result
+    elif question == "como comprimo un ecualizador":
+        assert answer_type == "rag_answer", result
+        assert "no se comprime un ecualizador" in answer.lower(), result
+        assert "ecualizacion dinamica" in answer.lower() or "compresion multibanda" in answer.lower(), result
     elif question == "que es el headroom":
         assert answer_type == "rag_answer", result
         assert "Fuente " not in answer, result

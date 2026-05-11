@@ -1,0 +1,20 @@
+{
+  "lesson_id": "lesson_eje2_intro",
+  "axis_id": "Eje 2",
+  "title": "Introduccion a integridad de la senal",
+  "order": 1,
+  "learning_goals": [
+    "Identificar HPF/LPF como herramientas de higiene de senal",
+    "Reconocer cuando aplicar correccion de fase"
+  ],
+  "expected_actions": [
+    "Ver el video de introduccion",
+    "Revisar la leccion canonica del Eje 2"
+  ],
+  "resources": [
+    "res_eje2_video_intro",
+    "res_eje2_pdf_canonico"
+  ],
+  "prerequisites": [],
+  "notes": "Esqueleto. Completar conforme se cargue contenido real."
+}

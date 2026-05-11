@@ -80,9 +80,9 @@
     {
       "faq_id": "M06_FAQ_004",
       "question": "¿Cuándo una reflexión deja de sentirse como profundidad y empieza a sentirse como eco?",
-      "canonical_answer": "El módulo maneja referencias orientativas, no una frontera absoluta. Como criterio de trabajo, una reflexión dentro de un rango cercano a 50 ms suele integrarse más al sonido original, mientras que por encima de ese rango puede empezar a desprenderse como eco reconocible. En material muy percusivo, esa separación puede sentirse antes. Conviene tratar esos valores como guías sensibles al contexto.",
-      "short_answer": "Hay umbrales orientativos, pero no una cifra universal fija.",
-      "stable_answer": "La transición entre reflexión y eco depende del material y debe usarse con prudencia.",
+      "canonical_answer": "El módulo maneja referencias orientativas, no una frontera absoluta. Como criterio de trabajo, una reflexión dentro de un rango cercano a 50 ms suele integrarse más al sonido original y sentirse todavía como parte de la profundidad. Por encima de ese rango puede empezar a desprenderse como eco reconocible. En material muy percusivo, esa separación puede sentirse antes, incluso alrededor de 30 ms. Estos valores deben tratarse como guías sensibles al contexto y no como cifras rígidas.",
+      "short_answer": "Como guía, cerca de 50 ms todavía puede integrarse; por encima puede empezar a sentirse como eco. En material muy percusivo, eso puede pasar antes.",
+      "stable_answer": "La frontera entre reflexión integrada y eco es orientativa: suele acercarse a 50 ms, pero puede adelantarse en material muy percusivo.",
       "pending_validation_notes": [
         "Los umbrales temporales del módulo deben formularse como referencias contextuales."
       ],
