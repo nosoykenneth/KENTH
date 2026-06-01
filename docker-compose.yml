@@ -1,0 +1,155 @@
+name: tic-kenth
+
+# Arquitectura: Moodle + MariaDB son servicios EXTERNOS al compose.
+#   - En desarrollo (Windows): apuntan al XAMPP en C:\Moodle\server via host.docker.internal.
+#   - En el servidor del tutor: apuntaran al hostname/IP donde quede instalado Moodle.
+# El gateway y FastAPI se comunican con Moodle por contrato REST (Web Services + plugin local_tesisai)
+# y leen mdl_external_tokens directamente para validar tokens en MariaDB.
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  ollama_models:
+  chroma_data:
+  fastapi_chats:
+  loki_data:
+  grafana_data:
+  frontend_build:
+
+services:
+
+  # --- Capa de presentación (build estático del SPA) ---
+  # En cada arranque copia el bundle Vite al volumen compartido para que el gateway lo sirva.
+  # Tras copiar queda corriendo en `tail -f /dev/null` solo para mantener el volumen vivo.
+  frontend:
+    build:
+      context: ./frontend-tesis
+      dockerfile: Dockerfile
+    image: tic-kenth/frontend:latest
+    container_name: tic-frontend
+    volumes:
+      - frontend_build:/shared
+    networks:
+      - internal
+
+  # --- Enrutamiento: API Gateway ---
+  gateway:
+    image: nginx:alpine
+    container_name: tic-gateway
+    depends_on:
+      - fastapi
+      - frontend
+    ports:
+      # En dev local Apache de XAMPP ocupa el 80; el gateway se expone en 8090.
+      # En el servidor del tutor (Moodle externo en otro host), restaurar a "80:80".
+      - "8090:80"
+      # - "443:443"   # descomentar cuando se active TLS
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - frontend_build:/usr/share/nginx/html:ro
+      # - ./nginx/certs:/etc/letsencrypt:ro
+    networks:
+      - internal
+    extra_hosts:
+      # Permite que el upstream "moodle_lms" en nginx.conf alcance al XAMPP nativo del host.
+      # En Docker Desktop (Windows/macOS) ya funciona por defecto; aqui lo dejamos explicito
+      # para que tambien funcione en Linux con `--add-host`.
+      - "host.docker.internal:host-gateway"
+
+  # --- Servicio Python (IA) ---
+  fastapi:
+    build:
+      context: ./tesis-rag
+      dockerfile: Dockerfile
+    image: tic-kenth/fastapi:latest
+    container_name: tic-fastapi
+    depends_on:
+      - ollama
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
+      KENTH_TEXT_MODEL: ${KENTH_TEXT_MODEL}
+      KENTH_VISION_MODEL: ${KENTH_VISION_MODEL}
+      KENTH_EMBED_MODEL: ${KENTH_EMBED_MODEL}
+      CHROMA_DIR: ${CHROMA_DIR}
+      MOODLE_DBTYPE: ${MOODLE_DBTYPE}
+      MOODLE_DBHOST: ${MOODLE_DBHOST}
+      MOODLE_DBPORT: ${MOODLE_DBPORT}
+      MOODLE_DBNAME: ${MOODLE_DBNAME}
+      MOODLE_DBUSER: ${MOODLE_DBUSER}
+      MOODLE_DBPASS: ${MOODLE_DBPASS}
+      MOODLE_WS_BASE: ${MOODLE_WS_BASE}
+      MOODLE_WS_TOKEN: ${MOODLE_WS_TOKEN}
+      KENTH_COURSE_ID_SECRET: ${KENTH_COURSE_ID_SECRET}
+      TESISAI_ALLOW_SQLITE_FALLBACK: ${TESISAI_ALLOW_SQLITE_FALLBACK}
+    volumes:
+      - chroma_data:/app/bd_vectorial
+      - fastapi_chats:/app/bd_chat
+    networks:
+      - internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  # --- Datos / IA local ---
+  ollama:
+    image: ollama/ollama:latest
+    container_name: tic-ollama
+    volumes:
+      - ollama_models:/root/.ollama
+    networks:
+      - internal
+    restart: unless-stopped
+    # Descomentar si el servidor del tutor tiene GPU NVIDIA:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  # --- Logs: Loki + Promtail + Grafana ---
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: tic-loki
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./logging/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - loki_data:/loki
+    networks:
+      - internal
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: tic-promtail
+    depends_on:
+      - loki
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    volumes:
+      - ./logging/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - internal
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: tic-grafana
+    depends_on:
+      - loki
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASS}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./logging/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - internal
+    restart: unless-stopped

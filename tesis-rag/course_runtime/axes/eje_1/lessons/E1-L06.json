@@ -1,0 +1,30 @@
+{
+  "lesson_id": "E1-L06",
+  "axis_id": "Eje 1",
+  "subsection_code": "1-C2",
+  "lesson_title": "Imagen estéreo: goniómetro y correlatómetro",
+  "order": 6,
+  "block_group": "C - Análisis espectral",
+  "resource_id": "",
+  "resource_type": "",
+  "source_script_file": "",
+  "learning_goal": "Leer goniómetro y correlatómetro para diagnosticar el estado de la imagen estéreo y anticipar problemas al colapsar a mono.",
+  "expected_action": "Colocar goniómetro y correlatómetro en la salida estéreo, interpretar la forma geométrica y el promedio de correlación, y verificar siempre con escucha en mono.",
+  "learning_goals": [
+    "Reconocer formas del goniómetro (vertical = mono, óvalo = estéreo saludable, horizontal = riesgo de cancelación)",
+    "Interpretar correlación (+1 idéntico, 0 sin correlación, -1 opuesto) y umbrales operativos",
+    "Detectar inversión de polaridad encubierta como 'imagen ancha'"
+  ],
+  "expected_actions": [
+    "Insertar goniómetro y correlatómetro en el bus de salida",
+    "Leer el promedio del correlatómetro, no los picos instantáneos",
+    "Verificar siempre la mezcla en mono cuando el goniómetro muestre imagen muy abierta"
+  ],
+  "resources": [
+    "res_E1_canonico",
+    "res_E1_paquete_limpio"
+  ],
+  "prerequisites": ["E1-L03", "E1-L05"],
+  "blocks": [],
+  "notes": "Lección documental. Cierre del Eje 1: integra diagnóstico relacional (polaridad/fase) con el dominio espectral."
+}

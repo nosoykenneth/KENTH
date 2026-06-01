@@ -11,7 +11,7 @@ import {
   INTERACTION_MODES,
 } from '../../shared/services/activityContext';
 import LinkLessonModal from '../../shared/components/ai/LinkLessonModal';
-import { listResourceLinks, getPilotLesson } from '../../shared/services/pilotService';
+import { listResourceLinks, getLesson } from '../../shared/services/axesService';
 import useResourceTimestamp from '../../shared/hooks/useResourceTimestamp';
 
 const FloatingAssistantIcon = () => (
@@ -204,11 +204,11 @@ export default function CourseContentView() {
     const link = resourceLinks[String(visorActivo.id)];
     if (!link?.lesson_id) { setLinkedLessonDetail(null); return; }
     let alive = true;
-    getPilotLesson(link.lesson_id)
+    getLesson(link.lesson_id, id)
       .then((d) => { if (alive) setLinkedLessonDetail(d); })
       .catch(() => { if (alive) setLinkedLessonDetail(null); });
     return () => { alive = false; };
-  }, [visorActivo, resourceLinks]);
+  }, [visorActivo, resourceLinks, id]);
 
   const [editandoSeccionId, setEditandoSeccionId] = useState(null);
   const [nuevoNombreSeccion, setNuevoNombreSeccion] = useState('');
@@ -226,7 +226,7 @@ export default function CourseContentView() {
       const token = localStorage.getItem('moodle_token');
       if (!token || !id) return;
       try {
-        const respuesta = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_role.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(id)}`);
+        const respuesta = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_role.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(id)}`);
         const data = await respuesta.json();
         setEsProfesor(data.esProfesor);
       } catch { setEsProfesor(false); }
@@ -320,7 +320,7 @@ export default function CourseContentView() {
     setSecciones(nuevasSecciones);
 
     try {
-      await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=${action}&cmid=${cmid}`);
+      await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=${action}&cmid=${cmid}`);
       if (action === 'duplicate') fetchContenido();
     } catch (e) {
       console.error('Error en background', e);
@@ -348,7 +348,7 @@ export default function CourseContentView() {
 
     const token = localStorage.getItem('moodle_token');
     try {
-      const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=rename_section&sectionid=${sectionId}&name=${encodeURIComponent(nuevoNombreSeccion)}`);
+      const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=rename_section&sectionid=${sectionId}&name=${encodeURIComponent(nuevoNombreSeccion)}`);
       const resData = await response.json();
       if (!resData.success) {
         console.error("Error desde Moodle:", resData.error);
@@ -363,7 +363,7 @@ export default function CourseContentView() {
   const añadirSeccion = async (location) => {
     const token = localStorage.getItem('moodle_token');
     try {
-      const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=add_section&courseid=${encodeURIComponent(id)}&location=${location}`);
+      const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=add_section&courseid=${encodeURIComponent(id)}&location=${location}`);
       const data = await response.json();
       if (data.success) {
         fetchContenido();
@@ -379,7 +379,7 @@ export default function CourseContentView() {
     const token = localStorage.getItem('moodle_token');
     setSeccionEnMovimientoId(sectionId);
     try {
-      const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=move_section&sectionid=${sectionId}&newpos=${newPos}`);
+      const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=move_section&sectionid=${sectionId}&newpos=${newPos}`);
       const data = await response.json();
       if (data.success) {
         fetchContenido();
@@ -396,7 +396,7 @@ export default function CourseContentView() {
     
     const token = localStorage.getItem('moodle_token');
     try {
-      const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=delete_section&sectionid=${sectionId}`);
+      const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=delete_section&sectionid=${sectionId}`);
       const data = await response.json();
       if (data.success) {
         fetchContenido();
@@ -416,7 +416,7 @@ export default function CourseContentView() {
 
     const token = localStorage.getItem('moodle_token');
     try {
-      await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=update_section_summary&sectionid=${sectionId}&summary=${encodeURIComponent(nuevoSummarySeccion)}`);
+      await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=update_section_summary&sectionid=${sectionId}&summary=${encodeURIComponent(nuevoSummarySeccion)}`);
     } catch (e) {
       console.error('Error al guardar el resumen:', e);
       fetchContenido();
@@ -428,7 +428,7 @@ export default function CourseContentView() {
     setCargandoParticipantes(true);
     const token = localStorage.getItem('moodle_token');
     try {
-      const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_enrolments.php?token=${token}&action=list&courseid=${encodeURIComponent(id)}`);
+      const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_enrolments.php?token=${token}&action=list&courseid=${encodeURIComponent(id)}`);
       const data = await response.json();
       console.log("Debug Participantes:", data);
       if (data.success) {
@@ -444,7 +444,7 @@ export default function CourseContentView() {
     if (!busquedaParticipante.trim()) return;
     const token = localStorage.getItem('moodle_token');
     try {
-      const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_enrolments.php?token=${token}&action=enrol&courseid=${encodeURIComponent(id)}&email=${encodeURIComponent(busquedaParticipante)}`);
+      const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_enrolments.php?token=${token}&action=enrol&courseid=${encodeURIComponent(id)}&email=${encodeURIComponent(busquedaParticipante)}`);
       const data = await response.json();
       if (data.success) {
         setBusquedaParticipante('');
@@ -459,7 +459,7 @@ export default function CourseContentView() {
     if (!window.confirm("¿Seguro que quieres desmatricular a este usuario?")) return;
     const token = localStorage.getItem('moodle_token');
     try {
-      const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_enrolments.php?token=${token}&action=unenrol&courseid=${encodeURIComponent(id)}&userid=${userId}`);
+      const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_enrolments.php?token=${token}&action=unenrol&courseid=${encodeURIComponent(id)}&userid=${userId}`);
       const data = await response.json();
       if (data.success) {
         fetchParticipantes();
@@ -528,7 +528,7 @@ export default function CourseContentView() {
     const paramBefore = beforeCmId ? `&beforecmid=${beforeCmId}` : '';
 
     try {
-      await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=move&cmid=${sourceMod.id}&targetsection=${targetSectionId}${paramBefore}`);
+      await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=move&cmid=${sourceMod.id}&targetsection=${targetSectionId}${paramBefore}`);
     } catch (e) {
       console.error('Error al mover en Moodle:', e);
       fetchContenido();
@@ -558,7 +558,14 @@ export default function CourseContentView() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                     Participantes
                   </button>
-                  <button 
+                  <button
+                    onClick={() => navigate(`/dashboard/course/${id}/gestion`)}
+                    className="bg-kenth-surface/10 hover:bg-kenth-brightred text-kenth-text border border-kenth-border px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs uppercase tracking-widest"
+                  >
+                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    Gestión tutor
+                  </button>
+                  <button
                     onClick={() => navigate(`/dashboard/settings/${id}`)}
                     className="bg-kenth-surface/10 hover:bg-kenth-surface/20 text-kenth-text border border-kenth-border px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs uppercase tracking-widest"
                   >
@@ -743,6 +750,7 @@ export default function CourseContentView() {
                         titulo={`Tutor: ${seccion.name || `Tema ${seccion.section}`}`}
                         contexto={`Módulo: ${seccion.name}. Resumen: ${seccion.summary}`}
                         activityContext={buildActivityContext({
+                          courseId: id,
                           lessonId: `course-${id}-section-${seccion.id}`,
                           section: seccion.name || `Tema ${seccion.section}`,
                           learningGoal: seccion.summary || '',
@@ -992,8 +1000,8 @@ export default function CourseContentView() {
 
                     const token = localStorage.getItem('moodle_token');
                     return herramientaAvanzada === '__edit__'
-                      ? `/moodle_api/proyecto_curso/api_persistente/tesis_studio.php?token=${token}&courseid=${encodeURIComponent(id)}&modname=__edit__&cmid=${window.__kenth_edit_cmid || 0}`
-                      : `/moodle_api/proyecto_curso/api_persistente/tesis_studio.php?token=${token}&courseid=${encodeURIComponent(id)}&modname=${herramientaAvanzada}&section=${seccionDestinoId}`;
+                      ? `/api/lms/proyecto_curso/api_persistente/tesis_studio.php?token=${token}&courseid=${encodeURIComponent(id)}&modname=__edit__&cmid=${window.__kenth_edit_cmid || 0}`
+                      : `/api/lms/proyecto_curso/api_persistente/tesis_studio.php?token=${token}&courseid=${encodeURIComponent(id)}&modname=${herramientaAvanzada}&section=${seccionDestinoId}`;
                   })()
                 }
                 className={`w-full h-full absolute inset-0 border-none transition-opacity duration-700 bg-kenth-bg ${studioCargando ? 'opacity-0' : 'opacity-100'}`}
@@ -1160,6 +1168,7 @@ export default function CourseContentView() {
                 {
                   timestamp: typeof currentTimestamp === 'number' ? currentTimestamp : null,
                   page: null,
+                  courseId: id,
                   overrides: {
                     expectedAction: visorActivo.description ? 'Revisar y comprender el recurso abierto' : 'Explorar el recurso',
                   },

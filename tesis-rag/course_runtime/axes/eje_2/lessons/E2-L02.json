@@ -1,0 +1,141 @@
+{
+  "lesson_id": "E2-L02",
+  "axis_id": "Eje 2",
+  "lesson_title": "Notch, AllPass y fase lineal: cada problema con su herramienta",
+  "order": 2,
+  "resource_id": "res_E2-L02_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje2_Guiones_KENTH_v2.md",
+  "learning_goal": "Distinguir cuando conviene un Notch, cuando un AllPass y cuando un filtro de fase lineal, sin convertir ninguno en receta universal.",
+  "expected_action": "Diagnosticar si el problema es una resonancia puntual, una relacion de fase entre senales o un caso donde la fase lineal vale su costo, y elegir la herramienta correcta.",
+  "learning_goals": [
+    "Identificar resonancia puntual (Notch), problema de fase en la suma (AllPass) y necesidad de preservar fase (fase lineal)",
+    "Entender el costo de cada herramienta: artefactos por Q excesivo, AllPass solo audible en suma, pre-ringing y latencia de la fase lineal"
+  ],
+  "expected_actions": [
+    "Localizar una resonancia con Q alto y luego abrir el Q al minimo necesario para corregir sin artificializar el instrumento",
+    "Ajustar un AllPass escuchando la suma de las dos senales, nunca en solo"
+  ],
+  "resources": ["res_E2-L02_video"],
+  "prerequisites": ["E2-L01"],
+  "proactive_message": "Aqui cada problema va con su herramienta. Antes de operar: tu caso es una resonancia puntual, una mala suma entre microfonos o necesitas preservar la fase?",
+  "suggested_prompts": [
+    "Como se si uso un Notch o un EQ normal?",
+    "Por que el AllPass casi no suena en solo?",
+    "La fase lineal siempre es mejor?",
+    "Que riesgo tiene un Q demasiado estrecho?"
+  ],
+  "blocks": [
+    {
+      "block_id": "E2-L02-B1",
+      "start_time": 0,
+      "end_time": 35,
+      "block_title": "Apertura",
+      "summary": "Uno de los errores mas caros en mezcla es diagnosticar bien y operar mal. Se plantean tres problemas distintos: resonancia puntual, mala suma entre dos microfonos y necesidad de preservar fase.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["diagnostico vs operacion", "herramienta correcta", "tres problemas distintos"],
+      "preguntas_probables": [
+        "Como decido que herramienta usar para cada problema?"
+      ],
+      "tutor_focus": "Orientar a separar el diagnostico de la herramienta. No adelantar recetas: cada caso pide algo distinto."
+    },
+    {
+      "block_id": "E2-L02-B2",
+      "start_time": 35,
+      "end_time": 130,
+      "block_title": "Caso uno: resonancia puntual con Notch",
+      "summary": "Una guitarra electrica con una resonancia estrecha que salta en ciertas notas. Se sube el Q para localizar la frecuencia exacta y luego se baja la ganancia para cortarla, reduciendo el Q al minimo necesario.",
+      "interaction_mode": "practica",
+      "concepts": ["Notch", "resonancia puntual", "Q para localizar", "artefactos de fase"],
+      "preguntas_probables": [
+        "Como encuentro la frecuencia exacta de la resonancia?",
+        "Hasta donde puedo cerrar el Q?"
+      ],
+      "tutor_focus": "El Q alto sirve para localizar, luego se abre. Un notch demasiado estrecho genera artefactos peores que la resonancia original."
+    },
+    {
+      "block_id": "E2-L02-B3",
+      "start_time": 130,
+      "end_time": 230,
+      "block_title": "Caso dos: problema de fase entre senales con AllPass",
+      "summary": "Dos microfonos de la misma fuente que por separado estan bien pero al sumarse pierden cuerpo. La amplitud esta bien; el problema es la relacion de fase. Se ajusta un AllPass escuchando la suma, no el solo.",
+      "interaction_mode": "practica",
+      "concepts": ["AllPass", "relacion de fase", "suma de senales", "verificacion on/off"],
+      "preguntas_probables": [
+        "Por que el AllPass no cambia el tono?",
+        "Como se que el AllPass quedo en el punto correcto?"
+      ],
+      "tutor_focus": "El AllPass no altera balance tonal: solo se revela en suma. Si la suma no cambia al activarlo/desactivarlo, no esta en el punto correcto."
+    },
+    {
+      "block_id": "E2-L02-B4",
+      "start_time": 230,
+      "end_time": 310,
+      "block_title": "Caso tres: preservar fase con filtro de fase lineal",
+      "summary": "Situacion donde alterar la fase relativa cuesta mas que el beneficio. Se prueba fase lineal solo si el material tolera su costo en latencia. En material percusivo se vigila el pre-ringing.",
+      "interaction_mode": "practica",
+      "concepts": ["fase lineal", "pre-ringing", "latencia", "material transiente"],
+      "preguntas_probables": [
+        "La fase lineal es la opcion profesional?",
+        "Que es el pre-ringing y por que importa?"
+      ],
+      "tutor_focus": "La fase lineal no es 'mejor': es un compromiso distinto. Si aparece pre-ringing en material percusivo, conviene volver al filtro estandar."
+    },
+    {
+      "block_id": "E2-L02-B5",
+      "start_time": 310,
+      "end_time": 375,
+      "block_title": "Teoria aplicada",
+      "summary": "El Notch es banda estrecha (riesgo: artefactos por Q excesivo). El AllPass modifica fase frecuencia a frecuencia sin tocar amplitud. La fase lineal evita rotacion de fase pero introduce latencia y pre-ringing.",
+      "interaction_mode": "teoria",
+      "concepts": ["banda estrecha", "fase frecuencia a frecuencia", "compromiso de la fase lineal"],
+      "preguntas_probables": [
+        "Que diferencia hay entre un Notch y un EQ normal?",
+        "Por que el AllPass es inutil para corregir tono?"
+      ],
+      "tutor_focus": "Dar marco corto sobre cada herramienta. Insistir en que ninguna es universal: dependen del tipo de problema."
+    },
+    {
+      "block_id": "E2-L02-B6",
+      "start_time": 375,
+      "end_time": 420,
+      "block_title": "Criterio de decision",
+      "summary": "Notch para zona puntual, AllPass para problema en la relacion entre senales, fase lineal solo cuando preservar fase pesa mas que el costo temporal. La herramienta depende del problema, no de la fama del plugin.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["decision por tipo de problema", "EQ dinamico (Eje 3)", "alineacion temporal (E2-L05)"],
+      "preguntas_probables": [
+        "Y si la resonancia es intermitente?",
+        "Cuando conviene alinear en vez de usar AllPass?"
+      ],
+      "tutor_focus": "La eleccion la manda el tipo de problema. Una resonancia intermitente puede ser EQ dinamico (Eje 3); una mala suma por tiempo puede pedir alineacion (E2-L05)."
+    },
+    {
+      "block_id": "E2-L02-B7",
+      "start_time": 420,
+      "end_time": 460,
+      "block_title": "Errores frecuentes",
+      "summary": "Falsas reglas: 'si molesta una frecuencia siempre Notch', 'AllPass arregla fase en cualquier caso', 'fase lineal es lo pro', 'en solo ya se oye si el AllPass funciono'. Se desmontan.",
+      "interaction_mode": "troubleshooting",
+      "concepts": ["falsas reglas", "alineacion temporal primero", "verificacion en suma"],
+      "preguntas_probables": [
+        "Siempre que molesta una frecuencia hago Notch?",
+        "El AllPass sirve para cualquier problema de fase?"
+      ],
+      "tutor_focus": "Corregir reglas rigidas. El Notch solo si el problema es estrecho; si hay diferencia de tiempo, revisar alineacion antes que AllPass."
+    },
+    {
+      "block_id": "E2-L02-B8",
+      "start_time": 460,
+      "end_time": 480,
+      "block_title": "Cierre",
+      "summary": "Elegir bien el tipo de filtro no basta: tambien importa donde cae dentro de la cadena. Esa es la siguiente leccion.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis", "orden en la cadena", "siguiente paso"],
+      "preguntas_probables": [
+        "Importa el orden en que pongo los filtros?"
+      ],
+      "tutor_focus": "Confirmar idea principal y orientar a E2-L03: el orden del filtro dentro de la cadena."
+    }
+  ],
+  "notes": "Leccion derivada del guion v2 (Eje 2). Timestamps definidos como guion de grabacion: el video H5P se grabara para coincidir con estos bloques (~8 min). Mismo flujo de enlace que E2-L01."
+}

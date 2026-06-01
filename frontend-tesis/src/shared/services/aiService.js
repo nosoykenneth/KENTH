@@ -3,7 +3,7 @@
  * Servicio para gestionar la comunicación con Ollama a través de Moodle.
  */
 
-const API_BASE_URL = '/moodle_api/webservice/rest/server.php';
+const API_BASE_URL = '/api/lms/webservice/rest/server.php';
 
 /**
  * Envía un prompt a la IA local usando el plugin local_tesisai de Moodle
@@ -59,7 +59,7 @@ export const askOllama = async (token, prompt, courseContext = '', imageBase64 =
  * PRIVACIDAD: el user_id se envía en la cabecera X-User-Id.
  * El backend lo usa como identidad autoritativa para ownership checks.
  */
-const RAG_API_URL = '/rag_api';
+const RAG_API_URL = '/api/ai';
 
 /**
  * Helper: devuelve cabeceras estándar con autenticación.

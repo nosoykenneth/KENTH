@@ -125,6 +125,7 @@ export function defaultInteractionMode(resourceType, resourceSubtype = '') {
  * (asi el aiService puede omitir el campo y el backend degrada limpio).
  *
  * @param {object} input
+ * @param {string|number} [input.courseId]
  * @param {string} [input.axis]
  * @param {string|number} [input.lessonId]
  * @param {string|number} [input.resourceId]
@@ -139,6 +140,7 @@ export function defaultInteractionMode(resourceType, resourceSubtype = '') {
 export function buildActivityContext(input = {}) {
   const {
     axis = '',
+    courseId = '',
     lessonId = '',
     resourceId = '',
     resourceType = null,
@@ -152,6 +154,7 @@ export function buildActivityContext(input = {}) {
   } = input;
 
   const ctx = {
+    course_id: courseId ? String(courseId) : '',
     current_axis: axis ? String(axis) : '',
     current_lesson_id: lessonId ? String(lessonId) : '',
     current_resource_id: resourceId ? String(resourceId) : '',
@@ -168,6 +171,7 @@ export function buildActivityContext(input = {}) {
 
   const tieneAlgo =
     ctx.current_axis ||
+    ctx.course_id ||
     ctx.current_lesson_id ||
     ctx.current_resource_id ||
     ctx.current_section ||
@@ -196,6 +200,7 @@ export function activityContextFromMoodleModule(mod, seccion = null, extra = {})
   const resourceSubtype = isH5PModule(mod) ? detectH5PSubtype(mod) : '';
 
   return buildActivityContext({
+    courseId: extra.courseId || '',
     lessonId: mod.id,
     resourceId: mod.id,
     resourceType,

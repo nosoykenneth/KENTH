@@ -1,0 +1,13 @@
+{
+  "axis_id": "Eje 6",
+  "axis_number": 6,
+  "axis_slug": "eje_6_integracion_global",
+  "axis_title": "Eje 6 - Integración global",
+  "pedagogical_role": "Pegado global de la mezcla: buses, procesamiento del mix bus, cohesión y traducción.",
+  "doc_root": "documentos/oficial/ejes/eje_6_integracion_global",
+  "primary_resources": [],
+  "derived_resources": [],
+  "lessons": [],
+  "status": "placeholder",
+  "notes": "Esqueleto. A poblar cuando se trabajen los recursos y mini-lecciones de este eje."
+}

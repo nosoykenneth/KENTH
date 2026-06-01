@@ -1,0 +1,17 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.venv
+venv
+env
+bd_vectorial
+bd_vectorial_backup_*
+bd_chat
+scratch
+test_*.txt
+test_*.py
+*.log
+.git
+.gitignore

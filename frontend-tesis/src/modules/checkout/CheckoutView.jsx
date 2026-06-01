@@ -130,7 +130,7 @@ export default function CheckoutView() {
   const registerLocalIntent = async (clientTransactionId) => {
     const effectiveProfile = getEffectiveProfile();
 
-    const response = await fetch('/moodle_api/proyecto_curso/api_persistente/api_register_intent.php', {
+    const response = await fetch('/api/lms/proyecto_curso/api_persistente/api_register_intent.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -285,7 +285,7 @@ export default function CheckoutView() {
 
       const { effectiveProfile } = await registerLocalIntent(clientTxId);
 
-      const prepareResponse = await fetch('/moodle_api/proyecto_curso/api_persistente/api_prepare_payphone.php', {
+      const prepareResponse = await fetch('/api/lms/proyecto_curso/api_persistente/api_prepare_payphone.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -322,7 +322,7 @@ export default function CheckoutView() {
 
       const effectiveProfile = getEffectiveProfile();
 
-      const response = await fetch('/moodle_api/proyecto_curso/api_persistente/api_capture_paypal_order.php', {
+      const response = await fetch('/api/lms/proyecto_curso/api_persistente/api_capture_paypal_order.php', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

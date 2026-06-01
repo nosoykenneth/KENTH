@@ -1,0 +1,30 @@
+{
+  "lesson_id": "E1-L04",
+  "axis_id": "Eje 1",
+  "subsection_code": "1-B2",
+  "lesson_title": "Fase y comb filtering: diagnóstico espectral y relacional",
+  "order": 4,
+  "block_group": "B - Fase y polaridad",
+  "resource_id": "",
+  "resource_type": "",
+  "source_script_file": "",
+  "learning_goal": "Identificar el comb filtering como problema temporal (no de amplitud) y diagnosticar su firma espectral característica al colapsar a mono.",
+  "expected_action": "Abrir el analizador espectral sobre la suma en mono, ubicar el patrón de cancelaciones periódicas equidistantes y estimar la diferencia temporal con f₁ = 1 / (2 × Δt).",
+  "learning_goals": [
+    "Reconocer la firma espectral del comb filtering (cancelaciones equidistantes tipo peine)",
+    "Calcular la primera frecuencia de cancelación a partir de la diferencia temporal entre dos señales coherentes",
+    "Entender por qué EQ no corrige comb filtering"
+  ],
+  "expected_actions": [
+    "Colapsar a mono para revelar comb filtering oculto en estéreo",
+    "Identificar la frecuencia de la primera cancelación y derivar Δt",
+    "Confirmar qué par de micrófonos lo genera (la corrección pertenece al Eje 2)"
+  ],
+  "resources": [
+    "res_E1_canonico",
+    "res_E1_paquete_limpio"
+  ],
+  "prerequisites": ["E1-L03"],
+  "blocks": [],
+  "notes": "Lección documental. Eje 1 solo diagnostica el comb filtering; la corrección (alineación temporal, rotor de fase) corresponde al Eje 2."
+}

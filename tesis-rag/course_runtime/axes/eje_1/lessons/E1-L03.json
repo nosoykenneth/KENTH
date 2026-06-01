@@ -1,0 +1,30 @@
+{
+  "lesson_id": "E1-L03",
+  "axis_id": "Eje 1",
+  "subsection_code": "1-B1",
+  "lesson_title": "Polaridad: diagnóstico y lectura",
+  "order": 3,
+  "block_group": "B - Fase y polaridad",
+  "resource_id": "",
+  "resource_type": "",
+  "source_script_file": "",
+  "learning_goal": "Distinguir polaridad (binaria) de fase (relacional por frecuencia) y diagnosticar inversiones de polaridad por escucha en mono y por instrumentos.",
+  "expected_action": "Colapsar a mono con todos los micrófonos activos y aislar el micrófono con polaridad invertida silenciando uno a uno; corregir con el botón ∅ y verificar la suma.",
+  "learning_goals": [
+    "Diferenciar inversión de polaridad de desfasaje",
+    "Reconocer los dos síntomas estéreo de polaridad invertida (pérdida de graves en mono, imagen incómoda)",
+    "Establecer el chequeo de polaridad como primer paso antes de cualquier procesamiento"
+  ],
+  "expected_actions": [
+    "Colapsar la mezcla a mono y comparar nivel/timbre con la escucha estéreo",
+    "Silenciar micrófonos uno a uno para identificar el que tiene polaridad invertida",
+    "Aplicar el botón ∅ y verificar que la suma en mono mejora"
+  ],
+  "resources": [
+    "res_E1_canonico",
+    "res_E1_paquete_limpio"
+  ],
+  "prerequisites": [],
+  "blocks": [],
+  "notes": "Lección documental. Énfasis terminológico: no confundir polaridad con fase (distinguen diagnóstico y corrección)."
+}

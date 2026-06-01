@@ -1,0 +1,18 @@
+{
+  "resource_id": "res_E0_paquete_limpio",
+  "type": "lesson_note",
+  "title": "Eje 0 - Paquete limpio (extracción forense)",
+  "axis_id": "Eje 0",
+  "lesson_id": "",
+  "source_uri": "documentos/oficial/ejes/eje_0_campo_decision/02_paquete_limpio.md",
+  "language": "es",
+  "tags": ["eje0", "paquete_limpio", "operacion_practica"],
+  "metadata": {
+    "doc_layer": "limpio",
+    "doc_type": "operacion_practica",
+    "attribution_required": true,
+    "allowed_for_indexing": true,
+    "ownership": "third_party_with_attribution",
+    "usage_note": "Contiene material atribuible (Rabinovich, AES, EBU, etc.). Solo puede referenciarse en respuestas del tutor, no presentarse como contenido propio del curso."
+  }
+}

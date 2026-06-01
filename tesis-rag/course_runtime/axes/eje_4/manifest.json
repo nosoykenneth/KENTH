@@ -1,0 +1,15 @@
+{
+  "axis_id": "Eje 4",
+  "axis_number": 4,
+  "axis_slug": "eje_4_energia_movimiento",
+  "axis_title": "Eje 4 - Energía y movimiento",
+  "pedagogical_role": "Procesadores dinámicos: compresión, expansión, sidechain. Energía y micro-movimiento de la mezcla.",
+  "doc_root": "documentos/oficial/ejes/eje_4_energia_movimiento",
+  "primary_resources": [],
+  "derived_resources": [],
+  "lessons": [
+    "E4-L01"
+  ],
+  "status": "lesson_with_video",
+  "notes": "Lección E4-L01 migrada desde course_runtime/pilot/. Tiene bloques de video reales."
+}

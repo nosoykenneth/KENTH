@@ -1,15 +1,80 @@
 {
   "course_id": "curso_mezcla_masterizacion",
-  "version": "0.1.0",
-  "description": "Indice runtime de lecciones por eje. Esqueleto base.",
+  "course_title": "KENTH Academy — Mezcla y Masterización",
+  "version": "1.0.0",
+  "description": "Índice runtime del curso por ejes. Apunta a course_runtime/axes/eje_N/manifest.json y a las mini-lecciones de cada eje.",
   "axes": [
-    { "axis_id": "Eje 0", "lessons": [] },
-    { "axis_id": "Eje 1", "lessons": [] },
-    { "axis_id": "Eje 2", "lessons": ["lesson_eje2_intro"] },
-    { "axis_id": "Eje 3", "lessons": [] },
-    { "axis_id": "Eje 4", "lessons": [] },
-    { "axis_id": "Eje 5", "lessons": [] },
-    { "axis_id": "Eje 6", "lessons": [] },
-    { "axis_id": "Eje 7", "lessons": [] }
+    {
+      "axis_id": "Eje 0",
+      "axis_number": 0,
+      "axis_slug": "eje_0_campo_decision",
+      "axis_title": "Eje 0 - Campo de decisión",
+      "manifest_path": "axes/eje_0/manifest.json",
+      "lessons": [],
+      "status": "documental_listo"
+    },
+    {
+      "axis_id": "Eje 1",
+      "axis_number": 1,
+      "axis_slug": "eje_1_lectura_senales",
+      "axis_title": "Eje 1 - Lectura de señales",
+      "manifest_path": "axes/eje_1/manifest.json",
+      "lessons": ["E1-L01", "E1-L02", "E1-L03", "E1-L04", "E1-L05", "E1-L06"],
+      "status": "lessons_drafted"
+    },
+    {
+      "axis_id": "Eje 2",
+      "axis_number": 2,
+      "axis_slug": "eje_2_integridad_senal",
+      "axis_title": "Eje 2 - Integridad de la señal",
+      "manifest_path": "axes/eje_2/manifest.json",
+      "lessons": ["E2-L01", "E2-L02", "E2-L03", "E2-L04", "E2-L05", "E2-L06", "E2-L07", "E2-L08", "E2-L09"],
+      "status": "lessons_with_video"
+    },
+    {
+      "axis_id": "Eje 3",
+      "axis_number": 3,
+      "axis_slug": "eje_3_identidad_espectral",
+      "axis_title": "Eje 3 - Identidad espectral",
+      "manifest_path": "axes/eje_3/manifest.json",
+      "lessons": ["E3-L03"],
+      "status": "lesson_with_video"
+    },
+    {
+      "axis_id": "Eje 4",
+      "axis_number": 4,
+      "axis_slug": "eje_4_energia_movimiento",
+      "axis_title": "Eje 4 - Energía y movimiento",
+      "manifest_path": "axes/eje_4/manifest.json",
+      "lessons": ["E4-L01"],
+      "status": "lesson_with_video"
+    },
+    {
+      "axis_id": "Eje 5",
+      "axis_number": 5,
+      "axis_slug": "eje_5_dimension_espacial",
+      "axis_title": "Eje 5 - Dimensión espacial",
+      "manifest_path": "axes/eje_5/manifest.json",
+      "lessons": [],
+      "status": "placeholder"
+    },
+    {
+      "axis_id": "Eje 6",
+      "axis_number": 6,
+      "axis_slug": "eje_6_integracion_global",
+      "axis_title": "Eje 6 - Integración global",
+      "manifest_path": "axes/eje_6/manifest.json",
+      "lessons": [],
+      "status": "placeholder"
+    },
+    {
+      "axis_id": "Eje 7",
+      "axis_number": 7,
+      "axis_slug": "eje_7_traduccion_entrega",
+      "axis_title": "Eje 7 - Traducción y entrega",
+      "manifest_path": "axes/eje_7/manifest.json",
+      "lessons": [],
+      "status": "placeholder"
+    }
   ]
 }

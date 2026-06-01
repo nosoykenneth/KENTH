@@ -1,0 +1,30 @@
+{
+  "lesson_id": "E1-L02",
+  "axis_id": "Eje 1",
+  "subsection_code": "1-A2",
+  "lesson_title": "Sonoridad integrada: K-System y LUFS",
+  "order": 2,
+  "block_group": "A - Medición de nivel",
+  "resource_id": "",
+  "resource_type": "",
+  "source_script_file": "",
+  "learning_goal": "Diferenciar sonoridad integrada (LUFS, K-System) de medición de pico, y elegir la escala correcta según el material y la plataforma de destino.",
+  "expected_action": "Medir LUFS integrado del programa completo y True Peak para validar entrega; comparar con la referencia comercial elegida para cuantificar el gap de sonoridad.",
+  "learning_goals": [
+    "Interpretar las tres ventanas LUFS (Momentary, Short-Term, Integrated) y cuándo usar cada una",
+    "Distinguir LUFS integrado del True Peak como parámetros independientes de control",
+    "Aplicar K-20 / K-14 / K-12 según rango dinámico esperado del material"
+  ],
+  "expected_actions": [
+    "Insertar medidor LUFS con lectura Integrated en el bus de salida",
+    "Registrar LUFS integrado al cerrar la mezcla antes de mastering",
+    "Comparar contra target de plataforma (Spotify -14 LUFS / -1 dBTP, etc.)"
+  ],
+  "resources": [
+    "res_E1_canonico",
+    "res_E1_paquete_limpio"
+  ],
+  "prerequisites": ["E1-L01"],
+  "blocks": [],
+  "notes": "Lección documental. Atención: K-System es contenido atribuible a Bob Katz; LUFS responde a ITU-R BS.1770 / EBU R128. El tutor debe referenciar, no presentar como propio."
+}

@@ -1,0 +1,29 @@
+{
+  "axis_id": "Eje 1",
+  "axis_number": 1,
+  "axis_slug": "eje_1_lectura_senales",
+  "axis_title": "Eje 1 - Lectura de señales",
+  "pedagogical_role": "Desarrolla la capacidad de leer e interpretar señales visuales: metros, formas de onda y analizadores de espectro. Primer paso del ciclo LDOV (Leer).",
+  "doc_root": "documentos/oficial/ejes/eje_1_lectura_senales",
+  "primary_resources": [
+    "res_E1_canonico",
+    "res_E1_paquete_limpio"
+  ],
+  "derived_resources": [
+    "res_E1_glosario",
+    "res_E1_heuristicas",
+    "res_E1_errores_frecuentes",
+    "res_E1_faq",
+    "res_E1_recursos"
+  ],
+  "lessons": [
+    "E1-L01",
+    "E1-L02",
+    "E1-L03",
+    "E1-L04",
+    "E1-L05",
+    "E1-L06"
+  ],
+  "status": "lessons_drafted",
+  "notes": "Seis mini-lecciones derivadas de las subsecciones canónicas 1-A1, 1-A2, 1-B1, 1-B2, 1-C1, 1-C2. Sin bloques de video todavía (se agregarán cuando se grabe)."
+}

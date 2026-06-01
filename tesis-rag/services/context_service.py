@@ -17,6 +17,7 @@ NO toca el RAG documental por ejes (Capa 1).
 from __future__ import annotations
 
 import json
+import logging
 import os
 from datetime import datetime
 from typing import Dict, List, Optional
@@ -32,11 +33,16 @@ from models.context import (
     StudentSessionState,
     TutorContextEnvelope,
 )
-from services.pilot_service import (
-    is_pilot_lesson,
-    resolve_pilot_block,
-)
 from services import db_service
+from services.axis_service import (
+    is_known_lesson,
+    load_lesson as load_axis_lesson,
+    load_resource as load_axis_resource,
+    resolve_lesson_block,
+)
+
+
+logger = logging.getLogger(__name__)
 
 
 # ==========================================
@@ -45,7 +51,6 @@ from services import db_service
 
 _BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 _RUNTIME_DIR = os.path.join(_BASE_DIR, "course_runtime")
-_LESSONS_DIR = os.path.join(_RUNTIME_DIR, "lessons")
 _RESOURCES_DIR = os.path.join(_RUNTIME_DIR, "resources")
 _MANIFEST_FILE = os.path.join(_RUNTIME_DIR, "manifest.json")
 
@@ -55,6 +60,10 @@ _MANIFEST_FILE = os.path.join(_RUNTIME_DIR, "manifest.json")
 # ==========================================
 
 def load_lesson(lesson_id: str) -> Optional[Lesson]:
+    """Devuelve la lección tipada como Pydantic Lesson.
+
+    Resolución: DB → JSON en axes/eje_N/lessons (vía axis_service).
+    """
     if not lesson_id:
         return None
     row = db_service.get_lesson(lesson_id)
@@ -70,32 +79,40 @@ def load_lesson(lesson_id: str) -> Optional[Lesson]:
             prerequisites=row.get("prerequisites", []),
             notes=row.get("notes", ""),
         )
-    path = os.path.join(_LESSONS_DIR, f"{lesson_id}.json")
-    if not os.path.exists(path):
+    data = load_axis_lesson(lesson_id)
+    if not data:
         return None
-    print(f"[DB FALLBACK] source=json entity=lessons reason=lesson_missing_in_moodle path={path}")
-    with open(path, "r", encoding="utf-8") as f:
-        return Lesson(**json.load(f))
+    return Lesson(
+        lesson_id=data.get("lesson_id", ""),
+        axis_id=data.get("axis_id", ""),
+        title=data.get("lesson_title") or data.get("title", ""),
+        order=data.get("order", 0),
+        learning_goals=data.get("learning_goals", []),
+        expected_actions=data.get("expected_actions", []),
+        resources=data.get("resources", []),
+        prerequisites=data.get("prerequisites", []),
+        notes=data.get("notes", ""),
+    )
 
 
 def load_resource(resource_id: str) -> Optional[Resource]:
+    """Devuelve el recurso tipado como Pydantic Resource."""
     if not resource_id:
         return None
     row = db_service.get_resource(resource_id)
     if row:
         return row
-    path = os.path.join(_RESOURCES_DIR, f"{resource_id}.json")
-    if not os.path.exists(path):
+    data = load_axis_resource(resource_id)
+    if not data:
         return None
-    print(f"[DB FALLBACK] source=json entity=course_resources reason=resource_missing_in_moodle path={path}")
-    with open(path, "r", encoding="utf-8") as f:
-        return Resource(**json.load(f))
+    return Resource(**data)
 
 
 def load_runtime_manifest() -> dict:
+    """Manifest global del curso (DB → JSON)."""
     lessons = db_service.list_lessons()
     if lessons:
-        axes = {}
+        axes: Dict[str, List[str]] = {}
         for lesson in lessons:
             axes.setdefault(lesson.get("axis_id", ""), []).append(lesson.get("lesson_id", ""))
         return {
@@ -109,7 +126,6 @@ def load_runtime_manifest() -> dict:
         }
     if not os.path.exists(_MANIFEST_FILE):
         return {}
-    print(f"[DB FALLBACK] source=json entity=runtime_manifest reason=no_lessons_in_moodle path={_MANIFEST_FILE}")
     with open(_MANIFEST_FILE, "r", encoding="utf-8") as f:
         return json.load(f)
 
@@ -125,9 +141,10 @@ def hydrate_activity_context(raw: Optional[dict]) -> ActivityContext:
     manifiesto de leccion. Si manda resource_id pero no resource_type,
     se completa desde el manifiesto del recurso.
 
-    Para lecciones piloto: si existe timestamp, hidratamos campos
-    pedagogicos del bloque actual (learning_goal, expected_action,
-    interaction_mode, current_section) cuando no vengan ya seteados.
+    Si la lección tiene bloques de video y llega timestamp, hidratamos
+    los campos pedagógicos del bloque activo (learning_goal,
+    expected_action, interaction_mode, current_section) cuando no
+    vengan ya seteados desde el cliente.
     """
     if not raw:
         return ActivityContext()
@@ -146,26 +163,30 @@ def hydrate_activity_context(raw: Optional[dict]) -> ActivityContext:
             if not ctx.current_axis:
                 ctx.current_axis = resource.axis_id
 
-    # Vertical slice piloto: enriquecer ctx desde el bloque activo.
-    if is_pilot_lesson(ctx.current_lesson_id):
-        resolved = resolve_pilot_block(ctx.current_lesson_id, ctx.current_timestamp)
-        lesson_p = resolved.get("lesson")
-        block_p = resolved.get("block")
-        if lesson_p:
+    # Si la lección tiene bloques de video, enriquecemos el ctx
+    # desde el bloque activo según el timestamp.
+    if is_known_lesson(ctx.current_lesson_id):
+        resolved = resolve_lesson_block(ctx.current_lesson_id, ctx.current_timestamp)
+        lesson_data = resolved.get("lesson")
+        block_data = resolved.get("block")
+        if lesson_data:
             if not ctx.current_axis:
-                ctx.current_axis = lesson_p.get("axis_id", "")
+                ctx.current_axis = lesson_data.get("axis_id", "")
             if not ctx.current_resource_id:
-                ctx.current_resource_id = lesson_p.get("resource_id", "")
-            if ctx.current_resource_type is None:
-                ctx.current_resource_type = ResourceType.VIDEO
+                ctx.current_resource_id = lesson_data.get("resource_id", "")
+            if ctx.current_resource_type is None and lesson_data.get("resource_type"):
+                try:
+                    ctx.current_resource_type = ResourceType(lesson_data["resource_type"])
+                except ValueError:
+                    pass
             if not ctx.learning_goal:
-                ctx.learning_goal = lesson_p.get("learning_goal", "")
+                ctx.learning_goal = lesson_data.get("learning_goal", "")
             if not ctx.expected_action:
-                ctx.expected_action = lesson_p.get("expected_action", "")
-        if block_p:
+                ctx.expected_action = lesson_data.get("expected_action", "")
+        if block_data:
             if not ctx.current_section:
-                ctx.current_section = block_p.get("block_title", "")
-            mode_raw = block_p.get("interaction_mode", "")
+                ctx.current_section = block_data.get("block_title", "")
+            mode_raw = block_data.get("interaction_mode", "")
             try:
                 ctx.interaction_mode = InteractionMode(mode_raw)
             except ValueError:
@@ -182,8 +203,6 @@ def hydrate_activity_context(raw: Optional[dict]) -> ActivityContext:
 # ==========================================
 # ESTADO DE SESION (Capa 3) - en memoria
 # ==========================================
-# Para Fase 1 alcanza con un dict en memoria. Posteriormente se podra
-# persistir en bd_chat sin cambiar el contrato.
 
 _SESSION_STATES: Dict[str, StudentSessionState] = {}
 
@@ -250,8 +269,6 @@ def update_session_state(
 # ==========================================
 # CHUNKS DEL RECURSO ACTIVO (Capa 2)
 # ==========================================
-# Contrato listo. La implementacion fina (transcripcion video segmentada,
-# OCR/paginas de PDF, etc.) se cablea en una fase posterior.
 
 def get_active_chunk_references(
     activity_context: ActivityContext,
@@ -281,15 +298,13 @@ def get_active_chunk_references(
             resource_id=activity_context.current_resource_id,
             chunk_id="",
             locator=locator,
-            text_excerpt="",   # TODO: poblar desde transcript/PDF chunker
+            text_excerpt="",
             is_neighbor=False,
         )
     ]
 
     if include_neighbors and max_neighbors > 0:
-        # Placeholder de vecinos. Cuando exista el chunker fino, aqui se
-        # devolveran chunks anteriores/posteriores al locator actual.
-        pass
+        pass  # Placeholder: chunker fino no implementado todavía.
 
     return refs
 
@@ -304,24 +319,23 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
     No es evidencia RAG. No contamina la query vectorial. Solo orienta
     al tutor sobre donde esta parado el alumno y como debe comportarse.
 
-    Para lecciones piloto con bloque activo: se inyecta primero un
-    bloque "BLOQUE ACTIVO DEL VIDEO" como punto de partida, luego
-    la metadata de la leccion, y solo despues el RAG general del eje
+    Para lecciones con bloques de video activos: se inyecta primero un
+    bloque "BLOQUE ACTIVO DEL VIDEO" como punto de partida, luego la
+    metadata de la leccion, y solo despues el RAG general del eje
     (que sigue llegando como evidencia RAG aparte).
     """
     ctx = envelope.activity_context
-    if ctx.is_empty() and not envelope.session_state and not envelope.pilot_block:
+    if ctx.is_empty() and not envelope.session_state and not envelope.active_block:
         return ""
 
     lineas: List[str] = []
 
-    # Vertical slice piloto: bloque activo va primero como punto de partida.
-    block = envelope.pilot_block
-    lesson_p = envelope.pilot_lesson
+    block = envelope.active_block
+    lesson_data = envelope.active_lesson
     if block:
         lineas.append("--- BLOQUE ACTIVO DEL VIDEO (PUNTO DE PARTIDA) ---")
-        if lesson_p:
-            lineas.append(f"Leccion piloto: {lesson_p.get('lesson_id', '')} - {lesson_p.get('lesson_title', '')}")
+        if lesson_data:
+            lineas.append(f"Lección: {lesson_data.get('lesson_id', '')} - {lesson_data.get('lesson_title', '')}")
         lineas.append(f"Bloque: {block.get('block_id', '')} - {block.get('block_title', '')}")
         lineas.append(f"Rango: {block.get('start_time', 0)}s - {block.get('end_time', 0)}s")
         if ctx.current_timestamp is not None:
@@ -418,15 +432,14 @@ def build_envelope(
 
     chunk_refs = get_active_chunk_references(ctx) if not ctx.is_empty() else []
 
-    # Vertical slice piloto: si la leccion activa es piloto y hay
-    # timestamp, resolvemos el bloque actual y lo adjuntamos al
-    # envelope para que el render lo priorice.
-    pilot_lesson_data = None
-    pilot_block_data = None
-    if is_pilot_lesson(ctx.current_lesson_id):
-        resolved = resolve_pilot_block(ctx.current_lesson_id, ctx.current_timestamp)
-        pilot_lesson_data = resolved.get("lesson")
-        pilot_block_data = resolved.get("block")
+    # Si la lección tiene bloques de video y hay timestamp, adjuntamos
+    # el bloque activo al envelope para que el render lo priorice.
+    active_lesson_data = None
+    active_block_data = None
+    if is_known_lesson(ctx.current_lesson_id):
+        resolved = resolve_lesson_block(ctx.current_lesson_id, ctx.current_timestamp)
+        active_lesson_data = resolved.get("lesson")
+        active_block_data = resolved.get("block")
 
     return TutorContextEnvelope(
         question=question,
@@ -434,6 +447,6 @@ def build_envelope(
         session_state=state if session_id else None,
         chunk_references=chunk_refs,
         interaction_mode=ctx.interaction_mode,
-        pilot_lesson=pilot_lesson_data,
-        pilot_block=pilot_block_data,
+        active_lesson=active_lesson_data,
+        active_block=active_block_data,
     )

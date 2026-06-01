@@ -1,0 +1,20 @@
+{
+  "resource_id": "res_E2-L03_video",
+  "type": "video",
+  "title": "Eje 2 · L03 — El filtro dentro de la cadena: por que el orden si importa",
+  "axis_id": "Eje 2",
+  "lesson_id": "E2-L03",
+  "source_uri": "",
+  "duration_seconds": 450,
+  "language": "es",
+  "tags": ["eje2", "video", "leccion", "orden_cadena", "filtro", "compresor"],
+  "metadata": {
+    "doc_layer": "canonico",
+    "doc_type": "video_leccion",
+    "attribution_required": false,
+    "allowed_for_indexing": true,
+    "ownership": "kenth_academy",
+    "source_script": "documentos/oficial/guiones/v2/Eje2_Guiones_KENTH_v2.md",
+    "pending_capture": true
+  }
+}

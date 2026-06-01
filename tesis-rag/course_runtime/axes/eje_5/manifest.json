@@ -1,0 +1,13 @@
+{
+  "axis_id": "Eje 5",
+  "axis_number": 5,
+  "axis_slug": "eje_5_dimension_espacial",
+  "axis_title": "Eje 5 - Dimensión espacial",
+  "pedagogical_role": "Reverberación, delay, profundidad y panorama. Construcción del espacio de la mezcla.",
+  "doc_root": "documentos/oficial/ejes/eje_5_dimension_espacial",
+  "primary_resources": [],
+  "derived_resources": [],
+  "lessons": [],
+  "status": "placeholder",
+  "notes": "Esqueleto. A poblar cuando se trabajen los recursos y mini-lecciones de este eje."
+}

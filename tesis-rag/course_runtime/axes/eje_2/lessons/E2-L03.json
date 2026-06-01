@@ -1,0 +1,141 @@
+{
+  "lesson_id": "E2-L03",
+  "axis_id": "Eje 2",
+  "lesson_title": "El filtro dentro de la cadena: por que el orden si importa",
+  "order": 3,
+  "resource_id": "res_E2-L03_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje2_Guiones_KENTH_v2.md",
+  "learning_goal": "Entender por que el orden del filtro dentro de la cadena cambia el comportamiento del resto de procesadores.",
+  "expected_action": "Justificar por que un HPF de limpieza suele ir antes del compresor y verificar el efecto en la reduccion de ganancia y en la suma entre canales.",
+  "learning_goals": [
+    "Comprender que el orden de inserts cambia que senal ve cada procesador",
+    "Relacionar el filtrado previo con una respuesta dinamica mas limpia y con la relacion de fase en sumas multiples"
+  ],
+  "expected_actions": [
+    "Comparar la reduccion de ganancia del compresor con el HPF antes y despues, sin tocar el threshold",
+    "Verificar como cambia la relacion de fase entre canales tras filtrar solo uno de ellos"
+  ],
+  "resources": ["res_E2-L03_video"],
+  "prerequisites": ["E2-L02"],
+  "proactive_message": "La pregunta que organiza el orden no es 'que plugin va primero', sino 'que contenido quiero que vea el siguiente procesador'. Quieres revisarlo con tu cadena?",
+  "suggested_prompts": [
+    "Por que el HPF va antes del compresor?",
+    "El orden de los plugins cambia el sonido?",
+    "Si el compresor reacciona raro, es culpa del compresor?",
+    "El filtro siempre va primero en la cadena?"
+  ],
+  "blocks": [
+    {
+      "block_id": "E2-L03-B1",
+      "start_time": 0,
+      "end_time": 30,
+      "block_title": "Apertura",
+      "summary": "Un orden de inserts no es decoracion: cambia que senal ve cada procesador. Si primero comprimes basura y luego la quitas, la compresion ya quedo impresa en la senal.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["orden de inserts", "que ve cada procesador", "cadena de senal"],
+      "preguntas_probables": [
+        "El orden de los plugins realmente cambia algo?"
+      ],
+      "tutor_focus": "Plantear que el orden no es estetico: define que contenido procesa cada herramienta. Aun no dar la regla; mostrarla con la demo."
+    },
+    {
+      "block_id": "E2-L03-B2",
+      "start_time": 30,
+      "end_time": 100,
+      "block_title": "Demostracion: compresor antes del HPF",
+      "summary": "Bombo con energia subsonica. Con el compresor antes del HPF, la reduccion de ganancia se mueve de mas: reacciona a energia que despues se va a tirar.",
+      "interaction_mode": "practica",
+      "concepts": ["energia subsonica", "reduccion de ganancia", "compresor reaccionando a basura"],
+      "preguntas_probables": [
+        "Por que el compresor se mueve tanto?",
+        "Que esta detectando el compresor ahi?"
+      ],
+      "tutor_focus": "Hacer notar que el medidor de reduccion reacciona a contenido que luego se elimina. El problema no es el compresor, es lo que recibe."
+    },
+    {
+      "block_id": "E2-L03-B3",
+      "start_time": 100,
+      "end_time": 175,
+      "block_title": "Demostracion: HPF antes del compresor",
+      "summary": "Se invierte el orden (HPF primero). El compresor recibe una senal mas limpia y su reduccion de ganancia cambia, sin tocar el threshold: solo cambio que informacion llega a su detector.",
+      "interaction_mode": "practica",
+      "concepts": ["filtrado previo", "detector del compresor", "mismo threshold"],
+      "preguntas_probables": [
+        "Por que cambia la compresion si no toque el threshold?",
+        "Entonces el HPF siempre va primero?"
+      ],
+      "tutor_focus": "Subrayar que no se cambio ningun parametro del compresor: solo el contenido que ve. Evitar convertirlo en regla universal."
+    },
+    {
+      "block_id": "E2-L03-B4",
+      "start_time": 175,
+      "end_time": 235,
+      "block_title": "Consecuencia en sumas: relacion de fase entre canales",
+      "summary": "Bombo cercano + overhead. Si se filtra un canal y el otro no, o con pendientes distintas, la rotacion de fase alrededor del corte cambia como suman. No basta decidir el orden dentro de un canal.",
+      "interaction_mode": "practica",
+      "concepts": ["rotacion de fase", "pendientes distintas", "suma entre microfonos"],
+      "preguntas_probables": [
+        "Filtrar un solo canal afecta la suma?",
+        "Tengo que usar la misma pendiente en todos los canales?"
+      ],
+      "tutor_focus": "Conectar con E2-L02: filtrar afecta fase. Verificar la suma despues de filtrar, no solo el canal aislado."
+    },
+    {
+      "block_id": "E2-L03-B5",
+      "start_time": 235,
+      "end_time": 300,
+      "block_title": "La logica que organiza el orden",
+      "summary": "No hay protocolo unico, pero en integridad de senal el filtrado de limpieza gana cuando los procesadores de caracter reciben senal ya depurada. La pregunta no es 'que plugin va primero' sino 'que contenido quiero que vea el siguiente procesador'.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["filtrado de limpieza", "senal depurada", "logica de orden"],
+      "preguntas_probables": [
+        "Hay una regla fija para el orden?",
+        "Como decido el orden en mi cadena?"
+      ],
+      "tutor_focus": "Dar el criterio operativo central: pensar en que contenido debe ver el siguiente procesador, no memorizar posiciones."
+    },
+    {
+      "block_id": "E2-L03-B6",
+      "start_time": 300,
+      "end_time": 360,
+      "block_title": "Teoria aplicada",
+      "summary": "Los filtros estandar rotan fase alrededor de su corte. El compresor reacciona a lo que recibe, no a la senal ideal final. Por eso el orden entre ambos cambia el resultado y, a veces, degrada el groove.",
+      "interaction_mode": "teoria",
+      "concepts": ["rotacion de fase", "respuesta del detector", "ineficiencia de cadena"],
+      "preguntas_probables": [
+        "Por que el orden afecta la dinamica y no solo el tono?",
+        "Que es ineficiencia de cadena?"
+      ],
+      "tutor_focus": "Explicar que el compresor responde a lo recibido. Comprimir por una causa que luego desaparece es trabajo perdido y puede danar el groove."
+    },
+    {
+      "block_id": "E2-L03-B7",
+      "start_time": 360,
+      "end_time": 420,
+      "block_title": "Errores frecuentes",
+      "summary": "Falsas reglas: 'el orden da igual si el resultado parece parecido', 'siempre el filtro antes de todo', 'si el compresor responde raro el problema es el compresor'. Lo que cambia muchas veces es como respira la dinamica.",
+      "interaction_mode": "troubleshooting",
+      "concepts": ["falsas reglas", "dinamica que respira", "diagnostico del compresor"],
+      "preguntas_probables": [
+        "Si suena parecido, da igual el orden?",
+        "El filtro va siempre antes de todo?"
+      ],
+      "tutor_focus": "Corregir reglas rigidas. El criterio es 'que contenido quiero que vea el siguiente procesador', no la posicion fija en el rack."
+    },
+    {
+      "block_id": "E2-L03-B8",
+      "start_time": 420,
+      "end_time": 450,
+      "block_title": "Cierre",
+      "summary": "Clara la logica del filtrado dentro de la cadena. Ahora se pasa de contenido frecuencial a relacion entre senales: primero polaridad, luego alineacion.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis", "bloque relacional", "siguiente paso"],
+      "preguntas_probables": [
+        "Que sigue despues del orden de la cadena?"
+      ],
+      "tutor_focus": "Confirmar la idea y orientar a E2-L04: correccion de polaridad entre senales."
+    }
+  ],
+  "notes": "Leccion derivada del guion v2 (Eje 2). Timestamps definidos como guion de grabacion: el video H5P se grabara para coincidir con estos bloques (~7.5 min). Mismo flujo de enlace que E2-L01."
+}

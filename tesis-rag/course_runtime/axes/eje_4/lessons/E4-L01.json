@@ -1,0 +1,151 @@
+{
+  "lesson_id": "E4-L01",
+  "axis_id": "Eje 4",
+  "lesson_title": "Threshold, ratio y knee sin mirar solo numeritos",
+  "order": 1,
+  "resource_id": "res_E4-L01_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje4_Guiones_KENTH_v2.md",
+  "learning_goal": "Comprender cuando entra el compresor, cuanto contiene y como entra esa compresion, leyendo GR y resultado auditivo.",
+  "expected_action": "Ajustar threshold, ratio y knee con intencion y comparar con bypass compensado.",
+  "learning_goals": [
+    "Leer GR + escucha + curva de transferencia en vez de fiarse de los números nominales del panel",
+    "Comparar siempre a igual loudness (makeup gain en cero o bypass compensado)"
+  ],
+  "expected_actions": [
+    "Fijar makeup gain en cero para no confundir volumen con mejora",
+    "Ajustar threshold mirando GR en los picos; comparar ratio 2:1/4:1/8:1 en el mismo material",
+    "Elegir knee (soft/hard) según material y rol, no por defecto"
+  ],
+  "resources": [
+    "res_E4-L01_video"
+  ],
+  "prerequisites": [],
+  "blocks": [
+    {
+      "block_id": "E4-L01-B1",
+      "start_time": 0,
+      "end_time": 40,
+      "block_title": "Apertura",
+      "summary": "Voz con saltos de nivel. Aparece el problema: contener picos sin matar dinamica, pero antes de tocar nada se mira el comportamiento.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["dinamica", "picos", "comportamiento previo"],
+      "preguntas_probables": [
+        "Por donde empiezo en el compresor?"
+      ],
+      "tutor_focus": "Antes de mover threshold, escuchar el material. Identificar donde estan los picos y que tipo de dinamica tiene."
+    },
+    {
+      "block_id": "E4-L01-B2",
+      "start_time": 40,
+      "end_time": 70,
+      "block_title": "Makeup en cero",
+      "summary": "Se fija makeup gain en cero para no engaarse por volumen al evaluar el efecto del compresor. Bypass compensado mental.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["makeup gain", "comparacion compensada", "bypass"],
+      "preguntas_probables": [
+        "Como comparo sin enganarme por volumen?"
+      ],
+      "tutor_focus": "Si el makeup sube el volumen, el oido lo confunde con mejora. Comparar a igual loudness."
+    },
+    {
+      "block_id": "E4-L01-B3",
+      "start_time": 70,
+      "end_time": 170,
+      "block_title": "Threshold",
+      "summary": "Punto de entrada del compresor. Se baja hasta que el GR empieza a moverse en los picos. No es un numero objetivo.",
+      "interaction_mode": "practica",
+      "concepts": ["threshold", "GR (gain reduction)", "punto de entrada"],
+      "preguntas_probables": [
+        "Que hace realmente el threshold?",
+        "Bajo hasta que siempre comprima?",
+        "Threshold bajo significa mejor control?"
+      ],
+      "tutor_focus": "El threshold no se elige por numero, se elige mirando GR y escuchando que entra. Bajo no es mejor: es mas constante."
+    },
+    {
+      "block_id": "E4-L01-B4",
+      "start_time": 170,
+      "end_time": 240,
+      "block_title": "Ratio",
+      "summary": "Intensidad de contencion. Mas ratio no es mejor: es mas firme. Se compara 2:1, 4:1 y 8:1 en el mismo material.",
+      "interaction_mode": "practica",
+      "concepts": ["ratio", "intensidad", "firmeza"],
+      "preguntas_probables": [
+        "Ratio alto significa mejor control?",
+        "Mas ratio siempre es mas control?"
+      ],
+      "tutor_focus": "Ratio alto contiene mas firme pero achata. No es mejor control automatico. Depende del material y del rol."
+    },
+    {
+      "block_id": "E4-L01-B5",
+      "start_time": 240,
+      "end_time": 300,
+      "block_title": "Knee",
+      "summary": "Tipo de transicion al entrar en compresion. Soft knee es gradual, hard knee es abrupto. Ninguno es mejor por defecto.",
+      "interaction_mode": "practica",
+      "concepts": ["knee", "soft knee", "hard knee", "transicion"],
+      "preguntas_probables": [
+        "Soft knee siempre es mejor para voz?",
+        "Soft knee es siempre mas musical?",
+        "Cuando quiero knee duro?"
+      ],
+      "tutor_focus": "Soft knee suena mas natural pero el GR es ambiguo en la frontera. Hard knee da control claro pero se nota."
+    },
+    {
+      "block_id": "E4-L01-B6",
+      "start_time": 300,
+      "end_time": 360,
+      "block_title": "Teoria aplicada",
+      "summary": "Curva de transferencia: input vs output. Threshold mueve el codo, ratio mueve la pendiente, knee redondea el codo.",
+      "interaction_mode": "teoria",
+      "concepts": ["curva de transferencia", "codo", "pendiente"],
+      "preguntas_probables": [
+        "Por que no me guio solo por el numero del panel?",
+        "Que miro: numero o GR?"
+      ],
+      "tutor_focus": "Guiarse por GR + escucha + curva, no por numeros nominales del panel. El panel miente fuera de contexto."
+    },
+    {
+      "block_id": "E4-L01-B7",
+      "start_time": 360,
+      "end_time": 410,
+      "block_title": "Criterio de decision",
+      "summary": "Como saber si ya basta. GR estable en picos, dinamica conservada, sin bombeo audible.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["GR estable", "dinamica conservada", "bombeo"],
+      "preguntas_probables": [
+        "Como se si ya me pase?"
+      ],
+      "tutor_focus": "Si oyes el compresor trabajar (bombeo o respiracion), te pasaste. La compresion bien hecha no se nota."
+    },
+    {
+      "block_id": "E4-L01-B8",
+      "start_time": 410,
+      "end_time": 460,
+      "block_title": "Errores frecuentes",
+      "summary": "Comprimir mirando solo el GR meter, fijar ratio alto por defecto, asumir que soft knee es siempre musical.",
+      "interaction_mode": "corregir_criterio",
+      "concepts": ["errores", "miradas parciales"],
+      "preguntas_probables": [
+        "Threshold bajo significa mejor control?",
+        "Ratio alto siempre es mejor?"
+      ],
+      "tutor_focus": "Corregir reglas rigidas. Cada parametro tiene un costo. No hay valores universales."
+    },
+    {
+      "block_id": "E4-L01-B9",
+      "start_time": 460,
+      "end_time": 480,
+      "block_title": "Cierre",
+      "summary": "Sintesis: leer GR, comparar a igual volumen, ajustar con intencion. La proxima leccion entra en attack y release.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis", "siguiente paso"],
+      "preguntas_probables": [
+        "Que sigue despues?"
+      ],
+      "tutor_focus": "Confirmar idea principal y orientar hacia attack/release como siguiente capa."
+    }
+  ],
+  "notes": "Migrada desde course_runtime/pilot/E4-L01.json. Conserva los 9 bloques de video originales."
+}

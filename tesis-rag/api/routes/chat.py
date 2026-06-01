@@ -4,7 +4,14 @@ from api.dependencies import get_current_user_id
 from models.schemas import Consulta
 from services.agent_service import super_agente
 from services.context_service import build_envelope, render_context_block
-from services.db_service import get_chat_messages, add_message, save_trace, save_interaction_trace, ensure_chat_exists
+from services.db_service import (
+    get_chat_messages,
+    add_message,
+    save_trace,
+    save_interaction_trace,
+    ensure_chat_exists,
+    resolve_course_numeric,
+)
 import json
 import time
 import uuid
@@ -118,16 +125,18 @@ def chat_endpoint(
         "current_resource_id": envelope.activity_context.current_resource_id,
         "current_timestamp": envelope.activity_context.current_timestamp,
         "current_page": envelope.activity_context.current_page,
-        "pilot_lesson_id": (envelope.pilot_lesson or {}).get("lesson_id", ""),
-        "pilot_block_id": (envelope.pilot_block or {}).get("block_id", ""),
+        "active_lesson_id": (envelope.active_lesson or {}).get("lesson_id", ""),
+        "active_block_id": (envelope.active_block or {}).get("block_id", ""),
         "runtime_source_category": "B_RUNTIME_CONTEXT" if activity_context_block else "",
     }
 
     # Fase 1: la pregunta queda limpia para retrieval.
     # El contexto de leccion viaja separado para que el agente lo use como pista,
     # pero no contamine la query vectorial.
+    scoped_course_id = resolve_course_numeric(consulta.course_id) or consulta.course_id
     estado_inicial = {
         "pregunta": consulta.pregunta,
+        "course_id": scoped_course_id,
         "contexto_leccion": contexto,
         "imagen": consulta.imagen,
         "ruta": ruta_forzada,

@@ -1,0 +1,141 @@
+{
+  "lesson_id": "E2-L04",
+  "axis_id": "Eje 2",
+  "lesson_title": "Correccion de polaridad: procedimiento corto y verificable",
+  "order": 4,
+  "resource_id": "res_E2-L04_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje2_Guiones_KENTH_v2.md",
+  "learning_goal": "Corregir polaridad en pares de microfonos con un procedimiento corto, repetible y verificable.",
+  "expected_action": "Igualar niveles, invertir polaridad, comparar en contexto y elegir la version que mejor suma, verificando luego en el sistema completo.",
+  "learning_goals": [
+    "Separar polaridad (inversion binaria del signo) de alineacion temporal",
+    "Verificar la mejora por cuerpo y coherencia de la suma, no por volumen"
+  ],
+  "expected_actions": [
+    "Emparejar niveles, invertir el canal bottom y comparar on/off escuchando el cuerpo del tambor",
+    "Validar el par corregido contra overheads y el resto del kit, no solo aislado"
+  ],
+  "resources": ["res_E2-L04_video"],
+  "prerequisites": ["E2-L03"],
+  "proactive_message": "Antes de mover clips y buscar milisegundos, revisemos polaridad: puede devolverte el cuerpo de la suma en segundos.",
+  "suggested_prompts": [
+    "El microfono bottom siempre va invertido?",
+    "Polaridad y fase son lo mismo?",
+    "Como se si la inversion mejoro la suma?",
+    "Suena mas fuerte invertido, eso significa que quedo bien?"
+  ],
+  "blocks": [
+    {
+      "block_id": "E2-L04-B1",
+      "start_time": 0,
+      "end_time": 30,
+      "block_title": "Apertura",
+      "summary": "Tambor con microfono superior e inferior. Al sumarlos pierde cuerpo. Antes de buscar milisegundos hay una correccion mas basica: revisar polaridad.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["par top/bottom", "perdida de cuerpo en la suma", "polaridad primero"],
+      "preguntas_probables": [
+        "Por que el tambor pierde cuerpo al sumar los microfonos?"
+      ],
+      "tutor_focus": "Plantear polaridad como el primer chequeo del bloque relacional. Distinguirla ya de la alineacion temporal."
+    },
+    {
+      "block_id": "E2-L04-B2",
+      "start_time": 30,
+      "end_time": 90,
+      "block_title": "Preparar la comparacion",
+      "summary": "Se emparejan niveles del top y bottom para que una diferencia de volumen no enganhe la comparacion. Luego se escuchan juntos tal como estan.",
+      "interaction_mode": "practica",
+      "concepts": ["emparejar niveles", "comparacion justa", "referencia de escucha"],
+      "preguntas_probables": [
+        "Por que igualo niveles antes de comparar?",
+        "Que pasa si un canal esta mas fuerte?"
+      ],
+      "tutor_focus": "Insistir en igualar niveles primero: sin eso, el mas fuerte parece 'mejor' por volumen, no por integracion."
+    },
+    {
+      "block_id": "E2-L04-B3",
+      "start_time": 90,
+      "end_time": 180,
+      "block_title": "Invertir y comparar",
+      "summary": "Se invierte la polaridad del canal bottom (el microfono inferior suele moverse en sentido opuesto por la fisica del golpe). Se alterna on/off buscando mas cuerpo, mejores graves utiles e integracion del ataque.",
+      "interaction_mode": "practica",
+      "concepts": ["inversion de polaridad", "boton de fase", "criterio de cuerpo y coherencia"],
+      "preguntas_probables": [
+        "El bottom siempre se invierte?",
+        "Que tengo que escuchar al invertir?"
+      ],
+      "tutor_focus": "No invertir al azar: hay un criterio (el bottom suele convenir), pero siempre se verifica por escucha. La referencia es cuerpo y coherencia, no volumen."
+    },
+    {
+      "block_id": "E2-L04-B4",
+      "start_time": 180,
+      "end_time": 240,
+      "block_title": "Verificar en el sistema completo",
+      "summary": "El par ya corregido se compara contra overheads y el resto de la bateria. Una polaridad que mejora el par aislado puede cambiar la relacion con el conjunto. Primero el par inmediato, luego el sistema completo.",
+      "interaction_mode": "practica",
+      "concepts": ["verificacion en contexto", "par vs conjunto", "relacion con overheads"],
+      "preguntas_probables": [
+        "Y si mejora el par pero empeora con los overheads?",
+        "Donde cierro la decision?"
+      ],
+      "tutor_focus": "El par aislado no es el veredicto final: la decision se confirma en el kit completo."
+    },
+    {
+      "block_id": "E2-L04-B5",
+      "start_time": 240,
+      "end_time": 310,
+      "block_title": "Teoria aplicada",
+      "summary": "La inversion de polaridad no es un desplazamiento temporal: es invertir el signo de la senal, con un boton y efecto instantaneo. Si la suma cambia drasticamente al invertir, el problema estaba ahi. La alineacion es el paso siguiente.",
+      "interaction_mode": "teoria",
+      "concepts": ["polaridad vs tiempo", "inversion binaria", "base de la suma"],
+      "preguntas_probables": [
+        "Polaridad y fase son lo mismo?",
+        "Invertir ya resuelve la alineacion?"
+      ],
+      "tutor_focus": "Aclarar la diferencia clave: polaridad es binaria e instantanea; la desalineacion temporal es otra dimension (E2-L05)."
+    },
+    {
+      "block_id": "E2-L04-B6",
+      "start_time": 310,
+      "end_time": 355,
+      "block_title": "Criterio de decision",
+      "summary": "Se invirtio porque la suma pedia cuerpo y la comparacion mostro mejora clara. En otra grabacion el bottom podria no necesitar inversion, o el problema principal podria ser tiempo. El boton no se pulsa por costumbre: se verifica.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["decision contextual", "verificar siempre", "no por costumbre"],
+      "preguntas_probables": [
+        "Siempre conviene invertir el bottom?",
+        "Como se si el problema es tiempo y no polaridad?"
+      ],
+      "tutor_focus": "La decision depende de la evidencia auditiva del caso. Si invertir no cambia la suma, el problema probablemente es temporal."
+    },
+    {
+      "block_id": "E2-L04-B7",
+      "start_time": 355,
+      "end_time": 400,
+      "block_title": "Errores frecuentes",
+      "summary": "Falsas reglas: 'el bottom siempre va invertido', 'si suena mas fuerte ya quedo bien', 'polaridad y fase son lo mismo'. La referencia es cuerpo y coherencia, no nivel.",
+      "interaction_mode": "troubleshooting",
+      "concepts": ["falsas reglas", "volumen vs integracion", "polaridad != fase"],
+      "preguntas_probables": [
+        "Si suena mas fuerte, ya quedo bien?",
+        "Polaridad es lo mismo que alineacion?"
+      ],
+      "tutor_focus": "Corregir el atajo de juzgar por volumen. Mas nivel puede venir con peor integracion."
+    },
+    {
+      "block_id": "E2-L04-B8",
+      "start_time": 400,
+      "end_time": 420,
+      "block_title": "Cierre",
+      "summary": "La polaridad correcta deja la base lista. La siguiente leccion entra donde esta ya no alcanza: cuando la suma necesita ajuste por diferencia temporal, no por inversion binaria.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis", "diferencia temporal", "siguiente paso"],
+      "preguntas_probables": [
+        "Que hago si invertir no fue suficiente?"
+      ],
+      "tutor_focus": "Confirmar la idea y orientar a E2-L05: alineacion temporal cuando la suma sigue necesitando ajuste."
+    }
+  ],
+  "notes": "Leccion derivada del guion v2 (Eje 2). Timestamps definidos como guion de grabacion: el video H5P se grabara para coincidir con estos bloques (~7 min). Mismo flujo de enlace que E2-L01."
+}

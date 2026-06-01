@@ -1,0 +1,33 @@
+{
+  "axis_id": "Eje 2",
+  "axis_number": 2,
+  "axis_slug": "eje_2_integridad_senal",
+  "axis_title": "Eje 2 - Integridad de la señal",
+  "pedagogical_role": "Higiene y relación de la señal: filtrado, herramientas de fase, orden de cadena, polaridad, alineación, split, gain staging y corrección de interpretación antes de la mezcla.",
+  "doc_root": "documentos/oficial/ejes/eje_2_integridad_senal",
+  "primary_resources": [
+    "res_E2-L01_video",
+    "res_E2-L02_video",
+    "res_E2-L03_video",
+    "res_E2-L04_video",
+    "res_E2-L05_video",
+    "res_E2-L06_video",
+    "res_E2-L07_video",
+    "res_E2-L08_video",
+    "res_E2-L09_video"
+  ],
+  "derived_resources": [],
+  "lessons": [
+    "E2-L01",
+    "E2-L02",
+    "E2-L03",
+    "E2-L04",
+    "E2-L05",
+    "E2-L06",
+    "E2-L07",
+    "E2-L08",
+    "E2-L09"
+  ],
+  "status": "lessons_with_video",
+  "notes": "Eje 2 completo: 9 lecciones derivadas del guion v2 (Eje2_Guiones_KENTH_v2.md), cada una con bloques de video segmentados por timestamp. E2-L01 tiene video grabado real; E2-L02..L09 tienen los bloques definidos como guion de grabacion (pending_capture) para grabar los videos H5P y enlazarlos con el mismo flujo que E2-L01."
+}

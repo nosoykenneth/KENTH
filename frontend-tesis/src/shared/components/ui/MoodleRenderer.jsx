@@ -21,7 +21,7 @@ export default function MoodleRenderer({ modulo }) {
           if (contentObj?.content) {
             setHtmlContent(contentObj.content);
           } else if (contentObj?.fileurl) {
-            const res = await fetch(`${contentObj.fileurl.replace('http://localhost/', '/moodle_api/')}&token=${miToken}`);
+            const res = await fetch(`${contentObj.fileurl.replace('http://localhost/', '/api/lms/')}&token=${miToken}`);
             const text = await res.text();
             setHtmlContent(text);
           }
@@ -131,7 +131,7 @@ export default function MoodleRenderer({ modulo }) {
                 <iframe 
                   name="moodle_view_iframe"
                   onLoad={() => setIframeCargando(false)}
-                  src={`/moodle_api/proyecto_curso/api_persistente/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
+                  src={`/api/lms/proyecto_curso/api_persistente/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
                   className={`w-full h-full absolute inset-0 border-none bg-transparent transition-opacity duration-1000 ${iframeCargando ? 'opacity-0' : 'opacity-100'}`}
                   allow="fullscreen *; microphone *; camera *"
                   title="Evaluación Nivel Dios"
@@ -182,7 +182,7 @@ export default function MoodleRenderer({ modulo }) {
               {modulo.contents?.map((file, idx) => (
                  <a 
                    key={idx} 
-                   href={`${file.fileurl.replace('http://localhost/', '/moodle_api/')}&token=${miToken}`} 
+                   href={`${file.fileurl.replace('http://localhost/', '/api/lms/')}&token=${miToken}`} 
                    download={file.filename}
                    className="group p-6 bg-kenth-surface/10 border border-kenth-border hover:border-amber-500/50 rounded-3xl flex flex-col gap-4 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(245,158,11,0.15)] relative overflow-hidden"
                  >
@@ -237,7 +237,7 @@ export default function MoodleRenderer({ modulo }) {
             <iframe
               name="moodle_view_iframe"
               onLoad={() => setIframeCargando(false)}
-              src={`/moodle_api/proyecto_curso/api_persistente/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
+              src={`/api/lms/proyecto_curso/api_persistente/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
               className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-700 ${iframeCargando ? 'opacity-0' : 'opacity-100'}`}
               style={{ height: 'calc(100% + 50px)' }}
               allow="fullscreen *; microphone *; camera *"
@@ -261,7 +261,7 @@ export default function MoodleRenderer({ modulo }) {
            <p className="text-kenth-subtext text-lg mb-10 font-medium italic opacity-70 px-6">{fileRes?.filename || 'Documento de Referencia'}</p>
            
            <a 
-              href={fileRes ? `${fileRes.fileurl.replace('http://localhost/', '/moodle_api/')}&token=${miToken}` : '#'} 
+              href={fileRes ? `${fileRes.fileurl.replace('http://localhost/', '/api/lms/')}&token=${miToken}` : '#'} 
               download 
               className="group relative overflow-hidden bg-teal-600 hover:bg-teal-500 text-white py-5 px-16 rounded-[2rem] font-black tracking-[0.2em] uppercase transition-all shadow-[0_20px_40px_rgba(13,148,136,0.3)] hover:-translate-y-2 hover:shadow-[0_30px_60px_rgba(13,148,136,0.4)]"
             >

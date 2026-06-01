@@ -28,7 +28,7 @@ const persistCropState = (cropState) => {
 
 const toMoodleProxyUrl = (url) => {
   if (!url || url.startsWith('data:image')) return url;
-  return url.replace(/^https?:\/\/localhost\//, '/moodle_api/');
+  return url.replace(/^https?:\/\/localhost\//, '/api/lms/');
 };
 
 const prepareMoodleImageUrl = (url, token) => {
@@ -82,7 +82,7 @@ export default function ProfileSettingsView() {
       setAvatarPreview(currentPic);
     }
 
-    fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=get`)
+    fetch(`/api/lms/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=get`)
       .then(res => res.json())
       .then(res => {
         if (res.success) {
@@ -196,7 +196,7 @@ export default function ProfileSettingsView() {
         ...(pendingOriginalImage ? { pictureOriginalData: pendingOriginalImage } : {}),
       };
 
-      const response = await fetch(`/moodle_api/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=update`, {
+      const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=update`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)

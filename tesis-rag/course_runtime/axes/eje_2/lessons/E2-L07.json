@@ -1,0 +1,141 @@
+{
+  "lesson_id": "E2-L07",
+  "axis_id": "Eje 2",
+  "lesson_title": "Gain staging por tipo de senal",
+  "order": 7,
+  "resource_id": "res_E2-L07_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje2_Guiones_KENTH_v2.md",
+  "learning_goal": "Calibrar el nivel de trabajo segun el tipo de senal, distinguiendo senales percusivas de no percusivas.",
+  "expected_action": "Elegir el medidor adecuado (Peak para percusivas, VU/RMS para sostenidas) y ajustar Trim/clip gain para dejar cada canal en su punto de trabajo.",
+  "learning_goals": [
+    "Distinguir referencia de picos (percusivas) de referencia de nivel sostenido (no percusivas)",
+    "Separar gain staging (calibracion de entrada a la cadena) de balance de mezcla (faders)"
+  ],
+  "expected_actions": [
+    "Ajustar Trim de una senal percusiva mirando los picos para que no saturen el siguiente procesador",
+    "Ajustar Trim de una senal sostenida usando VU/RMS sobre un pasaje representativo"
+  ],
+  "resources": ["res_E2-L07_video"],
+  "prerequisites": ["E2-L06"],
+  "proactive_message": "Que una pista no clippee no significa que este bien calibrada. Tu senal es percusiva (mira los picos) o sostenida (mira VU/RMS)?",
+  "suggested_prompts": [
+    "Si no llega a rojo, ya esta bien calibrada?",
+    "Todo se calibra con VU?",
+    "Gain staging es bajar faders?",
+    "Por que mido distinto un bombo y un bajo?"
+  ],
+  "blocks": [
+    {
+      "block_id": "E2-L07-B1",
+      "start_time": 0,
+      "end_time": 35,
+      "block_title": "Apertura",
+      "summary": "Voz, bajo y bateria entrando a distintos procesadores. Que una pista no este clippeando no significa que este calibrada: el medidor de pico no le dice al compresor ni al EQ modelado si reciben el nivel para el que fueron disenados.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["calibracion vs clipping", "punto de trabajo", "headroom"],
+      "preguntas_probables": [
+        "Si no clippea, no esta bien?"
+      ],
+      "tutor_focus": "Separar 'no clippear' de 'estar calibrado'. El punto de trabajo del procesador no se ve en el medidor de pico general."
+    },
+    {
+      "block_id": "E2-L07-B2",
+      "start_time": 35,
+      "end_time": 120,
+      "block_title": "Senal percusiva: referencia de picos",
+      "summary": "En bateria o percusion la referencia principal son los picos: transitorios cortos y bruscos. Se ajusta Trim o clip gain para que esos picos caigan en una zona razonable y el siguiente procesador no reciba demasiado nivel en el transitorio.",
+      "interaction_mode": "practica",
+      "concepts": ["picos", "transitorios", "Trim/clip gain", "zona razonable"],
+      "preguntas_probables": [
+        "Que medidor uso para la bateria?",
+        "Hay un numero fijo para los picos?"
+      ],
+      "tutor_focus": "Para percusivas, vigilar los picos. No hay numero universal, pero el plugin siguiente no debe recibir los transitorios en saturacion involuntaria."
+    },
+    {
+      "block_id": "E2-L07-B3",
+      "start_time": 120,
+      "end_time": 210,
+      "block_title": "Senal no percusiva: referencia de nivel sostenido",
+      "summary": "En voz o bajo el Peak no describe bien el nivel de trabajo (picos bajos frente a energia sostenida). Se usa VU o RMS sobre un pasaje representativo (ni una silaba aislada ni el track con silencios).",
+      "interaction_mode": "practica",
+      "concepts": ["VU", "RMS", "nivel sostenido", "pasaje representativo"],
+      "preguntas_probables": [
+        "Por que el Peak no me sirve para la voz?",
+        "Que pasaje elijo para medir?"
+      ],
+      "tutor_focus": "Para sostenidas, el VU/RMS describe mejor la energia. Elegir una seccion que represente como vive la fuente en la cancion."
+    },
+    {
+      "block_id": "E2-L07-B4",
+      "start_time": 210,
+      "end_time": 260,
+      "block_title": "Senales distintas, medidores distintos",
+      "summary": "Un bombo y un bajo pueden tener picos comparables en Peak y comportarse muy distinto en VU. No se comparan instrumentos distintos con el mismo medidor sin pensar que se mide realmente.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["Peak vs VU", "cresta", "que pregunta responde cada medidor"],
+      "preguntas_probables": [
+        "Puedo comparar bombo y bajo con el mismo medidor?",
+        "Que me dice cada medidor en realidad?"
+      ],
+      "tutor_focus": "Cada medidor responde una pregunta distinta. Comparar instrumentos distintos con el mismo medidor sin pensar lleva a calibraciones erroneas."
+    },
+    {
+      "block_id": "E2-L07-B5",
+      "start_time": 260,
+      "end_time": 330,
+      "block_title": "Teoria aplicada",
+      "summary": "Las senales percusivas tienen alta cresta (gran diferencia entre pico y nivel sostenido). Las no percusivas se describen mejor con medidores integrados o promediados. El gain staging aqui es calibracion de entrada a la cadena, no balance musical.",
+      "interaction_mode": "teoria",
+      "concepts": ["factor de cresta", "medicion integrada", "calibracion vs balance"],
+      "preguntas_probables": [
+        "Que es el factor de cresta?",
+        "Por que el gain staging no es balance?"
+      ],
+      "tutor_focus": "Explicar la cresta y por que distintas senales piden distintas lecturas. Insistir: gain staging calibra entrada, no posiciona en la mezcla."
+    },
+    {
+      "block_id": "E2-L07-B6",
+      "start_time": 330,
+      "end_time": 375,
+      "block_title": "Criterio de decision",
+      "summary": "Se uso Peak para percusivas y VU/RMS para no percusivas porque la informacion relevante no es la misma. Un sintetizador con transitorios agresivos puede pedir combinar ambas lecturas. Lo importante es saber que pregunta responde cada medidor.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["eleccion de medidor", "casos mixtos", "intencion de medicion"],
+      "preguntas_probables": [
+        "Y un sintetizador con ataque fuerte?",
+        "Cuando combino Peak y VU?"
+      ],
+      "tutor_focus": "La eleccion del medidor depende de la naturaleza de la senal, no de una receta. En casos mixtos se combinan lecturas."
+    },
+    {
+      "block_id": "E2-L07-B7",
+      "start_time": 375,
+      "end_time": 425,
+      "block_title": "Errores frecuentes",
+      "summary": "Falsas reglas: 'mientras no llegue a rojo esta bien', 'todo se calibra con VU', 'todo se calibra con Peak', 'gain staging es bajar faders'. El rojo es el limite de clipping, no la zona de trabajo.",
+      "interaction_mode": "troubleshooting",
+      "concepts": ["falsas reglas", "limite vs zona de trabajo", "Trim != fader"],
+      "preguntas_probables": [
+        "Mientras no llegue a rojo no pasa nada?",
+        "Gain staging es lo mismo que bajar el fader?"
+      ],
+      "tutor_focus": "Corregir el atajo del rojo y la confusion Trim/fader. Bajar faders es balance; gain staging es calibracion de entrada."
+    },
+    {
+      "block_id": "E2-L07-B8",
+      "start_time": 425,
+      "end_time": 450,
+      "block_title": "Cierre",
+      "summary": "Claro con que lectura decidir el nivel de trabajo. Falta una distincion igual de importante: que control ejecuta ese ajuste y cual no. Eso organiza la siguiente leccion.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis", "controles de nivel", "siguiente paso"],
+      "preguntas_probables": [
+        "Con que control hago el ajuste de nivel?"
+      ],
+      "tutor_focus": "Confirmar la idea y orientar a E2-L08: que hace cada control (Trim, fader, send, retorno)."
+    }
+  ],
+  "notes": "Leccion derivada del guion v2 (Eje 2). Timestamps definidos como guion de grabacion: el video H5P se grabara para coincidir con estos bloques (~7.5 min). Mismo flujo de enlace que E2-L01."
+}

@@ -14,3 +14,5 @@ langchain-text-splitters
 pydantic
 python-multipart
 PyMySQL
+httpx
+python-json-logger

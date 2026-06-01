@@ -1,0 +1,30 @@
+{
+  "lesson_id": "E1-L01",
+  "axis_id": "Eje 1",
+  "subsection_code": "1-A1",
+  "lesson_title": "Peak, VU y RMS: qué mide cada uno y cuándo usar cada uno",
+  "order": 1,
+  "block_group": "A - Medición de nivel",
+  "resource_id": "",
+  "resource_type": "",
+  "source_script_file": "",
+  "learning_goal": "Distinguir qué pregunta diagnóstica responde cada tipo de medidor (Peak, VU, RMS) y cuándo usar uno u otro según el material y el objetivo.",
+  "expected_action": "Insertar Peak con retensor en el bus de salida y VU/RMS en tracks de referencia para evaluar nivel de trabajo, verificando que la relación pico/promedio sea coherente con el tipo de señal.",
+  "learning_goals": [
+    "Identificar la respuesta temporal del medidor Peak y su rol protegiendo la cadena D/A",
+    "Reconocer la balística del VU (~300 ms) y cuándo aproxima la percepción auditiva",
+    "Comparar mediciones RMS solo si comparten tiempo de integración"
+  ],
+  "expected_actions": [
+    "Colocar medidor Peak con retensor activo en la salida de la sesión",
+    "Colocar medidor VU o RMS en tracks de referencia",
+    "Verificar al exportar que el Peak no supere el techo de destino"
+  ],
+  "resources": [
+    "res_E1_canonico",
+    "res_E1_paquete_limpio"
+  ],
+  "prerequisites": [],
+  "blocks": [],
+  "notes": "Lección documental (sin video todavía). Los bloques se completan cuando se grabe y segmente el guion correspondiente."
+}

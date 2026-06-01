@@ -21,13 +21,97 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOCUMENTS_DIR = os.path.join(BASE_DIR, "documentos")
 OFFICIAL_DIR = os.path.join(DOCUMENTS_DIR, "oficial")
 EJES_DIR = os.path.join(OFFICIAL_DIR, "ejes")
+CONTENT_CANONICO_DIR = os.path.join(EJES_DIR, "contenido_canonico")
+COURSE_RUNTIME_DIR = os.path.join(BASE_DIR, "course_runtime")
 LOCATION_DIR = os.path.join(DOCUMENTS_DIR, "localizacion")
 EXTERNAL_DIR = os.path.join(DOCUMENTS_DIR, "externo")
 NO_INDEX_DIR = os.path.join(DOCUMENTS_DIR, "no_indexar")
+# Documentos de conocimiento subidos por el profesor, organizados por curso:
+# documentos/oficial/cursos/<course_id>/<doc>. Indexables si pasan la politica.
+COURSE_UPLOADS_DIR = os.path.join(OFFICIAL_DIR, "cursos")
 
 READY_STATUS = "ready_for_indexing"
 SAFE_SOURCE_ORIGIN = "course"
 SAFE_EXTENSIONS = (".json", ".md", ".pdf")
+
+ALLOWED_PUBLIC_DIRS = (
+    EJES_DIR,
+    CONTENT_CANONICO_DIR,
+    COURSE_RUNTIME_DIR,
+    COURSE_UPLOADS_DIR,
+    os.path.join(OFFICIAL_DIR, "modulo_01_fundamentos_acustica_medicion"),
+    os.path.join(OFFICIAL_DIR, "modulo_02_estructura_ganancia_flujo_senal"),
+    os.path.join(OFFICIAL_DIR, "modulo_03_polaridad_fase_monocompatibilidad"),
+    os.path.join(OFFICIAL_DIR, "modulo_04_filtros_ecualizacion"),
+    os.path.join(OFFICIAL_DIR, "modulo_05_procesadores_dinamicos"),
+    os.path.join(OFFICIAL_DIR, "modulo_06_espacialidad_profundidad_ambiencia"),
+    os.path.join(OFFICIAL_DIR, "modulo_07_practica_integradora_mezcla"),
+    os.path.join(OFFICIAL_DIR, "modulo_08_masterizacion_optimizacion_comercial"),
+)
+
+EXCLUDED_DIR_NAMES = {
+    "paquetes_limpios",
+    "no_indexar",
+    "externo",
+    "transcripciones_crudas",
+    "transcripciones_corregidas",
+    "backups",
+    "backup",
+    "logs",
+    "debug",
+    "tmp",
+    "temp",
+    "__pycache__",
+}
+
+ALLOWED_FILE_PATTERNS = (
+    r"^01_contenido_canonico\.md$",
+    r"^kenth_eje\d+_contenido_canonico\.md$",
+    r"^03_glosario\.json$",
+    r"^04_heuristicas\.json$",
+    r"^05_errores_frecuentes\.json$",
+    r"^06_faq\.json$",
+    r"^07_recursos\.json$",
+    r"^m\d{2}_guia_canonica\.md$",
+    r"^m\d{2}_glosario\.json$",
+    r"^m\d{2}_faq\.json$",
+    r"^m\d{2}_recursos\.json$",
+    r"^m\d{2}_actividades\.json$",
+    r"^m\d{2}_errores_comunes\.json$",
+    r"^manifest\.json$",
+    r"^[a-z0-9_-]+\.json$",
+)
+
+PROHIBITED_FILE_PATTERNS = (
+    r"(^|[/\\])paquetes_limpios([/\\]|$)",
+    r"02_paquete_limpio\.md$",
+    r".*_paquete_limpio\.md$",
+    r".*paquete_limpio.*",
+    r".*paquete.*limpio.*",
+    r"auditoria_forense_autoria_rabinovich\.md$",
+    r".*dossier_fuente.*",
+    r".*fuente_protegida.*",
+    r".*pdf.*fuente.*",
+    r".*transcripci[oó]n.*cruda.*",
+    r".*transcripci[oó]n.*corregida.*",
+    r".*backup.*",
+    r".*\.bak.*",
+    r".*log.*",
+    r".*debug.*",
+    r".*tmp.*",
+    r".*temp.*",
+)
+
+PROHIBITED_CONTENT_MARKERS = (
+    "02_paquete_limpio.md",
+    "paquete_limpio",
+    "paquetes_limpios",
+    "auditoria_forense_autoria_rabinovich",
+    "transcripcion cruda",
+    "transcripcion corregida",
+    "pdf fuente protegido",
+    "dossier_fuente",
+)
 
 
 def get_vector_store():
@@ -36,6 +120,13 @@ def get_vector_store():
 
 def _normalizar_path(filepath: str) -> str:
     return filepath.replace("\\", "/")
+
+
+def _rel_path(filepath: str) -> str:
+    try:
+        return _normalizar_path(os.path.relpath(filepath, BASE_DIR))
+    except ValueError:
+        return _normalizar_path(filepath)
 
 
 def _abs_path(path: str) -> str:
@@ -49,12 +140,48 @@ def _esta_dentro(filepath: str, directory: str) -> bool:
         return False
 
 
+def _tiene_directorio_excluido(filepath: str) -> bool:
+    parts = [part.lower() for part in _normalizar_path(filepath).split("/")]
+    return any(part in EXCLUDED_DIR_NAMES for part in parts)
+
+
+def _coincide_patron(patterns, text: str) -> bool:
+    normalized = _normalizar_path(text).lower()
+    return any(re.search(pattern, normalized, re.IGNORECASE) for pattern in patterns)
+
+
+def _nombre_permitido(filepath: str) -> bool:
+    filename = os.path.basename(filepath).lower()
+    if _esta_dentro(filepath, COURSE_RUNTIME_DIR):
+        return filename.endswith(".json")
+    # Documentos subidos por el profesor (documentos/oficial/cursos/<course_id>/):
+    # se permite cualquier nombre con extension segura. La politica de copyright
+    # (patrones y marcadores prohibidos) se sigue aplicando aparte.
+    if _esta_dentro(filepath, COURSE_UPLOADS_DIR):
+        return filename.endswith(SAFE_EXTENSIONS)
+    return _coincide_patron(ALLOWED_FILE_PATTERNS, filename)
+
+
+def _contenido_contiene_marcador_prohibido(filepath: str) -> bool:
+    try:
+        with open(filepath, "r", encoding="utf-8") as f:
+            text = f.read(12000).lower()
+    except Exception:
+        return False
+    return any(marker.lower() in text for marker in PROHIBITED_CONTENT_MARKERS)
+
+
+def _log_ingest_decision(action: str, filepath: str, reasons=None, chunks=None):
+    detail = f" chunks={chunks}" if chunks is not None else ""
+    suffix = f" :: {'; '.join(reasons)}" if reasons else ""
+    print(f"[INGEST][{action}] {_rel_path(filepath)}{detail}{suffix}")
+
+
 def _es_ruta_permitida(filepath: str) -> bool:
-    return (
-        _esta_dentro(filepath, EJES_DIR)
-    ) and not (
+    return any(_esta_dentro(filepath, directory) for directory in ALLOWED_PUBLIC_DIRS) and not (
         _esta_dentro(filepath, EXTERNAL_DIR)
         or _esta_dentro(filepath, NO_INDEX_DIR)
+        or _tiene_directorio_excluido(filepath)
     )
 
 
@@ -98,6 +225,15 @@ def _sidecar_metadata_pdf(filepath: str):
     return {}
 
 
+def _es_sidecar_metadata(filepath: str) -> bool:
+    lower = filepath.lower()
+    if lower.endswith(".metadata.json"):
+        return True
+    if lower.endswith(".json") and os.path.exists(os.path.splitext(filepath)[0] + ".pdf"):
+        return True
+    return False
+
+
 def obtener_metadata_documental(filepath: str):
     filepath_lower = filepath.lower()
     if filepath_lower.endswith(".json"):
@@ -110,6 +246,14 @@ def obtener_metadata_documental(filepath: str):
     return {}
 
 
+def course_upload_dir(course_id: str) -> str:
+    """Carpeta de subidas de conocimiento del profesor para un curso (la crea si falta)."""
+    safe = re.sub(r"[^0-9A-Za-z_-]", "_", str(course_id or "default"))
+    path = os.path.join(COURSE_UPLOADS_DIR, safe)
+    os.makedirs(path, exist_ok=True)
+    return path
+
+
 def es_documento_aprobado_para_indexar(filepath: str, explicar: bool = False):
     razones = []
 
@@ -118,20 +262,32 @@ def es_documento_aprobado_para_indexar(filepath: str, explicar: bool = False):
     if not filepath.lower().endswith(SAFE_EXTENSIONS):
         razones.append("extension no soportada por ingesta segura")
     if not _es_ruta_permitida(filepath):
-        razones.append("ruta fuera de documentos/oficial/ejes")
-        
+        razones.append("ruta fuera de carpetas publicas permitidas o dentro de carpeta excluida")
+
+    relpath = _rel_path(filepath)
     filename_lower = os.path.basename(filepath).lower()
-    if filename_lower not in ("01_contenido_canonico.md", "02_paquete_limpio.md"):
-        razones.append("solo se permite indexar 01_contenido_canonico.md y 02_paquete_limpio.md temporalmente")
+    if _coincide_patron(PROHIBITED_FILE_PATTERNS, relpath):
+        razones.append("coincide con patron prohibido de ingesta")
+    if not _nombre_permitido(filepath):
+        razones.append("nombre de archivo fuera de patrones publicos aprobados")
+    if _contenido_contiene_marcador_prohibido(filepath):
+        razones.append("contiene referencia a paquete limpio, fuente protegida o material interno")
 
     metadata = obtener_metadata_documental(filepath)
     status = metadata.get("status", "")
     source_origin = metadata.get("source_origin", "")
+    is_course_runtime = _esta_dentro(filepath, COURSE_RUNTIME_DIR)
+    is_legacy_canonical = _esta_dentro(filepath, CONTENT_CANONICO_DIR) and filename_lower.endswith("_contenido_canonico.md")
 
-    if status != READY_STATUS:
+    if not (is_course_runtime or is_legacy_canonical) and status != READY_STATUS:
         razones.append(f"status='{status or 'missing'}' distinto de '{READY_STATUS}'")
-    if source_origin != SAFE_SOURCE_ORIGIN:
+    if not (is_course_runtime or is_legacy_canonical) and source_origin != SAFE_SOURCE_ORIGIN:
         razones.append(f"source_origin='{source_origin or 'missing'}' distinto de '{SAFE_SOURCE_ORIGIN}'")
+
+    nested_metadata = metadata.get("metadata", {}) if isinstance(metadata, dict) else {}
+    allowed_flag = metadata.get("allowed_for_indexing", nested_metadata.get("allowed_for_indexing", None))
+    if allowed_flag is False:
+        razones.append("allowed_for_indexing=false")
 
     aprobado = not razones
     if explicar:
@@ -140,20 +296,22 @@ def es_documento_aprobado_para_indexar(filepath: str, explicar: bool = False):
 
 
 def get_safe_document_candidates():
-    archivos = []
-    for root_dir in [EJES_DIR]:
+    archivos = set()
+    for root_dir in ALLOWED_PUBLIC_DIRS:
         if not os.path.exists(root_dir):
             continue
         for root, dirs, files in os.walk(root_dir):
             dirs[:] = [
                 d for d in dirs
-                if not _esta_dentro(os.path.join(root, d), EXTERNAL_DIR)
+                if d.lower() not in EXCLUDED_DIR_NAMES
+                and not _esta_dentro(os.path.join(root, d), EXTERNAL_DIR)
                 and not _esta_dentro(os.path.join(root, d), NO_INDEX_DIR)
             ]
             for filename in files:
-                if filename.lower() in ("01_contenido_canonico.md", "02_paquete_limpio.md"):
-                    archivos.append(os.path.join(root, filename))
-    return archivos
+                filepath = os.path.join(root, filename)
+                if filepath.lower().endswith(SAFE_EXTENSIONS) and not _es_sidecar_metadata(filepath):
+                    archivos.add(os.path.abspath(filepath))
+    return sorted(archivos)
 
 
 def get_approved_documents():
@@ -624,6 +782,7 @@ def add_single_document(filepath: str):
 
     aprobado, razones, _ = es_documento_aprobado_para_indexar(filepath, explicar=True)
     if not aprobado:
+        _log_ingest_decision("SKIP", filepath, razones)
         return {
             "success": False,
             "skipped": True,
@@ -656,6 +815,7 @@ def add_single_document(filepath: str):
     print("Anadiendo a ChromaDB...")
     db = get_vector_store()
     db.add_documents(chunks)
+    _log_ingest_decision("INDEX", filepath, chunks=len(chunks))
 
     return {
         "success": True,
@@ -683,6 +843,54 @@ def remove_single_document(filepath: str):
     return {"success": True, "message": f"Documento '{filename}' eliminado de la IA."}
 
 
+def reindex_course_documents(course_id: str):
+    """Reindexa solo los documentos subidos por profesor para un curso.
+
+    Borra de Chroma los chunks con metadata course_id=<curso> y vuelve a cargar
+    los archivos aprobados dentro de documentos/oficial/cursos/<course_id>/.
+    """
+    course = str(course_id or "").strip()
+    if not course:
+        return {"success": False, "message": "course_id requerido", "processed": 0, "skipped": 0}
+
+    db = get_vector_store()
+    try:
+        db._collection.delete(where={"course_id": course})
+    except Exception as e:
+        print(f"Nota al borrar chunks del curso {course}: {e}")
+
+    root = course_upload_dir(course)
+    candidates = []
+    if os.path.exists(root):
+        for current_root, dirs, files in os.walk(root):
+            dirs[:] = [d for d in dirs if d.lower() not in EXCLUDED_DIR_NAMES]
+            for filename in files:
+                filepath = os.path.join(current_root, filename)
+                if filepath.lower().endswith(SAFE_EXTENSIONS) and not _es_sidecar_metadata(filepath):
+                    candidates.append(os.path.abspath(filepath))
+
+    processed = 0
+    skipped = 0
+    reasons = {}
+    for filepath in sorted(candidates):
+        result = add_single_document(filepath)
+        if result.get("success"):
+            processed += 1
+        else:
+            skipped += 1
+            reasons[_rel_path(filepath)] = result.get("reasons") or [result.get("message", "no aprobado")]
+
+    return {
+        "success": True,
+        "message": f"Reindex scoped completado para curso {course}.",
+        "course_id": course,
+        "processed": processed,
+        "skipped": skipped,
+        "candidates": len(candidates),
+        "reasons": reasons,
+    }
+
+
 def get_indexed_documents():
     """
     Consulta ChromaDB para obtener una lista unica de documentos indexados.
@@ -708,7 +916,7 @@ def process_all_documents():
     """
     Sincroniza solo documentos oficiales/localizacion explicitamente aprobados.
     """
-    archivos = get_approved_documents()
+    archivos = get_safe_document_candidates()
 
     processed = 0
     skipped = 0

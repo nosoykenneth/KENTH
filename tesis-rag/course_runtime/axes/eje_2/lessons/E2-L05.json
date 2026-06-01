@@ -1,0 +1,155 @@
+{
+  "lesson_id": "E2-L05",
+  "axis_id": "Eje 2",
+  "lesson_title": "Alineacion temporal: manual, plugin y compromiso real",
+  "order": 5,
+  "resource_id": "res_E2-L05_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje2_Guiones_KENTH_v2.md",
+  "learning_goal": "Alinear temporalmente senales multiples (manual o con plugin) definiendo una referencia y entendiendo que se gana y que se sacrifica.",
+  "expected_action": "Elegir una referencia, ajustar sobre un fragmento representativo, verificar la suma en contexto y aceptar que toda alineacion es una prioridad, no una perfeccion global.",
+  "learning_goals": [
+    "Elegir una referencia de alineacion segun que define el groove y la percepcion del kit",
+    "Entender que no existe alineacion perfecta para todas las relaciones a la vez"
+  ],
+  "expected_actions": [
+    "Alinear manualmente localizando el transitorio y comparando la suma antes/despues por escucha",
+    "Usar un plugin de autoalineacion sobre una seccion representativa y validar el resultado, no aprobarlo por defecto"
+  ],
+  "resources": ["res_E2-L05_video"],
+  "prerequisites": ["E2-L04"],
+  "proactive_message": "Alinear no es hacer coincidir dibujitos: es decidir que relacion temporal priorizas y cual dejas menos perfecta. Cual es tu referencia?",
+  "suggested_prompts": [
+    "Alinear siempre mejora la mezcla?",
+    "Si visualmente coincide, ya quedo alineado?",
+    "El plugin de autoalineacion decide por mi?",
+    "Tengo que alinear todo al mismo punto?"
+  ],
+  "blocks": [
+    {
+      "block_id": "E2-L05-B1",
+      "start_time": 0,
+      "end_time": 35,
+      "block_title": "Apertura",
+      "summary": "Bateria multicanal: los transitorios de close mics y overheads no coinciden. Alinear no es convertir la bateria real en una captura imposible, sino decidir que relacion temporal priorizar.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["desalineacion temporal", "transitorios desfasados", "prioridad vs perfeccion"],
+      "preguntas_probables": [
+        "Tengo que alinear todos los microfonos entre si?"
+      ],
+      "tutor_focus": "Encuadrar la alineacion como una decision de prioridad, no como perfeccion global. Conectar con el diagnostico del Eje 1."
+    },
+    {
+      "block_id": "E2-L05-B2",
+      "start_time": 35,
+      "end_time": 95,
+      "block_title": "Elegir la referencia",
+      "summary": "No se alinea todo contra todo: se necesita un centro de decision. En bateria suele tomarse el tambor superior como referencia porque define mucho del groove y del golpe.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["referencia de alineacion", "centro de decision", "groove"],
+      "preguntas_probables": [
+        "Cual microfono uso como referencia?",
+        "Por que el tambor superior y no el bombo?"
+      ],
+      "tutor_focus": "La referencia depende de que define el groove en esa cancion. No hay referencia universal; hay una decision justificada."
+    },
+    {
+      "block_id": "E2-L05-B3",
+      "start_time": 95,
+      "end_time": 200,
+      "block_title": "Alineacion manual",
+      "summary": "Se amplia la forma de onda, se localiza el transitorio en la referencia y en la senal secundaria, y se desplaza la secundaria para acercarla. No se busca coincidencia visual exacta sino mejora audible en la suma.",
+      "interaction_mode": "practica",
+      "concepts": ["transitorio", "desplazamiento de clip", "mejora audible vs visual"],
+      "preguntas_probables": [
+        "Tienen que coincidir exactamente las formas de onda?",
+        "Hasta que punto desplazo la senal secundaria?"
+      ],
+      "tutor_focus": "La meta es mejora audible, no coincidencia visual desde el primer sample. Si alinear el tambor mejora pero los overheads se sienten raros, aparece el compromiso."
+    },
+    {
+      "block_id": "E2-L05-B4",
+      "start_time": 200,
+      "end_time": 285,
+      "block_title": "Alineacion con plugin",
+      "summary": "Se inserta un plugin de autoalineacion en el canal secundario, se elige una seccion representativa (ni silencio ni pasaje atipico) y se ejecuta el analisis. El plugin acelera, pero no reemplaza el criterio: se escucha igual.",
+      "interaction_mode": "practica",
+      "concepts": ["autoalineacion", "seccion representativa", "criterio sobre automatismo"],
+      "preguntas_probables": [
+        "El plugin lo hace mejor que a mano?",
+        "Por que no apruebo el valor que encontro el plugin?"
+      ],
+      "tutor_focus": "El plugin propone; la decision de si mejoro es del operador. Elegir una seccion representativa es clave para que el analisis sea valido."
+    },
+    {
+      "block_id": "E2-L05-B5",
+      "start_time": 285,
+      "end_time": 330,
+      "block_title": "El limite practico: senales muy por debajo de la referencia",
+      "summary": "Si una senal secundaria esta muchos dB por debajo de la referencia, el comb filtering que aporta puede ser minimo. A veces bajarla o replantear su rol resuelve mas que seguir ajustando tiempo milimetricamente.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["comb filtering", "nivel relativo", "rol de la senal"],
+      "preguntas_probables": [
+        "Vale la pena alinear una senal muy baja?",
+        "Cuando dejo de ajustar tiempo?"
+      ],
+      "tutor_focus": "Si la senal aporta poco nivel, su impacto en la suma es bajo: replantear su rol puede ser mas eficaz que afinar milisegundos."
+    },
+    {
+      "block_id": "E2-L05-B6",
+      "start_time": 330,
+      "end_time": 395,
+      "block_title": "Teoria aplicada",
+      "summary": "La desalineacion produce cancelaciones y refuerzos distintos por frecuencia: no siempre se oye como eco sino como perdida de cuerpo o ataque raro. La diferencia temporal tambien construye perspectiva: anularla toda puede ganar pegada y perder profundidad.",
+      "interaction_mode": "teoria",
+      "concepts": ["cancelaciones por frecuencia", "perspectiva natural", "no hay alineacion perfecta global"],
+      "preguntas_probables": [
+        "Por que la desalineacion no suena como un eco?",
+        "Alinear todo puede quitar profundidad?"
+      ],
+      "tutor_focus": "Explicar que la diferencia temporal entre microfonos tambien crea imagen y profundidad: anularla por completo tiene costo."
+    },
+    {
+      "block_id": "E2-L05-B7",
+      "start_time": 395,
+      "end_time": 435,
+      "block_title": "Criterio de decision",
+      "summary": "Se priorizo el tambor como referencia y se acepto el resto como compromiso. En otra produccion podria ser el bombo o los overheads. La decision depende de que elemento define el groove y la percepcion dominante.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["prioridad de referencia", "compromiso", "percepcion dominante"],
+      "preguntas_probables": [
+        "Cuando elijo el bombo como referencia?",
+        "Como decido que relacion sacrifico?"
+      ],
+      "tutor_focus": "La referencia cambia con la cancion. Lo importante es decidir conscientemente que relacion se prioriza y cual se deja menos perfecta."
+    },
+    {
+      "block_id": "E2-L05-B8",
+      "start_time": 435,
+      "end_time": 475,
+      "block_title": "Errores frecuentes",
+      "summary": "Falsas reglas: 'alinear siempre mejora', 'si visualmente coincide ya quedo', 'el plugin sabe mas que tu', 'hay que alinear todo al mismo punto'. La verificacion es auditiva, no visual.",
+      "interaction_mode": "troubleshooting",
+      "concepts": ["falsas reglas", "verificacion auditiva", "funcion de cada relacion"],
+      "preguntas_probables": [
+        "Si coincide en pantalla ya esta bien?",
+        "Debo alinear todo al mismo punto?"
+      ],
+      "tutor_focus": "Corregir el atajo visual y el 'todo al mismo punto'. Cada relacion entre canales cumple una funcion perceptiva distinta."
+    },
+    {
+      "block_id": "E2-L05-B9",
+      "start_time": 475,
+      "end_time": 500,
+      "block_title": "Cierre",
+      "summary": "Ya sabemos corregir relaciones entre senales completas. La siguiente leccion lleva ese principio a dividir una senal por bandas y comprobar que la suma sigue reconstruyendo el original.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis", "split por bandas", "siguiente paso"],
+      "preguntas_probables": [
+        "Que pasa si proceso graves y agudos por separado?"
+      ],
+      "tutor_focus": "Confirmar la idea y orientar a E2-L06: split de frecuencias y prueba nula."
+    }
+  ],
+  "notes": "Leccion derivada del guion v2 (Eje 2). Timestamps definidos como guion de grabacion: el video H5P se grabara para coincidir con estos bloques (~8.3 min). Mismo flujo de enlace que E2-L01."
+}

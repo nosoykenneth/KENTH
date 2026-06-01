@@ -12,6 +12,7 @@ No migra contenido editorial ni corpus RAG.
 
 from __future__ import annotations
 
+import argparse
 import json
 import sqlite3
 import sys
@@ -86,31 +87,59 @@ def _json(value: Any, fallback: Any) -> Any:
         return fallback
 
 
-def migrate_runtime_files() -> Dict[str, int]:
-    counts = {"lessons": 0, "resources": 0, "pilot_lessons": 0, "blocks": 0, "prompts": 0}
-
-    for path in sorted((RUNTIME_DIR / "lessons").glob("*.json")):
-        data = _read_json(path)
-        db_service.upsert_lesson(
-            lesson_id=data["lesson_id"],
-            course_id=COURSE_ID,
-            axis_id=data.get("axis_id", ""),
-            title=data.get("title", ""),
-            order=int(data.get("order", 0) or 0),
-            learning_goals=data.get("learning_goals", []),
-            expected_actions=data.get("expected_actions", []),
-            resources=data.get("resources", []),
-            prerequisites=data.get("prerequisites", []),
-            notes=data.get("notes", ""),
-            metadata={"seed_file": str(path.relative_to(ROOT))},
+def _seed_axes(course_id: str, only_missing: bool) -> int:
+    """Siembra los ejes en local_tesisai_axes desde el manifest global + manifests por eje."""
+    course_manifest_path = RUNTIME_DIR / "manifest.json"
+    if not course_manifest_path.exists():
+        return 0
+    course_manifest = _read_json(course_manifest_path)
+    count = 0
+    for axis in course_manifest.get("axes", []):
+        axis_id = axis.get("axis_id", "")
+        if not axis_id:
+            continue
+        if only_missing and db_service.get_axis(axis_id, course_id):
+            continue
+        # Enriquecer con el manifest del eje (pedagogical_role, doc_root, recursos).
+        eje_manifest: Dict[str, Any] = {}
+        manifest_path = RUNTIME_DIR / "axes" / axis.get("axis_slug", "") / "manifest.json"
+        if manifest_path.exists():
+            eje_manifest = _read_json(manifest_path)
+        db_service.upsert_axis(
+            axis_id=axis_id,
+            course_id=course_id,
+            axis_number=int(axis.get("axis_number", 0) or 0),
+            axis_slug=axis.get("axis_slug", ""),
+            title=axis.get("axis_title") or eje_manifest.get("axis_title", ""),
+            pedagogical_role=eje_manifest.get("pedagogical_role", ""),
+            doc_root=eje_manifest.get("doc_root", ""),
+            status=axis.get("status", "") or eje_manifest.get("status", ""),
+            axis_order=int(axis.get("axis_number", 0) or 0),
+            metadata={
+                "primary_resources": eje_manifest.get("primary_resources", []),
+                "derived_resources": eje_manifest.get("derived_resources", []),
+                "seed_file": str(course_manifest_path.relative_to(ROOT)),
+            },
         )
-        counts["lessons"] += 1
+        count += 1
+    return count
 
+
+def migrate_runtime_files(course_id: str = COURSE_ID, only_missing: bool = True) -> Dict[str, int]:
+    counts = {"axes": 0, "lessons": 0, "resources": 0, "blocks": 0, "prompts": 0, "skipped": 0}
+
+    counts["axes"] = _seed_axes(course_id, only_missing)
+
+    # Recursos: viven en course_runtime/resources/*.json (formato Pydantic Resource).
     for path in sorted((RUNTIME_DIR / "resources").glob("*.json")):
         data = _read_json(path)
+        resource_id = data["resource_id"]
+        if only_missing and db_service.get_resource(resource_id):
+            counts["skipped"] += 1
+            continue
         db_service.upsert_resource(
-            resource_id=data["resource_id"],
-            course_id=COURSE_ID,
+            resource_id=resource_id,
+            course_id=course_id,
             axis_id=data.get("axis_id", ""),
             lesson_id=data.get("lesson_id", ""),
             resource_type=data.get("type", "lesson_note"),
@@ -124,61 +153,52 @@ def migrate_runtime_files() -> Dict[str, int]:
         )
         counts["resources"] += 1
 
-    for path in sorted((RUNTIME_DIR / "pilot").glob("E*-L*.json")):
+    # Lecciones: viven en course_runtime/axes/eje_N/lessons/<lesson_id>.json.
+    # Una lección puede tener bloques de video (segmentación temporal) o no.
+    for path in sorted((RUNTIME_DIR / "axes").glob("eje_*/lessons/*.json")):
         data = _read_json(path)
-        blocks = data.get("blocks", [])
+        lesson_id = data["lesson_id"]
+        # Seed-safe: si la lección ya existe en BD, no la pisamos (protege ediciones del profe).
+        if only_missing and db_service.get_lesson(lesson_id):
+            counts["skipped"] += 1
+            continue
+        blocks = data.get("blocks", []) or []
         resource_id = data.get("resource_id", "")
+        resources = data.get("resources") or ([resource_id] if resource_id else [])
         db_service.upsert_lesson(
-            lesson_id=data["lesson_id"],
-            course_id=COURSE_ID,
+            lesson_id=lesson_id,
+            course_id=course_id,
             axis_id=data.get("axis_id", ""),
-            title=data.get("lesson_title", ""),
-            order=0,
+            title=data.get("lesson_title") or data.get("title", ""),
+            order=int(data.get("order", 0) or 0),
             learning_goal=data.get("learning_goal", ""),
             expected_action=data.get("expected_action", ""),
+            learning_goals=data.get("learning_goals", []),
+            expected_actions=data.get("expected_actions", []),
             source_script_file=data.get("source_script_file", ""),
-            is_pilot=True,
-            resources=[resource_id] if resource_id else [],
+            resources=resources,
+            prerequisites=data.get("prerequisites", []),
+            notes=data.get("notes", ""),
             metadata={"seed_file": str(path.relative_to(ROOT))},
         )
-        counts["pilot_lessons"] += 1
+        counts["lessons"] += 1
 
-        if resource_id:
-            db_service.upsert_resource(
-                resource_id=resource_id,
-                course_id=COURSE_ID,
-                axis_id=data.get("axis_id", ""),
-                lesson_id=data["lesson_id"],
-                resource_type=data.get("resource_type", "video"),
-                title=data.get("lesson_title", ""),
-                source_uri=data.get("source_script_file", ""),
-                metadata={"seed_file": str(path.relative_to(ROOT)), "derived_from_pilot": True},
+        db_service.replace_lesson_blocks(lesson_id, blocks)
+        counts["blocks"] += len(blocks)
+
+        # Prompts: preferimos los del propio JSON de la lección; si no, los semilla hardcodeada.
+        proactive = data.get("proactive_message", "")
+        suggested = data.get("suggested_prompts", []) or []
+        if not proactive and not suggested and lesson_id in PROMPT_SEEDS:
+            proactive = PROMPT_SEEDS[lesson_id].get("proactive", "")
+            suggested = PROMPT_SEEDS[lesson_id].get("suggested", [])
+        if proactive or suggested:
+            db_service.set_lesson_prompts(
+                lesson_id,
+                proactive_message=proactive,
+                suggested_prompts=suggested,
             )
-
-        for idx, block in enumerate(blocks):
-            db_service.upsert_lesson_block(
-                block_id=block["block_id"],
-                lesson_id=data["lesson_id"],
-                block_order=idx,
-                start_time=block.get("start_time"),
-                end_time=block.get("end_time"),
-                block_title=block.get("block_title", ""),
-                summary=block.get("summary", ""),
-                interaction_mode=block.get("interaction_mode", ""),
-                tutor_focus=block.get("tutor_focus", ""),
-                concepts=block.get("concepts", []),
-                preguntas_probables=block.get("preguntas_probables", []),
-                metadata={"seed_file": str(path.relative_to(ROOT))},
-            )
-            counts["blocks"] += 1
-
-    for lesson_id, prompts in PROMPT_SEEDS.items():
-        if prompts.get("proactive"):
-            db_service.upsert_lesson_prompt(lesson_id, "proactive", prompts["proactive"], 0)
-            counts["prompts"] += 1
-        for order, text in enumerate(prompts.get("suggested", [])):
-            db_service.upsert_lesson_prompt(lesson_id, "suggested", text, order)
-            counts["prompts"] += 1
+            counts["prompts"] += (1 if proactive else 0) + len(suggested)
 
     return counts
 
@@ -243,12 +263,28 @@ def migrate_sqlite_operational() -> Dict[str, int]:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Backfill operativo course_runtime -> BD Moodle.")
+    parser.add_argument("--course-id", default=COURSE_ID, help="course_id destino (default: %(default)s).")
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Re-siembra TODO desde JSON, pisando lo que exista en BD (peligroso: borra ediciones del profe).",
+    )
+    parser.add_argument(
+        "--skip-legacy-sqlite",
+        action="store_true",
+        help="No migrar sesiones/mensajes legacy de bd_chat/chats.db.",
+    )
+    args = parser.parse_args()
+
     db_service.init_db()
-    runtime_counts = migrate_runtime_files()
-    sqlite_counts = migrate_sqlite_operational()
+    runtime_counts = migrate_runtime_files(course_id=args.course_id, only_missing=not args.force)
+    sqlite_counts = {} if args.skip_legacy_sqlite else migrate_sqlite_operational()
     backend = "moodle_db" if db_service.using_moodle_db() else "sqlite_fallback"
     print(json.dumps({
         "backend": backend,
+        "course_id": args.course_id,
+        "mode": "force" if args.force else "only_missing",
         "runtime": runtime_counts,
         "sqlite_legacy": sqlite_counts,
     }, ensure_ascii=False, indent=2))

@@ -60,7 +60,7 @@ def test_bloque_piloto_es_runtime_y_no_evidencia():
     assert "BLOQUE ACTIVO DEL VIDEO (PUNTO DE PARTIDA)" in rendered
     assert "NO ES EVIDENCIA RAG" in rendered
     assert "preguntas probables son pistas runtime" in rendered
-    assert envelope.pilot_block["block_id"] == "E2-L01-B4"
+    assert envelope.active_block["block_id"] == "E2-L01-B4"
 
 
 def test_politica_detecta_eje_posterior_desde_contexto_actual():

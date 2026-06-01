@@ -13,6 +13,7 @@ class EstadoAgente(TypedDict, total=False):
     evidencias: list
     evidence_level: str
     respuesta_final: str
+    course_id: str
     intent: str
     answer_type: str
     course_module: str

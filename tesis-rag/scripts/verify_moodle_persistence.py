@@ -47,7 +47,7 @@ def main() -> None:
 
     table_counts = {name: _count_table(name) for name in EXPECTED_TABLES}
 
-    lessons = db_service.list_lessons(is_pilot=True)
+    lessons = db_service.list_lessons()
     blocks = db_service.list_lesson_blocks("E2-L01")
     prompts = db_service.list_lesson_prompts("E2-L01")
     links_signed = db_service.list_resource_links("Mi42YjU4ZDdhMDdkMjE=")
@@ -93,7 +93,7 @@ def main() -> None:
         "source": "moodle_db" if db_service.using_moodle_db() else "not_moodle",
         "tables": table_counts,
         "reads": {
-            "pilot_lessons": len(lessons),
+            "lessons": len(lessons),
             "E2-L01_blocks": len(blocks),
             "E2-L01_prompts": prompts,
             "links_signed": len(links_signed),

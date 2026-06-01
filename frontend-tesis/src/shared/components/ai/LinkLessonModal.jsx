@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import {
-  listPilotLessons,
-  getPilotLesson,
+  listAllLessons,
+  getLesson,
   getResourceLink,
   upsertResourceLink,
   deleteResourceLink,
-} from '../../services/pilotService';
+} from '../../services/axesService';
 
 /**
- * Modal de vinculacion recurso <-> leccion piloto.
+ * Modal de vinculación recurso Moodle <-> lección formal del curso.
  *
  * Props:
  *   - resource:  modulo Moodle abierto. Espera al menos { id, modname, name }.
@@ -30,18 +30,18 @@ export default function LinkLessonModal({ resource, courseId, onClose }) {
     (async () => {
       try {
         setLoading(true);
-        const [pilots, link] = await Promise.all([
-          listPilotLessons(),
+        const [all, link] = await Promise.all([
+          listAllLessons(courseId),
           getResourceLink(resource.id),
         ]);
         if (!alive) return;
-        setLessons(pilots);
+        setLessons(all);
         setCurrentLink(link);
-        setSelectedId(link?.lesson_id || pilots[0]?.lesson_id || '');
+        setSelectedId(link?.lesson_id || all[0]?.lesson_id || '');
 
-        // Trae detalle para mostrar learning_goal en cada opcion.
+        // Trae detalle para mostrar learning_goal en cada opción.
         const fulls = await Promise.all(
-          pilots.map((p) => getPilotLesson(p.lesson_id).catch(() => null)),
+          all.map((p) => getLesson(p.lesson_id, courseId).catch(() => null)),
         );
         if (!alive) return;
         const map = {};
@@ -54,7 +54,7 @@ export default function LinkLessonModal({ resource, courseId, onClose }) {
       }
     })();
     return () => { alive = false; };
-  }, [resource?.id]);
+  }, [resource?.id, courseId]);
 
   const handleSave = async () => {
     if (!selectedId) return;
@@ -133,10 +133,10 @@ export default function LinkLessonModal({ resource, courseId, onClose }) {
         )}
 
         {loading ? (
-          <p className="text-sm text-kenth-subtext py-6">Cargando lecciones piloto...</p>
+          <p className="text-sm text-kenth-subtext py-6">Cargando lecciones del curso...</p>
         ) : lessons.length === 0 ? (
           <p className="text-sm text-red-400 py-6">
-            No hay lecciones piloto disponibles en el backend.
+            No hay lecciones registradas en el backend.
           </p>
         ) : (
           <div className="flex flex-col gap-2 max-h-[55vh] overflow-y-auto pr-1">
@@ -154,7 +154,7 @@ export default function LinkLessonModal({ resource, courseId, onClose }) {
                 >
                   <input
                     type="radio"
-                    name="pilot-lesson"
+                    name="course-lesson"
                     value={p.lesson_id}
                     checked={checked}
                     onChange={() => setSelectedId(p.lesson_id)}

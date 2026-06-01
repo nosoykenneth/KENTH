@@ -1,0 +1,15 @@
+{
+  "axis_id": "Eje 3",
+  "axis_number": 3,
+  "axis_slug": "eje_3_identidad_espectral",
+  "axis_title": "Eje 3 - Identidad espectral",
+  "pedagogical_role": "Filtros y EQ: cómo trabajar la identidad tímbrica de cada elemento de la mezcla.",
+  "doc_root": "documentos/oficial/ejes/eje_3_identidad_espectral",
+  "primary_resources": [],
+  "derived_resources": [],
+  "lessons": [
+    "E3-L03"
+  ],
+  "status": "lesson_with_video",
+  "notes": "Lección E3-L03 migrada desde course_runtime/pilot/. Tiene bloques de video reales."
+}

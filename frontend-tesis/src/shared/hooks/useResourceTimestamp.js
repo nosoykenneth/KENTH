@@ -22,8 +22,8 @@ import { useEffect, useState } from 'react';
  *      mandar al padre los verbos relevantes (played, paused, seeked,
  *      answered) ademas del segundo actual.
  *   3. Backend: cuando el payload incluya `current_timestamp`, el
- *      resolver de bloque del piloto ya sabe devolver el bloque activo
- *      por minuto (ver `/pilot/lessons/{id}/block?t=...`).
+ *      resolver de bloque ya sabe devolver el bloque activo del video
+ *      por timestamp (ver `/axes/lessons/{id}/block?t=...`).
  *
  * Forma de los mensajes que ya quedan soportados:
  *   { type: 'kenth:resource_time', seconds: <number> }

@@ -1,0 +1,30 @@
+{
+  "lesson_id": "E1-L05",
+  "axis_id": "Eje 1",
+  "subsection_code": "1-C1",
+  "lesson_title": "El analizador espectral: configuración para diagnóstico",
+  "order": 5,
+  "block_group": "C - Análisis espectral",
+  "resource_id": "",
+  "resource_type": "",
+  "source_script_file": "",
+  "learning_goal": "Configurar correctamente el analizador (escala, FFT, división por octava, tilt, ventana) para que la lectura sea diagnóstica y no solo ruido visual.",
+  "expected_action": "Setear escala logarítmica, FFT 8192 como referencia, Tilt activo y ventana Hanning por defecto; cambiar a 1/3 de octava para balance global y a Blackman-Harris para componentes débiles cercanos a un pico fuerte.",
+  "learning_goals": [
+    "Elegir escala logarítmica vs lineal según objetivo diagnóstico",
+    "Equilibrar resolución FFT vs respuesta temporal según lo que se busca",
+    "Activar Tilt para comparar balance espectral contra referencias comerciales"
+  ],
+  "expected_actions": [
+    "Insertar analizador con escala logarítmica y Tilt activo",
+    "Cambiar a 1/3 de octava para evaluar balance tonal global",
+    "Cambiar a Blackman-Harris cuando se investigan productos espurios cerca de un pico dominante"
+  ],
+  "resources": [
+    "res_E1_canonico",
+    "res_E1_paquete_limpio"
+  ],
+  "prerequisites": [],
+  "blocks": [],
+  "notes": "Lección documental. La configuración correcta del analizador es prerrequisito para todas las lecturas espectrales posteriores en el curso."
+}

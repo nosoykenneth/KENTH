@@ -181,8 +181,9 @@ class TutorContextEnvelope(BaseModel):
     session_state: Optional[StudentSessionState] = None
     chunk_references: List[ResourceChunkReference] = Field(default_factory=list)
     interaction_mode: InteractionMode = InteractionMode.TEORIA
-    # Vertical slice piloto: bloque resuelto por timestamp. Cuando esta
-    # presente, el agente debe priorizarlo por encima del RAG general
-    # del eje. None cuando la leccion no es piloto o no llega timestamp.
-    pilot_lesson: Optional[Dict[str, Any]] = None
-    pilot_block: Optional[Dict[str, Any]] = None
+    # Lección activa y bloque de video resuelto por timestamp. Cuando
+    # están presentes, el agente debe priorizarlos por encima del RAG
+    # general del eje. None cuando no hay timestamp o la lección no tiene
+    # bloques de video segmentados.
+    active_lesson: Optional[Dict[str, Any]] = None
+    active_block: Optional[Dict[str, Any]] = None

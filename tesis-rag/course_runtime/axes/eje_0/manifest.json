@@ -1,0 +1,22 @@
+{
+  "axis_id": "Eje 0",
+  "axis_number": 0,
+  "axis_slug": "eje_0_campo_decision",
+  "axis_title": "Eje 0 - Campo de decisión",
+  "pedagogical_role": "Establece las condiciones mínimas de monitoreo y cadena digital para que las decisiones de mezcla sean confiables.",
+  "doc_root": "documentos/oficial/ejes/eje_0_campo_decision",
+  "primary_resources": [
+    "res_E0_canonico",
+    "res_E0_paquete_limpio"
+  ],
+  "derived_resources": [
+    "res_E0_glosario",
+    "res_E0_heuristicas",
+    "res_E0_errores_frecuentes",
+    "res_E0_faq",
+    "res_E0_recursos"
+  ],
+  "lessons": [],
+  "status": "documental_listo",
+  "notes": "Eje cargado con todos los documentos. Las mini-lecciones de video se agregarán cuando se grabe el guion correspondiente."
+}

@@ -1,0 +1,141 @@
+{
+  "lesson_id": "E2-L09",
+  "axis_id": "Eje 2",
+  "lesson_title": "Afinacion, timing y triggers sin destruir la interpretacion",
+  "order": 9,
+  "resource_id": "res_E2-L09_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje2_Guiones_KENTH_v2.md",
+  "learning_goal": "Intervenir afinacion, timing y triggers solo hasta el punto en que la interpretacion recupera coherencia sin perder expresividad.",
+  "expected_action": "Corregir por criterio musical (no matematico): afinar lo minimo, cuantizar parcialmente y validar cada trigger contra golpes reales.",
+  "learning_goals": [
+    "Corregir por integridad musical, no por perfeccion de grid ni de cents",
+    "Validar triggers por deteccion confiable de los eventos correctos, no por cantidad de disparos"
+  ],
+  "expected_actions": [
+    "Corregir solo las notas o golpes que rompen la coherencia, dejando intacta la variacion humana",
+    "Ajustar sensibilidad/umbral del trigger y verificar el blend antes de reemplazar el original"
+  ],
+  "resources": ["res_E2-L09_video"],
+  "prerequisites": ["E2-L08"],
+  "proactive_message": "Corregir no es volver clinico lo que estaba vivo. Intervenimos solo cuando la ejecucion rompe la coherencia de la mezcla. Que te esta molestando: afinacion, timing o un trigger?",
+  "suggested_prompts": [
+    "Todo debe quedar perfectamente afinado?",
+    "Hay que cuantizar todo al grid?",
+    "Si el trigger dispara mucho, esta funcionando bien?",
+    "Reemplazar siempre es mejor que reforzar?"
+  ],
+  "blocks": [
+    {
+      "block_id": "E2-L09-B1",
+      "start_time": 0,
+      "end_time": 35,
+      "block_title": "Apertura",
+      "summary": "Voz con algunas notas caidas, bateria con golpes corridos y un trigger que a veces dispara donde no debe. Corregir no significa volver clinico todo: solo se interviene cuando la ejecucion rompe la coherencia, no cuando se puede medir una desviacion en cents.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["integridad musical minima", "corregir vs esterilizar", "coherencia"],
+      "preguntas_probables": [
+        "Tengo que corregir todo lo que este un poco mal?"
+      ],
+      "tutor_focus": "Encuadrar el limite del eje: se restaura consistencia minima, no se busca perfeccion clinica."
+    },
+    {
+      "block_id": "E2-L09-B2",
+      "start_time": 35,
+      "end_time": 140,
+      "block_title": "Afinacion: criterio musical, no matematico",
+      "summary": "Se escucha la voz en contexto. No se pregunta si la nota cae exacta sobre la rejilla, sino si la desviacion se vuelve problema musical en esta cancion. Se corrige lo minimo: si una frase esta bien y solo una nota molesta, no se reescribe la linea entera.",
+      "interaction_mode": "practica",
+      "concepts": ["afinacion en contexto", "problema musical vs desviacion", "correccion minima"],
+      "preguntas_probables": [
+        "Cuando corrijo una nota y cuando la dejo?",
+        "Tengo que afinar toda la frase?"
+      ],
+      "tutor_focus": "Corregir por criterio musical: una pequena inestabilidad puede ser mas honesta que fijar todo al centro matematico. Intervenir solo donde aparece el problema."
+    },
+    {
+      "block_id": "E2-L09-B3",
+      "start_time": 140,
+      "end_time": 235,
+      "block_title": "Timing: correccion puntual vs cuantizacion total",
+      "summary": "Si el groove funciona y solo hay ataques que rompen la coherencia, se corrige puntualmente. Cuantizar todo al 100% gana orden visual pero puede perder la respiracion de la interpretacion. Se usa cuantizacion parcial o correccion manual segun el caso.",
+      "interaction_mode": "practica",
+      "concepts": ["cuantizacion parcial", "groove", "feel vs grid"],
+      "preguntas_probables": [
+        "Cuantizo todo o solo algunos golpes?",
+        "La cuantizacion al 100% quita el feel?"
+      ],
+      "tutor_focus": "El objetivo es coherencia al escuchar, no perfeccion en pantalla. Cuantizacion parcial para mantener feel, manual para errores localizados."
+    },
+    {
+      "block_id": "E2-L09-B4",
+      "start_time": 235,
+      "end_time": 340,
+      "block_title": "Triggers: validar la deteccion antes de usar el resultado",
+      "summary": "Se carga el disparador y no se da por hecho que cada deteccion es valida. Se verifica si cada activacion corresponde a un golpe real o si lee bleed o artefactos. Se ajusta sensibilidad/umbral. Si se hace reemplazo con sample, no se borra el original hasta verificar el blend.",
+      "interaction_mode": "practica",
+      "concepts": ["trigger", "bleed", "umbral y sensibilidad", "blend vs reemplazo"],
+      "preguntas_probables": [
+        "Si el trigger dispara mucho, esta bien?",
+        "Reemplazo el original o lo mezclo?"
+      ],
+      "tutor_focus": "Una alta tasa de disparo no indica buen funcionamiento: puede detectar bleed o fantasmas. Verificar el blend antes de borrar el original."
+    },
+    {
+      "block_id": "E2-L09-B5",
+      "start_time": 340,
+      "end_time": 405,
+      "block_title": "Teoria aplicada",
+      "summary": "La afinacion aqui se corrige por integridad musical, no por perfeccion matematica; el timing por coherencia de groove, no por obsesion con el grid; el trigger por deteccion confiable, no por comodidad de ver 'algo disparando'. Esto coloca la leccion en el Eje 2 y no en un eje de diseno.",
+      "interaction_mode": "teoria",
+      "concepts": ["integridad musical", "coherencia de groove", "deteccion confiable"],
+      "preguntas_probables": [
+        "Por que esto va en integridad y no en diseno?",
+        "Que diferencia hay con afinar por estetica?"
+      ],
+      "tutor_focus": "Aclarar que aqui se restaura consistencia minima para que el procesamiento posterior tenga sentido, no se trabaja estetica."
+    },
+    {
+      "block_id": "E2-L09-B6",
+      "start_time": 405,
+      "end_time": 450,
+      "block_title": "Criterio de decision",
+      "summary": "Se corrigio cuando la desviacion ya afectaba la lectura musical de la mezcla. No se corrigio todo porque la interpretacion necesita variacion real para sentirse humana. En una produccion mas mecanica el margen es mayor; en una mas organica, menor.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["margen de correccion", "rol estetico", "variacion humana"],
+      "preguntas_probables": [
+        "Cuanto corrijo en una produccion organica?",
+        "Como se cuando ya corregi suficiente?"
+      ],
+      "tutor_focus": "El margen depende del rol estetico de la interpretacion. Corregir hasta recuperar coherencia, sin borrar lo que la hacia creible."
+    },
+    {
+      "block_id": "E2-L09-B7",
+      "start_time": 450,
+      "end_time": 490,
+      "block_title": "Errores frecuentes",
+      "summary": "Falsas reglas: 'todo debe quedar perfectamente afinado', 'todo debe caer exacto al grid', 'si el trigger dispara mucho esta funcionando bien', 'reemplazar siempre queda mejor que reforzar'. El objetivo es coherencia musical, no calibracion de laboratorio.",
+      "interaction_mode": "troubleshooting",
+      "concepts": ["falsas reglas", "perfeccion vs coherencia", "blend musical"],
+      "preguntas_probables": [
+        "No es mejor afinar todo perfecto?",
+        "Mas disparos del trigger es mas fidelidad?"
+      ],
+      "tutor_focus": "Corregir la idea de perfeccion como meta. La afinacion o cuantizacion total puede destruir el caracter; el blend suele ser mas musical que el reemplazo."
+    },
+    {
+      "block_id": "E2-L09-B8",
+      "start_time": 490,
+      "end_time": 510,
+      "block_title": "Cierre",
+      "summary": "Con esto el Eje 2 queda cerrado: la senal fue leida, limpiada, alineada, calibrada y, donde hacia falta, corregida en su interpretacion minima. Recien ahora tiene sentido pasar a construir identidad espectral.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis del eje", "cierre Eje 2", "Eje 3"],
+      "preguntas_probables": [
+        "Que sigue despues del Eje 2?"
+      ],
+      "tutor_focus": "Cerrar el eje y orientar al Eje 3 (identidad espectral): trabajar tono sin mezclarlo con problemas que debieron resolverse antes."
+    }
+  ],
+  "notes": "Leccion derivada del guion v2 (Eje 2). Timestamps definidos como guion de grabacion: el video H5P se grabara para coincidir con estos bloques (~8.5 min). Mismo flujo de enlace que E2-L01."
+}

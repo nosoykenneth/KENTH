@@ -3,7 +3,27 @@
  * Servicio para gestionar la comunicación con FastAPI (tesis-rag)
  */
 
-const API_BASE_URL = '/rag_api/documents';
+const API_BASE_URL = '/api/ai/documents';
+const AUTHORING_DOCS_URL = '/api/ai/authoring/documents';
+
+function authHeaders(courseId) {
+  const token = localStorage.getItem('moodle_token') || '';
+  return {
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...(courseId ? { 'X-Course-Id': String(courseId) } : {}),
+  };
+}
+
+async function readAuthoringResponse(response, fallback) {
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok) {
+    const detail = data.detail;
+    if (typeof detail === 'string') throw new Error(detail);
+    if (detail?.message) throw new Error(detail.message);
+    throw new Error(fallback);
+  }
+  return data;
+}
 
 export const getDocuments = async () => {
   try {
@@ -74,4 +94,46 @@ export const rebuildKnowledgeBase = async () => {
     console.error('Error en rebuildKnowledgeBase:', error);
     throw error;
   }
+};
+
+export const getCourseDocuments = async (courseId) => {
+  const response = await fetch(AUTHORING_DOCS_URL, {
+    headers: authHeaders(courseId),
+  });
+  const data = await readAuthoringResponse(response, 'Error al obtener documentos del curso');
+  return data.documents || [];
+};
+
+export const uploadCourseDocument = async (courseId, payload) => {
+  const formData = new FormData();
+  formData.append('file', payload.file);
+  formData.append('title', payload.title || payload.file?.name || '');
+  formData.append('axis_id', payload.axis_id || '');
+  formData.append('doc_layer', payload.doc_layer || 'canonico');
+  formData.append('attribution_required', payload.attribution_required ? 'true' : 'false');
+  formData.append('ownership', payload.ownership || 'kenth_academy');
+  formData.append('notes', payload.notes || '');
+
+  const response = await fetch(AUTHORING_DOCS_URL, {
+    method: 'POST',
+    headers: authHeaders(courseId),
+    body: formData,
+  });
+  return readAuthoringResponse(response, 'Error al subir documento del curso');
+};
+
+export const deleteCourseDocument = async (courseId, docId) => {
+  const response = await fetch(`${AUTHORING_DOCS_URL}/${encodeURIComponent(docId)}`, {
+    method: 'DELETE',
+    headers: authHeaders(courseId),
+  });
+  return readAuthoringResponse(response, 'Error al eliminar documento del curso');
+};
+
+export const reindexCourseDocuments = async (courseId) => {
+  const response = await fetch(`${AUTHORING_DOCS_URL}/reindex`, {
+    method: 'POST',
+    headers: authHeaders(courseId),
+  });
+  return readAuthoringResponse(response, 'Error al reindexar documentos del curso');
 };

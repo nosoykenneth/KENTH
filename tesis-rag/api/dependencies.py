@@ -1,6 +1,11 @@
 from fastapi import Header, HTTPException, Depends
 from typing import Optional
-from services.db_service import get_user_id_from_token, using_moodle_db
+from services.db_service import (
+    get_user_id_from_token,
+    using_moodle_db,
+    is_course_teacher,
+    resolve_course_numeric,
+)
 
 def get_current_user_id(
     authorization: Optional[str] = Header(None),
@@ -39,3 +44,36 @@ def get_current_user_id(
         status_code=401,
         detail="Usuario no autenticado. Se requiere cabecera Authorization."
     )
+
+
+class TeacherContext:
+    """Identidad + curso validados para acciones de autoría del profesor."""
+    def __init__(self, user_id: str, course_id: str, course_raw: str):
+        self.user_id = user_id
+        self.course_id = course_id      # id canónico (numérico Moodle) para scoping de escritura
+        self.course_raw = course_raw    # lo que envió el cliente (puede venir firmado)
+
+
+def require_teacher(
+    authorization: Optional[str] = Header(None),
+    x_course_id: Optional[str] = Header(None, alias="X-Course-Id"),
+    x_dev_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+) -> TeacherContext:
+    """Exige que el usuario sea docente/gestor del curso indicado en X-Course-Id.
+
+    Reusa la verdad de Moodle (roles en el contexto del curso). En desarrollo
+    local sin Moodle (SQLite) no bloquea, para no frenar el desarrollo.
+    """
+    user_id = get_current_user_id(authorization, x_dev_user_id)
+    course_raw = (x_course_id or "").strip()
+    if not course_raw:
+        raise HTTPException(status_code=400, detail="Falta la cabecera X-Course-Id.")
+
+    if using_moodle_db() and not is_course_teacher(user_id, course_raw):
+        raise HTTPException(
+            status_code=403,
+            detail="Acción reservada al profesor: requiere rol docente/gestor en este curso.",
+        )
+
+    numeric = resolve_course_numeric(course_raw) or course_raw
+    return TeacherContext(user_id=user_id, course_id=numeric, course_raw=course_raw)

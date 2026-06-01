@@ -10,7 +10,7 @@ export const getCourseContents = async (token, secureCourseId) => {
   if (!token) throw new Error('No hay sesión activa.');
   
   // Usamos el proxy seguro para no exponer el ID numérico al llamar a Moodle
-  const url = `/moodle_api/proyecto_curso/api_persistente/sec_contenidos.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(secureCourseId)}`;
+  const url = `/api/lms/proyecto_curso/api_persistente/sec_contenidos.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(secureCourseId)}`;
   
   try {
     const response = await fetch(url);
@@ -29,7 +29,7 @@ export const getCourseContents = async (token, secureCourseId) => {
 // ==========================================
 export const getCategories = async (token) => {
   if (!token) throw new Error('Se requiere token.');
-  const url = `/moodle_api/webservice/rest/server.php?wstoken=${token}&wsfunction=core_course_get_categories&moodlewsrestformat=json`;
+  const url = `/api/lms/webservice/rest/server.php?wstoken=${token}&wsfunction=core_course_get_categories&moodlewsrestformat=json`;
   
   try {
     const response = await fetch(url, { method: 'POST' });
@@ -48,7 +48,7 @@ export const getCategories = async (token) => {
 export const getUserProfile = async (token) => {
   if (!token) throw new Error('No hay sesión activa.');
 
-  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=get`;
+  const url = `/api/lms/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=get`;
 
   try {
     const response = await fetch(url);
@@ -71,7 +71,7 @@ export const getUserProfile = async (token) => {
 export const updateUserProfile = async (token, profileData) => {
   if (!token) throw new Error('No hay sesión activa.');
 
-  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=update`;
+  const url = `/api/lms/proyecto_curso/api_persistente/tesis_profile.php?token=${token}&action=update`;
 
   try {
     const response = await fetch(url, {
@@ -101,7 +101,7 @@ export const updateUserProfile = async (token, profileData) => {
 export const executeModuleAction = async (token, action, cmid) => {
   if (!token) throw new Error('No hay sesión activa.');
 
-  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=${action}&cmid=${cmid}`;
+  const url = `/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=${action}&cmid=${cmid}`;
 
   try {
     const response = await fetch(url);
@@ -124,7 +124,7 @@ export const executeModuleAction = async (token, action, cmid) => {
 export const getMyCourses = async (token) => {
   if (!token) throw new Error('Se requiere sesión activa.');
 
-  const url = `/moodle_api/proyecto_curso/api_persistente/secure_lista.php?token=${encodeURIComponent(token)}`;
+  const url = `/api/lms/proyecto_curso/api_persistente/secure_lista.php?token=${encodeURIComponent(token)}`;
 
   try {
     const response = await fetch(url);
@@ -146,7 +146,7 @@ export const getCourseSettings = async (token, courseId) => {
   if (!token) throw new Error('No hay sesión activa.');
 
   // EL SECRETO: Añadir &t=${Date.now()} al final para destruir el caché del navegador
-  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_course_settings.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(courseId)}&action=get&t=${Date.now()}`;
+  const url = `/api/lms/proyecto_curso/api_persistente/tesis_course_settings.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(courseId)}&action=get&t=${Date.now()}`;
 
   try {
     const response = await fetch(url);
@@ -194,7 +194,7 @@ export const preparePayPhonePayment = async (payPhoneToken, orderDetails) => {
 export const updateCourseSettings = async (token, courseId, settingsData) => {
   if (!token) throw new Error('No hay sesión activa.');
 
-  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_course_settings.php?token=${token}&courseid=${courseId}&action=update`;
+  const url = `/api/lms/proyecto_curso/api_persistente/tesis_course_settings.php?token=${token}&courseid=${courseId}&action=update`;
 
   try {
     const response = await fetch(url, {
@@ -246,7 +246,7 @@ export const initiatePaymentIntent = async (token, courseId, gateway, userInfo =
 // 10. GENERAR LINK DE PAGO PAYPHONE (VÍA PROXY PHP PARA EVITAR CORS)
 // ==========================================
 export const generatePayPhoneLink = async (formData, courseName, courseId) => {
-  const url = "/moodle_api/proyecto_curso/api_persistente/api_payphone_proxy.php";
+  const url = "/api/lms/proyecto_curso/api_persistente/api_payphone_proxy.php";
 
   try {
     const response = await fetch(url, {
@@ -283,7 +283,7 @@ export const generatePayPhoneLink = async (formData, courseName, courseId) => {
 // ==========================================
 export const getCommercialCatalog = async (token = null) => {
   // Ahora el endpoint GET es público, el token solo se usa para ver cursos ocultos si eres admin
-  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_commercial.php${token ? `?token=${token}` : ''}`;
+  const url = `/api/lms/proyecto_curso/api_persistente/tesis_commercial.php${token ? `?token=${token}` : ''}`;
   
   try {
     const response = await fetch(url);
@@ -301,7 +301,7 @@ export const getCommercialCatalog = async (token = null) => {
 // ==========================================
 export const updateCommercialData = async (token, courseId, commercialData) => {
   if (!token) throw new Error('Se requiere sesión activa.');
-  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_commercial.php?token=${token}`;
+  const url = `/api/lms/proyecto_curso/api_persistente/tesis_commercial.php?token=${token}`;
 
   try {
     const response = await fetch(url, {
@@ -322,7 +322,7 @@ export const updateCommercialData = async (token, courseId, commercialData) => {
 // 13. OBTENER INFO PÚBLICA DE UN CURSO (DINÁMICO - REGLA 1)
 // ==========================================
 export const getPublicCourse = async (courseId) => {
-  const url = `/moodle_api/proyecto_curso/api_persistente/tesis_commercial.php?courseid=${courseId}`;
+  const url = `/api/lms/proyecto_curso/api_persistente/tesis_commercial.php?courseid=${courseId}`;
   
   try {
     const response = await fetch(url);
@@ -344,7 +344,7 @@ export const getPublicCourse = async (courseId) => {
 };
 
 export const checkGuestEnrollmentByEmail = async (courseId, email) => {
-  const url = `/moodle_api/proyecto_curso/api_persistente/api_check_guest_enrollment.php?course_id=${encodeURIComponent(courseId)}&email=${encodeURIComponent(email)}`;
+  const url = `/api/lms/proyecto_curso/api_persistente/api_check_guest_enrollment.php?course_id=${encodeURIComponent(courseId)}&email=${encodeURIComponent(email)}`;
 
   const response = await fetch(url);
   const data = await response.json();

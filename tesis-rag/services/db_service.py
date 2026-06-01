@@ -201,11 +201,18 @@ def get_connection():
         force_sqlite
         or os.getenv("TESISAI_ALLOW_SQLITE_FALLBACK", "").lower() in {"1", "true", "yes"}
     )
+    # En Docker no existe el config.php fisico de Windows; basta con que las
+    # variables de entorno definan host/db/user. La existencia del archivo
+    # sigue siendo un fallback valido para entornos locales.
+    moodle_cfg_available = (
+        DEFAULT_MOODLE_CONFIG.exists()
+        or bool(os.getenv("MOODLE_DBHOST") and os.getenv("MOODLE_DBNAME"))
+    )
     can_use_moodle = (
         not force_sqlite
         and cfg.get("dbtype") in {"mariadb", "mysqli", "mysql"}
         and pymysql is not None
-        and DEFAULT_MOODLE_CONFIG.exists()
+        and moodle_cfg_available
     )
 
     if can_use_moodle:
@@ -315,6 +322,8 @@ def _init_mysql(conn) -> None:
     traces = table_name("message_traces")
     interactions = table_name("interaction_traces")
     contexts = table_name("session_context")
+    axes = table_name("axes")
+    documents = table_name("documents")
 
     statements = [
         f"""
@@ -465,6 +474,51 @@ def _init_mysql(conn) -> None:
             timemodified BIGINT NOT NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """,
+        f"""
+        CREATE TABLE IF NOT EXISTS {axes} (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            course_id VARCHAR(64) NOT NULL DEFAULT '',
+            axis_id VARCHAR(32) NOT NULL DEFAULT '',
+            axis_number INT NOT NULL DEFAULT 0,
+            axis_slug VARCHAR(128) NOT NULL DEFAULT '',
+            title VARCHAR(255) NOT NULL DEFAULT '',
+            pedagogical_role LONGTEXT NULL,
+            doc_root VARCHAR(512) NOT NULL DEFAULT '',
+            status VARCHAR(64) NOT NULL DEFAULT '',
+            axis_order INT NOT NULL DEFAULT 0,
+            metadata_json LONGTEXT NULL,
+            timecreated BIGINT NOT NULL,
+            timemodified BIGINT NOT NULL,
+            UNIQUE KEY uq_axis (course_id, axis_id),
+            KEY idx_axis_course (course_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        """,
+        f"""
+        CREATE TABLE IF NOT EXISTS {documents} (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            doc_id VARCHAR(96) NOT NULL,
+            course_id VARCHAR(64) NOT NULL DEFAULT '',
+            axis_id VARCHAR(32) NOT NULL DEFAULT '',
+            title VARCHAR(255) NOT NULL DEFAULT '',
+            doc_layer VARCHAR(32) NOT NULL DEFAULT 'canonico',
+            doc_type VARCHAR(64) NOT NULL DEFAULT '',
+            filename VARCHAR(255) NOT NULL DEFAULT '',
+            relpath VARCHAR(512) NOT NULL DEFAULT '',
+            attribution_required TINYINT(1) NOT NULL DEFAULT 0,
+            allowed_for_indexing TINYINT(1) NOT NULL DEFAULT 1,
+            ownership VARCHAR(128) NOT NULL DEFAULT '',
+            source_uri VARCHAR(512) NOT NULL DEFAULT '',
+            status VARCHAR(32) NOT NULL DEFAULT 'active',
+            uploaded_by VARCHAR(64) NOT NULL DEFAULT '',
+            notes LONGTEXT NULL,
+            metadata_json LONGTEXT NULL,
+            timecreated BIGINT NOT NULL,
+            timemodified BIGINT NOT NULL,
+            UNIQUE KEY uq_document (course_id, doc_id),
+            KEY idx_doc_course (course_id),
+            KEY idx_doc_status (status)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        """,
     ]
     for statement in statements:
         _execute(conn, statement)
@@ -482,6 +536,8 @@ def _init_sqlite(conn) -> None:
         "traces": table_name("message_traces"),
         "interactions": table_name("interaction_traces"),
         "contexts": table_name("session_context"),
+        "axes": table_name("axes"),
+        "documents": table_name("documents"),
     }
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['lessons']} (
         lesson_id TEXT PRIMARY KEY, course_id TEXT DEFAULT '', axis_id TEXT DEFAULT '',
@@ -525,10 +581,427 @@ def _init_sqlite(conn) -> None:
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['contexts']} (
         session_id TEXT PRIMARY KEY, student_id TEXT DEFAULT '', active_context_json TEXT,
         state_json TEXT, timemodified INTEGER)""")
+    _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['axes']} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, course_id TEXT DEFAULT '', axis_id TEXT DEFAULT '',
+        axis_number INTEGER DEFAULT 0, axis_slug TEXT DEFAULT '', title TEXT DEFAULT '',
+        pedagogical_role TEXT, doc_root TEXT DEFAULT '', status TEXT DEFAULT '',
+        axis_order INTEGER DEFAULT 0, metadata_json TEXT, timecreated INTEGER, timemodified INTEGER,
+        UNIQUE(course_id, axis_id))""")
+    _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['documents']} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, doc_id TEXT, course_id TEXT DEFAULT '',
+        axis_id TEXT DEFAULT '', title TEXT DEFAULT '', doc_layer TEXT DEFAULT 'canonico',
+        doc_type TEXT DEFAULT '', filename TEXT DEFAULT '', relpath TEXT DEFAULT '',
+        attribution_required INTEGER DEFAULT 0, allowed_for_indexing INTEGER DEFAULT 1,
+        ownership TEXT DEFAULT '', source_uri TEXT DEFAULT '', status TEXT DEFAULT 'active',
+        uploaded_by TEXT DEFAULT '', notes TEXT, metadata_json TEXT,
+        timecreated INTEGER, timemodified INTEGER, UNIQUE(course_id, doc_id))""")
 
 
 def _ts() -> int:
     return int(datetime.now(timezone.utc).timestamp())
+
+
+# ==========================================
+# EJES (axes) - estructura del curso en BD
+# ==========================================
+
+def _normalize_axis(row: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "course_id": row.get("course_id", "") or "",
+        "axis_id": row.get("axis_id", "") or "",
+        "axis_number": row.get("axis_number", 0) or 0,
+        "axis_slug": row.get("axis_slug", "") or "",
+        "axis_title": row.get("title", "") or "",
+        "title": row.get("title", "") or "",
+        "pedagogical_role": row.get("pedagogical_role", "") or "",
+        "doc_root": row.get("doc_root", "") or "",
+        "status": row.get("status", "") or "",
+        "axis_order": row.get("axis_order", 0) or 0,
+        "metadata": _json_load(row.get("metadata_json"), {}),
+    }
+
+
+def upsert_axis(
+    *,
+    axis_id: str,
+    course_id: str = "",
+    axis_number: int = 0,
+    axis_slug: str = "",
+    title: str = "",
+    pedagogical_role: str = "",
+    doc_root: str = "",
+    status: str = "",
+    axis_order: int = 0,
+    metadata: Optional[Dict[str, Any]] = None,
+) -> None:
+    init_db()
+    t = _ts()
+    name = table_name("axes")
+    with get_connection() as conn:
+        if using_moodle_db():
+            sql = f"""INSERT INTO {name}
+                (course_id, axis_id, axis_number, axis_slug, title, pedagogical_role, doc_root,
+                 status, axis_order, metadata_json, timecreated, timemodified)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                ON DUPLICATE KEY UPDATE axis_number=VALUES(axis_number), axis_slug=VALUES(axis_slug),
+                title=VALUES(title), pedagogical_role=VALUES(pedagogical_role), doc_root=VALUES(doc_root),
+                status=VALUES(status), axis_order=VALUES(axis_order), metadata_json=VALUES(metadata_json),
+                timemodified=VALUES(timemodified)"""
+        else:
+            sql = f"""INSERT INTO {name}
+                (course_id, axis_id, axis_number, axis_slug, title, pedagogical_role, doc_root,
+                 status, axis_order, metadata_json, timecreated, timemodified)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(course_id, axis_id) DO UPDATE SET axis_number=excluded.axis_number,
+                axis_slug=excluded.axis_slug, title=excluded.title,
+                pedagogical_role=excluded.pedagogical_role, doc_root=excluded.doc_root,
+                status=excluded.status, axis_order=excluded.axis_order,
+                metadata_json=excluded.metadata_json, timemodified=excluded.timemodified"""
+        _execute(conn, sql, (
+            course_id, axis_id, int(axis_number or 0), axis_slug, title, pedagogical_role,
+            doc_root, status, int(axis_order or 0), _json_dump(metadata or {}), t, t,
+        ))
+    _log_write("axes", id=axis_id, course_id=course_id)
+
+
+def list_axes(course_id: Optional[str] = None) -> List[Dict[str, Any]]:
+    init_db()
+    sql = f"SELECT * FROM {table_name('axes')}"
+    params: List[Any] = []
+    if course_id:
+        variants = _course_id_variants(course_id)
+        placeholders = ",".join([_q()] * len(variants))
+        sql += f" WHERE course_id IN ({placeholders})"
+        params.extend(variants)
+    sql += " ORDER BY axis_order, axis_number, axis_id"
+    with get_connection() as conn:
+        rows = _fetchall(conn, sql, params)
+    _log_read("axes", len(rows), filter=f"course_id:{course_id}" if course_id else "all")
+    return [_normalize_axis(row) for row in rows]
+
+
+def get_axis(axis_id: str, course_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    init_db()
+    sql = f"SELECT * FROM {table_name('axes')} WHERE axis_id={_q()}"
+    params: List[Any] = [axis_id]
+    if course_id:
+        variants = _course_id_variants(course_id)
+        placeholders = ",".join([_q()] * len(variants))
+        sql += f" AND course_id IN ({placeholders})"
+        params.extend(variants)
+    with get_connection() as conn:
+        row = _fetchone(conn, sql, params)
+    _log_read("axes", 1 if row else 0, filter=f"axis_id:{axis_id}")
+    return _normalize_axis(row) if row else None
+
+
+def delete_axis(axis_id: str, course_id: Optional[str] = None) -> bool:
+    init_db()
+    sql = f"DELETE FROM {table_name('axes')} WHERE axis_id={_q()}"
+    params: List[Any] = [axis_id]
+    if course_id:
+        sql += f" AND course_id={_q()}"
+        params.append(str(course_id))
+    with get_connection() as conn:
+        existing = _fetchone(conn, f"SELECT axis_id FROM {table_name('axes')} WHERE axis_id={_q()}", (axis_id,))
+        _execute(conn, sql, params)
+    _log_write("axes", id=axis_id, deleted=True)
+    return bool(existing)
+
+
+# ==========================================
+# DELETES de lecciones / bloques / prompts / recursos
+# ==========================================
+
+def delete_lesson(lesson_id: str) -> bool:
+    """Borra una lección y, en cascada lógica, sus bloques y prompts."""
+    init_db()
+    with get_connection() as conn:
+        existing = _fetchone(conn, f"SELECT lesson_id FROM {table_name('lessons')} WHERE lesson_id={_q()}", (lesson_id,))
+        _execute(conn, f"DELETE FROM {table_name('lessons')} WHERE lesson_id={_q()}", (lesson_id,))
+        _execute(conn, f"DELETE FROM {table_name('lesson_blocks')} WHERE lesson_id={_q()}", (lesson_id,))
+        _execute(conn, f"DELETE FROM {table_name('lesson_prompts')} WHERE lesson_id={_q()}", (lesson_id,))
+    _log_write("lessons", id=lesson_id, deleted=True)
+    return bool(existing)
+
+
+def delete_lesson_block(block_id: str) -> bool:
+    init_db()
+    with get_connection() as conn:
+        existing = _fetchone(conn, f"SELECT block_id FROM {table_name('lesson_blocks')} WHERE block_id={_q()}", (block_id,))
+        _execute(conn, f"DELETE FROM {table_name('lesson_blocks')} WHERE block_id={_q()}", (block_id,))
+    _log_write("lesson_blocks", id=block_id, deleted=True)
+    return bool(existing)
+
+
+def replace_lesson_blocks(lesson_id: str, blocks: List[Dict[str, Any]]) -> int:
+    """Reemplaza el set completo de bloques de una lección (borra y re-inserta).
+
+    Cada bloque es un dict con las claves de upsert_lesson_block. El orden del
+    array define block_order.
+    """
+    init_db()
+    with get_connection() as conn:
+        _execute(conn, f"DELETE FROM {table_name('lesson_blocks')} WHERE lesson_id={_q()}", (lesson_id,))
+    for idx, block in enumerate(blocks or []):
+        upsert_lesson_block(
+            block_id=block.get("block_id") or f"{lesson_id}-B{idx + 1}",
+            lesson_id=lesson_id,
+            block_order=block.get("block_order", idx),
+            start_time=block.get("start_time"),
+            end_time=block.get("end_time"),
+            block_title=block.get("block_title", ""),
+            summary=block.get("summary", ""),
+            interaction_mode=block.get("interaction_mode", ""),
+            tutor_focus=block.get("tutor_focus", ""),
+            concepts=block.get("concepts", []),
+            preguntas_probables=block.get("preguntas_probables", []),
+            metadata=block.get("metadata", {}),
+        )
+    _log_write("lesson_blocks", lesson_id=lesson_id, replaced=len(blocks or []))
+    return len(blocks or [])
+
+
+def delete_lesson_prompts(lesson_id: str, prompt_type: Optional[str] = None) -> None:
+    """Borra prompts de una lección (todos o de un tipo: proactive|suggested)."""
+    init_db()
+    sql = f"DELETE FROM {table_name('lesson_prompts')} WHERE lesson_id={_q()}"
+    params: List[Any] = [lesson_id]
+    if prompt_type:
+        sql += f" AND prompt_type={_q()}"
+        params.append(prompt_type)
+    with get_connection() as conn:
+        _execute(conn, sql, params)
+    _log_write("lesson_prompts", lesson_id=lesson_id, prompt_type=prompt_type or "all", deleted=True)
+
+
+def set_lesson_prompts(
+    lesson_id: str,
+    *,
+    proactive_message: str = "",
+    suggested_prompts: Optional[List[str]] = None,
+) -> None:
+    """Reemplaza por completo los prompts de una lección."""
+    delete_lesson_prompts(lesson_id)
+    if proactive_message:
+        upsert_lesson_prompt(lesson_id, "proactive", proactive_message, 0)
+    for order, text in enumerate(suggested_prompts or []):
+        if text:
+            upsert_lesson_prompt(lesson_id, "suggested", text, order)
+
+
+def delete_resource(resource_id: str) -> bool:
+    init_db()
+    with get_connection() as conn:
+        existing = _fetchone(conn, f"SELECT resource_id FROM {table_name('course_resources')} WHERE resource_id={_q()}", (resource_id,))
+        _execute(conn, f"DELETE FROM {table_name('course_resources')} WHERE resource_id={_q()}", (resource_id,))
+    _log_write("course_resources", id=resource_id, deleted=True)
+    return bool(existing)
+
+
+# ==========================================
+# DOCUMENTOS RAG (registro por curso)
+# ==========================================
+
+def _normalize_document(row: Dict[str, Any]) -> Dict[str, Any]:
+    return {
+        "doc_id": row.get("doc_id", "") or "",
+        "course_id": row.get("course_id", "") or "",
+        "axis_id": row.get("axis_id", "") or "",
+        "title": row.get("title", "") or "",
+        "doc_layer": row.get("doc_layer", "canonico") or "canonico",
+        "doc_type": row.get("doc_type", "") or "",
+        "filename": row.get("filename", "") or "",
+        "relpath": row.get("relpath", "") or "",
+        "attribution_required": bool(row.get("attribution_required")),
+        "allowed_for_indexing": bool(row.get("allowed_for_indexing")),
+        "ownership": row.get("ownership", "") or "",
+        "source_uri": row.get("source_uri", "") or "",
+        "status": row.get("status", "active") or "active",
+        "uploaded_by": row.get("uploaded_by", "") or "",
+        "notes": row.get("notes", "") or "",
+        "metadata": _json_load(row.get("metadata_json"), {}),
+        "timemodified": row.get("timemodified"),
+    }
+
+
+def upsert_document(
+    *,
+    doc_id: str,
+    course_id: str = "",
+    axis_id: str = "",
+    title: str = "",
+    doc_layer: str = "canonico",
+    doc_type: str = "",
+    filename: str = "",
+    relpath: str = "",
+    attribution_required: bool = False,
+    allowed_for_indexing: bool = True,
+    ownership: str = "",
+    source_uri: str = "",
+    status: str = "active",
+    uploaded_by: str = "",
+    notes: str = "",
+    metadata: Optional[Dict[str, Any]] = None,
+) -> None:
+    init_db()
+    t = _ts()
+    name = table_name("documents")
+    with get_connection() as conn:
+        if using_moodle_db():
+            sql = f"""INSERT INTO {name}
+                (doc_id, course_id, axis_id, title, doc_layer, doc_type, filename, relpath,
+                 attribution_required, allowed_for_indexing, ownership, source_uri, status,
+                 uploaded_by, notes, metadata_json, timecreated, timemodified)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                ON DUPLICATE KEY UPDATE axis_id=VALUES(axis_id), title=VALUES(title),
+                doc_layer=VALUES(doc_layer), doc_type=VALUES(doc_type), filename=VALUES(filename),
+                relpath=VALUES(relpath), attribution_required=VALUES(attribution_required),
+                allowed_for_indexing=VALUES(allowed_for_indexing), ownership=VALUES(ownership),
+                source_uri=VALUES(source_uri), status=VALUES(status), uploaded_by=VALUES(uploaded_by),
+                notes=VALUES(notes), metadata_json=VALUES(metadata_json), timemodified=VALUES(timemodified)"""
+        else:
+            sql = f"""INSERT INTO {name}
+                (doc_id, course_id, axis_id, title, doc_layer, doc_type, filename, relpath,
+                 attribution_required, allowed_for_indexing, ownership, source_uri, status,
+                 uploaded_by, notes, metadata_json, timecreated, timemodified)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                ON CONFLICT(course_id, doc_id) DO UPDATE SET axis_id=excluded.axis_id,
+                title=excluded.title, doc_layer=excluded.doc_layer, doc_type=excluded.doc_type,
+                filename=excluded.filename, relpath=excluded.relpath,
+                attribution_required=excluded.attribution_required,
+                allowed_for_indexing=excluded.allowed_for_indexing, ownership=excluded.ownership,
+                source_uri=excluded.source_uri, status=excluded.status, uploaded_by=excluded.uploaded_by,
+                notes=excluded.notes, metadata_json=excluded.metadata_json, timemodified=excluded.timemodified"""
+        _execute(conn, sql, (
+            doc_id, course_id, axis_id, title, doc_layer, doc_type, filename, relpath,
+            _bool(attribution_required), _bool(allowed_for_indexing), ownership, source_uri,
+            status, uploaded_by, notes, _json_dump(metadata or {}), t, t,
+        ))
+    _log_write("documents", id=doc_id, course_id=course_id, status=status)
+
+
+def list_documents(course_id: Optional[str] = None, status: Optional[str] = None) -> List[Dict[str, Any]]:
+    init_db()
+    sql = f"SELECT * FROM {table_name('documents')}"
+    clauses: List[str] = []
+    params: List[Any] = []
+    if course_id:
+        variants = _course_id_variants(course_id)
+        placeholders = ",".join([_q()] * len(variants))
+        clauses.append(f"course_id IN ({placeholders})")
+        params.extend(variants)
+    if status:
+        clauses.append(f"status={_q()}")
+        params.append(status)
+    if clauses:
+        sql += " WHERE " + " AND ".join(clauses)
+    sql += " ORDER BY axis_id, doc_id"
+    with get_connection() as conn:
+        rows = _fetchall(conn, sql, params)
+    _log_read("documents", len(rows), filter=f"course_id:{course_id}")
+    return [_normalize_document(row) for row in rows]
+
+
+def get_document(doc_id: str, course_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    init_db()
+    sql = f"SELECT * FROM {table_name('documents')} WHERE doc_id={_q()}"
+    params: List[Any] = [doc_id]
+    if course_id:
+        sql += f" AND course_id={_q()}"
+        params.append(str(course_id))
+    with get_connection() as conn:
+        row = _fetchone(conn, sql, params)
+    return _normalize_document(row) if row else None
+
+
+def delete_document(doc_id: str, course_id: Optional[str] = None) -> bool:
+    init_db()
+    sql = f"DELETE FROM {table_name('documents')} WHERE doc_id={_q()}"
+    params: List[Any] = [doc_id]
+    if course_id:
+        sql += f" AND course_id={_q()}"
+        params.append(str(course_id))
+    with get_connection() as conn:
+        existing = _fetchone(conn, f"SELECT doc_id FROM {table_name('documents')} WHERE doc_id={_q()}", (doc_id,))
+        _execute(conn, sql, params)
+    _log_write("documents", id=doc_id, deleted=True)
+    return bool(existing)
+
+
+# ==========================================
+# ROLES MOODLE (autorizacion del profesor)
+# ==========================================
+
+def _moodle_table(core_name: str) -> str:
+    """Nombre real de una tabla CORE de Moodle (con prefijo), p.ej. 'course' -> 'mdl_course'."""
+    prefix = _load_moodle_config().get("prefix", "mdl_") if using_moodle_db() else ""
+    return f"{prefix}{core_name}"
+
+
+def resolve_course_numeric(course_id: str) -> Optional[str]:
+    """Devuelve el id numérico del curso Moodle a partir de un course_id que puede
+    venir como id numérico ('2'), como id firmado (kenth) o como variante."""
+    if not course_id:
+        return None
+    raw = str(course_id)
+    if raw.isdigit():
+        return raw
+    decoded = _decode_signed_course_id(raw)
+    if decoded and decoded.isdigit():
+        return decoded
+    for variant in _course_id_variants(raw):
+        if variant.isdigit():
+            return variant
+    return None
+
+
+_TEACHER_ROLE_SHORTNAMES = {"editingteacher", "teacher", "manager", "coursecreator"}
+
+
+def is_site_admin(user_id: str) -> bool:
+    if not using_moodle_db() or not user_id:
+        return False
+    with get_connection() as conn:
+        row = _fetchone(conn, f"SELECT value FROM {_moodle_table('config')} WHERE name='siteadmins'", ())
+    if not row:
+        return False
+    admins = {a.strip() for a in str(row.get("value", "")).split(",") if a.strip()}
+    return str(user_id) in admins
+
+
+def is_course_teacher(user_id: str, course_id: str) -> bool:
+    """True si el usuario puede gestionar el curso (rol docente/manager o site admin).
+
+    Reusa la verdad de Moodle: roles asignados en el contexto del curso. En
+    fallback SQLite (dev) devuelve True para no bloquear desarrollo local.
+    """
+    if not using_moodle_db():
+        return True
+    if not user_id:
+        return False
+    if is_site_admin(user_id):
+        return True
+    numeric = resolve_course_numeric(course_id)
+    if not numeric:
+        return False
+    with get_connection() as conn:
+        ctx = _fetchone(
+            conn,
+            f"SELECT id FROM {_moodle_table('context')} WHERE contextlevel=50 AND instanceid={_q()}",
+            (numeric,),
+        )
+        if not ctx:
+            return False
+        rows = _fetchall(
+            conn,
+            f"""SELECT r.shortname FROM {_moodle_table('role_assignments')} ra
+                JOIN {_moodle_table('role')} r ON r.id = ra.roleid
+                WHERE ra.contextid={_q()} AND ra.userid={_q()}""",
+            (ctx["id"], user_id),
+        )
+    shortnames = {str(r.get("shortname", "")).lower() for r in rows}
+    return bool(shortnames & _TEACHER_ROLE_SHORTNAMES)
 
 
 def upsert_lesson(
@@ -606,25 +1079,47 @@ def _normalize_lesson(row: Dict[str, Any]) -> Dict[str, Any]:
     }
 
 
-def get_lesson(lesson_id: str) -> Optional[Dict[str, Any]]:
+def get_lesson(lesson_id: str, course_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
     init_db()
+    sql = f"SELECT * FROM {table_name('lessons')} WHERE lesson_id={_q()}"
+    params: List[Any] = [lesson_id]
+    if course_id:
+        variants = _course_id_variants(course_id)
+        placeholders = ",".join([_q()] * len(variants))
+        sql += f" AND course_id IN ({placeholders})"
+        params.extend(variants)
     with get_connection() as conn:
-        row = _fetchone(conn, f"SELECT * FROM {table_name('lessons')} WHERE lesson_id={_q()}", (lesson_id,))
-    _log_read("lessons", 1 if row else 0, filter=f"lesson_id:{lesson_id}")
+        row = _fetchone(conn, sql, params)
+    _log_read("lessons", 1 if row else 0, filter=f"lesson_id:{lesson_id} course:{course_id}")
     return _normalize_lesson(row) if row else None
 
 
-def list_lessons(is_pilot: Optional[bool] = None) -> List[Dict[str, Any]]:
+def list_lessons(
+    is_pilot: Optional[bool] = None,
+    axis_id: Optional[str] = None,
+    course_id: Optional[str] = None,
+) -> List[Dict[str, Any]]:
     init_db()
     sql = f"SELECT * FROM {table_name('lessons')}"
+    clauses: List[str] = []
     params: List[Any] = []
     if is_pilot is not None:
-        sql += f" WHERE is_pilot={_q()}"
+        clauses.append(f"is_pilot={_q()}")
         params.append(_bool(is_pilot))
+    if axis_id:
+        clauses.append(f"axis_id={_q()}")
+        params.append(axis_id)
+    if course_id:
+        variants = _course_id_variants(course_id)
+        placeholders = ",".join([_q()] * len(variants))
+        clauses.append(f"course_id IN ({placeholders})")
+        params.extend(variants)
+    if clauses:
+        sql += " WHERE " + " AND ".join(clauses)
     sql += " ORDER BY axis_id, lesson_order, lesson_id"
     with get_connection() as conn:
         rows = _fetchall(conn, sql, params)
-    _log_read("lessons", len(rows), filter=f"is_pilot:{is_pilot}" if is_pilot is not None else "all")
+    _log_read("lessons", len(rows), filter=f"is_pilot:{is_pilot} axis:{axis_id} course:{course_id}")
     return [_normalize_lesson(row) for row in rows]
 
 

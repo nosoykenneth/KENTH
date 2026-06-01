@@ -1,0 +1,155 @@
+{
+  "lesson_id": "E2-L08",
+  "axis_id": "Eje 2",
+  "lesson_title": "Faders, trim y envios: quien hace que",
+  "order": 8,
+  "resource_id": "res_E2-L08_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje2_Guiones_KENTH_v2.md",
+  "learning_goal": "Distinguir con claridad el papel del Trim, del fader de canal, del send y del fader del retorno de efecto.",
+  "expected_action": "Elegir el control correcto segun se quiera calibrar entrada a la cadena, balancear en la mezcla, alimentar un efecto o regular cuanto efecto vuelve.",
+  "learning_goals": [
+    "Asignar cada decision de nivel a su control: entrada a la cadena, balance, entrada al efecto, retorno",
+    "Evitar corregir la causa de una funcion con el control de otra"
+  ],
+  "expected_actions": [
+    "Usar Trim para calibrar la entrada al compresor sin mover el fader de canal",
+    "Separar el send (alimenta el efecto) del fader de retorno (cuanto efecto se oye)"
+  ],
+  "resources": ["res_E2-L08_video"],
+  "prerequisites": ["E2-L07"],
+  "proactive_message": "No todos los controles de nivel hacen lo mismo. Quieres calibrar la cadena, balancear la mezcla, alimentar un efecto o ajustar cuanto efecto se oye?",
+  "suggested_prompts": [
+    "Bajo el fader y ya recibe menos el compresor?",
+    "Subo el send para tener mas reverb?",
+    "Trim y fader son intercambiables?",
+    "Cual es la diferencia entre send y retorno?"
+  ],
+  "blocks": [
+    {
+      "block_id": "E2-L08-B1",
+      "start_time": 0,
+      "end_time": 30,
+      "block_title": "Apertura",
+      "summary": "Canal de voz con Trim, fader, send a reverb y fader de retorno. No todos los controles de nivel hacen lo mismo: tratarlos como equivalentes hace que se corrijan consecuencias en vez de causas.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["controles de nivel", "causa vs consecuencia", "logica interna de la sesion"],
+      "preguntas_probables": [
+        "No es lo mismo bajar el fader que bajar el Trim?"
+      ],
+      "tutor_focus": "Plantear que cada control tiene una funcion estructural distinta. Confundirlas rompe la logica de la sesion."
+    },
+    {
+      "block_id": "E2-L08-B2",
+      "start_time": 30,
+      "end_time": 90,
+      "block_title": "Trim: calibracion de entrada a la cadena",
+      "summary": "El Trim o clip gain define cuanto nivel entra a la cadena de procesamiento. Si un compresor, saturador o EQ modelado recibe demasiado o muy poco, se corrige aqui: el Trim cambia lo que ven todos los plugins de la cadena.",
+      "interaction_mode": "practica",
+      "concepts": ["Trim", "clip gain", "entrada a la cadena"],
+      "preguntas_probables": [
+        "Que cambia el Trim exactamente?",
+        "El Trim afecta a todos los plugins?"
+      ],
+      "tutor_focus": "El Trim calibra la entrada de toda la cadena. Es el control correcto para ajustar cuanto nivel ve el primer procesador."
+    },
+    {
+      "block_id": "E2-L08-B3",
+      "start_time": 90,
+      "end_time": 140,
+      "block_title": "Fader de canal: balance en la suma",
+      "summary": "El fader decide cuanto pesa el elemento en la suma final: es balance musical. Bajar el fader para que el compresor reciba menos cambia el lugar de la voz en la mezcla como efecto colateral; no es calibrar entrada.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["fader", "balance musical", "efecto colateral"],
+      "preguntas_probables": [
+        "Si bajo el fader, el compresor recibe menos?",
+        "Para que sirve realmente el fader?"
+      ],
+      "tutor_focus": "El fader posiciona en la suma. Usarlo para calibrar entrada mueve el balance sin querer (y depende de si el compresor esta antes o despues del fader)."
+    },
+    {
+      "block_id": "E2-L08-B4",
+      "start_time": 140,
+      "end_time": 190,
+      "block_title": "Send: alimentar el efecto",
+      "summary": "El send controla cuanto nivel entra al procesador del efecto. Mandar demasiado puede saturar la entrada del efecto o activar una respuesta distinta, pero eso no es lo mismo que cuanto efecto se oye en la mezcla.",
+      "interaction_mode": "practica",
+      "concepts": ["send", "entrada al efecto", "saturacion del efecto"],
+      "preguntas_probables": [
+        "Que hace el send?",
+        "Subir el send es tener mas reverb?"
+      ],
+      "tutor_focus": "El send alimenta el efecto. Mas send excita distinto el procesador, no necesariamente coloca mas efecto en la mezcla."
+    },
+    {
+      "block_id": "E2-L08-B5",
+      "start_time": 190,
+      "end_time": 235,
+      "block_title": "Fader del retorno: cuanto efecto aparece",
+      "summary": "Para controlar cuanto efecto se escucha en la mezcla se usa el fader del retorno (la salida del efecto hacia la suma). Asi se separan dos decisiones distintas: cuanto alimento el efecto y cuanto efecto dejo oir.",
+      "interaction_mode": "practica",
+      "concepts": ["fader de retorno", "salida del efecto", "dos decisiones distintas"],
+      "preguntas_probables": [
+        "Como controlo cuanta reverb se oye?",
+        "Send y retorno no son lo mismo?"
+      ],
+      "tutor_focus": "El retorno regula cuanto efecto llega a la suma. Send y retorno son decisiones separadas: alimentar vs dejar oir."
+    },
+    {
+      "block_id": "E2-L08-B6",
+      "start_time": 235,
+      "end_time": 300,
+      "block_title": "Demo integrada: send vs retorno",
+      "summary": "La voz envia a una reverb. Primero se ajusta el send hasta que la reverb trabaje bien internamente (sin saturar); luego, con el fader del retorno, se decide cuanto ambiente aparece. Resolver ambas cosas con un solo control pierde precision.",
+      "interaction_mode": "practica",
+      "concepts": ["routing send/retorno", "ajuste en dos pasos", "precision de decision"],
+      "preguntas_probables": [
+        "En que orden ajusto send y retorno?",
+        "Por que no resolverlo con un solo control?"
+      ],
+      "tutor_focus": "Primero send (que el efecto trabaje bien), luego retorno (cuanto se oye). Dos controles para dos decisiones distintas."
+    },
+    {
+      "block_id": "E2-L08-B7",
+      "start_time": 300,
+      "end_time": 350,
+      "block_title": "Teoria aplicada",
+      "summary": "Trim ajusta nivel de entrada a la cadena; fader ajusta balance en la suma; send ajusta nivel de entrada al efecto; fader de retorno ajusta salida del efecto a la mezcla. Mezclarlas convierte un problema tecnico en un problema de flujo.",
+      "interaction_mode": "teoria",
+      "concepts": ["cuatro funciones de nivel", "problema de flujo", "claridad de routing"],
+      "preguntas_probables": [
+        "Cual es la diferencia exacta entre los cuatro controles?",
+        "Que pasa si los confundo?"
+      ],
+      "tutor_focus": "Resumir las cuatro funciones. Cuando se mezclan, deja de saberse que parte de la cadena se esta corrigiendo."
+    },
+    {
+      "block_id": "E2-L08-B8",
+      "start_time": 350,
+      "end_time": 400,
+      "block_title": "Errores frecuentes",
+      "summary": "Falsas reglas: 'bajo el fader y ya recibe menos el compresor' (solo si esta despues del fader), 'subo el send para tener mas reverb', 'Trim y fader son intercambiables'. Cada control tiene su funcion.",
+      "interaction_mode": "troubleshooting",
+      "concepts": ["falsas reglas", "orden en el routing", "funcion estructural"],
+      "preguntas_probables": [
+        "Bajar el fader siempre baja lo que recibe el compresor?",
+        "Trim y fader dan igual?"
+      ],
+      "tutor_focus": "Corregir los atajos. La posicion del compresor en el routing decide si el fader lo afecta; Trim y fader no son intercambiables."
+    },
+    {
+      "block_id": "E2-L08-B9",
+      "start_time": 400,
+      "end_time": 420,
+      "block_title": "Cierre",
+      "summary": "Cerrado el bloque de calibracion: la senal esta limpia, alineada y bien organizada en nivel. Solo queda el ultimo paso del eje: cuando intervenir la interpretacion sin destruir la musica.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis", "integridad musical", "siguiente paso"],
+      "preguntas_probables": [
+        "Que falta para cerrar el Eje 2?"
+      ],
+      "tutor_focus": "Confirmar la idea y orientar a E2-L09: afinacion, timing y triggers sin destruir la interpretacion."
+    }
+  ],
+  "notes": "Leccion derivada del guion v2 (Eje 2). Timestamps definidos como guion de grabacion: el video H5P se grabara para coincidir con estos bloques (~7 min). Mismo flujo de enlace que E2-L01."
+}

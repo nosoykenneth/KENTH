@@ -44,6 +44,21 @@ def _get_vector_store():
     return Chroma(persist_directory=VECTOR_STORE_DIR, embedding_function=embeddings)
 
 
+def _course_scope_values(state: dict = None):
+    raw = str((state or {}).get("course_id") or "").strip()
+    return {raw} if raw else set()
+
+
+def _matches_course_scope(meta: dict, state: dict = None):
+    scope = _course_scope_values(state)
+    if not scope:
+        return True
+    chunk_course = str((meta or {}).get("course_id") or "").strip()
+    if not chunk_course:
+        return True
+    return chunk_course in scope
+
+
 def _reescribir_query_contextual(pregunta: str, historial: list, contexto_leccion: str = ""):
     if not _es_pregunta_ambigua(pregunta):
         return pregunta, ""
@@ -485,7 +500,7 @@ def _buscar_evidencia(pregunta: str, modo_lookup: bool = False, state: dict = No
         db = _get_vector_store()
         resultados = db.similarity_search_with_relevance_scores(
             pregunta,
-            k=12 if modo_lookup else RETRIEVAL_K
+            k=24 if modo_lookup else max(RETRIEVAL_K, 16)
         )
     except Exception as e:
         print(f"[AGENTE RAG]: Error recuperando evidencia con score: {e}")
@@ -499,13 +514,15 @@ def _buscar_evidencia(pregunta: str, modo_lookup: bool = False, state: dict = No
         score = float(score or 0)
         if score < min_score:
             continue
+        if not _matches_course_scope(doc.metadata or {}, state):
+            continue
         evidencias.append({
             "document": doc,
             "score": score
         })
 
     if not modo_lookup:
-        evidencias.extend(_buscar_evidencia_lexica_lookup(pregunta)[:6])
+        evidencias.extend(_buscar_evidencia_lexica_lookup(pregunta, state)[:6])
 
     vistos = set()
     unicas = []
@@ -557,7 +574,7 @@ def _extraer_frases_lookup(pregunta: str):
     return frases, palabras
 
 
-def _buscar_evidencia_lexica_lookup(pregunta: str):
+def _buscar_evidencia_lexica_lookup(pregunta: str, state: dict = None):
     frases, tokens = _extraer_frases_lookup(pregunta)
     if not tokens:
         return []
@@ -579,6 +596,8 @@ def _buscar_evidencia_lexica_lookup(pregunta: str):
 
     for doc_text, meta in zip(documentos, metadatas):
         meta = meta or {}
+        if not _matches_course_scope(meta, state):
+            continue
         texto = " ".join([
             doc_text or "",
             " ".join(str(valor) for valor in meta.values() if valor not in ("", None))
@@ -648,7 +667,7 @@ def _prioridad_lookup(item: dict, pregunta: str):
 
 def _buscar_evidencia_lookup(pregunta: str, state: dict = None):
     semanticas = _buscar_evidencia(pregunta, modo_lookup=True, state=state)
-    lexicas = _buscar_evidencia_lexica_lookup(pregunta)
+    lexicas = _buscar_evidencia_lexica_lookup(pregunta, state)
 
     for item in lexicas:
         phrase_hits = item.pop("phrase_hits", 0)
@@ -988,22 +1007,22 @@ def _preparar_retrieval(state: EstadoAgente):
     historial = state.get("historial", [])
     pregunta_limpia = _normalizar_texto(pregunta)
 
-    # Vertical slice piloto: si hay un bloque activo, el referente
-    # ambiguo ("eso", "esto", "aqui") ya esta resuelto por el bloque.
-    # Expandimos la query con el titulo del bloque y saltamos los gates
-    # de aclaracion para no perder el contexto que ya viaja en el envelope.
+    # Si hay un bloque activo del video, el referente ambiguo ("eso",
+    # "esto", "aqui") ya esta resuelto por el bloque. Expandimos la
+    # query con el titulo del bloque y saltamos los gates de aclaracion
+    # para no perder el contexto que ya viaja en el envelope.
     envelope = state.get("tutor_envelope")
-    pilot_block = getattr(envelope, "pilot_block", None) if envelope else None
-    if pilot_block:
+    active_block = getattr(envelope, "active_block", None) if envelope else None
+    if active_block:
         if not _es_pregunta_ambigua(pregunta):
             return _query_retrieval_con_aliases(pregunta), False, ""
-        lesson = getattr(envelope, "pilot_lesson", None) or {}
-        concepts = ", ".join(pilot_block.get("concepts") or [])
+        lesson = getattr(envelope, "active_lesson", None) or {}
+        concepts = ", ".join(active_block.get("concepts") or [])
         referente = ". ".join([
             lesson.get("lesson_title", ""),
-            pilot_block.get("block_title", ""),
+            active_block.get("block_title", ""),
             concepts,
-            pilot_block.get("summary", ""),
+            active_block.get("summary", ""),
         ]).strip(". ")
         if referente:
             return f"{pregunta}. Contexto activo: {referente}"[:500], False, ""

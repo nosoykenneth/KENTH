@@ -1,6 +1,6 @@
-const API_BASE_URL = '/moodle_api/webservice/rest/server.php';
-const LOGIN_URL = '/moodle_api/proyecto_curso/api_persistente/tesis_login.php';
-const ONBOARDING_URL = '/moodle_api/proyecto_curso/api_persistente/api_onboarding_process.php';
+const API_BASE_URL = '/api/lms/webservice/rest/server.php';
+const LOGIN_URL = '/api/lms/proyecto_curso/api_persistente/tesis_login.php';
+const ONBOARDING_URL = '/api/lms/proyecto_curso/api_persistente/api_onboarding_process.php';
 const SERVICE_NAME = 'api_tesis';
 
 /**

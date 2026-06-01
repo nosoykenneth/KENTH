@@ -1,0 +1,141 @@
+{
+  "lesson_id": "E2-L06",
+  "axis_id": "Eje 2",
+  "lesson_title": "Split de frecuencias y prueba nula",
+  "order": 6,
+  "resource_id": "res_E2-L06_video",
+  "resource_type": "video",
+  "source_script_file": "documentos/oficial/guiones/v2/Eje2_Guiones_KENTH_v2.md",
+  "learning_goal": "Construir o revisar un split por crossover y validarlo con prueba nula antes de seguir procesando.",
+  "expected_action": "Disenar el crossover pensando en la reconstruccion, sumar las ramas y usar la prueba nula para confirmar integridad antes de procesar por separado.",
+  "learning_goals": [
+    "Entender que un crossover correcto debe reconstruir la suma (diseno Linkwitz-Riley, -6 dB en el cruce)",
+    "Usar la prueba nula como verificacion directa de integridad del split"
+  ],
+  "expected_actions": [
+    "Sumar ambas ramas y compararlas contra el original antes de procesar por separado",
+    "Invertir polaridad de una rama y confirmar cancelacion con residuo minimo"
+  ],
+  "resources": ["res_E2-L06_video"],
+  "prerequisites": ["E2-L05"],
+  "proactive_message": "Separar una senal no es gratis. Antes de procesar cada rama, validemos el split con una prueba nula: la estructura esta sana o no lo esta.",
+  "suggested_prompts": [
+    "Si las dos ramas suenan bien por separado, el split esta bien?",
+    "Que es exactamente la prueba nula?",
+    "Que significa 'residuo minimo' al cancelar?",
+    "Puedo compensar un mal crossover con EQ despues?"
+  ],
+  "blocks": [
+    {
+      "block_id": "E2-L06-B1",
+      "start_time": 0,
+      "end_time": 30,
+      "block_title": "Apertura",
+      "summary": "Un bajo que se quiere dividir en rama grave y rama media-aguda. Separar una senal no es gratis: si el punto de cruce o la relacion de fase entre ramas esta mal, todo lo posterior trabaja sobre una base rota.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["split por bandas", "crossover", "base rota"],
+      "preguntas_probables": [
+        "Por que dividir una senal puede salir mal?"
+      ],
+      "tutor_focus": "Plantear el split como una arquitectura que debe poder reconstruirse, no solo separar frecuencias."
+    },
+    {
+      "block_id": "E2-L06-B2",
+      "start_time": 30,
+      "end_time": 130,
+      "block_title": "Diseno del crossover",
+      "summary": "Se duplica la senal en dos ramas (LPF en la grave, HPF en la media-aguda, mismo punto de corte). El diseno Linkwitz-Riley permite reconstruir la suma sin anomalias: ambas ramas suman coherentemente con -6 dB en el cruce.",
+      "interaction_mode": "practica",
+      "concepts": ["Linkwitz-Riley", "punto de cruce", "-6 dB en el cruce", "reconstruccion"],
+      "preguntas_probables": [
+        "Que tipo de filtro uso para el crossover?",
+        "Por que -6 dB en el punto de cruce?"
+      ],
+      "tutor_focus": "El crossover se disena pensando en la reconstruccion, no solo en la separacion. Atribuir el diseno Linkwitz-Riley (Russ Linkwitz y Stanley Riley) como referencia."
+    },
+    {
+      "block_id": "E2-L06-B3",
+      "start_time": 130,
+      "end_time": 190,
+      "block_title": "Verificacion basica: escuchar la suma",
+      "summary": "Antes del procesamiento separado se suman ambas ramas tal como estan y se comparan contra el original. Si ya hay rarezas de tono o nivel, no se empieza a disenar sonido: primero se corrige el split.",
+      "interaction_mode": "practica",
+      "concepts": ["suma de ramas", "comparacion contra original", "corregir antes de procesar"],
+      "preguntas_probables": [
+        "Como compruebo rapido si el split esta bien?",
+        "Que hago si la suma ya suena rara?"
+      ],
+      "tutor_focus": "Comparar la suma de ramas contra el original es el primer chequeo. Si falla aqui, no tiene sentido seguir disenando sonido."
+    },
+    {
+      "block_id": "E2-L06-B4",
+      "start_time": 190,
+      "end_time": 300,
+      "block_title": "Prueba nula",
+      "summary": "Se suman ambas ramas y se invierte polaridad en una. Si el crossover reconstruye bien, la cancelacion deja un residuo muy pequeno (artefactos de filtro, no contenido musical). Si aun se oye el bajo con claridad, el split tiene un problema y no se sigue adelante.",
+      "interaction_mode": "practica",
+      "concepts": ["prueba nula", "cancelacion", "residuo minimo", "verificacion de integridad"],
+      "preguntas_probables": [
+        "Como hago una prueba nula paso a paso?",
+        "Cuanto residuo es aceptable?"
+      ],
+      "tutor_focus": "El residuo minimo no debe tener contenido musical reconocible. Si cancela mal, resolver el crossover ahora es mas barato que descubrirlo con procesamiento ya aplicado."
+    },
+    {
+      "block_id": "E2-L06-B5",
+      "start_time": 300,
+      "end_time": 365,
+      "block_title": "Teoria aplicada",
+      "summary": "Un crossover no solo reparte frecuencias: determina como se comportan ambas ramas en la zona de cruce y si su recombinacion es coherente. La prueba nula no es un ritual academico, es verificacion directa: la estructura esta sana o no, sin zona gris.",
+      "interaction_mode": "teoria",
+      "concepts": ["zona de cruce", "recombinacion coherente", "integridad binaria"],
+      "preguntas_probables": [
+        "Por que importa tanto la zona de cruce?",
+        "La prueba nula es opcional?"
+      ],
+      "tutor_focus": "Explicar que la suma entre ramas debe estar disenada para reconstruir. La prueba nula no tiene zona gris: sano o no sano."
+    },
+    {
+      "block_id": "E2-L06-B6",
+      "start_time": 365,
+      "end_time": 410,
+      "block_title": "Criterio de decision",
+      "summary": "Se usa la prueba nula porque es una arquitectura de division paralela donde la reconstruccion importa. En un split deliberadamente transformador (creativo) sin intencion de reconstruir, la prueba nula puede no ser la verificacion adecuada. En este eje la prioridad es integridad.",
+      "interaction_mode": "criterio_operativo",
+      "concepts": ["division paralela", "intencion creativa vs integridad", "cuando aplica la prueba nula"],
+      "preguntas_probables": [
+        "Siempre tengo que hacer la prueba nula?",
+        "Y si el split es creativo y no quiero reconstruir el original?"
+      ],
+      "tutor_focus": "La prueba nula aplica cuando se busca reconstruir. En un split intencionalmente transformador el criterio cambia, pero eso ya no es integridad de senal."
+    },
+    {
+      "block_id": "E2-L06-B7",
+      "start_time": 410,
+      "end_time": 450,
+      "block_title": "Errores frecuentes",
+      "summary": "Falsas reglas: 'si las dos ramas suenan bien por separado el split esta bien', 'la prueba nula es opcional', 'despues lo compenso con EQ'. El problema suele estar en la zona de cruce.",
+      "interaction_mode": "troubleshooting",
+      "concepts": ["falsas reglas", "zona de cruce", "no tapar con EQ"],
+      "preguntas_probables": [
+        "Si cada rama suena bien, no basta?",
+        "No puedo arreglar el split despues con EQ?"
+      ],
+      "tutor_focus": "Corregir la idea de que ramas correctas por separado garantizan buena suma. Los problemas del crossover se resuelven en el crossover, no tapandolos."
+    },
+    {
+      "block_id": "E2-L06-B8",
+      "start_time": 450,
+      "end_time": 470,
+      "block_title": "Cierre",
+      "summary": "Cerrado el bloque relacional: la senal esta limpia y bien construida. Ahora toca calibrar niveles para que los procesadores posteriores reciban cada senal en su punto de trabajo.",
+      "interaction_mode": "navegacion_de_recurso",
+      "concepts": ["sintesis", "gain staging", "siguiente paso"],
+      "preguntas_probables": [
+        "Que sigue despues de verificar el split?"
+      ],
+      "tutor_focus": "Confirmar la idea y orientar a E2-L07: gain staging por tipo de senal."
+    }
+  ],
+  "notes": "Leccion derivada del guion v2 (Eje 2). Timestamps definidos como guion de grabacion: el video H5P se grabara para coincidir con estos bloques (~7.8 min). Mismo flujo de enlace que E2-L01."
+}

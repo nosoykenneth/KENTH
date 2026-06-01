@@ -378,24 +378,24 @@ def nodo_rag(state: EstadoAgente):
             "------------------------\n"
         )
 
-    # Vertical slice piloto: si llego un bloque activo del video, el orden
-    # de prioridad cambia. Primero el bloque (que esta viendo el alumno
-    # ahora), luego la metadata de la leccion, luego la evidencia RAG
-    # del eje. Esto evita que el RAG general opaque el bloque actual.
-    envelope_piloto = state.get("tutor_envelope")
-    tiene_bloque_piloto = bool(getattr(envelope_piloto, "pilot_block", None))
+    # Si llego un bloque activo del video, el orden de prioridad cambia.
+    # Primero el bloque (que esta viendo el alumno ahora), luego la
+    # metadata de la leccion, luego la evidencia RAG del eje. Esto evita
+    # que el RAG general opaque el bloque actual.
+    envelope_actual = state.get("tutor_envelope")
+    tiene_bloque_activo = bool(getattr(envelope_actual, "active_block", None))
 
     regla_prioridad_piloto = (
-        "--- ORDEN DE PRIORIDAD (PILOTO) ---\n"
+        "--- ORDEN DE PRIORIDAD (BLOQUE ACTIVO) ---\n"
         "1. BLOQUE ACTIVO DEL VIDEO como punto de partida (lo que el alumno esta viendo justo ahora).\n"
-        "2. Metadata de la leccion piloto (learning_goal, expected_action).\n"
+        "2. Metadata de la leccion (learning_goal, expected_action).\n"
         "3. EVIDENCIA DEL CURSO (RAG del eje actual y ejes previos) para profundizar conceptos.\n"
         "4. Historial reciente y resto del contexto solo para resolver referencias.\n"
         "Si la pregunta encaja en una de las preguntas probables del bloque, ancla la respuesta a ese bloque. "
         "Puedes apoyarte en otros bloques, la leccion o ejes previos si la pregunta lo exige, "
         "pero senala el puente y no reemplaces el punto actual por una clase lateral.\n"
         "------------------------\n"
-        if tiene_bloque_piloto else ""
+        if tiene_bloque_activo else ""
     )
 
     instrucciones = (
