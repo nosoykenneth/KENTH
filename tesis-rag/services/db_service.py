@@ -142,7 +142,7 @@ def _load_moodle_config() -> Dict[str, Any]:
     cfg: Dict[str, Any] = {}
     if DEFAULT_MOODLE_CONFIG.exists():
         text = DEFAULT_MOODLE_CONFIG.read_text(encoding="utf-8", errors="ignore")
-        for key in ("dbtype", "dbhost", "dbname", "dbuser", "dbpass", "prefix"):
+        for key in ("dbtype", "dbhost", "dbname", "dbuser", "dbpass", "prefix", "dataroot"):
             m = re.search(rf"\$CFG->{key}\s*=\s*'([^']*)'", text)
             if m:
                 cfg[key] = m.group(1)
@@ -157,6 +157,10 @@ def _load_moodle_config() -> Dict[str, Any]:
     cfg["dbuser"] = os.getenv("MOODLE_DBUSER", cfg.get("dbuser", "root"))
     cfg["dbpass"] = os.getenv("MOODLE_DBPASS", cfg.get("dbpass", ""))
     cfg["prefix"] = os.getenv("MOODLE_DB_PREFIX", cfg.get("prefix", "mdl_"))
+    # En config.php (single-quoted) los backslashes de Windows van escapados
+    # (C:\\moodledata). Des-escapar para obtener una ruta de filesystem valida.
+    dataroot = os.getenv("MOODLE_DATAROOT", cfg.get("dataroot", ""))
+    cfg["dataroot"] = dataroot.replace("\\\\", "\\").replace("\\'", "'")
     _MOODLE_CFG = cfg
     return cfg
 
@@ -168,6 +172,12 @@ def using_moodle_db() -> bool:
 def table_name(logical: str) -> str:
     prefix = _load_moodle_config().get("prefix", "mdl_") if using_moodle_db() else ""
     return f"{prefix}local_tesisai_{logical}"
+
+
+def _moodle_core_table(name: str) -> str:
+    """Tabla core de Moodle (ej. files, context) con el prefijo real."""
+    prefix = _load_moodle_config().get("prefix", "mdl_")
+    return f"{prefix}{name}"
 
 
 def _json_dump(value: Any) -> str:
@@ -324,6 +334,7 @@ def _init_mysql(conn) -> None:
     contexts = table_name("session_context")
     axes = table_name("axes")
     documents = table_name("documents")
+    transcripts = table_name("transcript_segments")
 
     statements = [
         f"""
@@ -519,6 +530,21 @@ def _init_mysql(conn) -> None:
             KEY idx_doc_status (status)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """,
+        f"""
+        CREATE TABLE IF NOT EXISTS {transcripts} (
+            id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            lesson_id VARCHAR(64) NOT NULL,
+            seq INT NOT NULL DEFAULT 0,
+            start_time DOUBLE NULL,
+            end_time DOUBLE NULL,
+            text LONGTEXT NULL,
+            speaker VARCHAR(64) NOT NULL DEFAULT '',
+            timecreated BIGINT NOT NULL,
+            timemodified BIGINT NOT NULL,
+            UNIQUE KEY uq_transcript_seq (lesson_id, seq),
+            KEY idx_transcript_lesson (lesson_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+        """,
     ]
     for statement in statements:
         _execute(conn, statement)
@@ -538,6 +564,7 @@ def _init_sqlite(conn) -> None:
         "contexts": table_name("session_context"),
         "axes": table_name("axes"),
         "documents": table_name("documents"),
+        "transcripts": table_name("transcript_segments"),
     }
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['lessons']} (
         lesson_id TEXT PRIMARY KEY, course_id TEXT DEFAULT '', axis_id TEXT DEFAULT '',
@@ -595,6 +622,10 @@ def _init_sqlite(conn) -> None:
         ownership TEXT DEFAULT '', source_uri TEXT DEFAULT '', status TEXT DEFAULT 'active',
         uploaded_by TEXT DEFAULT '', notes TEXT, metadata_json TEXT,
         timecreated INTEGER, timemodified INTEGER, UNIQUE(course_id, doc_id))""")
+    _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['transcripts']} (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, lesson_id TEXT, seq INTEGER DEFAULT 0,
+        start_time REAL, end_time REAL, text TEXT, speaker TEXT DEFAULT '',
+        timecreated INTEGER, timemodified INTEGER, UNIQUE(lesson_id, seq))""")
 
 
 def _ts() -> int:
@@ -732,6 +763,117 @@ def delete_lesson_block(block_id: str) -> bool:
         _execute(conn, f"DELETE FROM {table_name('lesson_blocks')} WHERE block_id={_q()}", (block_id,))
     _log_write("lesson_blocks", id=block_id, deleted=True)
     return bool(existing)
+
+
+# ==========================================
+# TRANSCRIPCION (segmentos por leccion)
+# ==========================================
+
+def list_transcript(lesson_id: str) -> List[Dict[str, Any]]:
+    """Segmentos de transcripcion de una leccion, ordenados por seq."""
+    init_db()
+    with get_connection() as conn:
+        rows = _fetchall(
+            conn,
+            f"SELECT seq, start_time, end_time, text, speaker FROM {table_name('transcript_segments')} "
+            f"WHERE lesson_id={_q()} ORDER BY seq, start_time",
+            (lesson_id,),
+        )
+    _log_read("transcript_segments", len(rows), filter=f"lesson_id:{lesson_id}")
+    return [
+        {
+            "seq": r.get("seq", 0),
+            "start_time": r.get("start_time"),
+            "end_time": r.get("end_time"),
+            "text": r.get("text", "") or "",
+            "speaker": r.get("speaker", "") or "",
+        }
+        for r in rows
+    ]
+
+
+def replace_transcript(lesson_id: str, segments: List[Dict[str, Any]]) -> int:
+    """Reemplaza el set completo de segmentos de transcripcion (borra y re-inserta).
+
+    El orden del array define `seq`.
+    """
+    init_db()
+    t = _ts()
+    name = table_name("transcript_segments")
+    with get_connection() as conn:
+        _execute(conn, f"DELETE FROM {name} WHERE lesson_id={_q()}", (lesson_id,))
+        for idx, seg in enumerate(segments or []):
+            cols = "(lesson_id, seq, start_time, end_time, text, speaker, timecreated, timemodified)"
+            placeholders = "(%s,%s,%s,%s,%s,%s,%s,%s)" if using_moodle_db() else "(?,?,?,?,?,?,?,?)"
+            _execute(
+                conn,
+                f"INSERT INTO {name} {cols} VALUES {placeholders}",
+                (
+                    lesson_id,
+                    int(seg.get("seq", idx)),
+                    seg.get("start_time"),
+                    seg.get("end_time"),
+                    seg.get("text", "") or "",
+                    seg.get("speaker", "") or "",
+                    t,
+                    t,
+                ),
+            )
+    _log_write("transcript_segments", lesson_id=lesson_id, replaced=len(segments or []))
+    return len(segments or [])
+
+
+# ==========================================
+# LOCALIZACION DEL VIDEO H5P EN EL FILESTORE DE MOODLE
+# ==========================================
+
+def _moodledata_filepath(contenthash: str) -> Optional[Path]:
+    """Ruta fisica de un archivo de Moodle por contenthash (filedir SHA-1)."""
+    if not contenthash or len(contenthash) < 4:
+        return None
+    dataroot = _load_moodle_config().get("dataroot", "")
+    if not dataroot:
+        return None
+    return Path(dataroot) / "filedir" / contenthash[0:2] / contenthash[2:4] / contenthash
+
+
+def find_hvp_video_path(cmid: int) -> Optional[Dict[str, Any]]:
+    """Localiza el archivo de video subido dentro de un modulo H5P (hvp/h5pactivity).
+
+    Busca en `files` cualquier archivo con mimetype video/* atado al contexto del
+    course module (contextlevel=70, instanceid=cmid) y devuelve el mas grande. Solo
+    funciona contra la BD de Moodle (no SQLite). Devuelve None si no hay video local
+    (p. ej. H5P que referencia un video externo por URL).
+    """
+    init_db()
+    if not using_moodle_db():
+        _log_error("find_hvp_video_path requires moodle_db", cmid=cmid)
+        return None
+    files = _moodle_core_table("files")
+    context = _moodle_core_table("context")
+    sql = (
+        f"SELECT f.contenthash, f.filename, f.filesize, f.mimetype "
+        f"FROM {files} f JOIN {context} ctx ON ctx.id = f.contextid "
+        f"WHERE ctx.contextlevel = 70 AND ctx.instanceid = %s "
+        f"AND f.mimetype LIKE 'video/%%' AND f.filesize > 0 "
+        f"ORDER BY f.filesize DESC LIMIT 1"
+    )
+    with get_connection() as conn:
+        row = _fetchone(conn, sql, (int(cmid),))
+    if not row:
+        _log_read("moodle_files", 0, filter=f"cmid:{cmid}", kind="hvp_video")
+        return None
+    path = _moodledata_filepath(row.get("contenthash", ""))
+    if not path or not path.exists():
+        _log_error("hvp_video_file_missing_on_disk", cmid=cmid, contenthash=row.get("contenthash"), path=str(path))
+        return None
+    return {
+        "path": str(path),
+        "filename": row.get("filename", ""),
+        "mimetype": row.get("mimetype", ""),
+        "filesize": row.get("filesize", 0),
+        "contenthash": row.get("contenthash", ""),
+    }
 
 
 def replace_lesson_blocks(lesson_id: str, blocks: List[Dict[str, Any]]) -> int:

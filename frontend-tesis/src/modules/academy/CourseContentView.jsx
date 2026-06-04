@@ -10,7 +10,7 @@ import {
   activityContextFromMoodleModule,
   INTERACTION_MODES,
 } from '../../shared/services/activityContext';
-import LinkLessonModal from '../../shared/components/ai/LinkLessonModal';
+import LessonVideoEditor from '../../shared/components/ai/LessonVideoEditor';
 import { listResourceLinks, getLesson } from '../../shared/services/axesService';
 import useResourceTimestamp from '../../shared/hooks/useResourceTimestamp';
 
@@ -1305,7 +1305,7 @@ export default function CourseContentView() {
         </div>
       )}
       {linkModalRecurso && (
-        <LinkLessonModal
+        <LessonVideoEditor
           resource={linkModalRecurso}
           courseId={id}
           onClose={(refresh) => {

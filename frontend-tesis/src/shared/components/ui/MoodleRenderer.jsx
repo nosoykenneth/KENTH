@@ -32,6 +32,25 @@ export default function MoodleRenderer({ modulo }) {
     }
   }, [modulo, miToken]);
 
+  // H5P: el onLoad del iframe wrapper dispara mucho antes de que el reproductor
+  // H5P (poster + controles) termine de pintarse. Por eso NO ocultamos el
+  // spinner en onLoad; lo ocultamos cuando el bridge avisa que H5P ya esta listo
+  // ('kenth:resource_h5p_ready', o 'kenth:resource_meta' como respaldo). Fallback
+  // por tiempo para no dejarlo colgado si la senal nunca llega.
+  useEffect(() => {
+    if (!['hvp', 'h5pactivity'].includes(modulo.modname)) return undefined;
+    const onMsg = (e) => {
+      const d = e?.data;
+      if (!d || typeof d !== 'object') return;
+      if (d.type !== 'kenth:resource_h5p_ready' && d.type !== 'kenth:resource_meta') return;
+      if (d.resourceId != null && String(d.resourceId) !== String(modulo.id)) return;
+      setIframeCargando(false);
+    };
+    window.addEventListener('message', onMsg);
+    const fallback = setTimeout(() => setIframeCargando(false), 15000);
+    return () => { window.removeEventListener('message', onMsg); clearTimeout(fallback); };
+  }, [modulo.id, modulo.modname]);
+
   // RENDERIZADO POR TIPO (SIN IFRAMES NATIVAMENTE)
   switch (modulo.modname) {
     case 'page':
@@ -236,12 +255,11 @@ export default function MoodleRenderer({ modulo }) {
             )}
             <iframe
               name="moodle_view_iframe"
-              onLoad={() => setIframeCargando(false)}
               src={`/api/lms/proyecto_curso/api_persistente/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
               className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-700 ${iframeCargando ? 'opacity-0' : 'opacity-100'}`}
               style={{ height: 'calc(100% + 50px)' }}
               allow="fullscreen *; microphone *; camera *"
-              scrolling="no" 
+              scrolling="no"
               title="Visor H5P Nativo"
             />
           </div>

@@ -15,7 +15,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 
 from api.dependencies import require_teacher, TeacherContext
-from services import db_service
+from services import db_service, transcription_service
 from services.axis_service import _canonical_axis_id, load_axis_manifest, load_lesson
 
 
@@ -73,6 +73,23 @@ class BlocksPayload(BaseModel):
 class PromptsPayload(BaseModel):
     proactive_message: str = ""
     suggested_prompts: List[str] = []
+
+
+class TranscriptSegmentPayload(BaseModel):
+    seq: Optional[int] = None
+    start_time: Optional[float] = None
+    end_time: Optional[float] = None
+    text: str = ""
+    speaker: str = ""
+
+
+class TranscriptPayload(BaseModel):
+    segments: List[TranscriptSegmentPayload] = []
+
+
+class AutoTranscribePayload(BaseModel):
+    resource_id: int  # cmid del recurso H5P en Moodle
+    language: str = "es"
 
 
 class ResourcePayload(BaseModel):
@@ -197,6 +214,55 @@ def set_prompts(lesson_id: str, payload: PromptsPayload, ctx: TeacherContext = D
         suggested_prompts=payload.suggested_prompts,
     )
     return load_lesson(lesson_id, ctx.course_id)
+
+
+@router.get("/lessons/{lesson_id}/transcript")
+def get_transcript(lesson_id: str, ctx: TeacherContext = Depends(require_teacher)):
+    if not db_service.get_lesson(lesson_id, ctx.course_id):
+        raise HTTPException(status_code=404, detail="Lección no encontrada.")
+    segments = db_service.list_transcript(lesson_id)
+    status = transcription_service.get_status(lesson_id)
+    return {"lesson_id": lesson_id, "segments": segments, "job": status}
+
+
+@router.put("/lessons/{lesson_id}/transcript")
+def set_transcript(lesson_id: str, payload: TranscriptPayload, ctx: TeacherContext = Depends(require_teacher)):
+    if not db_service.get_lesson(lesson_id, ctx.course_id):
+        raise HTTPException(status_code=404, detail="Lección no encontrada.")
+    segments = []
+    for idx, s in enumerate(payload.segments):
+        segments.append({
+            "seq": s.seq if s.seq is not None else idx,
+            "start_time": s.start_time,
+            "end_time": s.end_time,
+            "text": s.text,
+            "speaker": s.speaker,
+        })
+    count = db_service.replace_transcript(lesson_id, segments)
+    return {"lesson_id": lesson_id, "segments": count}
+
+
+@router.post("/lessons/{lesson_id}/transcript/auto")
+def auto_transcribe(lesson_id: str, payload: AutoTranscribePayload, ctx: TeacherContext = Depends(require_teacher)):
+    if not db_service.get_lesson(lesson_id, ctx.course_id):
+        raise HTTPException(status_code=404, detail="Lección no encontrada.")
+    video = db_service.find_hvp_video_path(payload.resource_id)
+    if not video:
+        raise HTTPException(
+            status_code=422,
+            detail="No se encontró un archivo de video subido en este H5P. "
+                   "La transcripción automática solo funciona con videos alojados en Moodle.",
+        )
+    job = transcription_service.start_transcription(lesson_id, video["path"], payload.language)
+    return {"lesson_id": lesson_id, "job": job, "video": {"filename": video.get("filename")}}
+
+
+@router.get("/lessons/{lesson_id}/transcript/status")
+def transcript_status(lesson_id: str, ctx: TeacherContext = Depends(require_teacher)):
+    if not db_service.get_lesson(lesson_id, ctx.course_id):
+        raise HTTPException(status_code=404, detail="Lección no encontrada.")
+    status = transcription_service.get_status(lesson_id)
+    return {"lesson_id": lesson_id, "job": status}
 
 
 @router.put("/lessons-reorder")

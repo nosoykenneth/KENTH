@@ -1,0 +1,278 @@
+import React, { useCallback, useEffect, useRef, useState } from 'react';
+
+/**
+ * BlockTimeline
+ *
+ * Linea de tiempo del video (estilo YouTube) donde cada BLOQUE de la leccion
+ * es un segmento de color entre su start_time y end_time. Permite:
+ *   - click en la pista vacia: seek a ese segundo.
+ *   - click en un bloque: seleccionarlo + seek a su inicio.
+ *   - arrastrar los bordes de un bloque: ajustar start_time / end_time.
+ *   - hover: muestra miniatura del frame + timestamp (via requestThumbnail).
+ *   - playhead sincronizado a currentTime.
+ *
+ * Props:
+ *   - blocks: [{ start_time, end_time, block_title, interaction_mode }]
+ *   - duration: number (segundos). Si null/0, la pista se muestra deshabilitada.
+ *   - currentTime: number (segundos) del playhead.
+ *   - selectedIndex: number | -1
+ *   - onSelectBlock(idx)
+ *   - onSeek(seconds)
+ *   - onChangeBlockTime(idx, { start_time?, end_time? })
+ *   - requestThumbnail(seconds) => Promise<dataUrl>
+ */
+
+const MODE_COLORS = {
+  navegacion_de_recurso: 'bg-sky-500/40 border-sky-400/70',
+  criterio_operativo: 'bg-amber-500/40 border-amber-400/70',
+  practica: 'bg-emerald-500/40 border-emerald-400/70',
+  teoria: 'bg-indigo-500/40 border-indigo-400/70',
+  troubleshooting: 'bg-rose-500/40 border-rose-400/70',
+};
+const DEFAULT_COLOR = 'bg-kenth-brightred/40 border-kenth-brightred/70';
+
+export function fmtTime(s) {
+  if (!Number.isFinite(s) || s < 0) return '0:00';
+  const total = Math.floor(s);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const sec = total % 60;
+  const mm = h > 0 ? String(m).padStart(2, '0') : String(m);
+  const ss = String(sec).padStart(2, '0');
+  return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
+}
+
+export default function BlockTimeline({
+  blocks = [],
+  duration = 0,
+  currentTime = 0,
+  selectedIndex = -1,
+  onSelectBlock,
+  onSeek,
+  onChangeBlockTime,
+  requestThumbnail,
+  transcript = [],
+}) {
+  const trackRef = useRef(null);
+  const [drag, setDrag] = useState(null); // { idx, edge: 'start'|'end' }
+  const [hover, setHover] = useState(null); // { x, time }
+  const [thumb, setThumb] = useState(''); // dataUrl
+  const [hoverSeg, setHoverSeg] = useState(-1); // segmento de subtítulo bajo el cursor
+  const thumbTimerRef = useRef(null);
+  const lastThumbTimeRef = useRef(-1);
+
+  const hasDuration = Number.isFinite(duration) && duration > 0;
+
+  const pct = useCallback((t) => {
+    if (!hasDuration) return 0;
+    return Math.min(100, Math.max(0, (t / duration) * 100));
+  }, [duration, hasDuration]);
+
+  const timeFromClientX = useCallback((clientX) => {
+    const el = trackRef.current;
+    if (!el || !hasDuration) return 0;
+    const rect = el.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    return ratio * duration;
+  }, [duration, hasDuration]);
+
+  // ---- Drag de bordes ----
+  useEffect(() => {
+    if (!drag) return undefined;
+    const onMove = (e) => {
+      const t = timeFromClientX(e.clientX);
+      const b = blocks[drag.idx];
+      if (!b) return;
+      if (drag.edge === 'start') {
+        const end = Number(b.end_time) || duration;
+        onChangeBlockTime?.(drag.idx, { start_time: Math.min(Math.max(0, t), Math.max(0, end - 1)) });
+      } else {
+        const start = Number(b.start_time) || 0;
+        onChangeBlockTime?.(drag.idx, { end_time: Math.max(t, start + 1) });
+      }
+    };
+    const onUp = () => setDrag(null);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    return () => {
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, [drag, blocks, duration, timeFromClientX, onChangeBlockTime]);
+
+  // ---- Hover + miniatura (throttled) ----
+  const handleTrackMove = (e) => {
+    if (drag || !hasDuration) return;
+    const el = trackRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const time = timeFromClientX(e.clientX);
+    setHover({ x, time });
+
+    if (!requestThumbnail) return;
+    if (thumbTimerRef.current) return; // throttle
+    thumbTimerRef.current = setTimeout(() => {
+      thumbTimerRef.current = null;
+    }, 140);
+    if (Math.abs(time - lastThumbTimeRef.current) < 0.4) return;
+    lastThumbTimeRef.current = time;
+    Promise.resolve(requestThumbnail(time)).then((url) => {
+      if (url) setThumb(url);
+    }).catch(() => {});
+  };
+
+  const handleTrackLeave = () => {
+    setHover(null);
+  };
+
+  const handleTrackClick = (e) => {
+    if (drag || !hasDuration) return;
+    // Si el click cae sobre un bloque, lo maneja el bloque (stopPropagation).
+    const t = timeFromClientX(e.clientX);
+    onSeek?.(t);
+  };
+
+  return (
+    <div className="w-full select-none">
+      <div className="flex items-center justify-between mb-1.5">
+        <span className="text-[10px] uppercase tracking-widest text-kenth-subtext font-bold">
+          Línea de tiempo · {blocks.length} bloque{blocks.length === 1 ? '' : 's'}
+        </span>
+        <span className="text-[10px] font-mono text-kenth-subtext">
+          {fmtTime(currentTime)} {hasDuration ? `/ ${fmtTime(duration)}` : ''}
+        </span>
+      </div>
+
+      <div className="relative">
+        {/* Tooltip de miniatura en hover */}
+        {hover && (
+          <div
+            className="absolute -top-2 -translate-y-full -translate-x-1/2 z-30 pointer-events-none"
+            style={{ left: `${Math.min(Math.max(hover.x, 60), (trackRef.current?.clientWidth || 0) - 60)}px` }}
+          >
+            <div className="rounded-lg overflow-hidden border border-kenth-border bg-black shadow-xl">
+              {thumb ? (
+                <img src={thumb} alt="frame" className="w-40 h-auto block" />
+              ) : (
+                <div className="w-40 h-[90px] flex items-center justify-center text-[10px] text-kenth-subtext">
+                  …
+                </div>
+              )}
+              <div className="text-center text-[10px] font-mono text-white py-0.5 bg-black/80">
+                {fmtTime(hover.time)}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Pista */}
+        <div
+          ref={trackRef}
+          onMouseMove={handleTrackMove}
+          onMouseLeave={handleTrackLeave}
+          onClick={handleTrackClick}
+          className={`relative h-12 rounded-lg border border-kenth-border bg-kenth-surface/10 overflow-hidden ${hasDuration ? 'cursor-pointer' : 'opacity-50 cursor-not-allowed'}`}
+        >
+          {!hasDuration && (
+            <div className="absolute inset-0 flex items-center justify-center text-[10px] text-kenth-subtext uppercase tracking-widest">
+              Esperando metadatos del video…
+            </div>
+          )}
+
+          {/* Bloques */}
+          {hasDuration && blocks.map((b, idx) => {
+            const start = Number(b.start_time) || 0;
+            const end = Number(b.end_time) || start;
+            const left = pct(start);
+            const width = Math.max(0.5, pct(end) - left);
+            const selected = idx === selectedIndex;
+            const color = MODE_COLORS[b.interaction_mode] || DEFAULT_COLOR;
+            return (
+              <div
+                key={b.block_id || idx}
+                onClick={(e) => { e.stopPropagation(); onSelectBlock?.(idx); onSeek?.(start); }}
+                title={b.block_title || `Bloque ${idx + 1}`}
+                className={`absolute top-0 h-full border-l border-r ${color} transition-colors ${selected ? 'ring-2 ring-inset ring-white/80 z-10' : 'hover:brightness-125'}`}
+                style={{ left: `${left}%`, width: `${width}%` }}
+              >
+                <span className="absolute left-1 top-0.5 text-[9px] font-bold text-white/90 truncate max-w-full pr-1 pointer-events-none">
+                  {b.block_title || `B${idx + 1}`}
+                </span>
+                {/* Handles de borde */}
+                <div
+                  onMouseDown={(e) => { e.stopPropagation(); setDrag({ idx, edge: 'start' }); }}
+                  className="absolute left-0 top-0 h-full w-1.5 -ml-0.5 cursor-ew-resize bg-white/0 hover:bg-white/60"
+                />
+                <div
+                  onMouseDown={(e) => { e.stopPropagation(); setDrag({ idx, edge: 'end' }); }}
+                  className="absolute right-0 top-0 h-full w-1.5 -mr-0.5 cursor-ew-resize bg-white/0 hover:bg-white/60"
+                />
+              </div>
+            );
+          })}
+
+          {/* Playhead */}
+          {hasDuration && (
+            <div
+              className="absolute top-0 h-full w-0.5 bg-white shadow-[0_0_6px_rgba(255,255,255,0.8)] z-20 pointer-events-none"
+              style={{ left: `${pct(currentTime)}%` }}
+            >
+              <div className="absolute -top-1 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white" />
+            </div>
+          )}
+        </div>
+
+        {/* Carril de subtítulos (transcripción) alineado al mismo tiempo.
+            Los chips no llevan texto (serían ilegibles con muchos segmentos);
+            el texto del segmento activo/hover se muestra en la línea de caption. */}
+        {hasDuration && transcript.length > 0 && (() => {
+          let activeSeg = -1;
+          for (let i = 0; i < transcript.length; i += 1) {
+            const s = transcript[i];
+            if (Number(s.start_time) <= currentTime && currentTime < Number(s.end_time)) { activeSeg = i; break; }
+          }
+          const captionIdx = hoverSeg >= 0 ? hoverSeg : activeSeg;
+          const caption = captionIdx >= 0 ? (transcript[captionIdx]?.text || '') : '';
+          return (
+            <div className="mt-1.5">
+              <div className="flex items-baseline gap-2 mb-0.5">
+                <span className="text-[9px] uppercase tracking-widest text-indigo-300/70 font-bold flex-shrink-0">Subtítulos</span>
+                <span className="text-[11px] text-indigo-100/90 truncate italic">
+                  {caption || <span className="text-kenth-subtext not-italic">— pasa el cursor o reproduce para ver el texto —</span>}
+                </span>
+              </div>
+              <div
+                className="relative h-3 rounded-md border border-kenth-border bg-kenth-surface/5 overflow-hidden"
+                onMouseLeave={() => setHoverSeg(-1)}
+              >
+                {transcript.map((s, i) => {
+                  const start = Number(s.start_time) || 0;
+                  const end = Number(s.end_time) || start;
+                  const left = pct(start);
+                  const width = Math.max(0.25, pct(end) - left);
+                  const active = i === activeSeg;
+                  const hovered = i === hoverSeg;
+                  const shade = active ? 'bg-indigo-400/80' : hovered ? 'bg-indigo-400/60' : (i % 2 ? 'bg-indigo-500/30' : 'bg-indigo-500/20');
+                  return (
+                    <div
+                      key={i}
+                      onClick={() => onSeek?.(start)}
+                      onMouseEnter={() => setHoverSeg(i)}
+                      className={`absolute top-0 h-full cursor-pointer ${shade}`}
+                      style={{ left: `${left}%`, width: `${width}%` }}
+                    />
+                  );
+                })}
+                <div
+                  className="absolute top-0 h-full w-0.5 bg-white/80 z-10 pointer-events-none"
+                  style={{ left: `${pct(currentTime)}%` }}
+                />
+              </div>
+            </div>
+          );
+        })()}
+      </div>
+    </div>
+  );
+}

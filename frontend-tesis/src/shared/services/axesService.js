@@ -64,6 +64,34 @@ export function setLessonPrompts(courseId, lessonId, { proactive_message = '', s
 export function reorderLessons(courseId, items) {
   return writeJson('PUT', `/authoring/lessons-reorder`, courseId, { items });
 }
+
+// ---- Transcripción (segmentos por lección) ----
+export async function getTranscript(courseId, lessonId) {
+  const res = await fetch(`${RAG_API_URL}/authoring/lessons/${encodeURIComponent(lessonId)}/transcript`, {
+    headers: authHeaders(courseId),
+  });
+  if (!res.ok) {
+    const detail = await res.json().catch(() => ({}));
+    throw new Error(detail.detail || `Error ${res.status} cargando transcripción`);
+  }
+  return res.json(); // { lesson_id, segments, job }
+}
+export function replaceTranscript(courseId, lessonId, segments) {
+  return writeJson('PUT', `/authoring/lessons/${encodeURIComponent(lessonId)}/transcript`, courseId, { segments });
+}
+export function autoTranscribe(courseId, lessonId, { resource_id, language = 'es' }) {
+  return writeJson('POST', `/authoring/lessons/${encodeURIComponent(lessonId)}/transcript/auto`, courseId, {
+    resource_id,
+    language,
+  });
+}
+export async function getTranscriptStatus(courseId, lessonId) {
+  const res = await fetch(`${RAG_API_URL}/authoring/lessons/${encodeURIComponent(lessonId)}/transcript/status`, {
+    headers: authHeaders(courseId),
+  });
+  if (!res.ok) throw new Error(`Error ${res.status} consultando estado`);
+  return res.json(); // { lesson_id, job }
+}
 export function upsertResourceMeta(courseId, resourceId, payload) {
   return writeJson('PUT', `/authoring/resources/${encodeURIComponent(resourceId)}`, courseId, payload);
 }

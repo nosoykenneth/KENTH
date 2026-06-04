@@ -1,0 +1,892 @@
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  listAllLessons,
+  getLesson,
+  getResourceLink,
+  upsertResourceLink,
+  deleteResourceLink,
+  replaceLessonBlocks,
+  upsertLesson,
+  setLessonPrompts,
+  getTranscript,
+  replaceTranscript,
+  autoTranscribe,
+  getTranscriptStatus,
+} from '../../services/axesService';
+import { showNotification } from '../ui/Notification';
+import { useResourceVideoBridge } from '../../hooks/useResourceTimestamp';
+import BlockTimeline, { fmtTime } from './BlockTimeline';
+
+const IFRAME_NAME = 'kenth_editor_video';
+
+const EMPTY_BLOCK = {
+  block_id: '',
+  start_time: 0,
+  end_time: 0,
+  block_title: '',
+  summary: '',
+  interaction_mode: 'navegacion_de_recurso',
+  tutor_focus: '',
+  concepts: [],
+  preguntas_probables: [],
+};
+
+const INTERACTION_MODES = [
+  'navegacion_de_recurso',
+  'criterio_operativo',
+  'practica',
+  'teoria',
+  'troubleshooting',
+];
+
+const linesToArr = (s) => (s || '').split('\n').map((x) => x.trim()).filter(Boolean);
+const arrToLines = (a) => (Array.isArray(a) ? a.join('\n') : (a || ''));
+
+const TABS = [
+  { id: 'vinculo', label: 'Vínculo' },
+  { id: 'bloques', label: 'Bloques' },
+  { id: 'leccion', label: 'Lección' },
+  { id: 'transcripcion', label: 'Transcripción' },
+];
+
+/**
+ * LessonVideoEditor
+ *
+ * Editor full-screen del tutor sobre el video H5P. Reemplaza al antiguo
+ * LinkLessonModal: ademas de elegir la leccion enlazada, edita los bloques
+ * (timeline visual sobre el video), metadatos y prompts. Todo se guarda en
+ * BD via /authoring (axesService).
+ *
+ * Props:
+ *   - resource: modulo Moodle abierto { id, modname, name }.
+ *   - courseId: id (firmado) del curso.
+ *   - onClose(refresh: boolean)
+ */
+export default function LessonVideoEditor({ resource, courseId, onClose }) {
+  const token = localStorage.getItem('moodle_token') || '';
+  const isH5P = resource?.modname === 'hvp' || resource?.modname === 'h5pactivity';
+
+  const [tab, setTab] = useState('vinculo');
+  const [iframeLoading, setIframeLoading] = useState(true);
+
+  const [lessons, setLessons] = useState([]);
+  const [currentLink, setCurrentLink] = useState(null);
+  const [selectedLessonId, setSelectedLessonId] = useState('');
+  const [lesson, setLesson] = useState(null);
+  const [selectedBlockIdx, setSelectedBlockIdx] = useState(-1);
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [dirtyChange, setDirtyChange] = useState(false); // hubo cambios persistidos -> refrescar al cerrar
+
+  // Transcripción
+  const [transcript, setTranscript] = useState([]);
+  const [transcriptLoading, setTranscriptLoading] = useState(false);
+  const [job, setJob] = useState(null); // { status, progress, error, segments }
+  const [pauseOnType, setPauseOnType] = useState(true);
+  const [transcriptView, setTranscriptView] = useState('segments'); // 'segments' | 'text'
+  const [textBuffer, setTextBuffer] = useState(''); // edición continua (una línea = un segmento)
+
+  const {
+    currentTimestamp,
+    duration,
+    seek,
+    play,
+    pause,
+    requestMeta,
+    requestThumbnail,
+  } = useResourceVideoBridge({ enabled: true, resourceId: resource?.id ?? null, iframeName: IFRAME_NAME });
+
+  const currentTime = currentTimestamp || 0;
+
+  // ---- Carga inicial: lecciones + vinculo actual ----
+  useEffect(() => {
+    if (!resource?.id) return undefined;
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        const [all, link] = await Promise.all([
+          listAllLessons(courseId),
+          getResourceLink(resource.id),
+        ]);
+        if (!alive) return;
+        setLessons(all);
+        setCurrentLink(link);
+        setSelectedLessonId(link?.lesson_id || '');
+        if (!link?.lesson_id) setTab('vinculo');
+        else setTab('bloques');
+      } catch (e) {
+        if (alive) showNotification('error', e.message);
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => { alive = false; };
+  }, [resource?.id, courseId]);
+
+  // ---- Carga del detalle de la leccion seleccionada ----
+  const loadLessonDetail = useCallback(async (lId) => {
+    if (!lId) { setLesson(null); setSelectedBlockIdx(-1); return; }
+    try {
+      const data = await getLesson(lId, courseId);
+      setLesson({
+        ...data,
+        _learning_goals: arrToLines(data.learning_goals),
+        _prerequisites: (data.prerequisites || []).join(', '),
+        _suggested: arrToLines(data.suggested_prompts),
+        blocks: (data.blocks || []).map((b) => ({ ...EMPTY_BLOCK, ...b })),
+      });
+      setSelectedBlockIdx((data.blocks || []).length ? 0 : -1);
+    } catch (e) {
+      showNotification('error', e.message);
+    }
+  }, [courseId]);
+
+  useEffect(() => { loadLessonDetail(selectedLessonId); }, [selectedLessonId, loadLessonDetail]);
+
+  // ---- Transcripción ----
+  const loadTranscript = useCallback(async (lId) => {
+    if (!lId) { setTranscript([]); setJob(null); return; }
+    setTranscriptLoading(true);
+    try {
+      const data = await getTranscript(courseId, lId);
+      setTranscript(data.segments || []);
+      setJob(data.job || null);
+      setTranscriptView('segments');
+    } catch (e) {
+      showNotification('error', e.message);
+    } finally {
+      setTranscriptLoading(false);
+    }
+  }, [courseId]);
+
+  useEffect(() => { loadTranscript(selectedLessonId); }, [selectedLessonId, loadTranscript]);
+
+  // Polling del job de transcripción automática.
+  useEffect(() => {
+    if (!selectedLessonId || job?.status !== 'running') return undefined;
+    const iv = setInterval(async () => {
+      try {
+        const data = await getTranscriptStatus(courseId, selectedLessonId);
+        const st = data.job;
+        setJob(st || null);
+        if (!st || st.status === 'done') {
+          clearInterval(iv);
+          if (st?.status === 'done') {
+            await loadTranscript(selectedLessonId);
+            setDirtyChange(true);
+            showNotification('success', 'Transcripción automática lista.');
+          }
+        } else if (st.status === 'error') {
+          clearInterval(iv);
+          showNotification('error', st.error || 'Falló la transcripción.');
+        }
+      } catch (e) {
+        clearInterval(iv);
+        showNotification('error', e.message);
+      }
+    }, 3000);
+    return () => clearInterval(iv);
+  }, [job?.status, selectedLessonId, courseId, loadTranscript]);
+
+  const startAutoTranscribe = async () => {
+    if (!selectedLessonId || !resource?.id) return;
+    if (transcript.length && !window.confirm('Esto reemplazará la transcripción actual al terminar. ¿Continuar?')) return;
+    try {
+      const data = await autoTranscribe(courseId, selectedLessonId, { resource_id: Number(resource.id) });
+      setJob(data.job || { status: 'running', progress: 0 });
+      showNotification('success', 'Transcripción iniciada. Puede tardar varios minutos…');
+    } catch (e) {
+      showNotification('error', e.message);
+    }
+  };
+
+  const saveTranscript = async () => {
+    if (!selectedLessonId) return;
+    setSaving(true);
+    try {
+      const segs = transcript.map((s, i) => ({
+        seq: i,
+        start_time: Number(s.start_time) || 0,
+        end_time: Number(s.end_time) || 0,
+        text: s.text || '',
+        speaker: s.speaker || '',
+      }));
+      await replaceTranscript(courseId, selectedLessonId, segs);
+      setDirtyChange(true);
+      showNotification('success', `${segs.length} segmentos guardados.`);
+    } catch (e) { showNotification('error', e.message); }
+    finally { setSaving(false); }
+  };
+
+  const setSegText = (idx, text) => {
+    setTranscript((p) => p.map((s, i) => (i === idx ? { ...s, text } : s)));
+    if (pauseOnType) pause();
+  };
+  const setSegTime = (idx, key, val) => setTranscript((p) => p.map((s, i) => (i === idx ? { ...s, [key]: val } : s)));
+  // Edición del inicio como timecode HH:MM:SS.mmm (4 campos). Conserva la
+  // precisión real (milisegundos) que ya trae la transcripción de Whisper.
+  const setSegStartPart = (idx, part, raw) => {
+    const v = Math.max(0, Math.floor(Number(raw) || 0));
+    setTranscript((p) => p.map((s, i) => {
+      if (i !== idx) return s;
+      const cur = Number(s.start_time) || 0;
+      let h = Math.floor(cur / 3600);
+      let m = Math.floor((cur % 3600) / 60);
+      let sec = Math.floor(cur % 60);
+      let ms = Math.round((cur - Math.floor(cur)) * 1000);
+      if (part === 'h') h = v;
+      else if (part === 'm') m = Math.min(59, v);
+      else if (part === 's') sec = Math.min(59, v);
+      else if (part === 'ms') ms = Math.min(999, v);
+      return { ...s, start_time: h * 3600 + m * 60 + sec + ms / 1000 };
+    }));
+  };
+  const addSegment = () => {
+    const start = Math.round(currentTime);
+    setTranscript((p) => [...p, { seq: p.length, start_time: start, end_time: start + 3, text: '', speaker: '' }]);
+  };
+  const removeSegment = (idx) => setTranscript((p) => p.filter((_, i) => i !== idx));
+
+  // ---- Edición como texto (toggle estilo YouTube): una línea = un segmento ----
+  // Rehace la lista de segmentos manteniendo los tiempos por índice; las líneas
+  // nuevas heredan un rango corto tras el último segmento.
+  const applyTextBuffer = useCallback((buf) => {
+    const lines = (buf || '').split('\n');
+    setTranscript((prev) => {
+      const out = [];
+      let lastEnd = 0;
+      lines.forEach((line, i) => {
+        const base = prev[i];
+        if (base) {
+          out.push({ ...base, text: line });
+          lastEnd = Number(base.end_time) || lastEnd;
+        } else {
+          const start = lastEnd;
+          const end = lastEnd + 3;
+          out.push({ start_time: start, end_time: end, text: line, speaker: '' });
+          lastEnd = end;
+        }
+      });
+      return out;
+    });
+  }, []);
+
+  const switchToText = () => {
+    setTextBuffer(transcript.map((s) => s.text || '').join('\n'));
+    setTranscriptView('text');
+  };
+  const switchToSegments = () => {
+    applyTextBuffer(textBuffer);
+    setTranscriptView('segments');
+  };
+  const onTextBufferChange = (val) => {
+    setTextBuffer(val);
+    applyTextBuffer(val);
+    if (pauseOnType) pause();
+  };
+
+  const clearTranscript = async () => {
+    if (!selectedLessonId) return;
+    if (!window.confirm('¿Borrar TODA la transcripción de esta lección? Esta acción no se puede deshacer.')) return;
+    setSaving(true);
+    try {
+      await replaceTranscript(courseId, selectedLessonId, []);
+      setTranscript([]);
+      setTextBuffer('');
+      setJob(null);
+      setDirtyChange(true);
+      showNotification('success', 'Transcripción borrada.');
+    } catch (e) { showNotification('error', e.message); }
+    finally { setSaving(false); }
+  };
+
+  const activeSegIdx = useMemo(() => {
+    for (let i = 0; i < transcript.length; i += 1) {
+      const s = transcript[i];
+      if (Number(s.start_time) <= currentTime && currentTime < Number(s.end_time)) return i;
+    }
+    return -1;
+  }, [transcript, currentTime]);
+
+  // Pedir metadatos del video hasta recibir la duracion. El iframe hace un
+  // redirect interno (_wrap) y el <video> tarda en exponer loadedmetadata,
+  // asi que insistimos cada 1.5s; el bridge tambien reemite solo al tenerla.
+  useEffect(() => {
+    if (!isH5P || duration) return undefined;
+    const iv = setInterval(() => requestMeta(), 1500);
+    return () => clearInterval(iv);
+  }, [isH5P, duration, requestMeta]);
+
+  // ---- Mutaciones locales de bloques ----
+  const setBlockField = (idx, k, v) => setLesson((p) => {
+    if (!p) return p;
+    const blocks = [...p.blocks];
+    blocks[idx] = { ...blocks[idx], [k]: v };
+    return { ...p, blocks };
+  });
+
+  const changeBlockTime = useCallback((idx, patch) => {
+    setLesson((p) => {
+      if (!p) return p;
+      const blocks = [...p.blocks];
+      const next = { ...blocks[idx] };
+      if (patch.start_time != null) next.start_time = Math.round(patch.start_time);
+      if (patch.end_time != null) next.end_time = Math.round(patch.end_time);
+      blocks[idx] = next;
+      return { ...p, blocks };
+    });
+  }, []);
+
+  const addBlock = () => {
+    if (!lesson) return;
+    const start = Math.round(currentTime);
+    const end = duration ? Math.min(Math.round(currentTime) + 30, Math.floor(duration)) : Math.round(currentTime) + 30;
+    const newIdx = lesson.blocks.length;
+    setLesson((p) => (p ? {
+      ...p,
+      blocks: [...p.blocks, { ...EMPTY_BLOCK, block_id: `${p.lesson_id}-B${p.blocks.length + 1}`, start_time: start, end_time: end }],
+    } : p));
+    setSelectedBlockIdx(newIdx);
+  };
+
+  const removeBlock = (idx) => {
+    setLesson((p) => (p ? { ...p, blocks: p.blocks.filter((_, i) => i !== idx) } : p));
+    setSelectedBlockIdx((cur) => (cur === idx ? -1 : cur > idx ? cur - 1 : cur));
+  };
+
+  // ---- Guardados ----
+  const saveLink = async () => {
+    if (!selectedLessonId) return;
+    setSaving(true);
+    try {
+      await upsertResourceLink(resource.id, {
+        lesson_id: selectedLessonId,
+        course_id: String(courseId || ''),
+        resource_type: isH5P ? 'web_page' : (resource.modname || ''),
+        resource_subtype: isH5P ? 'h5p_video' : '',
+      });
+      const link = await getResourceLink(resource.id);
+      setCurrentLink(link);
+      setDirtyChange(true);
+      showNotification('success', 'Vínculo guardado.');
+      setTab('bloques');
+    } catch (e) { showNotification('error', e.message); }
+    finally { setSaving(false); }
+  };
+
+  const removeLink = async () => {
+    if (!currentLink) return;
+    if (!window.confirm('¿Quitar el vínculo de este recurso con la lección?')) return;
+    setSaving(true);
+    try {
+      await deleteResourceLink(resource.id);
+      setCurrentLink(null);
+      setDirtyChange(true);
+      showNotification('success', 'Vínculo quitado.');
+    } catch (e) { showNotification('error', e.message); }
+    finally { setSaving(false); }
+  };
+
+  const saveBlocks = async () => {
+    if (!lesson) return;
+    setSaving(true);
+    try {
+      const blocks = lesson.blocks.map((b) => ({
+        block_id: b.block_id || '',
+        start_time: Number(b.start_time) || 0,
+        end_time: Number(b.end_time) || 0,
+        block_title: b.block_title || '',
+        summary: b.summary || '',
+        interaction_mode: b.interaction_mode || '',
+        tutor_focus: b.tutor_focus || '',
+        concepts: Array.isArray(b.concepts) ? b.concepts : linesToArr(b.concepts),
+        preguntas_probables: Array.isArray(b.preguntas_probables) ? b.preguntas_probables : linesToArr(b.preguntas_probables),
+      }));
+      await replaceLessonBlocks(courseId, lesson.lesson_id, blocks);
+      setDirtyChange(true);
+      showNotification('success', `${blocks.length} bloques guardados.`);
+    } catch (e) { showNotification('error', e.message); }
+    finally { setSaving(false); }
+  };
+
+  const saveMeta = async () => {
+    if (!lesson) return;
+    setSaving(true);
+    try {
+      await upsertLesson(courseId, lesson.lesson_id, {
+        lesson_id: lesson.lesson_id,
+        axis_id: lesson.axis_id || '',
+        title: lesson.lesson_title || lesson.title || '',
+        order: Number(lesson.order) || 0,
+        learning_goal: lesson.learning_goal || '',
+        expected_action: lesson.expected_action || '',
+        learning_goals: linesToArr(lesson._learning_goals),
+        expected_actions: lesson.expected_actions || [],
+        source_script_file: lesson.source_script_file || '',
+        resources: lesson.resources || [],
+        prerequisites: (lesson._prerequisites || '').split(',').map((x) => x.trim()).filter(Boolean),
+        notes: lesson.notes || '',
+      });
+      setDirtyChange(true);
+      showNotification('success', 'Lección guardada.');
+    } catch (e) { showNotification('error', e.message); }
+    finally { setSaving(false); }
+  };
+
+  const savePrompts = async () => {
+    if (!lesson) return;
+    setSaving(true);
+    try {
+      await setLessonPrompts(courseId, lesson.lesson_id, {
+        proactive_message: lesson.proactive_message || '',
+        suggested_prompts: linesToArr(lesson._suggested),
+      });
+      setDirtyChange(true);
+      showNotification('success', 'Prompts guardados.');
+    } catch (e) { showNotification('error', e.message); }
+    finally { setSaving(false); }
+  };
+
+  const setField = (k, v) => setLesson((p) => (p ? { ...p, [k]: v } : p));
+
+  const selectedBlock = selectedBlockIdx >= 0 ? lesson?.blocks?.[selectedBlockIdx] : null;
+
+  const inputCls = 'w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-3 py-2 text-sm text-kenth-text focus:border-kenth-brightred focus:outline-none';
+  const labelCls = 'text-[10px] uppercase tracking-widest text-kenth-subtext font-bold';
+
+  const videoSrc = useMemo(() => (
+    resource?.id
+      ? `/api/lms/proyecto_curso/api_persistente/tesis_view.php?token=${token}&cmid=${resource.id}&modname=${resource.modname}&hidefs=1`
+      : ''
+  ), [resource?.id, resource?.modname, token]);
+
+  return (
+    <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-4 px-5 py-3 border-b border-kenth-border bg-kenth-card">
+        <div className="min-w-0">
+          <p className="text-[10px] uppercase font-black tracking-widest text-kenth-brightred">Editor de lección</p>
+          <h3 className="text-base font-black uppercase italic text-kenth-text tracking-tight truncate">
+            {resource?.name}
+            {currentLink?.lesson_id && (
+              <span className="ml-2 text-[10px] not-italic font-bold text-emerald-300 align-middle">
+                · {currentLink.lesson_id}
+              </span>
+            )}
+          </h3>
+        </div>
+        <button onClick={() => onClose(dirtyChange)} className="text-kenth-subtext hover:text-kenth-text flex-shrink-0">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="flex-1 min-h-0 flex flex-col lg:flex-row">
+        {/* IZQUIERDA: video + timeline */}
+        <div className="lg:flex-1 min-w-0 flex flex-col bg-kenth-bg border-r border-kenth-border">
+          <div className="relative flex-1 min-h-[240px] flex items-center justify-center p-3">
+            {isH5P ? (
+              <div className="relative w-full max-w-[820px] rounded-xl overflow-hidden bg-black">
+                <div style={{ paddingTop: '56.25%' }} />
+                <div style={{ height: '36px' }} />
+                {iframeLoading && (
+                  <div className="absolute inset-0 z-10 flex items-center justify-center bg-kenth-bg text-indigo-400 text-xs uppercase tracking-widest">
+                    Sincronizando H5P…
+                  </div>
+                )}
+                <iframe
+                  name={IFRAME_NAME}
+                  onLoad={() => setIframeLoading(false)}
+                  src={videoSrc}
+                  className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-500 ${iframeLoading ? 'opacity-0' : 'opacity-100'}`}
+                  style={{ height: 'calc(100% + 50px)' }}
+                  allow="autoplay *; encrypted-media *"
+                  scrolling="no"
+                  title="Editor H5P"
+                />
+              </div>
+            ) : (
+              <div className="text-center text-sm text-kenth-subtext max-w-md">
+                Este recurso ({resource?.modname}) no es un video H5P. Puedes enlazar la lección,
+                pero el timeline visual y la transcripción requieren un video H5P.
+              </div>
+            )}
+          </div>
+
+          {/* Transporte + timeline */}
+          {isH5P && (
+            <div className="px-4 pb-4 pt-2 border-t border-kenth-border bg-kenth-card/40">
+              <div className="flex items-center gap-2 mb-3">
+                <button onClick={() => play()} className="px-3 py-1.5 rounded-lg bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs hover:border-kenth-brightred/50" title="Reproducir">▶</button>
+                <button onClick={() => pause()} className="px-3 py-1.5 rounded-lg bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs hover:border-kenth-brightred/50" title="Pausar">⏸</button>
+                <button onClick={() => seek(Math.max(0, currentTime - 5))} className="px-3 py-1.5 rounded-lg bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs hover:border-kenth-brightred/50">-5s</button>
+                <button onClick={() => seek(currentTime + 5)} className="px-3 py-1.5 rounded-lg bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs hover:border-kenth-brightred/50">+5s</button>
+                <button onClick={() => requestMeta()} className="px-3 py-1.5 rounded-lg bg-kenth-surface/10 border border-kenth-border text-kenth-subtext text-[10px] uppercase tracking-widest hover:border-kenth-brightred/50 ml-auto" title="Releer metadatos del video">Releer video</button>
+              </div>
+              <BlockTimeline
+                blocks={lesson?.blocks || []}
+                duration={duration}
+                currentTime={currentTime}
+                selectedIndex={selectedBlockIdx}
+                onSelectBlock={(idx) => { setSelectedBlockIdx(idx); setTab('bloques'); }}
+                onSeek={(s) => seek(s)}
+                onChangeBlockTime={changeBlockTime}
+                requestThumbnail={requestThumbnail}
+                transcript={transcript}
+              />
+              {!selectedLessonId && (
+                <p className="text-[11px] text-amber-300/80 mt-2">
+                  Enlaza una lección en la pestaña <strong>Vínculo</strong> para ver y editar sus bloques.
+                </p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* DERECHA: pestañas */}
+        <div className="lg:w-[420px] flex flex-col bg-kenth-card min-h-0">
+          <div className="flex border-b border-kenth-border flex-shrink-0">
+            {TABS.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => setTab(t.id)}
+                className={`flex-1 px-2 py-2.5 text-[11px] font-black uppercase tracking-widest transition ${
+                  tab === t.id ? 'text-kenth-brightred border-b-2 border-kenth-brightred' : 'text-kenth-subtext hover:text-kenth-text'
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <div className="flex-1 min-h-0 overflow-y-auto p-4">
+            {loading ? (
+              <p className="text-sm text-kenth-subtext">Cargando…</p>
+            ) : (
+              <>
+                {/* ---------- VÍNCULO ---------- */}
+                {tab === 'vinculo' && (
+                  <div className="flex flex-col gap-3">
+                    {currentLink && (
+                      <div className="px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-300">
+                        Enlazado a <strong>{currentLink.lesson_id}</strong>{currentLink.axis_id ? ` (${currentLink.axis_id})` : ''}.
+                      </div>
+                    )}
+                    {lessons.length === 0 ? (
+                      <p className="text-sm text-red-400">No hay lecciones registradas en el curso.</p>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {lessons.map((p) => {
+                          const checked = selectedLessonId === p.lesson_id;
+                          return (
+                            <label key={p.lesson_id} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${checked ? 'bg-kenth-brightred/10 border-kenth-brightred/50' : 'bg-kenth-surface/5 border-kenth-border hover:border-kenth-brightred/30'}`}>
+                              <input type="radio" name="lesson" value={p.lesson_id} checked={checked} onChange={() => setSelectedLessonId(p.lesson_id)} className="mt-1 accent-kenth-brightred" />
+                              <div className="flex flex-col min-w-0">
+                                <span className="text-sm font-bold text-kenth-text">{p.lesson_id} · {p.lesson_title}</span>
+                                <span className="text-[10px] uppercase tracking-widest text-kenth-subtext">{p.axis_id}</span>
+                              </div>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    )}
+                    <div className="flex items-center justify-between gap-2 mt-1">
+                      {currentLink ? (
+                        <button onClick={removeLink} disabled={saving} className="text-xs text-red-400 hover:text-red-300 font-bold uppercase tracking-widest disabled:opacity-40">Quitar vínculo</button>
+                      ) : <span />}
+                      <button onClick={saveLink} disabled={saving || !selectedLessonId} className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
+                        {saving ? 'Guardando…' : 'Guardar vínculo'}
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {/* ---------- BLOQUES ---------- */}
+                {tab === 'bloques' && (
+                  !lesson ? (
+                    <p className="text-sm text-kenth-subtext">Enlaza una lección para editar sus bloques.</p>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between">
+                        <span className={labelCls}>Bloques ({lesson.blocks.length})</span>
+                        <button onClick={addBlock} className="text-[10px] font-black uppercase text-kenth-brightred hover:underline">+ Bloque en {fmtTime(currentTime)}</button>
+                      </div>
+
+                      {/* Lista compacta */}
+                      <div className="flex flex-wrap gap-1.5">
+                        {lesson.blocks.map((b, idx) => (
+                          <button
+                            key={b.block_id || idx}
+                            onClick={() => { setSelectedBlockIdx(idx); seek(Number(b.start_time) || 0); }}
+                            className={`px-2 py-1 rounded-md text-[10px] border ${selectedBlockIdx === idx ? 'bg-kenth-brightred/15 border-kenth-brightred/50 text-kenth-text' : 'bg-kenth-surface/5 border-kenth-border text-kenth-subtext hover:border-kenth-brightred/30'}`}
+                          >
+                            {b.block_title || `B${idx + 1}`} · {fmtTime(b.start_time)}
+                          </button>
+                        ))}
+                      </div>
+
+                      {selectedBlock ? (
+                        <div className="border border-kenth-border rounded-xl p-3 bg-kenth-surface/5 flex flex-col gap-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-[10px] font-bold uppercase text-kenth-subtext">{selectedBlock.block_id || `Bloque ${selectedBlockIdx + 1}`}</span>
+                            <button onClick={() => removeBlock(selectedBlockIdx)} className="text-red-400 hover:text-red-300 text-xs">✕ Borrar bloque</button>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                            <div>
+                              <label className={labelCls}>Inicio (s)</label>
+                              <div className="flex gap-1">
+                                <input type="number" className={inputCls} value={selectedBlock.start_time ?? 0} onChange={(e) => setBlockField(selectedBlockIdx, 'start_time', Number(e.target.value))} />
+                                <button onClick={() => changeBlockTime(selectedBlockIdx, { start_time: currentTime })} className="px-2 rounded-lg bg-kenth-surface/10 border border-kenth-border text-[10px] text-kenth-subtext whitespace-nowrap" title="Usar tiempo actual">⏱</button>
+                              </div>
+                            </div>
+                            <div>
+                              <label className={labelCls}>Fin (s)</label>
+                              <div className="flex gap-1">
+                                <input type="number" className={inputCls} value={selectedBlock.end_time ?? 0} onChange={(e) => setBlockField(selectedBlockIdx, 'end_time', Number(e.target.value))} />
+                                <button onClick={() => changeBlockTime(selectedBlockIdx, { end_time: currentTime })} className="px-2 rounded-lg bg-kenth-surface/10 border border-kenth-border text-[10px] text-kenth-subtext whitespace-nowrap" title="Usar tiempo actual">⏱</button>
+                              </div>
+                            </div>
+                          </div>
+                          <div>
+                            <label className={labelCls}>Título del bloque</label>
+                            <input className={inputCls} value={selectedBlock.block_title || ''} onChange={(e) => setBlockField(selectedBlockIdx, 'block_title', e.target.value)} />
+                          </div>
+                          <div>
+                            <label className={labelCls}>Resumen (qué pasa en pantalla)</label>
+                            <textarea rows={2} className={inputCls} value={selectedBlock.summary || ''} onChange={(e) => setBlockField(selectedBlockIdx, 'summary', e.target.value)} />
+                          </div>
+                          <div className="grid grid-cols-1 gap-2">
+                            <div>
+                              <label className={labelCls}>Modo pedagógico</label>
+                              <select className={inputCls} value={selectedBlock.interaction_mode || ''} onChange={(e) => setBlockField(selectedBlockIdx, 'interaction_mode', e.target.value)}>
+                                {INTERACTION_MODES.map((m) => <option key={m} value={m}>{m}</option>)}
+                              </select>
+                            </div>
+                            <div>
+                              <label className={labelCls}>Foco del tutor</label>
+                              <input className={inputCls} value={selectedBlock.tutor_focus || ''} onChange={(e) => setBlockField(selectedBlockIdx, 'tutor_focus', e.target.value)} />
+                            </div>
+                          </div>
+                          <div>
+                            <label className={labelCls}>Conceptos (una por línea)</label>
+                            <textarea rows={2} className={inputCls} value={Array.isArray(selectedBlock.concepts) ? arrToLines(selectedBlock.concepts) : selectedBlock.concepts} onChange={(e) => setBlockField(selectedBlockIdx, 'concepts', linesToArr(e.target.value))} />
+                          </div>
+                          <div>
+                            <label className={labelCls}>Preguntas probables (una por línea)</label>
+                            <textarea rows={2} className={inputCls} value={Array.isArray(selectedBlock.preguntas_probables) ? arrToLines(selectedBlock.preguntas_probables) : selectedBlock.preguntas_probables} onChange={(e) => setBlockField(selectedBlockIdx, 'preguntas_probables', linesToArr(e.target.value))} />
+                          </div>
+                        </div>
+                      ) : (
+                        <p className="text-xs text-kenth-subtext">Selecciona un bloque (en el timeline o arriba) para editarlo, o crea uno nuevo.</p>
+                      )}
+
+                      <button onClick={saveBlocks} disabled={saving} className="mt-1 px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
+                        {saving ? 'Guardando…' : 'Guardar bloques'}
+                      </button>
+                    </div>
+                  )
+                )}
+
+                {/* ---------- LECCIÓN ---------- */}
+                {tab === 'leccion' && (
+                  !lesson ? (
+                    <p className="text-sm text-kenth-subtext">Enlaza una lección para editar sus datos.</p>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      <div>
+                        <label className={labelCls}>Título</label>
+                        <input className={inputCls} value={lesson.lesson_title || ''} onChange={(e) => setField('lesson_title', e.target.value)} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className={labelCls}>Orden</label>
+                          <input type="number" className={inputCls} value={lesson.order ?? 0} onChange={(e) => setField('order', e.target.value)} />
+                        </div>
+                        <div>
+                          <label className={labelCls}>Prerrequisitos (coma)</label>
+                          <input className={inputCls} value={lesson._prerequisites} onChange={(e) => setField('_prerequisites', e.target.value)} />
+                        </div>
+                      </div>
+                      <div>
+                        <label className={labelCls}>Objetivo de aprendizaje</label>
+                        <input className={inputCls} value={lesson.learning_goal || ''} onChange={(e) => setField('learning_goal', e.target.value)} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Acción esperada</label>
+                        <input className={inputCls} value={lesson.expected_action || ''} onChange={(e) => setField('expected_action', e.target.value)} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Metas (una por línea)</label>
+                        <textarea rows={2} className={inputCls} value={lesson._learning_goals} onChange={(e) => setField('_learning_goals', e.target.value)} />
+                      </div>
+                      <button onClick={saveMeta} disabled={saving} className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
+                        {saving ? 'Guardando…' : 'Guardar datos'}
+                      </button>
+
+                      <div className="h-px bg-kenth-border my-2" />
+
+                      <span className={labelCls}>Prompts del tutor</span>
+                      <div>
+                        <label className={labelCls}>Mensaje proactivo</label>
+                        <textarea rows={2} className={inputCls} value={lesson.proactive_message || ''} onChange={(e) => setField('proactive_message', e.target.value)} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Preguntas sugeridas (una por línea)</label>
+                        <textarea rows={3} className={inputCls} value={lesson._suggested} onChange={(e) => setField('_suggested', e.target.value)} />
+                      </div>
+                      <button onClick={savePrompts} disabled={saving} className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
+                        {saving ? 'Guardando…' : 'Guardar prompts'}
+                      </button>
+                    </div>
+                  )
+                )}
+
+                {/* ---------- TRANSCRIPCIÓN ---------- */}
+                {tab === 'transcripcion' && (
+                  !selectedLessonId ? (
+                    <p className="text-sm text-kenth-subtext">Enlaza una lección para transcribir su video.</p>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          onClick={startAutoTranscribe}
+                          disabled={job?.status === 'running'}
+                          className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40"
+                        >
+                          {job?.status === 'running' ? 'Transcribiendo…' : '✨ Transcribir automático'}
+                        </button>
+                        {transcript.length > 0 && (
+                          <button
+                            onClick={clearTranscript}
+                            disabled={saving || job?.status === 'running'}
+                            className="text-[10px] font-black uppercase text-red-400 hover:text-red-300 disabled:opacity-40"
+                          >
+                            🗑 Borrar todo
+                          </button>
+                        )}
+                        <label className="ml-auto flex items-center gap-1.5 text-[10px] uppercase tracking-widest text-kenth-subtext cursor-pointer">
+                          <input type="checkbox" checked={pauseOnType} onChange={(e) => setPauseOnType(e.target.checked)} className="accent-kenth-brightred" />
+                          Pausar al escribir
+                        </label>
+                      </div>
+
+                      {/* Toggle de vista: Segmentos / Texto */}
+                      <div className="flex items-center justify-between gap-2">
+                        <div className="inline-flex rounded-lg border border-kenth-border overflow-hidden">
+                          <button
+                            onClick={switchToSegments}
+                            className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${transcriptView === 'segments' ? 'bg-kenth-brightred text-white' : 'text-kenth-subtext hover:text-kenth-text'}`}
+                          >
+                            Segmentos
+                          </button>
+                          <button
+                            onClick={switchToText}
+                            className={`px-3 py-1.5 text-[10px] font-black uppercase tracking-widest transition ${transcriptView === 'text' ? 'bg-kenth-brightred text-white' : 'text-kenth-subtext hover:text-kenth-text'}`}
+                          >
+                            Texto
+                          </button>
+                        </div>
+                        {transcriptView === 'segments' && (
+                          <button onClick={addSegment} className="text-[10px] font-black uppercase text-kenth-brightred hover:underline">
+                            + Segmento en {fmtTime(currentTime)}
+                          </button>
+                        )}
+                      </div>
+
+                      {job?.status === 'running' && (
+                        <div className="rounded-lg border border-indigo-500/30 bg-indigo-500/10 p-2">
+                          <div className="flex items-center justify-between text-[10px] text-indigo-200 mb-1">
+                            <span>Transcribiendo con Whisper… ({job.segments || 0} segmentos)</span>
+                            <span>{Math.round((job.progress || 0) * 100)}%</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-indigo-900/40 overflow-hidden">
+                            <div className="h-full bg-indigo-400 transition-all" style={{ width: `${Math.round((job.progress || 0) * 100)}%` }} />
+                          </div>
+                        </div>
+                      )}
+                      {job?.status === 'error' && (
+                        <p className="text-[11px] text-red-400">Error: {job.error}</p>
+                      )}
+
+                      {transcriptLoading ? (
+                        <p className="text-sm text-kenth-subtext">Cargando…</p>
+                      ) : transcriptView === 'text' ? (
+                        <div className="flex flex-col gap-1.5">
+                          <textarea
+                            value={textBuffer}
+                            onChange={(e) => onTextBufferChange(e.target.value)}
+                            rows={16}
+                            placeholder="Una línea por segmento…"
+                            className="w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-3 py-2 text-sm text-kenth-text leading-relaxed focus:border-kenth-brightred focus:outline-none resize-y"
+                          />
+                          <p className="text-[10px] text-kenth-subtext">
+                            Una línea = un segmento. Los tiempos se mantienen por orden; las líneas nuevas se ubican tras el último segmento (puedes ajustarlas en la vista <strong>Segmentos</strong>).
+                          </p>
+                        </div>
+                      ) : transcript.length === 0 ? (
+                        <p className="text-xs text-kenth-subtext">
+                          No hay transcripción todavía. Usa <strong>Transcribir automático</strong> o agrega segmentos a mano.
+                        </p>
+                      ) : (
+                        <div className="flex flex-col gap-1.5 max-h-[42vh] overflow-y-auto pr-1">
+                          {transcript.map((s, idx) => (
+                            <div
+                              key={idx}
+                              className={`flex gap-2 p-2 rounded-lg border ${activeSegIdx === idx ? 'bg-kenth-brightred/10 border-kenth-brightred/50' : 'bg-kenth-surface/5 border-kenth-border'}`}
+                            >
+                              <div className="flex flex-col items-center gap-1 flex-shrink-0">
+                                <button onClick={() => seek(Number(s.start_time) || 0)} className="text-[10px] font-mono text-kenth-brightred hover:underline" title="Ir a este punto">
+                                  {fmtTime(s.start_time)}
+                                </button>
+                                <div className="flex items-center gap-0.5" title="Inicio (horas : minutos : segundos . milisegundos)">
+                                  {(() => {
+                                    const t = Number(s.start_time) || 0;
+                                    const h = Math.floor(t / 3600);
+                                    const m = Math.floor((t % 3600) / 60);
+                                    const sec = Math.floor(t % 60);
+                                    const ms = Math.round((t - Math.floor(t)) * 1000);
+                                    const cls = 'bg-kenth-surface/10 border border-kenth-border rounded px-0.5 py-0.5 text-[10px] text-kenth-subtext text-center';
+                                    return (
+                                      <>
+                                        <input type="number" min="0" value={h} onChange={(e) => setSegStartPart(idx, 'h', e.target.value)} className={`w-6 ${cls}`} title="horas" />
+                                        <span className="text-[10px] text-kenth-subtext">:</span>
+                                        <input type="number" min="0" max="59" value={String(m).padStart(2, '0')} onChange={(e) => setSegStartPart(idx, 'm', e.target.value)} className={`w-7 ${cls}`} title="minutos" />
+                                        <span className="text-[10px] text-kenth-subtext">:</span>
+                                        <input type="number" min="0" max="59" value={String(sec).padStart(2, '0')} onChange={(e) => setSegStartPart(idx, 's', e.target.value)} className={`w-7 ${cls}`} title="segundos" />
+                                        <span className="text-[10px] text-kenth-subtext">.</span>
+                                        <input type="number" min="0" max="999" value={String(ms).padStart(3, '0')} onChange={(e) => setSegStartPart(idx, 'ms', e.target.value)} className={`w-9 ${cls}`} title="milisegundos" />
+                                      </>
+                                    );
+                                  })()}
+                                </div>
+                              </div>
+                              <textarea
+                                rows={2}
+                                value={s.text || ''}
+                                onChange={(e) => setSegText(idx, e.target.value)}
+                                className="flex-1 bg-kenth-surface/10 border border-kenth-border rounded-lg px-2 py-1 text-xs text-kenth-text focus:border-kenth-brightred focus:outline-none resize-none"
+                              />
+                              <button onClick={() => removeSegment(idx)} className="text-red-400 hover:text-red-300 text-xs flex-shrink-0" title="Borrar segmento">✕</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <button onClick={saveTranscript} disabled={saving} className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
+                        {saving ? 'Guardando…' : 'Guardar transcripción'}
+                      </button>
+                    </div>
+                  )
+                )}
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
