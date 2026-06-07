@@ -56,6 +56,14 @@ def get_axes_list(course_id: Optional[str] = Query(default=None)):
     return {"axes": list_axes(course_id)}
 
 
+# IMPORTANTE: /links debe declararse ANTES de /{axis_id}; si no, FastAPI hace
+# match de "links" como un axis_id y responde 404 "Axis not found".
+@router.get("/links")
+def list_links(course_id: Optional[str] = Query(default=None)):
+    """Lista vínculos. Si course_id viene, filtra por curso."""
+    return {"links": list_resource_links(course_id)}
+
+
 @router.get("/{axis_id}")
 def get_axis(axis_id: str, course_id: Optional[str] = Query(default=None)):
     """Manifest individual de un eje (axis_id puede ser 'Eje 0', 'eje_0', '0')."""
@@ -141,12 +149,7 @@ def get_resource(resource_id: str):
 # Misma semántica que tenía /pilot/links: permiten que un módulo de
 # Moodle (video, PDF, H5P) quede vinculado a una lección formal del
 # course_runtime para que el tutor sepa qué contexto inyectar.
-
-@router.get("/links")
-def list_links(course_id: Optional[str] = Query(default=None)):
-    """Lista vínculos. Si course_id viene, filtra por curso."""
-    return {"links": list_resource_links(course_id)}
-
+# (GET /links se declara arriba, antes de /{axis_id}, para no ser eclipsado.)
 
 @router.get("/links/{resource_id}")
 def get_link(resource_id: str):

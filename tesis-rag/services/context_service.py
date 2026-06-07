@@ -336,6 +336,8 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
         lineas.append("--- BLOQUE ACTIVO DEL VIDEO (PUNTO DE PARTIDA) ---")
         if lesson_data:
             lineas.append(f"Lección: {lesson_data.get('lesson_id', '')} - {lesson_data.get('lesson_title', '')}")
+            if lesson_data.get("axis_id"):
+                lineas.append(f"Eje de la leccion: {lesson_data.get('axis_id', '')}")
         lineas.append(f"Bloque: {block.get('block_id', '')} - {block.get('block_title', '')}")
         lineas.append(f"Rango: {block.get('start_time', 0)}s - {block.get('end_time', 0)}s")
         if ctx.current_timestamp is not None:
@@ -361,6 +363,28 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
         lineas.append("------------------------")
 
     lineas.append("--- CONTEXTO ACTIVO DEL ALUMNO (NO ES EVIDENCIA RAG) ---")
+    if lesson_data:
+        if lesson_data.get("lesson_id") or lesson_data.get("lesson_title"):
+            lineas.append(
+                f"Leccion activa: {lesson_data.get('lesson_id', '')} - {lesson_data.get('lesson_title', '')}"
+            )
+        if lesson_data.get("axis_id"):
+            lineas.append(f"Axis_id de la leccion activa: {lesson_data.get('axis_id', '')}")
+        if lesson_data.get("learning_goal"):
+            lineas.append(f"Objetivo de la leccion: {lesson_data.get('learning_goal', '')}")
+        if lesson_data.get("expected_action"):
+            lineas.append(f"Accion esperada de la leccion: {lesson_data.get('expected_action', '')}")
+        if lesson_data.get("proactive_message"):
+            lineas.append(f"Mensaje proactivo de la leccion: {lesson_data.get('proactive_message', '')}")
+        suggested = lesson_data.get("suggested_prompts") or []
+        if suggested:
+            lineas.append("Prompts sugeridos de la leccion:")
+            for prompt in suggested[:5]:
+                lineas.append(f"  - {prompt}")
+        metadata = lesson_data.get("metadata") or {}
+        constraints = metadata.get("tutor_constraints") or metadata.get("constraints") or metadata.get("restricciones_tutor")
+        if constraints:
+            lineas.append(f"Restricciones del tutor para esta leccion: {constraints}")
     if ctx.current_axis:
         lineas.append(f"Eje actual: {ctx.current_axis}")
     if ctx.current_lesson_id:

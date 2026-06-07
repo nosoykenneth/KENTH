@@ -1,0 +1,13 @@
+# Conocimiento global (universal)
+
+Lo que pongas aquí se indexa con `course_id` VACÍO → lo ven **TODOS los cursos**.
+Úsalo SOLO para conocimiento de audio universal (ej. qué es dB, frecuencia, etc.),
+no para contenido específico de un curso.
+
+## Convención multi-curso (etiquetado por ruta)
+- `documentos/oficial/cursos/<id>/...`  → course_id = <id>   (exclusivo de ese curso)
+- `documentos/oficial/global/...`       → course_id = ""      (universal, todos)
+- legacy (`ejes/`, `contenido_canonico/`) → DEFAULT_COURSE_ID (= "2", Mezcla)
+
+Cuando crees un 2º curso (ej. Diseño de Sonido), su contenido va bajo
+`cursos/<su_id>/` y se etiqueta solo — no se mezcla con Mezcla.

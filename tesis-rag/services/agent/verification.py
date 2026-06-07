@@ -2,6 +2,12 @@ import re
 import os
 
 from services.agent.routing import _normalizar_texto
+from services.domain import get_domain_pack
+
+# Fase 0: las respuestas conceptuales controladas (antes hardcodeadas aqui) viven
+# como datos en el Domain Pack (controlled_answers). _PACK resuelve el curso por
+# defecto para el piloto mono-curso.
+_PACK = get_domain_pack()
 
 
 def _verificar_respuesta(respuesta: str, fuentes: list, evidencias: list):
@@ -163,85 +169,19 @@ def _limitar_anticipo_eje_posterior(respuesta: str, requested_axis: int):
 
 
 def _respuesta_conceptual_controlada(pregunta: str):
-    """Respuestas cortas para preguntas observadas con alto riesgo de desanclaje."""
+    """Respuestas cortas para preguntas con alto riesgo de desanclaje.
+
+    Fase 0: las reglas (terminos disparadores) y los textos viven en el Domain
+    Pack (controlled_answers), no en codigo. Una regla casa si TODOS sus grupos
+    casan, y un grupo casa si ALGUNO de sus terminos esta en la pregunta. El match
+    usa la pregunta normalizada y PADEADA con espacios, para que terminos como
+    " eq " casen como palabra. Orden = primer match gana (igual que el if/elif
+    original). Devuelve "" si ninguna regla casa.
+    """
     q = _normalizar_texto(pregunta)
-
-    if "frecuencia" in q and "tono" in q and ("diferencia" in q or "diferencia hay" in q):
-        return (
-            "La frecuencia es una magnitud fisica medible: cuantas veces vibra una senal por segundo. "
-            "El tono es la percepcion auditiva asociada a esa frecuencia: como sentimos si algo es mas grave o mas agudo. "
-            "No son lo mismo: una es medicion fisica y la otra es percepcion."
-        )
-
-    if "espuma" in q and ("grave" in q or "graves" in q):
-        return (
-            "No necesariamente. En el marco de acustica del curso, la espuma puede ayudar con reflexiones o contenido medio-agudo, "
-            "pero no conviene tratarla como solucion automatica para graves inflados. Para graves suele hacer falta diagnosticar sala, "
-            "modos/resonancias y tratamiento adecuado, no solo pegar espuma."
-        )
-
-    if "serie" in q and "paralelo" in q and ("diferencia" in q or "diferencia hay" in q):
-        return (
-            "En serie, la senal pasa por un proceso y luego por el siguiente: el orden cambia el resultado. "
-            "En paralelo, una copia o envio se procesa por otra ruta y luego se mezcla con la senal original. "
-            "La diferencia practica es flujo: cadena unica versus rutas simultaneas que se recombinan."
-        )
-
-    if "frecuencia de corte" in q and any(patron in q for patron in ["que es", "explicame", "defineme", "define"]):
-        return (
-            "La frecuencia de corte es un punto de referencia tecnico dentro del comportamiento de un filtro. "
-            "Sirve para ubicar desde donde se entiende o se mide la transicion del filtro, pero no debe pensarse como un muro instantaneo. "
-            "Algunas definiciones usan referencias numericas segun el tipo de filtro o contexto, pero no conviene fijarlas como doctrina universal cerrada sin matiz."
-        )
-
-    if "compresor" in q and any(patron in q for patron in ["que hace", "que es", "para que sirve"]):
-        return (
-            "Un compresor controla la dinamica: reduce o contiene el excedente de una senal cuando supera un umbral, "
-            "segun parametros como ratio, ataque y release. En la practica no es un boton de mejora automatica; sirve para ordenar, sostener o moldear movimiento dinamico segun el problema."
-        )
-
-    if (
-        ("comprimir" in q or "comprimo" in q or "compresion" in q)
-        and ("ecualizador" in q or "ecualizacion" in q or " eq " in f" {q} ")
-    ):
-        return (
-            "Tecnicamente no se comprime un ecualizador: se comprime una senal con un compresor y se ecualiza con un EQ. "
-            "Si te refieres a controlar una frecuencia solo cuando se dispara, eso se parece mas a ecualizacion dinamica o compresion multibanda. "
-            "Primero identifica el problema: balance tonal, resonancia puntual o exceso dinamico en una banda."
-        )
-
-    if "master" in q and ("clipea" in q or "clip" in q) and "bien" in q:
-        return (
-            "No. Que el master no clipee solo indica que no esta superando ese limite de pico. "
-            "No demuestra por si solo que el flujo de nivel, el margen, la dinamica, el balance o la traduccion esten bien. "
-            "Es una condicion tecnica basica, no una validacion completa."
-        )
-
-    if "revisar en mono" in q or ("por que" in q and "mono" in q):
-        return (
-            "Porque al cerrar a mono aparecen problemas de suma que en estereo pueden quedar disimulados. "
-            "Si elementos importantes como voz, bombo, caja o bajo pierden solidez, hay un problema real de compatibilidad. "
-            "La revision en mono no busca que todo sea estrecho, sino comprobar que la mezcla no se desarme fuera del punto ideal de escucha."
-        )
-
-    if "polaridad" in q and ("invierto" in q or "invertir" in q or "inversion" in q):
-        return (
-            "No necesariamente. Invertir polaridad puede resolver casos donde dos senales estan opuestas de forma binaria, "
-            "pero no corrige cualquier problema de fase o de tiempo. Si el conflicto viene de retraso, alineacion o filtrado peine, "
-            "hay que diagnosticar la relacion temporal, no solo apretar el boton de polaridad."
-        )
-
-    if "mezclar bien" in q and ("plugin" in q or "plugins" in q or "aplicar" in q):
-        return (
-            "No. Mezclar bien no es aplicar plugins a todo. Desde la practica integradora, primero se diagnostica que problema existe, "
-            "que jerarquia tiene cada elemento, que pasa en contexto y cual es el costo de intervenir. Si una fuente ya cumple su funcion, procesarla por reflejo puede empeorar la mezcla."
-        )
-
-    if "correlacion" in q or "correlaci" in q or "correlator" in q or "correlometro" in q:
-        return (
-            "En este curso, correlacion se entiende como una lectura de relacion entre canales o senales para estimar como suman "
-            "y que tan compatibles son al revisar mono. Sirve como orientacion: valores muy positivos suelen indicar suma mas estable, "
-            "y valores negativos advierten posible cancelacion. No es una verdad absoluta; hay que leerla por contexto, por bandas y por rol musical."
-        )
-
+    padded = f" {q} "
+    for rule in _PACK.controlled_answers():
+        grupos = rule.get("all_of") or []
+        if grupos and all(any(term in padded for term in grupo) for grupo in grupos):
+            return rule.get("answer", "")
     return ""

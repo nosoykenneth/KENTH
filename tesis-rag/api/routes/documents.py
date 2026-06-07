@@ -206,3 +206,47 @@ def rebuild_documents(background_tasks: BackgroundTasks):
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.get("/media")
+def serve_media(path: str):
+    """Sirve una imagen del corpus (capturas que el profe subio para mostrar en el chat).
+    Endpoint PUBLICO (alumno): solo material que el profe eligio exhibir.
+
+    Defensa en profundidad (Fase 1):
+      1. Solo imagenes dentro de directorios publicos permitidos (anti-traversal).
+      2. Si la imagen corresponde a un recurso registrado en local_tesisai_documents
+         y ese recurso tiene visible_to_student=0, se devuelve 403 (no se filtra un
+         recurso indexado-pero-no-visible). Las imagenes canonicas de teoria (sin
+         registro en documents) siguen siendo publicas por compatibilidad."""
+    import ingest as _ingest
+    from fastapi.responses import FileResponse
+    from services import db_service
+
+    rel = (path or "").replace("\\", "/").lstrip("/")
+    abspath = os.path.normpath(os.path.join(_ingest.BASE_DIR, rel))
+    ext = os.path.splitext(abspath)[1].lower()
+    if ext not in _ingest.IMAGE_EXTENSIONS:
+        raise HTTPException(status_code=400, detail="Solo se sirven imagenes.")
+
+    def _dentro(target, base):
+        try:
+            return os.path.commonpath([target, os.path.normpath(base)]) == os.path.normpath(base)
+        except ValueError:
+            return False
+
+    if not any(_dentro(abspath, d) for d in _ingest.ALLOWED_PUBLIC_DIRS):
+        raise HTTPException(status_code=403, detail="Ruta no permitida.")
+
+    # Validacion de visibilidad: el nombre del archivo subido es el doc_id.
+    doc_id = os.path.splitext(os.path.basename(rel))[0]
+    try:
+        doc = db_service.get_document(doc_id, None)
+    except Exception:
+        doc = None
+    if doc and not doc.get("visible_to_student"):
+        raise HTTPException(status_code=403, detail="Este recurso no esta disponible para estudiantes.")
+
+    if not os.path.exists(abspath):
+        raise HTTPException(status_code=404, detail="Imagen no encontrada.")
+    return FileResponse(abspath)

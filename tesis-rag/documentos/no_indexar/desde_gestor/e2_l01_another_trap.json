@@ -1,0 +1,18 @@
+{
+  "status": "ready_for_indexing",
+  "source_origin": "course",
+  "allowed_for_indexing": true,
+  "visible_to_student": true,
+  "doc_layer": "canonico",
+  "axis": "Eje 2",
+  "axis_id": "Eje 2",
+  "course_id": "2",
+  "lesson_id": "E2-L01",
+  "scope": "lesson",
+  "is_global": false,
+  "title": "another trap",
+  "description": "Plantilla fl studio de rnb trap para el estudiante",
+  "concepts": [],
+  "media_type": "template",
+  "resource_type": "daw_template"
+}

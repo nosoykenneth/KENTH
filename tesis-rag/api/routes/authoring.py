@@ -22,6 +22,18 @@ from services.axis_service import _canonical_axis_id, load_axis_manifest, load_l
 router = APIRouter(prefix="/authoring", tags=["authoring"])
 
 
+def _index_transcript_safe(course_id: str, lesson_id: str, segments) -> None:
+    """Indexa la transcripción en RAG sin romper la respuesta si algo falla."""
+    try:
+        import ingest  # import perezoso (carga embeddings)
+        lesson = db_service.get_lesson(lesson_id, course_id) or {}
+        ingest.index_lesson_transcript(
+            course_id, lesson_id, segments, axis_id=lesson.get("axis_id", ""),
+        )
+    except Exception as exc:  # pragma: no cover
+        print(f"[transcript-index] fallo indexando {lesson_id}: {exc}")
+
+
 # ==========================================
 # MODELOS
 # ==========================================
@@ -90,6 +102,29 @@ class TranscriptPayload(BaseModel):
 class AutoTranscribePayload(BaseModel):
     resource_id: int  # cmid del recurso H5P en Moodle
     language: str = "es"
+
+
+class LessonImportPayload(BaseModel):
+    """Esquema de importación de una lección (mismo formato que las semillas
+    course_runtime/axes/eje_N/lessons/*.json). Todos los campos son tolerantes;
+    la validación dura ocurre en el endpoint."""
+    lesson_id: str = ""
+    axis_id: str = ""
+    lesson_title: str = ""
+    title: str = ""
+    order: int = 0
+    learning_goal: str = ""
+    expected_action: str = ""
+    learning_goals: List[str] = []
+    expected_actions: List[str] = []
+    source_script_file: str = ""
+    resources: List[str] = []
+    prerequisites: List[str] = []
+    proactive_message: str = ""
+    suggested_prompts: List[str] = []
+    notes: str = ""
+    blocks: List[BlockPayload] = []
+    transcript: List[TranscriptSegmentPayload] = []  # opcional
 
 
 class ResourcePayload(BaseModel):
@@ -216,6 +251,93 @@ def set_prompts(lesson_id: str, payload: PromptsPayload, ctx: TeacherContext = D
     return load_lesson(lesson_id, ctx.course_id)
 
 
+@router.post("/lessons/import")
+def import_lesson(
+    payload: LessonImportPayload,
+    target_lesson_id: Optional[str] = None,
+    ctx: TeacherContext = Depends(require_teacher),
+):
+    """Importa una lección desde un JSON (crear nueva o rellenar una existente).
+
+    - Si `target_lesson_id` viene (actualizar una lección ya vinculada), se usa esa
+      lección y se IGNORA el `lesson_id`/`axis_id` del archivo (el vínculo no se toca).
+    - Si no, se crea/actualiza la lección con el `lesson_id`/`axis_id` del archivo.
+    Sobreescribe metadatos, bloques, prompts y (si viene) transcripción.
+    """
+    if target_lesson_id:
+        existing = db_service.get_lesson(target_lesson_id, ctx.course_id)
+        if not existing:
+            raise HTTPException(status_code=404, detail="Lección destino no encontrada.")
+        lesson_id = target_lesson_id
+        axis_id = existing.get("axis_id") or _canonical_axis_id(payload.axis_id)
+    else:
+        if not (payload.lesson_id or "").strip():
+            raise HTTPException(status_code=422, detail="El JSON no trae 'lesson_id'.")
+        if not (payload.axis_id or "").strip():
+            raise HTTPException(status_code=422, detail="El JSON no trae 'axis_id'.")
+        lesson_id = payload.lesson_id.strip()
+        axis_id = _canonical_axis_id(payload.axis_id)
+
+    title = (payload.lesson_title or payload.title or "").strip()
+    if not title:
+        raise HTTPException(status_code=422, detail="El JSON no trae 'lesson_title'/'title'.")
+
+    # Validar bloques.
+    blocks = []
+    for idx, b in enumerate(payload.blocks):
+        if b.start_time is None or b.end_time is None:
+            raise HTTPException(status_code=422, detail=f"Bloque {idx + 1}: falta start_time o end_time.")
+        if float(b.end_time) <= float(b.start_time):
+            raise HTTPException(status_code=422, detail=f"Bloque {idx + 1}: end_time debe ser mayor que start_time.")
+        blocks.append({
+            "block_id": b.block_id or f"{lesson_id}-B{idx + 1}",
+            "block_order": idx,
+            "start_time": b.start_time,
+            "end_time": b.end_time,
+            "block_title": b.block_title,
+            "summary": b.summary,
+            "interaction_mode": b.interaction_mode,
+            "tutor_focus": b.tutor_focus,
+            "concepts": b.concepts,
+            "preguntas_probables": b.preguntas_probables,
+        })
+
+    db_service.upsert_lesson(
+        lesson_id=lesson_id,
+        course_id=ctx.course_id,
+        axis_id=axis_id,
+        title=title,
+        order=payload.order,
+        learning_goal=payload.learning_goal,
+        expected_action=payload.expected_action,
+        learning_goals=payload.learning_goals,
+        expected_actions=payload.expected_actions,
+        source_script_file=payload.source_script_file,
+        resources=payload.resources,
+        prerequisites=payload.prerequisites,
+        notes=payload.notes,
+        metadata={"edited_by": ctx.user_id, "imported": True},
+    )
+    db_service.replace_lesson_blocks(lesson_id, blocks)
+    db_service.set_lesson_prompts(
+        lesson_id,
+        proactive_message=payload.proactive_message,
+        suggested_prompts=payload.suggested_prompts,
+    )
+    if payload.transcript:
+        segs = [{
+            "seq": i,
+            "start_time": s.start_time,
+            "end_time": s.end_time,
+            "text": s.text,
+            "speaker": s.speaker,
+        } for i, s in enumerate(payload.transcript)]
+        db_service.replace_transcript(lesson_id, segs)
+        _index_transcript_safe(ctx.course_id, lesson_id, segs)
+
+    return load_lesson(lesson_id, ctx.course_id)
+
+
 @router.get("/lessons/{lesson_id}/transcript")
 def get_transcript(lesson_id: str, ctx: TeacherContext = Depends(require_teacher)):
     if not db_service.get_lesson(lesson_id, ctx.course_id):
@@ -239,6 +361,7 @@ def set_transcript(lesson_id: str, payload: TranscriptPayload, ctx: TeacherConte
             "speaker": s.speaker,
         })
     count = db_service.replace_transcript(lesson_id, segments)
+    _index_transcript_safe(ctx.course_id, lesson_id, segments)
     return {"lesson_id": lesson_id, "segments": count}
 
 
@@ -253,7 +376,11 @@ def auto_transcribe(lesson_id: str, payload: AutoTranscribePayload, ctx: Teacher
             detail="No se encontró un archivo de video subido en este H5P. "
                    "La transcripción automática solo funciona con videos alojados en Moodle.",
         )
-    job = transcription_service.start_transcription(lesson_id, video["path"], payload.language)
+    lesson = db_service.get_lesson(lesson_id, ctx.course_id) or {}
+    job = transcription_service.start_transcription(
+        lesson_id, video["path"], payload.language,
+        course_id=ctx.course_id, axis_id=lesson.get("axis_id", ""),
+    )
     return {"lesson_id": lesson_id, "job": job, "video": {"filename": video.get("filename")}}
 
 

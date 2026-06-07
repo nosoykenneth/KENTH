@@ -1,8 +1,17 @@
 from langchain_core.messages import HumanMessage
 from langchain_ollama import ChatOllama
 
+from services.domain import get_domain_pack
+
 VISION_MODEL_NAME = "qwen3-vl:4b-instruct"
 llm_vision = ChatOllama(model=VISION_MODEL_NAME, temperature=0.1)
+
+# Fase 0: los prompts de vision viven en el Domain Pack (datos), no aqui.
+# _PACK resuelve el curso por defecto para el piloto mono-curso.
+_PACK = get_domain_pack()
+VISION_CLASSIFY_PROMPT = _PACK.node_prompt("vision_classify")
+VISION_CAPTION_PROMPT = _PACK.node_prompt("vision_caption")
+VISION_NO_EVIDENCE_PROMPT = _PACK.node_prompt("vision_no_evidence")
 
 
 def _limpiar_imagen_base64(imagen: str):
@@ -14,12 +23,7 @@ def _limpiar_imagen_base64(imagen: str):
 def _imagen_parece_audio(imagen: str):
     imagen_limpia = _limpiar_imagen_base64(imagen)
     print(f"[VISION GATE]: Imagen recibida. base64_len={len(imagen_limpia)}")
-    prompt = (
-        "Clasifica la imagen. Responde solo una palabra:\n"
-        "AUDIO si parece una interfaz de DAW, plugin, medidor, forma de onda, mezclador, ecualizador, compresor o sesion de audio.\n"
-        "NO_AUDIO si parece cualquier otra cosa: personas, fuego, paisajes, documentos, comida, objetos generales, etc.\n"
-        "No expliques."
-    )
+    prompt = VISION_CLASSIFY_PROMPT
     mensaje = [HumanMessage(content=[
         {"type": "text", "text": prompt},
         {"type": "image_url", "image_url": f"data:image/jpeg;base64,{imagen_limpia}"}
@@ -34,19 +38,25 @@ def _imagen_parece_audio(imagen: str):
     return es_audio
 
 
+def describir_imagen_para_conocimiento(imagen_b64: str) -> str:
+    """Genera un borrador de descripción de una imagen (captura de plugin/DAW) para
+    usar como conocimiento del tutor. Lo usa el botón 'sugerir con IA' al subir."""
+    img = _limpiar_imagen_base64(imagen_b64)
+    prompt = VISION_CAPTION_PROMPT
+    mensaje = [HumanMessage(content=[
+        {"type": "text", "text": prompt},
+        {"type": "image_url", "image_url": f"data:image/jpeg;base64,{img}"},
+    ])]
+    try:
+        return (llm_vision.invoke(mensaje).content or "").strip()
+    except Exception as e:
+        print(f"[VISION CAPTION]: error {e}")
+        return ""
+
+
 def _responder_imagen_audio_sin_evidencia(imagen_limpia: str, pregunta: str):
     print("[VISION NODE]: Nodo visual activo. Descripcion visual solamente.")
-    prompt = (
-        "Eres KENTH, tutor de mezcla y masterizacion.\n"
-        "La imagen fue clasificada como relacionada con audio.\n"
-        "Responde mirando la imagen. No uses teoria del curso salvo que sea estrictamente visible.\n\n"
-        "Reglas:\n"
-        "1. Describe solo lo observable en la captura: interfaz, controles, medidores, pistas, forma de onda o plugin.\n"
-        "2. No infieras como suena. No inventes problemas de mezcla.\n"
-        "3. No menciones recursos, clases, DAWs, plugins o tecnicas que no se vean en la imagen o no esten en la pregunta.\n"
-        "4. Cierra con una pregunta breve para que el alumno precise que quiere revisar.\n\n"
-        f"Pregunta del alumno: {pregunta}"
-    )
+    prompt = VISION_NO_EVIDENCE_PROMPT + f"Pregunta del alumno: {pregunta}"
     mensaje = [HumanMessage(content=[
         {"type": "text", "text": prompt},
         {"type": "image_url", "image_url": f"data:image/jpeg;base64,{imagen_limpia}"}

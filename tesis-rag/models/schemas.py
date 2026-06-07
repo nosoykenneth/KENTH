@@ -14,6 +14,8 @@ class EstadoAgente(TypedDict, total=False):
     evidence_level: str
     respuesta_final: str
     course_id: str
+    current_lesson_id: str
+    current_axis_id: str
     intent: str
     answer_type: str
     course_module: str

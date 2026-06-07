@@ -97,9 +97,10 @@ export default function DocumentManager({ courseId, axes = [] }) {
     <section className="bg-kenth-card border border-kenth-border rounded-2xl p-5">
       <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between mb-4">
         <div>
-          <h2 className="text-sm font-black uppercase tracking-widest text-kenth-text">Documentos RAG del curso</h2>
+          <h2 className="text-sm font-black uppercase tracking-widest text-kenth-text">Conocimiento del tutor (RAG)</h2>
           <p className="text-xs text-kenth-subtext mt-1">
-            Sube conocimiento propio o derivado. La politica de copyright del backend valida antes de indexar.
+            Sube <span className="text-kenth-text font-bold">solo conocimiento tuyo</span> (propio o derivado): el tutor lo usa para responder.
+            El material externo con derechos de terceros NO va aquí — es insumo privado de autoría, fuera del tutor.
           </p>
         </div>
         <button
@@ -139,8 +140,8 @@ export default function DocumentManager({ courseId, axes = [] }) {
         <div>
           <label className={labelCls}>Capa</label>
           <select className={inputCls} value={form.doc_layer} onChange={(e) => setField('doc_layer', e.target.value)}>
-            <option value="canonico">Canonico</option>
-            <option value="derivado">Derivado</option>
+            <option value="canonico">Canónico (propio)</option>
+            <option value="derivado">Derivado (propio)</option>
           </select>
         </div>
         <div>

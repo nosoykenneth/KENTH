@@ -1,0 +1,3810 @@
+{
+  "constants": {
+    "prompts.PROMPTS_BY_INTENT": {
+      "aclaracion_concepto": {
+        "id": "aclaracion_concepto_v1",
+        "text": "INTENCION PEDAGOGICA: aclaracion de concepto.\nObjetivo: explicar un concepto del curso de forma clara y verificable.\nEstructura: definicion breve, importancia practica y orientacion concreta respaldada por evidencia.\nNo agregues ejemplos o recursos que no esten en la evidencia o en la pregunta.\n"
+      },
+      "ambigua": {
+        "id": "ambigua_v1",
+        "text": "INTENCION PEDAGOGICA: pregunta ambigua.\nObjetivo: pedir aclaracion minima en una sola frase cuando el referente no sea unico.\nNo desarrolles teoria ni adivines el referente.\n"
+      },
+      "busqueda_fuente": {
+        "id": "busqueda_fuente_v1",
+        "text": "INTENCION PEDAGOGICA: busqueda de fuente.\nObjetivo: responder primero donde revisar, no desarrollar teoria larga.\nEstructura: recurso concreto, modulo/clase/minuto/pagina si existe, y explicacion minima de relevancia.\nSi no hay metadatos suficientes, dilo y pide el concepto exacto.\n"
+      },
+      "consejo_estetico_espacialidad": {
+        "id": "consejo_estetico_espacialidad_v1",
+        "text": "INTENCION PEDAGOGICA: consejo estetico/espacialidad.\nObjetivo: orientar decisiones de profundidad, paneo, ambiente o imagen estereo.\nDistingue decision tecnica de decision estetica. Evita recetas universales.\nConecta con fase, mono o balance solo si la evidencia lo respalda.\n"
+      },
+      "consulta_externa": {
+        "id": "consulta_externa_v1",
+        "text": "INTENCION PEDAGOGICA: respuesta con fuente externa.\nObjetivo: separar informacion web de evidencia del curso y advertir que no reemplaza el material cargado.\n"
+      },
+      "diagnostico_tecnico": {
+        "id": "diagnostico_tecnico_v1",
+        "text": "INTENCION PEDAGOGICA: diagnostico tecnico.\nObjetivo: ayudar a razonar posibles causas sin fingir que escuchaste el audio.\nEstructura: hipotesis cautelosa, comprobacion practica y siguiente paso.\nNo afirmes diagnosticos definitivos ni valores exactos sin evidencia.\n"
+      },
+      "estudiante_perdido": {
+        "id": "estudiante_perdido_v1",
+        "text": "INTENCION PEDAGOGICA: estudiante perdido.\nObjetivo: guiar paso a paso, con lenguaje simple y una pregunta corta de calibracion.\n"
+      },
+      "fuera_dominio": {
+        "id": "fuera_dominio_v1",
+        "text": "INTENCION PEDAGOGICA: fuera de dominio.\nObjetivo: bloquear breve, limpio y util.\nNo expliques el tema externo. Redirige solo al dominio del curso de mezcla y masterizacion.\n"
+      },
+      "optimizacion_mastering_comercial": {
+        "id": "optimizacion_mastering_comercial_v1",
+        "text": "INTENCION PEDAGOGICA: mastering u optimizacion comercial.\nObjetivo: orientar decisiones de acabado, traduccion y preparacion final.\nNo inventes LUFS, dBTP, plataformas, estandares comerciales ni cadenas de mastering si no aparecen en la evidencia.\n"
+      },
+      "retroalimentacion_visual": {
+        "id": "retroalimentacion_visual_v1",
+        "text": "INTENCION PEDAGOGICA: retroalimentacion visual.\nObjetivo: describir solo lo observable en la imagen y no inferir sonido real.\n"
+      },
+      "saludo": {
+        "id": "saludo_v1",
+        "text": "INTENCION PEDAGOGICA: saludo o cortesia. Responder breve y redirigir al curso.\n"
+      }
+    },
+    "prompts.PROMPT_COMMON_RULES": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\n",
+    "retrieval.CURRENT_AXIS_BOOST": 0.35,
+    "retrieval.FUTURE_AXIS_DEFAULT_PENALTY": -0.3,
+    "retrieval.FUTURE_AXIS_REQUESTED_BOOST": 0.24,
+    "retrieval.MIN_RELEVANCE_SCORE": 0.35,
+    "retrieval.PREVIOUS_AXIS_SUPPORT_BOOST": 0.16,
+    "retrieval.RETRIEVAL_K": 8,
+    "retrieval.SPECIFIC_UNSUPPORTED_TERMS": [
+      "serum",
+      "sintesis",
+      "synthesis",
+      "fm",
+      "wavetable",
+      "granular",
+      "ableton",
+      "logic",
+      "fl studio",
+      "cubase",
+      "pro tools",
+      "reaper",
+      "massive",
+      "sylenth",
+      "vital",
+      "kontakt",
+      "oversampling"
+    ],
+    "routing.AMBIGUOUS_MAX_WORDS": 8,
+    "routing.COURSE_AXES": [
+      {
+        "evaluation_category": "fundamentos_acustica",
+        "id": "eje0_identidad_acustica",
+        "keywords": [
+          "eje 0",
+          "identidad",
+          "frecuencia",
+          "amplitud",
+          "acustica",
+          "medicion"
+        ]
+      },
+      {
+        "evaluation_category": "estructura_ganancia",
+        "id": "eje1_estructura_flujo",
+        "keywords": [
+          "eje 1",
+          "gain staging",
+          "headroom",
+          "flujo de senal",
+          "ruteo",
+          "db"
+        ]
+      },
+      {
+        "evaluation_category": "fase_imagen_estereo",
+        "id": "eje2_espacio_fase",
+        "keywords": [
+          "eje 2",
+          "polaridad",
+          "fase",
+          "mono",
+          "estereo",
+          "correlacion"
+        ]
+      },
+      {
+        "evaluation_category": "ecualizacion",
+        "id": "eje3_identidad_espectral",
+        "keywords": [
+          "eje 3",
+          "eq",
+          "filtro",
+          "frecuencia de corte",
+          "balance tonal"
+        ]
+      },
+      {
+        "evaluation_category": "dinamica",
+        "id": "eje4_control_dinamico",
+        "keywords": [
+          "eje 4",
+          "compresion",
+          "threshold",
+          "ratio",
+          "ataque",
+          "release"
+        ]
+      },
+      {
+        "evaluation_category": "espacialidad",
+        "id": "eje5_dimension_ambiencia",
+        "keywords": [
+          "eje 5",
+          "reverb",
+          "delay",
+          "profundidad",
+          "ambiencia"
+        ]
+      },
+      {
+        "evaluation_category": "mezcla_general",
+        "id": "eje6_criterio_integracion",
+        "keywords": [
+          "eje 6",
+          "mezcla",
+          "integracion",
+          "criterio",
+          "jerarquia"
+        ]
+      },
+      {
+        "evaluation_category": "mastering",
+        "id": "eje7_optimizacion_entrega",
+        "keywords": [
+          "eje 7",
+          "mastering",
+          "lufs",
+          "limitador",
+          "streaming"
+        ]
+      }
+    ],
+    "routing.LOOKUP_STOPWORDS": [
+      "ahi",
+      "alli",
+      "allÃ­",
+      "clase",
+      "con",
+      "cual",
+      "cuando",
+      "cuÃƒÂ¡l",
+      "cuÃƒÂ¡ndo",
+      "de",
+      "del",
+      "donde",
+      "el",
+      "en",
+      "entender",
+      "entre",
+      "eso",
+      "esto",
+      "explica",
+      "explican",
+      "la",
+      "las",
+      "leer",
+      "lo",
+      "los",
+      "mejor",
+      "minuto",
+      "misma",
+      "mismo",
+      "pagina",
+      "para",
+      "pdf",
+      "por",
+      "pÃ¡gina",
+      "que",
+      "quÃ©",
+      "recurso",
+      "revisar",
+      "reviso",
+      "siempre",
+      "significa",
+      "tengo",
+      "un",
+      "una",
+      "unas",
+      "unos",
+      "usar",
+      "volver"
+    ],
+    "routing.SPECIFIC_UNSUPPORTED_TERMS": [
+      "serum",
+      "sintesis",
+      "synthesis",
+      "fm",
+      "wavetable",
+      "granular",
+      "ableton",
+      "logic",
+      "fl studio",
+      "cubase",
+      "pro tools",
+      "reaper",
+      "massive",
+      "sylenth",
+      "vital",
+      "kontakt",
+      "oversampling"
+    ],
+    "routing.STRONG_AXIS_TERMS": {
+      "Eje 0": [
+        "frecuencia",
+        "tono",
+        "curvas isofonicas",
+        "sala",
+        "resonadores",
+        "acustica"
+      ],
+      "Eje 1": [
+        "gain staging",
+        "headroom",
+        "fader",
+        "trim",
+        "clip gain",
+        "flujo de senal",
+        "bus",
+        "envio"
+      ],
+      "Eje 2": [
+        "polaridad",
+        "fase",
+        "mono",
+        "monocompatibilidad",
+        "correlacion",
+        "estereo"
+      ],
+      "Eje 3": [
+        "frecuencia de corte",
+        "filtro",
+        "pendiente",
+        "factor q",
+        "eq",
+        "ecualizacion"
+      ],
+      "Eje 4": [
+        "compresor",
+        "compresion",
+        "threshold",
+        "ratio",
+        "ataque",
+        "release",
+        "dinamica"
+      ],
+      "Eje 5": [
+        "reverb",
+        "delay",
+        "espacialidad",
+        "profundidad",
+        "ambiencia"
+      ],
+      "Eje 6": [
+        "mezcla integradora",
+        "criterio de mezcla",
+        "jerarquia",
+        "contexto",
+        "integracion"
+      ],
+      "Eje 7": [
+        "mastering",
+        "lufs",
+        "limitador",
+        "streaming",
+        "normalizacion"
+      ]
+    },
+    "routing.TECHNICAL_CONCEPT_PATTERNS": [
+      [
+        "frecuencia",
+        [
+          "frecuencia"
+        ]
+      ],
+      [
+        "tono",
+        [
+          "tono"
+        ]
+      ],
+      [
+        "sala",
+        [
+          "sala",
+          "acustica de sala",
+          "espuma",
+          "graves inflados"
+        ]
+      ],
+      [
+        "serie",
+        [
+          "serie",
+          "en serie"
+        ]
+      ],
+      [
+        "paralelo",
+        [
+          "paralelo",
+          "en paralelo"
+        ]
+      ],
+      [
+        "clip",
+        [
+          "clip",
+          "clipea",
+          "clipping",
+          "no clipea"
+        ]
+      ],
+      [
+        "flujo de senal",
+        [
+          "flujo de senal",
+          "ruteo",
+          "bus",
+          "envio",
+          "subgrupo",
+          "fader",
+          "trim",
+          "clip gain"
+        ]
+      ],
+      [
+        "polaridad",
+        [
+          "polaridad",
+          "inversion de polaridad",
+          "invertir polaridad"
+        ]
+      ],
+      [
+        "fase",
+        [
+          "fase"
+        ]
+      ],
+      [
+        "mono",
+        [
+          "mono",
+          "revisar en mono",
+          "pasar a mono"
+        ]
+      ],
+      [
+        "monocompatibilidad",
+        [
+          "monocompatibilidad",
+          "mono compatible",
+          "monocompatible"
+        ]
+      ],
+      [
+        "correlacion",
+        [
+          "correlacion",
+          "correlator",
+          "correlometro"
+        ]
+      ],
+      [
+        "goniÃ³metro",
+        [
+          "goniometro",
+          "goniÃ³metro"
+        ]
+      ],
+      [
+        "filtro peine",
+        [
+          "comb filtering",
+          "filtro peine"
+        ]
+      ],
+      [
+        "compresion multibanda",
+        [
+          "compresion multibanda",
+          "multibanda"
+        ]
+      ],
+      [
+        "compresion paralela",
+        [
+          "compresion paralela"
+        ]
+      ],
+      [
+        "makeup gain",
+        [
+          "makeup gain",
+          "ganancia de compensacion"
+        ]
+      ],
+      [
+        "reduccion de ganancia",
+        [
+          "reduccion de ganancia",
+          "gain reduction"
+        ]
+      ],
+      [
+        "headroom",
+        [
+          "headroom"
+        ]
+      ],
+      [
+        "threshold",
+        [
+          "threshold",
+          "umbral"
+        ]
+      ],
+      [
+        "lufs",
+        [
+          "lufs"
+        ]
+      ],
+      [
+        "limitador",
+        [
+          "limitador",
+          "limiter"
+        ]
+      ],
+      [
+        "frecuencia de corte",
+        [
+          "frecuencia de corte"
+        ]
+      ],
+      [
+        "pendiente",
+        [
+          "pendiente",
+          "pendientes",
+          "pendiente abrupta",
+          "pendientes abruptas",
+          "slope"
+        ]
+      ],
+      [
+        "factor q",
+        [
+          "factor q",
+          " q ",
+          " q?",
+          "q que",
+          "que pendiente"
+        ]
+      ],
+      [
+        "fase lineal",
+        [
+          "fase lineal"
+        ]
+      ],
+      [
+        "ecualizacion dinamica",
+        [
+          "ecualizacion dinamica",
+          "eq dinamica"
+        ]
+      ],
+      [
+        "eq correctiva",
+        [
+          "eq correctiva",
+          "ecualizacion correctiva",
+          "eq correctivo"
+        ]
+      ],
+      [
+        "eq tonal",
+        [
+          "eq tonal",
+          "ecualizacion tonal",
+          "eq estetica",
+          "eq estetico"
+        ]
+      ],
+      [
+        "ecualizacion",
+        [
+          "ecualizacion",
+          "ecualizador",
+          "eq"
+        ]
+      ],
+      [
+        "compresion",
+        [
+          "compresion",
+          "compresor"
+        ]
+      ],
+      [
+        "filtro",
+        [
+          "filtro",
+          "filtros",
+          "filtrar",
+          "filtrado",
+          "hpf",
+          "lpf"
+        ]
+      ],
+      [
+        "saturacion",
+        [
+          "saturacion"
+        ]
+      ],
+      [
+        "reverb",
+        [
+          "reverb",
+          "reverberacion"
+        ]
+      ],
+      [
+        "delay",
+        [
+          "delay"
+        ]
+      ],
+      [
+        "mezcla integradora",
+        [
+          "mezclar bien",
+          "plugins a todo",
+          "aplicar plugins a todo",
+          "criterio de mezcla",
+          "escuchar en contexto"
+        ]
+      ],
+      [
+        "panorama",
+        [
+          "panorama",
+          "pan law",
+          "ley de panorama",
+          "paneo"
+        ]
+      ],
+      [
+        "falso estereo",
+        [
+          "falso estereo"
+        ]
+      ],
+      [
+        "mastering",
+        [
+          "mastering",
+          "master",
+          "masterizacion"
+        ]
+      ],
+      [
+        "dither",
+        [
+          "dither",
+          "noise shaping"
+        ]
+      ],
+      [
+        "true peak",
+        [
+          "true peak",
+          "dbtp"
+        ]
+      ],
+      [
+        "plr",
+        [
+          "plr",
+          "peak to loudness ratio",
+          "peak-to-loudness"
+        ]
+      ],
+      [
+        "mix bus",
+        [
+          "mix bus",
+          "master fader",
+          "bus master"
+        ]
+      ]
+    ]
+  },
+  "node_prompts": {
+    "graph.GREETINGS": {
+      "bye": "Hasta luego. Cuando vuelvas, puedo ayudarte a revisar conceptos, plugins o ejercicios del curso.",
+      "default": "Hola. Soy KENTH, tu tutor de mezcla y masterizacion. En que parte del curso necesitas ayuda?",
+      "ok": "Excelente. Sigamos con el curso. Tienes alguna duda puntual de mezcla o masterizacion?",
+      "thanks": "De nada. Estoy aqui para ayudarte con mezcla, mastering y el material del curso. Que duda seguimos puliendo?"
+    },
+    "graph.GUARD_REPLY": "Solo puedo ayudarte con mezcla, masterizacion, audio, DAWs, plugins y contenido del curso. Si tu duda esta relacionada con el curso, dime el eje, clase o concepto que quieres revisar.",
+    "graph.LOST_INTRO": "Eres KENTH, tutor del curso de mezcla y masterizacion.\nEl alumno esta confundido o frustrado. Responde como guia pedagogico, no como enciclopedia.\n\n",
+    "graph.LOST_RULES": "REGLAS:\n1. Usa exactamente 4 bloques con estos titulos: Validacion, Explicacion simple, Siguiente paso, Pregunta de calibracion.\n2. Se breve: 1 o 2 frases por bloque.\n3. Recomienda recursos, software, plugins, DAWs o tecnicas especificas SOLO si aparecen literalmente en la evidencia o pregunta.\n4. No menciones Ableton, Logic, Serum ni nombres propios si no aparecen en evidencia o pregunta.\n5. Si no hay evidencia suficiente, guia el proceso sin inventar clase, recurso, timestamp ni parametro.\n\n",
+    "graph.RAG_SYSTEM_PROMPT": "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen literalmente en la evidencia o en la pregunta del alumno.\n7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n9. Si hay incertidumbre, pide una aclaracion breve.\n10. Mantente conciso, profesional y pedagogico.\n\n11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje salvo que el alumno pregunte explicitamente donde revisar o pida fuentes. Esos datos ya viajan en el JSON.\n\n",
+    "graph.VISION_RAG_INTRO": "Eres KENTH, ingeniero de mezcla profesional y tutor.\nEl alumno adjunto una imagen. Analizala cuidadosamente.\n\n",
+    "graph.VISION_RAG_RULES": "REGLAS ESTRICTAS:\n1. La imagen ya fue clasificada como relacionada con audio. Describe solo lo visible: interfaz, controles, medidores, forma de onda o plugin.\n2. No infieras como suena. Una captura no permite saber si algo suena bien o mal.\n3. Usa EVIDENCIA DEL CURSO solo si conecta claramente con lo visible. Si no conecta, no fuerces teoria.\n4. NO des parametros exactos, valores en dB, presets ni diagnosticos auditivos sin audio.\n5. Recomienda recursos, software o plugins solo si aparecen en la evidencia o en la pregunta.\n6. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n7. Si no estas seguro de lo que se ve, pide una aclaracion breve.\n\n",
+    "graph.WEB_INTRO": "Eres el asistente experto del curso de KENTH.\nEstas en MODO INTERNET: la informacion externa NO reemplaza el material del curso.\n",
+    "graph.WEB_QUERY_SUFFIX": " plugins audio VST mezcla masterizacion",
+    "graph.WEB_RULES": "Usala solo para links, descargas, plugins o informacion externa solicitada.\nNo inventes enlaces y aclara cuando algo viene de informacion externa.\nNo sugieras software, plugins o recursos que no aparezcan en la pregunta o en la informacion web.\n\n",
+    "vision.VISION_CAPTION_PROMPT": "Eres un asistente que documenta capturas de software de audio (DAW, plugins, medidores, mezcladores) para enseñanza. Describe SOLO lo observable en la imagen: qué interfaz/plugin es, qué controles/medidores/parámetros se ven y para qué sirven. Sé concreto y breve (4-8 líneas). No inventes nada que no se vea.",
+    "vision.VISION_CLASSIFY_PROMPT": "Clasifica la imagen. Responde solo una palabra:\nAUDIO si parece una interfaz de DAW, plugin, medidor, forma de onda, mezclador, ecualizador, compresor o sesion de audio.\nNO_AUDIO si parece cualquier otra cosa: personas, fuego, paisajes, documentos, comida, objetos generales, etc.\nNo expliques.",
+    "vision.VISION_NO_EVIDENCE_PROMPT": "Eres KENTH, tutor de mezcla y masterizacion.\nLa imagen fue clasificada como relacionada con audio.\nResponde mirando la imagen. No uses teoria del curso salvo que sea estrictamente visible.\n\nReglas:\n1. Describe solo lo observable en la captura: interfaz, controles, medidores, pistas, forma de onda o plugin.\n2. No infieras como suena. No inventes problemas de mezcla.\n3. No menciones recursos, clases, DAWs, plugins o tecnicas que no se vean en la imagen o no esten en la pregunta.\n4. Cierra con una pregunta breve para que el alumno precise que quiere revisar.\n\n"
+  },
+  "por_pregunta": {
+    "a cuantos db": {
+      "clasificacion_pedagogica": {
+        "answer_type": "clarification",
+        "course_module": "eje1_estructura_flujo",
+        "evaluation_category": "estructura_ganancia",
+        "intent": "ambigua",
+        "requires_course_evidence": false
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": true,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "cuantos"
+        ],
+        [
+          "cuantos"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje1_estructura_flujo",
+        "estructura_ganancia"
+      ],
+      "normalizar": "a cuantos db",
+      "parece_dominio": true,
+      "query_aliases": "a cuantos db",
+      "resolver_referente_ambiguo": [
+        "",
+        "De que parametro en dB hablas: nivel, threshold, reduccion de ganancia, LUFS u otro?"
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "cuantos"
+      ]
+    },
+    "como comprimo un ecualizador": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "ecualizacion"
+      ],
+      "conceptos_relevantes": [
+        "ecualizacion"
+      ],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "como comprimo ecualizador",
+          "como comprimo",
+          "comprimo ecualizador"
+        ],
+        [
+          "como",
+          "comprimo",
+          "ecualizador"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "como comprimo un ecualizador",
+      "parece_dominio": false,
+      "query_aliases": "compresion multibanda ecualizacion dinamica compresor ecualizador Pregunta original: como comprimo un ecualizador",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "Tecnicamente no se comprime un ecualizador: se comprime una senal con un compresor y se ecualiza con un EQ. Si te refieres a controlar una frecuencia solo cuando se dispara, eso se parece mas a ecualizacion dinamica o compresion multibanda. Primero identifica el problema: balance tonal, resonancia puntual o exceso dinamico en una banda.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "como",
+        "comprimo",
+        "ecualizador"
+      ]
+    },
+    "como controlo el hiss y el doubling en los toms": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "como controlo hiss doubling toms",
+          "como controlo",
+          "controlo hiss",
+          "hiss doubling",
+          "doubling toms"
+        ],
+        [
+          "como",
+          "controlo",
+          "hiss",
+          "doubling",
+          "toms"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "como controlo el hiss y el doubling en los toms",
+      "parece_dominio": true,
+      "query_aliases": "como controlo el hiss y el doubling en los toms",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "como",
+        "controlo",
+        "hiss",
+        "doubling",
+        "toms"
+      ]
+    },
+    "como hago el mastering para streaming con lufs": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje7_optimizacion_entrega",
+        "evaluation_category": "mastering",
+        "intent": "optimizacion_mastering_comercial",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "lufs",
+        "mastering"
+      ],
+      "conceptos_relevantes": [
+        "lufs",
+        "mastering"
+      ],
+      "eje_fuerte": "Eje 7",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "como hago mastering streaming lufs",
+          "como hago",
+          "hago mastering",
+          "mastering streaming",
+          "streaming lufs"
+        ],
+        [
+          "como",
+          "hago",
+          "mastering",
+          "streaming",
+          "lufs"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje7_optimizacion_entrega",
+        "mastering"
+      ],
+      "normalizar": "como hago el mastering para streaming con lufs",
+      "parece_dominio": true,
+      "query_aliases": "como hago el mastering para streaming con lufs",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "como",
+        "hago",
+        "mastering",
+        "streaming",
+        "lufs"
+      ]
+    },
+    "como mezclar bien aplicando plugins a todo": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje6_criterio_integracion",
+        "evaluation_category": "mezcla_general",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "mezcla integradora"
+      ],
+      "conceptos_relevantes": [
+        "mezcla integradora"
+      ],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "como mezclar bien aplicando plugins todo",
+          "como mezclar",
+          "mezclar bien",
+          "bien aplicando",
+          "aplicando plugins",
+          "plugins todo"
+        ],
+        [
+          "como",
+          "mezclar",
+          "bien",
+          "aplicando",
+          "plugins",
+          "todo"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje6_criterio_integracion",
+        "mezcla_general"
+      ],
+      "normalizar": "como mezclar bien aplicando plugins a todo",
+      "parece_dominio": true,
+      "query_aliases": "como mezclar bien aplicando plugins a todo",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "No. Mezclar bien no es aplicar plugins a todo. Desde la practica integradora, primero se diagnostica que problema existe, que jerarquia tiene cada elemento, que pasa en contexto y cual es el costo de intervenir. Si una fuente ya cumple su funcion, procesarla por reflejo puede empeorar la mezcla.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "como",
+        "mezclar",
+        "bien",
+        "aplicando",
+        "plugins",
+        "todo"
+      ]
+    },
+    "como uso ableton para masterizar": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "optimizacion_mastering_comercial",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "mastering"
+      ],
+      "conceptos_relevantes": [
+        "mastering"
+      ],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "como uso ableton masterizar",
+          "como uso",
+          "uso ableton",
+          "ableton masterizar"
+        ],
+        [
+          "como",
+          "uso",
+          "ableton",
+          "masterizar"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "como uso ableton para masterizar",
+      "parece_dominio": true,
+      "query_aliases": "como uso ableton para masterizar",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [
+        "ableton"
+      ],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "como",
+        "uso",
+        "ableton",
+        "masterizar"
+      ]
+    },
+    "compresor compresion threshold ratio ataque release dinamica": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje4_control_dinamico",
+        "evaluation_category": "dinamica",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "threshold",
+        "compresion"
+      ],
+      "conceptos_relevantes": [
+        "threshold",
+        "compresion"
+      ],
+      "eje_fuerte": "Eje 4",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "compresor compresion threshold ratio ataque release dinamica",
+          "compresor compresion",
+          "compresion threshold",
+          "threshold ratio",
+          "ratio ataque",
+          "ataque release",
+          "release dinamica"
+        ],
+        [
+          "compresor",
+          "compresion",
+          "threshold",
+          "ratio",
+          "ataque",
+          "release",
+          "dinamica"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje4_control_dinamico",
+        "dinamica"
+      ],
+      "normalizar": "compresor compresion threshold ratio ataque release dinamica",
+      "parece_dominio": true,
+      "query_aliases": "compresor compresion threshold ratio ataque release dinamica",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "compresor",
+        "compresion",
+        "threshold",
+        "ratio",
+        "ataque",
+        "release",
+        "dinamica"
+      ]
+    },
+    "cual es la diferencia entre frecuencia y tono": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje0_identidad_acustica",
+        "evaluation_category": "fundamentos_acustica",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": true,
+      "concepto_definicion_directa": "la diferencia entre frecuencia y tono",
+      "conceptos_en_texto": [
+        "frecuencia",
+        "tono"
+      ],
+      "conceptos_relevantes": [
+        "frecuencia",
+        "tono"
+      ],
+      "eje_fuerte": "Eje 0",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "diferencia frecuencia tono",
+          "diferencia frecuencia",
+          "frecuencia tono"
+        ],
+        [
+          "diferencia",
+          "frecuencia",
+          "tono"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje0_identidad_acustica",
+        "fundamentos_acustica"
+      ],
+      "normalizar": "cual es la diferencia entre frecuencia y tono",
+      "parece_dominio": true,
+      "query_aliases": "cual es la diferencia entre frecuencia y tono",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "La frecuencia es una magnitud fisica medible: cuantas veces vibra una senal por segundo. El tono es la percepcion auditiva asociada a esa frecuencia: como sentimos si algo es mas grave o mas agudo. No son lo mismo: una es medicion fisica y la otra es percepcion.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "diferencia",
+        "frecuencia",
+        "tono"
+      ]
+    },
+    "curvas isofonicas sala acustica resonadores": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje0_identidad_acustica",
+        "evaluation_category": "fundamentos_acustica",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "sala"
+      ],
+      "conceptos_relevantes": [
+        "sala"
+      ],
+      "eje_fuerte": "Eje 0",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "curvas isofonicas sala acustica resonadores",
+          "curvas isofonicas",
+          "isofonicas sala",
+          "sala acustica",
+          "acustica resonadores"
+        ],
+        [
+          "curvas",
+          "isofonicas",
+          "sala",
+          "acustica",
+          "resonadores"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje0_identidad_acustica",
+        "fundamentos_acustica"
+      ],
+      "normalizar": "curvas isofonicas sala acustica resonadores",
+      "parece_dominio": false,
+      "query_aliases": "curvas isofonicas sala acustica resonadores",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "curvas",
+        "isofonicas",
+        "sala",
+        "acustica",
+        "resonadores"
+      ]
+    },
+    "diferencia entre compresion y ecualizacion": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje3_identidad_espectral",
+        "evaluation_category": "ecualizacion",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": true,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "ecualizacion",
+        "compresion"
+      ],
+      "conceptos_relevantes": [
+        "ecualizacion",
+        "compresion"
+      ],
+      "eje_fuerte": "Eje 3",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "diferencia compresion ecualizacion",
+          "diferencia compresion",
+          "compresion ecualizacion"
+        ],
+        [
+          "diferencia",
+          "compresion",
+          "ecualizacion"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje3_identidad_espectral",
+        "ecualizacion"
+      ],
+      "normalizar": "diferencia entre compresion y ecualizacion",
+      "parece_dominio": true,
+      "query_aliases": "compresion multibanda ecualizacion dinamica compresor ecualizador Pregunta original: diferencia entre compresion y ecualizacion",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "Tecnicamente no se comprime un ecualizador: se comprime una senal con un compresor y se ecualiza con un EQ. Si te refieres a controlar una frecuencia solo cuando se dispara, eso se parece mas a ecualizacion dinamica o compresion multibanda. Primero identifica el problema: balance tonal, resonancia puntual o exceso dinamico en una banda.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "diferencia",
+        "compresion",
+        "ecualizacion"
+      ]
+    },
+    "diferencia entre filtro y ecualizacion": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje3_identidad_espectral",
+        "evaluation_category": "ecualizacion",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": true,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "ecualizacion",
+        "filtro"
+      ],
+      "conceptos_relevantes": [
+        "ecualizacion",
+        "filtro"
+      ],
+      "eje_fuerte": "Eje 3",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "diferencia filtro ecualizacion",
+          "diferencia filtro",
+          "filtro ecualizacion"
+        ],
+        [
+          "diferencia",
+          "filtro",
+          "ecualizacion"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje3_identidad_espectral",
+        "ecualizacion"
+      ],
+      "normalizar": "diferencia entre filtro y ecualizacion",
+      "parece_dominio": true,
+      "query_aliases": "diferencia entre filtro y ecualizacion",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "diferencia",
+        "filtro",
+        "ecualizacion"
+      ]
+    },
+    "el master no clipea esta bien": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "optimizacion_mastering_comercial",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "clip",
+        "mastering"
+      ],
+      "conceptos_relevantes": [
+        "clip",
+        "mastering"
+      ],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "master clipea esta bien",
+          "master clipea",
+          "clipea esta",
+          "esta bien"
+        ],
+        [
+          "master",
+          "clipea",
+          "esta",
+          "bien"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "el master no clipea esta bien",
+      "parece_dominio": true,
+      "query_aliases": "el master no clipea esta bien",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "No. Que el master no clipee solo indica que no esta superando ese limite de pico. No demuestra por si solo que el flujo de nivel, el margen, la dinamica, el balance o la traduccion esten bien. Es una condicion tecnica basica, no una validacion completa.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "master",
+        "clipea",
+        "esta",
+        "bien"
+      ]
+    },
+    "en que minuto reviso el gain staging": {
+      "clasificacion_pedagogica": {
+        "answer_type": "source_lookup",
+        "course_module": "eje1_estructura_flujo",
+        "evaluation_category": "estructura_ganancia",
+        "intent": "busqueda_fuente",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "Eje 1",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": true,
+      "extraer_frases_lookup": [
+        [
+          "gain staging"
+        ],
+        [
+          "gain",
+          "staging"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje1_estructura_flujo",
+        "estructura_ganancia"
+      ],
+      "normalizar": "en que minuto reviso el gain staging",
+      "parece_dominio": true,
+      "query_aliases": "en que minuto reviso el gain staging",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "gain",
+        "staging"
+      ]
+    },
+    "en que modulo hablan de frecuencia de corte": {
+      "clasificacion_pedagogica": {
+        "answer_type": "source_lookup",
+        "course_module": "eje3_identidad_espectral",
+        "evaluation_category": "ecualizacion",
+        "intent": "busqueda_fuente",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "frecuencia",
+        "frecuencia de corte"
+      ],
+      "conceptos_relevantes": [
+        "frecuencia",
+        "frecuencia de corte"
+      ],
+      "eje_fuerte": "Eje 3",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": true,
+      "extraer_frases_lookup": [
+        [
+          "hablan frecuencia corte",
+          "hablan frecuencia",
+          "frecuencia corte"
+        ],
+        [
+          "hablan",
+          "frecuencia",
+          "corte"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje3_identidad_espectral",
+        "ecualizacion"
+      ],
+      "normalizar": "en que modulo hablan de frecuencia de corte",
+      "parece_dominio": true,
+      "query_aliases": "en que modulo hablan de frecuencia de corte",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "modulo",
+        "hablan",
+        "frecuencia",
+        "corte"
+      ]
+    },
+    "eso cuando conviene": {
+      "clasificacion_pedagogica": {
+        "answer_type": "clarification",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "ambigua",
+        "requires_course_evidence": false
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": true,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "conviene"
+        ],
+        [
+          "conviene"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "eso cuando conviene",
+      "parece_dominio": false,
+      "query_aliases": "eso cuando conviene",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "conviene"
+      ]
+    },
+    "explicame desde cero": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "estudiante_perdido",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": true,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "explicame desde cero",
+          "explicame desde",
+          "desde cero"
+        ],
+        [
+          "explicame",
+          "desde",
+          "cero"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "explicame desde cero",
+      "parece_dominio": false,
+      "query_aliases": "explicame desde cero",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "explicame",
+        "desde",
+        "cero"
+      ]
+    },
+    "frecuencia de corte filtro pendiente factor q eq": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje3_identidad_espectral",
+        "evaluation_category": "ecualizacion",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "frecuencia",
+        "frecuencia de corte",
+        "pendiente",
+        "factor q",
+        "ecualizacion",
+        "filtro"
+      ],
+      "conceptos_relevantes": [
+        "frecuencia",
+        "frecuencia de corte",
+        "pendiente",
+        "factor q",
+        "ecualizacion",
+        "filtro"
+      ],
+      "eje_fuerte": "Eje 3",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "frecuencia corte filtro pendiente factor",
+          "frecuencia corte",
+          "corte filtro",
+          "filtro pendiente",
+          "pendiente factor"
+        ],
+        [
+          "frecuencia",
+          "corte",
+          "filtro",
+          "pendiente",
+          "factor"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje3_identidad_espectral",
+        "ecualizacion"
+      ],
+      "normalizar": "frecuencia de corte filtro pendiente factor q eq",
+      "parece_dominio": true,
+      "query_aliases": "frecuencia de corte filtro pendiente factor q eq",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "frecuencia",
+        "corte",
+        "filtro",
+        "pendiente",
+        "factor",
+        "q"
+      ]
+    },
+    "gain staging headroom fader trim clip gain flujo de senal": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje1_estructura_flujo",
+        "evaluation_category": "estructura_ganancia",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "clip",
+        "flujo de senal",
+        "headroom"
+      ],
+      "conceptos_relevantes": [
+        "clip",
+        "flujo de senal",
+        "headroom"
+      ],
+      "eje_fuerte": "Eje 1",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "gain staging headroom fader trim clip gain flujo senal",
+          "gain staging",
+          "staging headroom",
+          "headroom fader",
+          "fader trim",
+          "trim clip",
+          "clip gain",
+          "gain flujo",
+          "flujo senal"
+        ],
+        [
+          "gain",
+          "staging",
+          "headroom",
+          "fader",
+          "trim",
+          "clip",
+          "gain",
+          "flujo",
+          "senal"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje1_estructura_flujo",
+        "estructura_ganancia"
+      ],
+      "normalizar": "gain staging headroom fader trim clip gain flujo de senal",
+      "parece_dominio": true,
+      "query_aliases": "gain staging headroom fader trim clip gain flujo de senal",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "gain",
+        "staging",
+        "headroom",
+        "fader",
+        "trim",
+        "clip",
+        "gain",
+        "flujo",
+        "senal"
+      ]
+    },
+    "gracias": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "gracias"
+        ],
+        [
+          "gracias"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "gracias",
+      "parece_dominio": false,
+      "query_aliases": "gracias",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "gracias"
+      ]
+    },
+    "hola": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "hola"
+        ],
+        [
+          "hola"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "hola",
+      "parece_dominio": false,
+      "query_aliases": "hola",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "hola"
+      ]
+    },
+    "la espuma sirve para los graves": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "sala"
+      ],
+      "conceptos_relevantes": [
+        "sala"
+      ],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "espuma sirve graves",
+          "espuma sirve",
+          "sirve graves"
+        ],
+        [
+          "espuma",
+          "sirve",
+          "graves"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "la espuma sirve para los graves",
+      "parece_dominio": false,
+      "query_aliases": "la espuma sirve para los graves",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "No necesariamente. En el marco de acustica del curso, la espuma puede ayudar con reflexiones o contenido medio-agudo, pero no conviene tratarla como solucion automatica para graves inflados. Para graves suele hacer falta diagnosticar sala, modos/resonancias y tratamiento adecuado, no solo pegar espuma.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "espuma",
+        "sirve",
+        "graves"
+      ]
+    },
+    "mastering lufs limitador streaming normalizacion": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje7_optimizacion_entrega",
+        "evaluation_category": "mastering",
+        "intent": "optimizacion_mastering_comercial",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "lufs",
+        "limitador",
+        "mastering"
+      ],
+      "conceptos_relevantes": [
+        "lufs",
+        "limitador",
+        "mastering"
+      ],
+      "eje_fuerte": "Eje 7",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "mastering lufs limitador streaming normalizacion",
+          "mastering lufs",
+          "lufs limitador",
+          "limitador streaming",
+          "streaming normalizacion"
+        ],
+        [
+          "mastering",
+          "lufs",
+          "limitador",
+          "streaming",
+          "normalizacion"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje7_optimizacion_entrega",
+        "mastering"
+      ],
+      "normalizar": "mastering lufs limitador streaming normalizacion",
+      "parece_dominio": true,
+      "query_aliases": "mastering lufs limitador streaming normalizacion",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "mastering",
+        "lufs",
+        "limitador",
+        "streaming",
+        "normalizacion"
+      ]
+    },
+    "mezcla integradora criterio de mezcla jerarquia contexto": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje6_criterio_integracion",
+        "evaluation_category": "mezcla_general",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "mezcla integradora"
+      ],
+      "conceptos_relevantes": [
+        "mezcla integradora"
+      ],
+      "eje_fuerte": "Eje 6",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "mezcla integradora criterio mezcla jerarquia contexto",
+          "mezcla integradora",
+          "integradora criterio",
+          "criterio mezcla",
+          "mezcla jerarquia",
+          "jerarquia contexto"
+        ],
+        [
+          "mezcla",
+          "integradora",
+          "criterio",
+          "mezcla",
+          "jerarquia",
+          "contexto"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje6_criterio_integracion",
+        "mezcla_general"
+      ],
+      "normalizar": "mezcla integradora criterio de mezcla jerarquia contexto",
+      "parece_dominio": true,
+      "query_aliases": "mezcla integradora criterio de mezcla jerarquia contexto",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "mezcla",
+        "integradora",
+        "criterio",
+        "mezcla",
+        "jerarquia",
+        "contexto"
+      ]
+    },
+    "necesito plugins de serum y wavetable": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "necesito plugins serum wavetable",
+          "necesito plugins",
+          "plugins serum",
+          "serum wavetable"
+        ],
+        [
+          "necesito",
+          "plugins",
+          "serum",
+          "wavetable"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "necesito plugins de serum y wavetable",
+      "parece_dominio": true,
+      "query_aliases": "necesito plugins de serum y wavetable",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [
+        "serum",
+        "wavetable"
+      ],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "necesito",
+        "plugins",
+        "serum",
+        "wavetable"
+      ]
+    },
+    "no entiendo nada me rindo": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "estudiante_perdido",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": true,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "entiendo nada rindo",
+          "entiendo nada",
+          "nada rindo"
+        ],
+        [
+          "entiendo",
+          "nada",
+          "rindo"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "no entiendo nada me rindo",
+      "parece_dominio": false,
+      "query_aliases": "no entiendo nada me rindo",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "entiendo",
+        "nada",
+        "rindo"
+      ]
+    },
+    "ok": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [],
+        []
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "ok",
+      "parece_dominio": false,
+      "query_aliases": "ok",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": []
+    },
+    "polaridad fase mono monocompatibilidad correlacion estereo": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje2_espacio_fase",
+        "evaluation_category": "fase_imagen_estereo",
+        "intent": "consejo_estetico_espacialidad",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "polaridad",
+        "fase",
+        "mono",
+        "monocompatibilidad",
+        "correlacion"
+      ],
+      "conceptos_relevantes": [
+        "polaridad",
+        "fase",
+        "mono",
+        "monocompatibilidad",
+        "correlacion"
+      ],
+      "eje_fuerte": "Eje 2",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "polaridad fase mono monocompatibilidad correlacion estereo",
+          "polaridad fase",
+          "fase mono",
+          "mono monocompatibilidad",
+          "monocompatibilidad correlacion",
+          "correlacion estereo"
+        ],
+        [
+          "polaridad",
+          "fase",
+          "mono",
+          "monocompatibilidad",
+          "correlacion",
+          "estereo"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje2_espacio_fase",
+        "fase_imagen_estereo"
+      ],
+      "normalizar": "polaridad fase mono monocompatibilidad correlacion estereo",
+      "parece_dominio": true,
+      "query_aliases": "polaridad fase mono monocompatibilidad correlacion estereo",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "En este curso, correlacion se entiende como una lectura de relacion entre canales o senales para estimar como suman y que tan compatibles son al revisar mono. Sirve como orientacion: valores muy positivos suelen indicar suma mas estable, y valores negativos advierten posible cancelacion. No es una verdad absoluta; hay que leerla por contexto, por bandas y por rol musical.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "polaridad",
+        "fase",
+        "mono",
+        "monocompatibilidad",
+        "correlacion",
+        "estereo"
+      ]
+    },
+    "por que revisar en mono": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje2_espacio_fase",
+        "evaluation_category": "fase_imagen_estereo",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "mono"
+      ],
+      "conceptos_relevantes": [
+        "mono"
+      ],
+      "eje_fuerte": "Eje 2",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "mono"
+        ],
+        [
+          "mono"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje2_espacio_fase",
+        "fase_imagen_estereo"
+      ],
+      "normalizar": "por que revisar en mono",
+      "parece_dominio": true,
+      "query_aliases": "por que revisar en mono",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "Porque al cerrar a mono aparecen problemas de suma que en estereo pueden quedar disimulados. Si elementos importantes como voz, bombo, caja o bajo pierden solidez, hay un problema real de compatibilidad. La revision en mono no busca que todo sea estrecho, sino comprobar que la mezcla no se desarme fuera del punto ideal de escucha.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "mono"
+      ]
+    },
+    "puedo ecualizar con mis audios ya procesados": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "puedo ecualizar mis audios procesados",
+          "puedo ecualizar",
+          "ecualizar mis",
+          "mis audios",
+          "audios procesados"
+        ],
+        [
+          "puedo",
+          "ecualizar",
+          "mis",
+          "audios",
+          "procesados"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "puedo ecualizar con mis audios ya procesados",
+      "parece_dominio": true,
+      "query_aliases": "puedo ecualizar con mis audios ya procesados",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "puedo",
+        "ecualizar",
+        "mis",
+        "audios",
+        "procesados"
+      ]
+    },
+    "que diferencia hay entre serie y paralelo": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "serie",
+        "paralelo"
+      ],
+      "conceptos_relevantes": [
+        "serie",
+        "paralelo"
+      ],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "diferencia hay serie paralelo",
+          "diferencia hay",
+          "hay serie",
+          "serie paralelo"
+        ],
+        [
+          "diferencia",
+          "hay",
+          "serie",
+          "paralelo"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "que diferencia hay entre serie y paralelo",
+      "parece_dominio": false,
+      "query_aliases": "que diferencia hay entre serie y paralelo",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "En serie, la senal pasa por un proceso y luego por el siguiente: el orden cambia el resultado. En paralelo, una copia o envio se procesa por otra ruta y luego se mezcla con la senal original. La diferencia practica es flujo: cadena unica versus rutas simultaneas que se recombinan.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "diferencia",
+        "hay",
+        "serie",
+        "paralelo"
+      ]
+    },
+    "que es 0 vu y dbfs y el overhead": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "0 vu y dbfs y el overhead",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "dbfs overhead"
+        ],
+        [
+          "dbfs",
+          "overhead"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "que es 0 vu y dbfs y el overhead",
+      "parece_dominio": true,
+      "query_aliases": "que es 0 vu y dbfs y el overhead",
+      "resolver_referente_ambiguo": [
+        "",
+        "De que parametro en dB hablas: nivel, threshold, reduccion de ganancia, LUFS u otro?"
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "dbfs",
+        "overhead"
+      ]
+    },
+    "que es el factor q": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje3_identidad_espectral",
+        "evaluation_category": "ecualizacion",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "el factor q",
+      "conceptos_en_texto": [
+        "factor q"
+      ],
+      "conceptos_relevantes": [
+        "factor q"
+      ],
+      "eje_fuerte": "Eje 3",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "factor"
+        ],
+        [
+          "factor"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje3_identidad_espectral",
+        "ecualizacion"
+      ],
+      "normalizar": "que es el factor q",
+      "parece_dominio": false,
+      "query_aliases": "que es el factor q",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "factor",
+        "q"
+      ]
+    },
+    "que es el headroom": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje1_estructura_flujo",
+        "evaluation_category": "estructura_ganancia",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "el headroom",
+      "conceptos_en_texto": [
+        "headroom"
+      ],
+      "conceptos_relevantes": [
+        "headroom"
+      ],
+      "eje_fuerte": "Eje 1",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "headroom"
+        ],
+        [
+          "headroom"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje1_estructura_flujo",
+        "estructura_ganancia"
+      ],
+      "normalizar": "que es el headroom",
+      "parece_dominio": true,
+      "query_aliases": "que es el headroom",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "headroom"
+      ]
+    },
+    "que es en serie y en paralelo": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "en serie y en paralelo",
+      "conceptos_en_texto": [
+        "serie",
+        "paralelo"
+      ],
+      "conceptos_relevantes": [
+        "serie",
+        "paralelo"
+      ],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "serie paralelo"
+        ],
+        [
+          "serie",
+          "paralelo"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "que es en serie y en paralelo",
+      "parece_dominio": false,
+      "query_aliases": "que es en serie y en paralelo",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "serie",
+        "paralelo"
+      ]
+    },
+    "que es eso": {
+      "clasificacion_pedagogica": {
+        "answer_type": "clarification",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "ambigua",
+        "requires_course_evidence": false
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "eso",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": true,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [],
+        []
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "que es eso",
+      "parece_dominio": false,
+      "query_aliases": "que es eso",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": []
+    },
+    "que es la correlacion": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje2_espacio_fase",
+        "evaluation_category": "fase_imagen_estereo",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "la correlacion",
+      "conceptos_en_texto": [
+        "correlacion"
+      ],
+      "conceptos_relevantes": [
+        "correlacion"
+      ],
+      "eje_fuerte": "Eje 2",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "correlacion"
+        ],
+        [
+          "correlacion"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje2_espacio_fase",
+        "fase_imagen_estereo"
+      ],
+      "normalizar": "que es la correlacion",
+      "parece_dominio": false,
+      "query_aliases": "que es la correlacion",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "En este curso, correlacion se entiende como una lectura de relacion entre canales o senales para estimar como suman y que tan compatibles son al revisar mono. Sirve como orientacion: valores muy positivos suelen indicar suma mas estable, y valores negativos advierten posible cancelacion. No es una verdad absoluta; hay que leerla por contexto, por bandas y por rol musical.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "correlacion"
+      ]
+    },
+    "que es la frecuencia de corte": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje3_identidad_espectral",
+        "evaluation_category": "ecualizacion",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "la frecuencia de corte",
+      "conceptos_en_texto": [
+        "frecuencia",
+        "frecuencia de corte"
+      ],
+      "conceptos_relevantes": [
+        "frecuencia",
+        "frecuencia de corte"
+      ],
+      "eje_fuerte": "Eje 3",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "frecuencia corte"
+        ],
+        [
+          "frecuencia",
+          "corte"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje3_identidad_espectral",
+        "ecualizacion"
+      ],
+      "normalizar": "que es la frecuencia de corte",
+      "parece_dominio": true,
+      "query_aliases": "que es la frecuencia de corte",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "La frecuencia de corte es un punto de referencia tecnico dentro del comportamiento de un filtro. Sirve para ubicar desde donde se entiende o se mide la transicion del filtro, pero no debe pensarse como un muro instantaneo. Algunas definiciones usan referencias numericas segun el tipo de filtro o contexto, pero no conviene fijarlas como doctrina universal cerrada sin matiz.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "frecuencia",
+        "corte"
+      ]
+    },
+    "que es la polaridad y cuando la invierto": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje2_espacio_fase",
+        "evaluation_category": "fase_imagen_estereo",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "la polaridad y cuando la invierto",
+      "conceptos_en_texto": [
+        "polaridad"
+      ],
+      "conceptos_relevantes": [
+        "polaridad"
+      ],
+      "eje_fuerte": "Eje 2",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "polaridad invierto"
+        ],
+        [
+          "polaridad",
+          "invierto"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje2_espacio_fase",
+        "fase_imagen_estereo"
+      ],
+      "normalizar": "que es la polaridad y cuando la invierto",
+      "parece_dominio": false,
+      "query_aliases": "que es la polaridad y cuando la invierto",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "No necesariamente. Invertir polaridad puede resolver casos donde dos senales estan opuestas de forma binaria, pero no corrige cualquier problema de fase o de tiempo. Si el conflicto viene de retraso, alineacion o filtrado peine, hay que diagnosticar la relacion temporal, no solo apretar el boton de polaridad.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "polaridad",
+        "invierto"
+      ]
+    },
+    "que es la sintesis fm": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "la sintesis fm",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "sintesis"
+        ],
+        [
+          "sintesis"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "que es la sintesis fm",
+      "parece_dominio": false,
+      "query_aliases": "que es la sintesis fm",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [
+        "sintesis",
+        "fm",
+        "sintesis fm"
+      ],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "sintesis"
+      ]
+    },
+    "que hace un compresor": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje4_control_dinamico",
+        "evaluation_category": "dinamica",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "compresion"
+      ],
+      "conceptos_relevantes": [
+        "compresion"
+      ],
+      "eje_fuerte": "Eje 4",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": true,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "hace compresor"
+        ],
+        [
+          "hace",
+          "compresor"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje4_control_dinamico",
+        "dinamica"
+      ],
+      "normalizar": "que hace un compresor",
+      "parece_dominio": false,
+      "query_aliases": "que hace un compresor",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "Un compresor controla la dinamica: reduce o contiene el excedente de una senal cuando supera un umbral, segun parametros como ratio, ataque y release. En la practica no es un boton de mejora automatica; sirve para ordenar, sostener o moldear movimiento dinamico segun el problema.",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "hace",
+        "compresor"
+      ]
+    },
+    "que pdf tengo que leer sobre headroom": {
+      "clasificacion_pedagogica": {
+        "answer_type": "source_lookup",
+        "course_module": "eje1_estructura_flujo",
+        "evaluation_category": "estructura_ganancia",
+        "intent": "busqueda_fuente",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "headroom"
+      ],
+      "conceptos_relevantes": [
+        "headroom"
+      ],
+      "eje_fuerte": "Eje 1",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": true,
+      "extraer_frases_lookup": [
+        [
+          "sobre headroom"
+        ],
+        [
+          "sobre",
+          "headroom"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje1_estructura_flujo",
+        "estructura_ganancia"
+      ],
+      "normalizar": "que pdf tengo que leer sobre headroom",
+      "parece_dominio": true,
+      "query_aliases": "que pdf tengo que leer sobre headroom",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "sobre",
+        "headroom"
+      ]
+    },
+    "que recurso reviso para entender compresion paralela": {
+      "clasificacion_pedagogica": {
+        "answer_type": "source_lookup",
+        "course_module": "eje4_control_dinamico",
+        "evaluation_category": "dinamica",
+        "intent": "busqueda_fuente",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "compresion paralela"
+      ],
+      "conceptos_relevantes": [
+        "compresion paralela"
+      ],
+      "eje_fuerte": "Eje 4",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": true,
+      "extraer_frases_lookup": [
+        [
+          "compresion paralela"
+        ],
+        [
+          "compresion",
+          "paralela"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje4_control_dinamico",
+        "dinamica"
+      ],
+      "normalizar": "que recurso reviso para entender compresion paralela",
+      "parece_dominio": true,
+      "query_aliases": "que recurso reviso para entender compresion paralela",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "compresion",
+        "paralela"
+      ]
+    },
+    "que relacion tiene la espuma con la interfaz": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "sala"
+      ],
+      "conceptos_relevantes": [
+        "sala"
+      ],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "relacion tiene espuma interfaz",
+          "relacion tiene",
+          "tiene espuma",
+          "espuma interfaz"
+        ],
+        [
+          "relacion",
+          "tiene",
+          "espuma",
+          "interfaz"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "que relacion tiene la espuma con la interfaz",
+      "parece_dominio": false,
+      "query_aliases": "que relacion tiene la espuma con la interfaz",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "relacion",
+        "tiene",
+        "espuma",
+        "interfaz"
+      ]
+    },
+    "que reverb uso para dar profundidad": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje5_dimension_ambiencia",
+        "evaluation_category": "espacialidad",
+        "intent": "consejo_estetico_espacialidad",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "reverb"
+      ],
+      "conceptos_relevantes": [
+        "reverb"
+      ],
+      "eje_fuerte": "Eje 5",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "reverb uso dar profundidad",
+          "reverb uso",
+          "uso dar",
+          "dar profundidad"
+        ],
+        [
+          "reverb",
+          "uso",
+          "dar",
+          "profundidad"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje5_dimension_ambiencia",
+        "espacialidad"
+      ],
+      "normalizar": "que reverb uso para dar profundidad",
+      "parece_dominio": true,
+      "query_aliases": "que reverb uso para dar profundidad",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "reverb",
+        "uso",
+        "dar",
+        "profundidad"
+      ]
+    },
+    "quien es napoleon": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "quien napoleon"
+        ],
+        [
+          "quien",
+          "napoleon"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "quien es napoleon",
+      "parece_dominio": false,
+      "query_aliases": "quien es napoleon",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": [
+        "quien",
+        "napoleon"
+      ]
+    },
+    "reverb delay espacialidad profundidad ambiencia": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "eje5_dimension_ambiencia",
+        "evaluation_category": "espacialidad",
+        "intent": "consejo_estetico_espacialidad",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [
+        "reverb",
+        "delay"
+      ],
+      "conceptos_relevantes": [
+        "reverb",
+        "delay"
+      ],
+      "eje_fuerte": "Eje 5",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "reverb delay espacialidad profundidad ambiencia",
+          "reverb delay",
+          "delay espacialidad",
+          "espacialidad profundidad",
+          "profundidad ambiencia"
+        ],
+        [
+          "reverb",
+          "delay",
+          "espacialidad",
+          "profundidad",
+          "ambiencia"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "eje5_dimension_ambiencia",
+        "espacialidad"
+      ],
+      "normalizar": "reverb delay espacialidad profundidad ambiencia",
+      "parece_dominio": true,
+      "query_aliases": "reverb delay espacialidad profundidad ambiencia",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "reverb",
+        "delay",
+        "espacialidad",
+        "profundidad",
+        "ambiencia"
+      ]
+    },
+    "tengo bleed y resonancia en la compuerta gate": {
+      "clasificacion_pedagogica": {
+        "answer_type": "rag_answer",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "aclaracion_concepto",
+        "requires_course_evidence": true
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": false,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [
+          "bleed resonancia compuerta gate",
+          "bleed resonancia",
+          "resonancia compuerta",
+          "compuerta gate"
+        ],
+        [
+          "bleed",
+          "resonancia",
+          "compuerta",
+          "gate"
+        ]
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "tengo bleed y resonancia en la compuerta gate",
+      "parece_dominio": true,
+      "query_aliases": "tengo bleed y resonancia en la compuerta gate",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": true,
+      "tokens_lookup": [
+        "bleed",
+        "resonancia",
+        "compuerta",
+        "gate"
+      ]
+    },
+    "y eso": {
+      "clasificacion_pedagogica": {
+        "answer_type": "clarification",
+        "course_module": "",
+        "evaluation_category": "",
+        "intent": "ambigua",
+        "requires_course_evidence": false
+      },
+      "comparativa_multiconcepto": false,
+      "concepto_definicion_directa": "",
+      "conceptos_en_texto": [],
+      "conceptos_relevantes": [],
+      "eje_fuerte": "",
+      "es_estudiante_perdido": false,
+      "es_pregunta_ambigua": true,
+      "es_pregunta_conceptual_directa": false,
+      "es_pregunta_lookup": false,
+      "extraer_frases_lookup": [
+        [],
+        []
+      ],
+      "inferir_modulo_categoria": [
+        "",
+        ""
+      ],
+      "normalizar": "y eso",
+      "parece_dominio": false,
+      "query_aliases": "y eso",
+      "resolver_referente_ambiguo": [
+        "compresion paralela",
+        ""
+      ],
+      "respuesta_conceptual_controlada": "",
+      "terminos_no_soportados": [],
+      "tiene_termino_tecnico": false,
+      "tokens_lookup": []
+    }
+  },
+  "prompts_por_intent": {
+    "aclaracion_concepto": {
+      "id": "aclaracion_concepto_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: aclaracion de concepto.\nObjetivo: explicar un concepto del curso de forma clara y verificable.\nEstructura: definicion breve, importancia practica y orientacion concreta respaldada por evidencia.\nNo agregues ejemplos o recursos que no esten en la evidencia o en la pregunta.\n"
+    },
+    "ambigua": {
+      "id": "ambigua_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: pregunta ambigua.\nObjetivo: pedir aclaracion minima en una sola frase cuando el referente no sea unico.\nNo desarrolles teoria ni adivines el referente.\n"
+    },
+    "busqueda_fuente": {
+      "id": "busqueda_fuente_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: busqueda de fuente.\nObjetivo: responder primero donde revisar, no desarrollar teoria larga.\nEstructura: recurso concreto, modulo/clase/minuto/pagina si existe, y explicacion minima de relevancia.\nSi no hay metadatos suficientes, dilo y pide el concepto exacto.\n"
+    },
+    "consejo_estetico_espacialidad": {
+      "id": "consejo_estetico_espacialidad_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: consejo estetico/espacialidad.\nObjetivo: orientar decisiones de profundidad, paneo, ambiente o imagen estereo.\nDistingue decision tecnica de decision estetica. Evita recetas universales.\nConecta con fase, mono o balance solo si la evidencia lo respalda.\n"
+    },
+    "consulta_externa": {
+      "id": "consulta_externa_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: respuesta con fuente externa.\nObjetivo: separar informacion web de evidencia del curso y advertir que no reemplaza el material cargado.\n"
+    },
+    "diagnostico_tecnico": {
+      "id": "diagnostico_tecnico_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: diagnostico tecnico.\nObjetivo: ayudar a razonar posibles causas sin fingir que escuchaste el audio.\nEstructura: hipotesis cautelosa, comprobacion practica y siguiente paso.\nNo afirmes diagnosticos definitivos ni valores exactos sin evidencia.\n"
+    },
+    "estudiante_perdido": {
+      "id": "estudiante_perdido_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: estudiante perdido.\nObjetivo: guiar paso a paso, con lenguaje simple y una pregunta corta de calibracion.\n"
+    },
+    "fuera_dominio": {
+      "id": "fuera_dominio_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: fuera de dominio.\nObjetivo: bloquear breve, limpio y util.\nNo expliques el tema externo. Redirige solo al dominio del curso de mezcla y masterizacion.\n"
+    },
+    "optimizacion_mastering_comercial": {
+      "id": "optimizacion_mastering_comercial_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: mastering u optimizacion comercial.\nObjetivo: orientar decisiones de acabado, traduccion y preparacion final.\nNo inventes LUFS, dBTP, plataformas, estandares comerciales ni cadenas de mastering si no aparecen en la evidencia.\n"
+    },
+    "retroalimentacion_visual": {
+      "id": "retroalimentacion_visual_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: retroalimentacion visual.\nObjetivo: describir solo lo observable en la imagen y no inferir sonido real.\n"
+    },
+    "saludo": {
+      "id": "saludo_v1",
+      "text": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\nINTENCION PEDAGOGICA: saludo o cortesia. Responder breve y redirigir al curso.\n"
+    }
+  },
+  "scoring": {
+    "q=a cuantos db|s=0|c=0": 1.36,
+    "q=a cuantos db|s=0|c=1": 0.56,
+    "q=a cuantos db|s=0|c=2": 0.4,
+    "q=a cuantos db|s=0|c=3": 0.56,
+    "q=a cuantos db|s=1|c=0": 0.56,
+    "q=a cuantos db|s=1|c=1": 1.01,
+    "q=a cuantos db|s=1|c=2": 0.4,
+    "q=a cuantos db|s=1|c=3": 0.56,
+    "q=a cuantos db|s=2|c=0": 0.56,
+    "q=a cuantos db|s=2|c=1": 0.56,
+    "q=a cuantos db|s=2|c=2": 0.4,
+    "q=a cuantos db|s=2|c=3": 0.56,
+    "q=como comprimo un ecualizador|s=0|c=0": 1.42,
+    "q=como comprimo un ecualizador|s=0|c=1": 0.56,
+    "q=como comprimo un ecualizador|s=0|c=2": 0.4,
+    "q=como comprimo un ecualizador|s=0|c=3": 0.56,
+    "q=como comprimo un ecualizador|s=1|c=0": 0.62,
+    "q=como comprimo un ecualizador|s=1|c=1": 1.01,
+    "q=como comprimo un ecualizador|s=1|c=2": 0.4,
+    "q=como comprimo un ecualizador|s=1|c=3": 0.56,
+    "q=como comprimo un ecualizador|s=2|c=0": 0.62,
+    "q=como comprimo un ecualizador|s=2|c=1": 0.56,
+    "q=como comprimo un ecualizador|s=2|c=2": 0.4,
+    "q=como comprimo un ecualizador|s=2|c=3": 0.56,
+    "q=como controlo el hiss y el doubling en los toms|s=0|c=0": 1.42,
+    "q=como controlo el hiss y el doubling en los toms|s=0|c=1": 0.56,
+    "q=como controlo el hiss y el doubling en los toms|s=0|c=2": 0.4,
+    "q=como controlo el hiss y el doubling en los toms|s=0|c=3": 0.56,
+    "q=como controlo el hiss y el doubling en los toms|s=1|c=0": 0.62,
+    "q=como controlo el hiss y el doubling en los toms|s=1|c=1": 1.01,
+    "q=como controlo el hiss y el doubling en los toms|s=1|c=2": 0.4,
+    "q=como controlo el hiss y el doubling en los toms|s=1|c=3": 0.56,
+    "q=como controlo el hiss y el doubling en los toms|s=2|c=0": 0.62,
+    "q=como controlo el hiss y el doubling en los toms|s=2|c=1": 0.56,
+    "q=como controlo el hiss y el doubling en los toms|s=2|c=2": 0.4,
+    "q=como controlo el hiss y el doubling en los toms|s=2|c=3": 0.56,
+    "q=como hago el mastering para streaming con lufs|s=0|c=0": 1.22,
+    "q=como hago el mastering para streaming con lufs|s=0|c=1": 0.36,
+    "q=como hago el mastering para streaming con lufs|s=0|c=2": 0.4,
+    "q=como hago el mastering para streaming con lufs|s=0|c=3": 0.36,
+    "q=como hago el mastering para streaming con lufs|s=1|c=0": 0.42,
+    "q=como hago el mastering para streaming con lufs|s=1|c=1": 0.81,
+    "q=como hago el mastering para streaming con lufs|s=1|c=2": 0.4,
+    "q=como hago el mastering para streaming con lufs|s=1|c=3": 0.36,
+    "q=como hago el mastering para streaming con lufs|s=2|c=0": 0.42,
+    "q=como hago el mastering para streaming con lufs|s=2|c=1": 0.36,
+    "q=como hago el mastering para streaming con lufs|s=2|c=2": 0.4,
+    "q=como hago el mastering para streaming con lufs|s=2|c=3": 0.36,
+    "q=como mezclar bien aplicando plugins a todo|s=0|c=0": 1.42,
+    "q=como mezclar bien aplicando plugins a todo|s=0|c=1": 0.56,
+    "q=como mezclar bien aplicando plugins a todo|s=0|c=2": 0.4,
+    "q=como mezclar bien aplicando plugins a todo|s=0|c=3": 0.56,
+    "q=como mezclar bien aplicando plugins a todo|s=1|c=0": 0.62,
+    "q=como mezclar bien aplicando plugins a todo|s=1|c=1": 1.01,
+    "q=como mezclar bien aplicando plugins a todo|s=1|c=2": 0.4,
+    "q=como mezclar bien aplicando plugins a todo|s=1|c=3": 0.56,
+    "q=como mezclar bien aplicando plugins a todo|s=2|c=0": 0.62,
+    "q=como mezclar bien aplicando plugins a todo|s=2|c=1": 0.56,
+    "q=como mezclar bien aplicando plugins a todo|s=2|c=2": 0.4,
+    "q=como mezclar bien aplicando plugins a todo|s=2|c=3": 0.56,
+    "q=como uso ableton para masterizar|s=0|c=0": 1.42,
+    "q=como uso ableton para masterizar|s=0|c=1": 0.56,
+    "q=como uso ableton para masterizar|s=0|c=2": 0.4,
+    "q=como uso ableton para masterizar|s=0|c=3": 0.56,
+    "q=como uso ableton para masterizar|s=1|c=0": 0.62,
+    "q=como uso ableton para masterizar|s=1|c=1": 1.01,
+    "q=como uso ableton para masterizar|s=1|c=2": 0.4,
+    "q=como uso ableton para masterizar|s=1|c=3": 0.56,
+    "q=como uso ableton para masterizar|s=2|c=0": 0.62,
+    "q=como uso ableton para masterizar|s=2|c=1": 0.56,
+    "q=como uso ableton para masterizar|s=2|c=2": 0.4,
+    "q=como uso ableton para masterizar|s=2|c=3": 0.56,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=0": 1.16,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=1": 1.56,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=2": 0.4,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=3": 0.36,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=0": 0.36,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=1": 2.01,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=2": 0.4,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=3": 0.36,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=0": 0.36,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=1": 1.56,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=2": 0.4,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=3": 0.36,
+    "q=cual es la diferencia entre frecuencia y tono|s=0|c=0": 1.68,
+    "q=cual es la diferencia entre frecuencia y tono|s=0|c=1": 0.62,
+    "q=cual es la diferencia entre frecuencia y tono|s=0|c=2": 0.4,
+    "q=cual es la diferencia entre frecuencia y tono|s=0|c=3": 0.36,
+    "q=cual es la diferencia entre frecuencia y tono|s=1|c=0": 0.88,
+    "q=cual es la diferencia entre frecuencia y tono|s=1|c=1": 1.07,
+    "q=cual es la diferencia entre frecuencia y tono|s=1|c=2": 0.4,
+    "q=cual es la diferencia entre frecuencia y tono|s=1|c=3": 0.36,
+    "q=cual es la diferencia entre frecuencia y tono|s=2|c=0": 0.88,
+    "q=cual es la diferencia entre frecuencia y tono|s=2|c=1": 0.62,
+    "q=cual es la diferencia entre frecuencia y tono|s=2|c=2": 0.4,
+    "q=cual es la diferencia entre frecuencia y tono|s=2|c=3": 0.36,
+    "q=curvas isofonicas sala acustica resonadores|s=0|c=0": 1.16,
+    "q=curvas isofonicas sala acustica resonadores|s=0|c=1": 0.36,
+    "q=curvas isofonicas sala acustica resonadores|s=0|c=2": 0.4,
+    "q=curvas isofonicas sala acustica resonadores|s=0|c=3": 0.36,
+    "q=curvas isofonicas sala acustica resonadores|s=1|c=0": 0.36,
+    "q=curvas isofonicas sala acustica resonadores|s=1|c=1": 0.81,
+    "q=curvas isofonicas sala acustica resonadores|s=1|c=2": 0.4,
+    "q=curvas isofonicas sala acustica resonadores|s=1|c=3": 0.36,
+    "q=curvas isofonicas sala acustica resonadores|s=2|c=0": 0.36,
+    "q=curvas isofonicas sala acustica resonadores|s=2|c=1": 0.36,
+    "q=curvas isofonicas sala acustica resonadores|s=2|c=2": 0.4,
+    "q=curvas isofonicas sala acustica resonadores|s=2|c=3": 0.36,
+    "q=diferencia entre compresion y ecualizacion|s=0|c=0": 2.36,
+    "q=diferencia entre compresion y ecualizacion|s=0|c=1": 0.78,
+    "q=diferencia entre compresion y ecualizacion|s=0|c=2": 0.4,
+    "q=diferencia entre compresion y ecualizacion|s=0|c=3": 0.36,
+    "q=diferencia entre compresion y ecualizacion|s=1|c=0": 1.56,
+    "q=diferencia entre compresion y ecualizacion|s=1|c=1": 1.23,
+    "q=diferencia entre compresion y ecualizacion|s=1|c=2": 0.4,
+    "q=diferencia entre compresion y ecualizacion|s=1|c=3": 0.36,
+    "q=diferencia entre compresion y ecualizacion|s=2|c=0": 1.56,
+    "q=diferencia entre compresion y ecualizacion|s=2|c=1": 0.78,
+    "q=diferencia entre compresion y ecualizacion|s=2|c=2": 0.4,
+    "q=diferencia entre compresion y ecualizacion|s=2|c=3": 0.36,
+    "q=diferencia entre filtro y ecualizacion|s=0|c=0": 3.03,
+    "q=diferencia entre filtro y ecualizacion|s=0|c=1": 0.62,
+    "q=diferencia entre filtro y ecualizacion|s=0|c=2": 0.4,
+    "q=diferencia entre filtro y ecualizacion|s=0|c=3": 0.36,
+    "q=diferencia entre filtro y ecualizacion|s=1|c=0": 2.23,
+    "q=diferencia entre filtro y ecualizacion|s=1|c=1": 1.07,
+    "q=diferencia entre filtro y ecualizacion|s=1|c=2": 0.4,
+    "q=diferencia entre filtro y ecualizacion|s=1|c=3": 0.36,
+    "q=diferencia entre filtro y ecualizacion|s=2|c=0": 2.23,
+    "q=diferencia entre filtro y ecualizacion|s=2|c=1": 0.62,
+    "q=diferencia entre filtro y ecualizacion|s=2|c=2": 0.4,
+    "q=diferencia entre filtro y ecualizacion|s=2|c=3": 0.36,
+    "q=el master no clipea esta bien|s=0|c=0": 1.44,
+    "q=el master no clipea esta bien|s=0|c=1": 0.68,
+    "q=el master no clipea esta bien|s=0|c=2": 0.4,
+    "q=el master no clipea esta bien|s=0|c=3": 0.56,
+    "q=el master no clipea esta bien|s=1|c=0": 0.64,
+    "q=el master no clipea esta bien|s=1|c=1": 1.13,
+    "q=el master no clipea esta bien|s=1|c=2": 0.4,
+    "q=el master no clipea esta bien|s=1|c=3": 0.56,
+    "q=el master no clipea esta bien|s=2|c=0": 0.64,
+    "q=el master no clipea esta bien|s=2|c=1": 0.68,
+    "q=el master no clipea esta bien|s=2|c=2": 0.4,
+    "q=el master no clipea esta bien|s=2|c=3": 0.56,
+    "q=en que minuto reviso el gain staging|s=0|c=0": 1.16,
+    "q=en que minuto reviso el gain staging|s=0|c=1": 0.36,
+    "q=en que minuto reviso el gain staging|s=0|c=2": 0.4,
+    "q=en que minuto reviso el gain staging|s=0|c=3": 1.26,
+    "q=en que minuto reviso el gain staging|s=1|c=0": 0.36,
+    "q=en que minuto reviso el gain staging|s=1|c=1": 0.81,
+    "q=en que minuto reviso el gain staging|s=1|c=2": 0.4,
+    "q=en que minuto reviso el gain staging|s=1|c=3": 1.26,
+    "q=en que minuto reviso el gain staging|s=2|c=0": 0.36,
+    "q=en que minuto reviso el gain staging|s=2|c=1": 0.36,
+    "q=en que minuto reviso el gain staging|s=2|c=2": 0.4,
+    "q=en que minuto reviso el gain staging|s=2|c=3": 1.26,
+    "q=en que modulo hablan de frecuencia de corte|s=0|c=0": 2.43,
+    "q=en que modulo hablan de frecuencia de corte|s=0|c=1": 0.36,
+    "q=en que modulo hablan de frecuencia de corte|s=0|c=2": 0.4,
+    "q=en que modulo hablan de frecuencia de corte|s=0|c=3": 0.36,
+    "q=en que modulo hablan de frecuencia de corte|s=1|c=0": 1.63,
+    "q=en que modulo hablan de frecuencia de corte|s=1|c=1": 0.81,
+    "q=en que modulo hablan de frecuencia de corte|s=1|c=2": 0.4,
+    "q=en que modulo hablan de frecuencia de corte|s=1|c=3": 0.36,
+    "q=en que modulo hablan de frecuencia de corte|s=2|c=0": 1.63,
+    "q=en que modulo hablan de frecuencia de corte|s=2|c=1": 0.36,
+    "q=en que modulo hablan de frecuencia de corte|s=2|c=2": 0.4,
+    "q=en que modulo hablan de frecuencia de corte|s=2|c=3": 0.36,
+    "q=eso cuando conviene|s=0|c=0": 1.36,
+    "q=eso cuando conviene|s=0|c=1": 0.56,
+    "q=eso cuando conviene|s=0|c=2": 0.4,
+    "q=eso cuando conviene|s=0|c=3": 0.56,
+    "q=eso cuando conviene|s=1|c=0": 0.56,
+    "q=eso cuando conviene|s=1|c=1": 1.01,
+    "q=eso cuando conviene|s=1|c=2": 0.4,
+    "q=eso cuando conviene|s=1|c=3": 0.56,
+    "q=eso cuando conviene|s=2|c=0": 0.56,
+    "q=eso cuando conviene|s=2|c=1": 0.56,
+    "q=eso cuando conviene|s=2|c=2": 0.4,
+    "q=eso cuando conviene|s=2|c=3": 0.56,
+    "q=explicame desde cero|s=0|c=0": 1.36,
+    "q=explicame desde cero|s=0|c=1": 0.56,
+    "q=explicame desde cero|s=0|c=2": 0.4,
+    "q=explicame desde cero|s=0|c=3": 0.56,
+    "q=explicame desde cero|s=1|c=0": 0.56,
+    "q=explicame desde cero|s=1|c=1": 1.01,
+    "q=explicame desde cero|s=1|c=2": 0.4,
+    "q=explicame desde cero|s=1|c=3": 0.56,
+    "q=explicame desde cero|s=2|c=0": 0.56,
+    "q=explicame desde cero|s=2|c=1": 0.56,
+    "q=explicame desde cero|s=2|c=2": 0.4,
+    "q=explicame desde cero|s=2|c=3": 0.56,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=0": 2.49,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=1": 0.42,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=2": 0.4,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=3": 0.42,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=0": 1.69,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=1": 0.87,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=2": 0.4,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=3": 0.42,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=0": 1.69,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=1": 0.42,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=2": 0.4,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=3": 0.42,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=0": 1.24,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=1": 0.48,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=2": 0.4,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=3": 1.26,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=0": 0.44,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=1": 0.93,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=2": 0.4,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=3": 1.26,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=0": 0.44,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=1": 0.48,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=2": 0.4,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=3": 1.26,
+    "q=gracias|s=0|c=0": 1.36,
+    "q=gracias|s=0|c=1": 0.56,
+    "q=gracias|s=0|c=2": 0.4,
+    "q=gracias|s=0|c=3": 0.56,
+    "q=gracias|s=1|c=0": 0.56,
+    "q=gracias|s=1|c=1": 1.01,
+    "q=gracias|s=1|c=2": 0.4,
+    "q=gracias|s=1|c=3": 0.56,
+    "q=gracias|s=2|c=0": 0.56,
+    "q=gracias|s=2|c=1": 0.56,
+    "q=gracias|s=2|c=2": 0.4,
+    "q=gracias|s=2|c=3": 0.56,
+    "q=hola|s=0|c=0": 1.36,
+    "q=hola|s=0|c=1": 0.56,
+    "q=hola|s=0|c=2": 0.4,
+    "q=hola|s=0|c=3": 0.56,
+    "q=hola|s=1|c=0": 0.56,
+    "q=hola|s=1|c=1": 1.01,
+    "q=hola|s=1|c=2": 0.4,
+    "q=hola|s=1|c=3": 0.56,
+    "q=hola|s=2|c=0": 0.56,
+    "q=hola|s=2|c=1": 0.56,
+    "q=hola|s=2|c=2": 0.4,
+    "q=hola|s=2|c=3": 0.56,
+    "q=la espuma sirve para los graves|s=0|c=0": 1.66,
+    "q=la espuma sirve para los graves|s=0|c=1": 0.82,
+    "q=la espuma sirve para los graves|s=0|c=2": 0.4,
+    "q=la espuma sirve para los graves|s=0|c=3": 0.56,
+    "q=la espuma sirve para los graves|s=1|c=0": 0.86,
+    "q=la espuma sirve para los graves|s=1|c=1": 1.27,
+    "q=la espuma sirve para los graves|s=1|c=2": 0.4,
+    "q=la espuma sirve para los graves|s=1|c=3": 0.56,
+    "q=la espuma sirve para los graves|s=2|c=0": 0.86,
+    "q=la espuma sirve para los graves|s=2|c=1": 0.82,
+    "q=la espuma sirve para los graves|s=2|c=2": 0.4,
+    "q=la espuma sirve para los graves|s=2|c=3": 0.56,
+    "q=mastering lufs limitador streaming normalizacion|s=0|c=0": 1.16,
+    "q=mastering lufs limitador streaming normalizacion|s=0|c=1": 0.36,
+    "q=mastering lufs limitador streaming normalizacion|s=0|c=2": 0.4,
+    "q=mastering lufs limitador streaming normalizacion|s=0|c=3": 0.36,
+    "q=mastering lufs limitador streaming normalizacion|s=1|c=0": 0.36,
+    "q=mastering lufs limitador streaming normalizacion|s=1|c=1": 0.81,
+    "q=mastering lufs limitador streaming normalizacion|s=1|c=2": 0.4,
+    "q=mastering lufs limitador streaming normalizacion|s=1|c=3": 0.36,
+    "q=mastering lufs limitador streaming normalizacion|s=2|c=0": 0.36,
+    "q=mastering lufs limitador streaming normalizacion|s=2|c=1": 0.36,
+    "q=mastering lufs limitador streaming normalizacion|s=2|c=2": 0.4,
+    "q=mastering lufs limitador streaming normalizacion|s=2|c=3": 0.36,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=0": 1.3,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=1": 0.48,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=2": 0.52,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=3": 0.36,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=0": 0.5,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=1": 0.93,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=2": 0.52,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=3": 0.36,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=0": 0.5,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=1": 0.48,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=2": 0.52,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=3": 0.36,
+    "q=necesito plugins de serum y wavetable|s=0|c=0": 1.36,
+    "q=necesito plugins de serum y wavetable|s=0|c=1": 0.56,
+    "q=necesito plugins de serum y wavetable|s=0|c=2": 0.4,
+    "q=necesito plugins de serum y wavetable|s=0|c=3": 0.56,
+    "q=necesito plugins de serum y wavetable|s=1|c=0": 0.56,
+    "q=necesito plugins de serum y wavetable|s=1|c=1": 1.01,
+    "q=necesito plugins de serum y wavetable|s=1|c=2": 0.4,
+    "q=necesito plugins de serum y wavetable|s=1|c=3": 0.56,
+    "q=necesito plugins de serum y wavetable|s=2|c=0": 0.56,
+    "q=necesito plugins de serum y wavetable|s=2|c=1": 0.56,
+    "q=necesito plugins de serum y wavetable|s=2|c=2": 0.4,
+    "q=necesito plugins de serum y wavetable|s=2|c=3": 0.56,
+    "q=no entiendo nada me rindo|s=0|c=0": 1.36,
+    "q=no entiendo nada me rindo|s=0|c=1": 0.56,
+    "q=no entiendo nada me rindo|s=0|c=2": 0.4,
+    "q=no entiendo nada me rindo|s=0|c=3": 0.56,
+    "q=no entiendo nada me rindo|s=1|c=0": 0.56,
+    "q=no entiendo nada me rindo|s=1|c=1": 1.01,
+    "q=no entiendo nada me rindo|s=1|c=2": 0.4,
+    "q=no entiendo nada me rindo|s=1|c=3": 0.56,
+    "q=no entiendo nada me rindo|s=2|c=0": 0.56,
+    "q=no entiendo nada me rindo|s=2|c=1": 0.56,
+    "q=no entiendo nada me rindo|s=2|c=2": 0.4,
+    "q=no entiendo nada me rindo|s=2|c=3": 0.56,
+    "q=ok|s=0|c=0": 1.36,
+    "q=ok|s=0|c=1": 0.56,
+    "q=ok|s=0|c=2": 0.4,
+    "q=ok|s=0|c=3": 0.56,
+    "q=ok|s=1|c=0": 0.56,
+    "q=ok|s=1|c=1": 1.01,
+    "q=ok|s=1|c=2": 0.4,
+    "q=ok|s=1|c=3": 0.56,
+    "q=ok|s=2|c=0": 0.56,
+    "q=ok|s=2|c=1": 0.56,
+    "q=ok|s=2|c=2": 0.4,
+    "q=ok|s=2|c=3": 0.56,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=0": 1.16,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=1": 0.36,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=2": 0.4,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=3": 0.36,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=0": 0.36,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=1": 0.81,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=2": 0.4,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=3": 0.36,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=0": 0.36,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=1": 0.36,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=2": 0.4,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=3": 0.36,
+    "q=por que revisar en mono|s=0|c=0": 1.46,
+    "q=por que revisar en mono|s=0|c=1": 0.62,
+    "q=por que revisar en mono|s=0|c=2": 0.4,
+    "q=por que revisar en mono|s=0|c=3": 0.36,
+    "q=por que revisar en mono|s=1|c=0": 0.66,
+    "q=por que revisar en mono|s=1|c=1": 1.07,
+    "q=por que revisar en mono|s=1|c=2": 0.4,
+    "q=por que revisar en mono|s=1|c=3": 0.36,
+    "q=por que revisar en mono|s=2|c=0": 0.66,
+    "q=por que revisar en mono|s=2|c=1": 0.62,
+    "q=por que revisar en mono|s=2|c=2": 0.4,
+    "q=por que revisar en mono|s=2|c=3": 0.36,
+    "q=puedo ecualizar con mis audios ya procesados|s=0|c=0": 1.36,
+    "q=puedo ecualizar con mis audios ya procesados|s=0|c=1": 0.56,
+    "q=puedo ecualizar con mis audios ya procesados|s=0|c=2": 0.4,
+    "q=puedo ecualizar con mis audios ya procesados|s=0|c=3": 0.56,
+    "q=puedo ecualizar con mis audios ya procesados|s=1|c=0": 0.56,
+    "q=puedo ecualizar con mis audios ya procesados|s=1|c=1": 1.01,
+    "q=puedo ecualizar con mis audios ya procesados|s=1|c=2": 0.4,
+    "q=puedo ecualizar con mis audios ya procesados|s=1|c=3": 0.56,
+    "q=puedo ecualizar con mis audios ya procesados|s=2|c=0": 0.56,
+    "q=puedo ecualizar con mis audios ya procesados|s=2|c=1": 0.56,
+    "q=puedo ecualizar con mis audios ya procesados|s=2|c=2": 0.4,
+    "q=puedo ecualizar con mis audios ya procesados|s=2|c=3": 0.56,
+    "q=que diferencia hay entre serie y paralelo|s=0|c=0": 1.66,
+    "q=que diferencia hay entre serie y paralelo|s=0|c=1": 0.94,
+    "q=que diferencia hay entre serie y paralelo|s=0|c=2": 0.4,
+    "q=que diferencia hay entre serie y paralelo|s=0|c=3": 0.56,
+    "q=que diferencia hay entre serie y paralelo|s=1|c=0": 0.86,
+    "q=que diferencia hay entre serie y paralelo|s=1|c=1": 1.39,
+    "q=que diferencia hay entre serie y paralelo|s=1|c=2": 0.4,
+    "q=que diferencia hay entre serie y paralelo|s=1|c=3": 0.56,
+    "q=que diferencia hay entre serie y paralelo|s=2|c=0": 0.86,
+    "q=que diferencia hay entre serie y paralelo|s=2|c=1": 0.94,
+    "q=que diferencia hay entre serie y paralelo|s=2|c=2": 0.4,
+    "q=que diferencia hay entre serie y paralelo|s=2|c=3": 0.56,
+    "q=que es 0 vu y dbfs y el overhead|s=0|c=0": 1.66,
+    "q=que es 0 vu y dbfs y el overhead|s=0|c=1": 0.82,
+    "q=que es 0 vu y dbfs y el overhead|s=0|c=2": 0.4,
+    "q=que es 0 vu y dbfs y el overhead|s=0|c=3": 0.56,
+    "q=que es 0 vu y dbfs y el overhead|s=1|c=0": 0.86,
+    "q=que es 0 vu y dbfs y el overhead|s=1|c=1": 1.27,
+    "q=que es 0 vu y dbfs y el overhead|s=1|c=2": 0.4,
+    "q=que es 0 vu y dbfs y el overhead|s=1|c=3": 0.56,
+    "q=que es 0 vu y dbfs y el overhead|s=2|c=0": 0.86,
+    "q=que es 0 vu y dbfs y el overhead|s=2|c=1": 0.82,
+    "q=que es 0 vu y dbfs y el overhead|s=2|c=2": 0.4,
+    "q=que es 0 vu y dbfs y el overhead|s=2|c=3": 0.56,
+    "q=que es el factor q|s=0|c=0": 2.36,
+    "q=que es el factor q|s=0|c=1": 0.68,
+    "q=que es el factor q|s=0|c=2": 0.4,
+    "q=que es el factor q|s=0|c=3": 0.42,
+    "q=que es el factor q|s=1|c=0": 1.56,
+    "q=que es el factor q|s=1|c=1": 1.13,
+    "q=que es el factor q|s=1|c=2": 0.4,
+    "q=que es el factor q|s=1|c=3": 0.42,
+    "q=que es el factor q|s=2|c=0": 1.56,
+    "q=que es el factor q|s=2|c=1": 0.68,
+    "q=que es el factor q|s=2|c=2": 0.4,
+    "q=que es el factor q|s=2|c=3": 0.42,
+    "q=que es el headroom|s=0|c=0": 1.46,
+    "q=que es el headroom|s=0|c=1": 0.62,
+    "q=que es el headroom|s=0|c=2": 0.4,
+    "q=que es el headroom|s=0|c=3": 1.26,
+    "q=que es el headroom|s=1|c=0": 0.66,
+    "q=que es el headroom|s=1|c=1": 1.07,
+    "q=que es el headroom|s=1|c=2": 0.4,
+    "q=que es el headroom|s=1|c=3": 1.26,
+    "q=que es el headroom|s=2|c=0": 0.66,
+    "q=que es el headroom|s=2|c=1": 0.62,
+    "q=que es el headroom|s=2|c=2": 0.4,
+    "q=que es el headroom|s=2|c=3": 1.26,
+    "q=que es en serie y en paralelo|s=0|c=0": 1.66,
+    "q=que es en serie y en paralelo|s=0|c=1": 0.94,
+    "q=que es en serie y en paralelo|s=0|c=2": 0.4,
+    "q=que es en serie y en paralelo|s=0|c=3": 0.56,
+    "q=que es en serie y en paralelo|s=1|c=0": 0.86,
+    "q=que es en serie y en paralelo|s=1|c=1": 1.39,
+    "q=que es en serie y en paralelo|s=1|c=2": 0.4,
+    "q=que es en serie y en paralelo|s=1|c=3": 0.56,
+    "q=que es en serie y en paralelo|s=2|c=0": 0.86,
+    "q=que es en serie y en paralelo|s=2|c=1": 0.94,
+    "q=que es en serie y en paralelo|s=2|c=2": 0.4,
+    "q=que es en serie y en paralelo|s=2|c=3": 0.56,
+    "q=que es eso|s=0|c=0": 1.66,
+    "q=que es eso|s=0|c=1": 0.82,
+    "q=que es eso|s=0|c=2": 0.4,
+    "q=que es eso|s=0|c=3": 0.56,
+    "q=que es eso|s=1|c=0": 0.86,
+    "q=que es eso|s=1|c=1": 1.27,
+    "q=que es eso|s=1|c=2": 0.4,
+    "q=que es eso|s=1|c=3": 0.56,
+    "q=que es eso|s=2|c=0": 0.86,
+    "q=que es eso|s=2|c=1": 0.82,
+    "q=que es eso|s=2|c=2": 0.4,
+    "q=que es eso|s=2|c=3": 0.56,
+    "q=que es la correlacion|s=0|c=0": 1.46,
+    "q=que es la correlacion|s=0|c=1": 0.62,
+    "q=que es la correlacion|s=0|c=2": 0.4,
+    "q=que es la correlacion|s=0|c=3": 0.36,
+    "q=que es la correlacion|s=1|c=0": 0.66,
+    "q=que es la correlacion|s=1|c=1": 1.07,
+    "q=que es la correlacion|s=1|c=2": 0.4,
+    "q=que es la correlacion|s=1|c=3": 0.36,
+    "q=que es la correlacion|s=2|c=0": 0.66,
+    "q=que es la correlacion|s=2|c=1": 0.62,
+    "q=que es la correlacion|s=2|c=2": 0.4,
+    "q=que es la correlacion|s=2|c=3": 0.36,
+    "q=que es la frecuencia de corte|s=0|c=0": 2.73,
+    "q=que es la frecuencia de corte|s=0|c=1": 0.62,
+    "q=que es la frecuencia de corte|s=0|c=2": 0.4,
+    "q=que es la frecuencia de corte|s=0|c=3": 0.36,
+    "q=que es la frecuencia de corte|s=1|c=0": 1.93,
+    "q=que es la frecuencia de corte|s=1|c=1": 1.07,
+    "q=que es la frecuencia de corte|s=1|c=2": 0.4,
+    "q=que es la frecuencia de corte|s=1|c=3": 0.36,
+    "q=que es la frecuencia de corte|s=2|c=0": 1.93,
+    "q=que es la frecuencia de corte|s=2|c=1": 0.62,
+    "q=que es la frecuencia de corte|s=2|c=2": 0.4,
+    "q=que es la frecuencia de corte|s=2|c=3": 0.36,
+    "q=que es la polaridad y cuando la invierto|s=0|c=0": 1.46,
+    "q=que es la polaridad y cuando la invierto|s=0|c=1": 0.62,
+    "q=que es la polaridad y cuando la invierto|s=0|c=2": 0.4,
+    "q=que es la polaridad y cuando la invierto|s=0|c=3": 0.36,
+    "q=que es la polaridad y cuando la invierto|s=1|c=0": 0.66,
+    "q=que es la polaridad y cuando la invierto|s=1|c=1": 1.07,
+    "q=que es la polaridad y cuando la invierto|s=1|c=2": 0.4,
+    "q=que es la polaridad y cuando la invierto|s=1|c=3": 0.36,
+    "q=que es la polaridad y cuando la invierto|s=2|c=0": 0.66,
+    "q=que es la polaridad y cuando la invierto|s=2|c=1": 0.62,
+    "q=que es la polaridad y cuando la invierto|s=2|c=2": 0.4,
+    "q=que es la polaridad y cuando la invierto|s=2|c=3": 0.36,
+    "q=que es la sintesis fm|s=0|c=0": 1.66,
+    "q=que es la sintesis fm|s=0|c=1": 0.82,
+    "q=que es la sintesis fm|s=0|c=2": 0.4,
+    "q=que es la sintesis fm|s=0|c=3": 0.56,
+    "q=que es la sintesis fm|s=1|c=0": 0.86,
+    "q=que es la sintesis fm|s=1|c=1": 1.27,
+    "q=que es la sintesis fm|s=1|c=2": 0.4,
+    "q=que es la sintesis fm|s=1|c=3": 0.56,
+    "q=que es la sintesis fm|s=2|c=0": 0.86,
+    "q=que es la sintesis fm|s=2|c=1": 0.82,
+    "q=que es la sintesis fm|s=2|c=2": 0.4,
+    "q=que es la sintesis fm|s=2|c=3": 0.56,
+    "q=que hace un compresor|s=0|c=0": 1.46,
+    "q=que hace un compresor|s=0|c=1": 1.58,
+    "q=que hace un compresor|s=0|c=2": 0.4,
+    "q=que hace un compresor|s=0|c=3": 0.36,
+    "q=que hace un compresor|s=1|c=0": 0.66,
+    "q=que hace un compresor|s=1|c=1": 2.03,
+    "q=que hace un compresor|s=1|c=2": 0.4,
+    "q=que hace un compresor|s=1|c=3": 0.36,
+    "q=que hace un compresor|s=2|c=0": 0.66,
+    "q=que hace un compresor|s=2|c=1": 1.58,
+    "q=que hace un compresor|s=2|c=2": 0.4,
+    "q=que hace un compresor|s=2|c=3": 0.36,
+    "q=que pdf tengo que leer sobre headroom|s=0|c=0": 1.16,
+    "q=que pdf tengo que leer sobre headroom|s=0|c=1": 0.36,
+    "q=que pdf tengo que leer sobre headroom|s=0|c=2": 0.4,
+    "q=que pdf tengo que leer sobre headroom|s=0|c=3": 1.26,
+    "q=que pdf tengo que leer sobre headroom|s=1|c=0": 0.36,
+    "q=que pdf tengo que leer sobre headroom|s=1|c=1": 0.81,
+    "q=que pdf tengo que leer sobre headroom|s=1|c=2": 0.4,
+    "q=que pdf tengo que leer sobre headroom|s=1|c=3": 1.26,
+    "q=que pdf tengo que leer sobre headroom|s=2|c=0": 0.36,
+    "q=que pdf tengo que leer sobre headroom|s=2|c=1": 0.36,
+    "q=que pdf tengo que leer sobre headroom|s=2|c=2": 0.4,
+    "q=que pdf tengo que leer sobre headroom|s=2|c=3": 1.26,
+    "q=que recurso reviso para entender compresion paralela|s=0|c=0": 1.16,
+    "q=que recurso reviso para entender compresion paralela|s=0|c=1": 1.26,
+    "q=que recurso reviso para entender compresion paralela|s=0|c=2": 0.4,
+    "q=que recurso reviso para entender compresion paralela|s=0|c=3": 0.36,
+    "q=que recurso reviso para entender compresion paralela|s=1|c=0": 0.36,
+    "q=que recurso reviso para entender compresion paralela|s=1|c=1": 1.71,
+    "q=que recurso reviso para entender compresion paralela|s=1|c=2": 0.4,
+    "q=que recurso reviso para entender compresion paralela|s=1|c=3": 0.36,
+    "q=que recurso reviso para entender compresion paralela|s=2|c=0": 0.36,
+    "q=que recurso reviso para entender compresion paralela|s=2|c=1": 1.26,
+    "q=que recurso reviso para entender compresion paralela|s=2|c=2": 0.4,
+    "q=que recurso reviso para entender compresion paralela|s=2|c=3": 0.36,
+    "q=que relacion tiene la espuma con la interfaz|s=0|c=0": 1.36,
+    "q=que relacion tiene la espuma con la interfaz|s=0|c=1": 0.56,
+    "q=que relacion tiene la espuma con la interfaz|s=0|c=2": 0.4,
+    "q=que relacion tiene la espuma con la interfaz|s=0|c=3": 0.56,
+    "q=que relacion tiene la espuma con la interfaz|s=1|c=0": 0.56,
+    "q=que relacion tiene la espuma con la interfaz|s=1|c=1": 1.01,
+    "q=que relacion tiene la espuma con la interfaz|s=1|c=2": 0.4,
+    "q=que relacion tiene la espuma con la interfaz|s=1|c=3": 0.56,
+    "q=que relacion tiene la espuma con la interfaz|s=2|c=0": 0.56,
+    "q=que relacion tiene la espuma con la interfaz|s=2|c=1": 0.56,
+    "q=que relacion tiene la espuma con la interfaz|s=2|c=2": 0.4,
+    "q=que relacion tiene la espuma con la interfaz|s=2|c=3": 0.56,
+    "q=que reverb uso para dar profundidad|s=0|c=0": 1.16,
+    "q=que reverb uso para dar profundidad|s=0|c=1": 0.36,
+    "q=que reverb uso para dar profundidad|s=0|c=2": 0.4,
+    "q=que reverb uso para dar profundidad|s=0|c=3": 0.42,
+    "q=que reverb uso para dar profundidad|s=1|c=0": 0.36,
+    "q=que reverb uso para dar profundidad|s=1|c=1": 0.81,
+    "q=que reverb uso para dar profundidad|s=1|c=2": 0.4,
+    "q=que reverb uso para dar profundidad|s=1|c=3": 0.42,
+    "q=que reverb uso para dar profundidad|s=2|c=0": 0.36,
+    "q=que reverb uso para dar profundidad|s=2|c=1": 0.36,
+    "q=que reverb uso para dar profundidad|s=2|c=2": 0.4,
+    "q=que reverb uso para dar profundidad|s=2|c=3": 0.42,
+    "q=quien es napoleon|s=0|c=0": 1.36,
+    "q=quien es napoleon|s=0|c=1": 0.56,
+    "q=quien es napoleon|s=0|c=2": 0.4,
+    "q=quien es napoleon|s=0|c=3": 0.56,
+    "q=quien es napoleon|s=1|c=0": 0.56,
+    "q=quien es napoleon|s=1|c=1": 1.01,
+    "q=quien es napoleon|s=1|c=2": 0.4,
+    "q=quien es napoleon|s=1|c=3": 0.56,
+    "q=quien es napoleon|s=2|c=0": 0.56,
+    "q=quien es napoleon|s=2|c=1": 0.56,
+    "q=quien es napoleon|s=2|c=2": 0.4,
+    "q=quien es napoleon|s=2|c=3": 0.56,
+    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=0": 1.16,
+    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=1": 0.36,
+    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=2": 0.4,
+    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=3": 0.42,
+    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=0": 0.36,
+    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=1": 0.81,
+    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=2": 0.4,
+    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=3": 0.42,
+    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=0": 0.36,
+    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=1": 0.36,
+    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=2": 0.4,
+    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=3": 0.42,
+    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=0": 1.36,
+    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=1": 0.56,
+    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=2": 0.4,
+    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=3": 0.56,
+    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=0": 0.56,
+    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=1": 1.01,
+    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=2": 0.4,
+    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=3": 0.56,
+    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=0": 0.56,
+    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=1": 0.56,
+    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=2": 0.4,
+    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=3": 0.56,
+    "q=y eso|s=0|c=0": 1.36,
+    "q=y eso|s=0|c=1": 0.56,
+    "q=y eso|s=0|c=2": 0.4,
+    "q=y eso|s=0|c=3": 0.56,
+    "q=y eso|s=1|c=0": 0.56,
+    "q=y eso|s=1|c=1": 1.01,
+    "q=y eso|s=1|c=2": 0.4,
+    "q=y eso|s=1|c=3": 0.56,
+    "q=y eso|s=2|c=0": 0.56,
+    "q=y eso|s=2|c=1": 0.56,
+    "q=y eso|s=2|c=2": 0.4,
+    "q=y eso|s=2|c=3": 0.56
+  }
+}

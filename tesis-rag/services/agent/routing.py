@@ -4,6 +4,13 @@ import re
 
 from models.schemas import EstadoAgente
 from services.agent.prompts import _campos_pedagogicos
+from services.domain import get_domain_pack
+
+# Fase 0: el conocimiento de dominio se carga del Domain Pack (datos en
+# domain_packs/<course_id>.json), no se cablea aqui. _PACK resuelve el curso por
+# defecto (KENTH_DEFAULT_COURSE_ID) para el piloto mono-curso; la resolucion por
+# course_id en runtime es Fase 1.
+_PACK = get_domain_pack()
 
 TEXT_MODEL_NAME = "llama3.2:3b"
 llm_logico = None
@@ -13,89 +20,20 @@ def configure_routing(model):
     global llm_logico
     llm_logico = model
 AMBIGUOUS_MAX_WORDS = 8
-SPECIFIC_UNSUPPORTED_TERMS = [
-    "serum", "sintesis", "synthesis", "fm", "wavetable", "granular",
-    "ableton", "logic", "fl studio", "cubase", "pro tools", "reaper",
-    "massive", "sylenth", "vital", "kontakt", "oversampling"
-]
-LOOKUP_STOPWORDS = {
-    "que", "quÃ©", "para", "por", "con", "del", "de", "la", "el", "lo", "los",
-    "las", "un", "una", "unos", "unas", "reviso", "revisar", "entender",
-    "explica", "explican", "explica", "mejor", "donde", "en", "que", "clase",
-    "minuto", "pdf", "pagina", "pÃ¡gina", "recurso", "tengo", "volver", "leer",
-    "esto", "eso", "ahi", "allÃ­", "alli"
-}
-TECHNICAL_CONCEPT_PATTERNS = [
-    ("frecuencia", ["frecuencia"]),
-    ("tono", ["tono"]),
-    ("sala", ["sala", "acustica de sala", "espuma", "graves inflados"]),
-    ("serie", ["serie", "en serie"]),
-    ("paralelo", ["paralelo", "en paralelo"]),
-    ("clip", ["clip", "clipea", "clipping", "no clipea"]),
-    ("flujo de senal", ["flujo de senal", "ruteo", "bus", "envio", "subgrupo", "fader", "trim", "clip gain"]),
-    ("polaridad", ["polaridad", "inversion de polaridad", "invertir polaridad"]),
-    ("fase", ["fase"]),
-    ("mono", ["mono", "revisar en mono", "pasar a mono"]),
-    ("monocompatibilidad", ["monocompatibilidad", "mono compatible", "monocompatible"]),
-    ("correlacion", ["correlacion", "correlator", "correlometro"]),
-    ("goniÃ³metro", ["goniometro", "goniÃ³metro"]),
-    ("filtro peine", ["comb filtering", "filtro peine"]),
-    ("compresion multibanda", ["compresion multibanda", "multibanda"]),
-    ("compresion paralela", ["compresion paralela"]),
-    ("makeup gain", ["makeup gain", "ganancia de compensacion"]),
-    ("reduccion de ganancia", ["reduccion de ganancia", "gain reduction"]),
-    ("headroom", ["headroom"]),
-    ("threshold", ["threshold", "umbral"]),
-    ("lufs", ["lufs"]),
-    ("limitador", ["limitador", "limiter"]),
-    ("frecuencia de corte", ["frecuencia de corte"]),
-    ("pendiente", ["pendiente", "pendientes", "pendiente abrupta", "pendientes abruptas", "slope"]),
-    ("factor q", ["factor q", " q ", " q?", "q que", "que pendiente"]),
-    ("fase lineal", ["fase lineal"]),
-    ("ecualizacion dinamica", ["ecualizacion dinamica", "eq dinamica"]),
-    ("eq correctiva", ["eq correctiva", "ecualizacion correctiva", "eq correctivo"]),
-    ("eq tonal", ["eq tonal", "ecualizacion tonal", "eq estetica", "eq estetico"]),
-    ("ecualizacion", ["ecualizacion", "ecualizador", "eq"]),
-    ("compresion", ["compresion", "compresor"]),
-    ("filtro", ["filtro", "filtros", "filtrar", "filtrado", "hpf", "lpf"]),
-    ("saturacion", ["saturacion"]),
-    ("reverb", ["reverb", "reverberacion"]),
-    ("delay", ["delay"]),
-    ("mezcla integradora", ["mezclar bien", "plugins a todo", "aplicar plugins a todo", "criterio de mezcla", "escuchar en contexto"]),
-    ("panorama", ["panorama", "pan law", "ley de panorama", "paneo"]),
-    ("falso estereo", ["falso estereo"]),
-    ("mastering", ["mastering", "master", "masterizacion"]),
-    ("dither", ["dither", "noise shaping"]),
-    ("true peak", ["true peak", "dbtp"]),
-    ("plr", ["plr", "peak to loudness ratio", "peak-to-loudness"]),
-    ("mix bus", ["mix bus", "master fader", "bus master"]),
-]
-LOOKUP_STOPWORDS.update({
-    "cual", "cuÃƒÂ¡l", "significa", "cuando", "cuÃƒÂ¡ndo", "usar",
-    "siempre", "mismo", "misma", "entre"
-})
+SPECIFIC_UNSUPPORTED_TERMS = _PACK.unsupported_terms()
+LOOKUP_STOPWORDS = _PACK.lookup_stopwords()
+TECHNICAL_CONCEPT_PATTERNS = _PACK.concept_patterns()
 
-COURSE_AXES = [
-    {"id": "eje0_identidad_acustica", "evaluation_category": "fundamentos_acustica", "keywords": ["eje 0", "identidad", "frecuencia", "amplitud", "acustica", "medicion"]},
-    {"id": "eje1_estructura_flujo", "evaluation_category": "estructura_ganancia", "keywords": ["eje 1", "gain staging", "headroom", "flujo de senal", "ruteo", "db"]},
-    {"id": "eje2_espacio_fase", "evaluation_category": "fase_imagen_estereo", "keywords": ["eje 2", "polaridad", "fase", "mono", "estereo", "correlacion"]},
-    {"id": "eje3_identidad_espectral", "evaluation_category": "ecualizacion", "keywords": ["eje 3", "eq", "filtro", "frecuencia de corte", "balance tonal"]},
-    {"id": "eje4_control_dinamico", "evaluation_category": "dinamica", "keywords": ["eje 4", "compresion", "threshold", "ratio", "ataque", "release"]},
-    {"id": "eje5_dimension_ambiencia", "evaluation_category": "espacialidad", "keywords": ["eje 5", "reverb", "delay", "profundidad", "ambiencia"]},
-    {"id": "eje6_criterio_integracion", "evaluation_category": "mezcla_general", "keywords": ["eje 6", "mezcla", "integracion", "criterio", "jerarquia"]},
-    {"id": "eje7_optimizacion_entrega", "evaluation_category": "mastering", "keywords": ["eje 7", "mastering", "lufs", "limitador", "streaming"]},
-]
+COURSE_AXES = _PACK.course_axes()
 
-STRONG_AXIS_TERMS = {
-    "Eje 0": ["frecuencia", "tono", "curvas isofonicas", "sala", "resonadores", "acustica"],
-    "Eje 1": ["gain staging", "headroom", "fader", "trim", "clip gain", "flujo de senal", "bus", "envio"],
-    "Eje 2": ["polaridad", "fase", "mono", "monocompatibilidad", "correlacion", "estereo"],
-    "Eje 3": ["frecuencia de corte", "filtro", "pendiente", "factor q", "eq", "ecualizacion"],
-    "Eje 4": ["compresor", "compresion", "threshold", "ratio", "ataque", "release", "dinamica"],
-    "Eje 5": ["reverb", "delay", "espacialidad", "profundidad", "ambiencia"],
-    "Eje 6": ["mezcla integradora", "criterio de mezcla", "jerarquia", "contexto", "integracion"],
-    "Eje 7": ["mastering", "lufs", "limitador", "streaming", "normalizacion"],
-}
+STRONG_AXIS_TERMS = _PACK.strong_axis_terms()
+
+# Fase 0: el vocabulario de dominio vive en el Domain Pack (datos), no en codigo.
+TECHNICAL_WORD_LIST = _PACK.technical_word_list()
+DOMAIN_HINT_TERMS = _PACK.domain_hint_terms()
+# Seleccion de intent por keyword (ORDENADA: primer match gana).
+INTENT_SELECTION_KEYWORDS = _PACK.intent_selection_keywords()
+
 
 def _normalizar_texto(texto: str):
     texto = (texto or "").strip().lower()
@@ -244,12 +182,10 @@ def _clasificacion_pedagogica(
         })
     else:
         texto = _normalizar_texto(pregunta)
-        if any(word in texto for word in ["master", "mastering", "masterizacion", "comercial", "lufs"]):
-            clasificacion["intent"] = "optimizacion_mastering_comercial"
-        elif any(word in texto for word in ["suena", "porque", "problema", "reviso", "corrijo", "pierde", "satura"]):
-            clasificacion["intent"] = "diagnostico_tecnico"
-        elif any(word in texto for word in ["espacio", "profundidad", "reverb", "delay", "estereo", "ambiencia", "paneo"]):
-            clasificacion["intent"] = "consejo_estetico_espacialidad"
+        for intent_name, keywords in INTENT_SELECTION_KEYWORDS:
+            if any(word in texto for word in keywords):
+                clasificacion["intent"] = intent_name
+                break
 
     return clasificacion
 
@@ -287,22 +223,7 @@ def _tiene_termino_tecnico_curso(texto: str):
             if alias_norm.strip() and alias_norm in texto_limpio:
                 return True
 
-    palabras_tecnicas = [
-        "filtro", "filtros", "filtrar", "filtrado", "ecualizacion", "ecualizador", "eq",
-        "eq correctivo", "eq estetico", "eq correctiva", "eq estetica",
-        "frecuencia de corte", "pendiente", "pendientes", "pendiente abrupta",
-        "pendientes abruptas", "factor q", "fase lineal",
-        "shelving", "campana", "notch", "hpf", "lpf", "layering",
-        "capa", "capas", "headroom", "ganancia", "mezcla", "masterizacion", "mastering", "master",
-        "frecuencia", "tono", "espuma", "graves", "sala", "serie", "paralelo", "compresion paralela",
-        "bus", "mix bus", "master fader", "envio", "fader", "clipea", "clipping", "polaridad", "fase",
-        "mono", "monocompatibilidad", "correlacion", "correlator", "goniometro",
-        "goniÃ³metro", "oversampling", "panorama", "pan law", "paneo", "falso estereo",
-        "tom", "toms", "resonancia", "resonancias", "gate", "compuerta",
-        "doubling", "hiss", "plano", "planos", "ambiencia", "eco",
-        "reflexion", "reflexiones", "dither", "true peak", "plr", "solo"
-    ]
-    return any(f" {_normalizar_texto(palabra)} " in texto_limpio for palabra in palabras_tecnicas)
+    return any(f" {_normalizar_texto(palabra)} " in texto_limpio for palabra in TECHNICAL_WORD_LIST)
 
 
 def _es_pregunta_conceptual_directa(pregunta: str):
@@ -517,28 +438,7 @@ def _resolver_referente_ambiguo(pregunta: str, historial: list):
 
 def _parece_consulta_del_dominio_curso(pregunta: str, contexto_leccion: str = ""):
     texto = _normalizar_texto(f"{pregunta} {contexto_leccion}")
-    pistas_dominio = [
-        "audio", "mezcla", "master", "mastering", "masterizacion",
-        "daw", "plugin", "plugins", "vst", "track", "tracks",
-        "bajo", "voz", "kick", "snare", "bus", "buses",
-        "reverb", "delay", "eq", "ecualizacion", "compresion",
-        "fase", "mono", "estereo", "frecuencia", "tono",
-        "dinamica", "limitador", "headroom", "clip", "clipping",
-        "curso", "modulo", "clase", "leccion", "eje",
-        "vu", "0 vu", "db", "dbfs", "dbtp", "lufs", "true peak",
-        "dither", "noise shaping", "master fader", "mix bus",
-        "gain staging", "threshold", "ratio", "attack", "release",
-        "make up gain", "compressor", "limiter",
-        "doubling", "gate", "compuerta", "hiss",
-        "analizador", "espectro", "spectrum", "spectrum analyzer",
-        "plano", "planos", "balance", "ambiencia", "eco",
-        "reflexion", "reflexiones", "room", "overhead", "tom",
-        "toms", "bleed", "pegamento", "glue", "auxiliar",
-        "panorama", "pan law", "paneo", "filtrar", "filtrado", 
-        "eq correctiva", "eq estetica", "eq correctivo", "eq estetico", 
-        "plr", "falso estereo", "solo", "hpf", "lpf"
-    ]
-    return any(pista in texto for pista in pistas_dominio)
+    return any(pista in texto for pista in DOMAIN_HINT_TERMS)
 
 def nodo_supervisor(state: EstadoAgente):
     """Evalua la pregunta limpia y decide a que especialista enviarla."""

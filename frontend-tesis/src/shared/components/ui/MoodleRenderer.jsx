@@ -33,18 +33,17 @@ export default function MoodleRenderer({ modulo }) {
   }, [modulo, miToken]);
 
   // H5P: el onLoad del iframe wrapper dispara mucho antes de que el reproductor
-  // H5P (poster + controles) termine de pintarse. Por eso NO ocultamos el
-  // spinner en onLoad; lo ocultamos cuando el bridge avisa que H5P ya esta listo
-  // ('kenth:resource_h5p_ready', o 'kenth:resource_meta' como respaldo). Fallback
-  // por tiempo para no dejarlo colgado si la senal nunca llega.
+  // H5P termine de cargar. Por eso NO ocultamos el spinner en onLoad; lo ocultamos
+  // cuando el bridge avisa que el video YA TIENE METADATOS (duración), que es
+  // cuando el contenido está realmente listo. Fallback por tiempo para no
+  // dejarlo colgado si la duración nunca llega.
   useEffect(() => {
     if (!['hvp', 'h5pactivity'].includes(modulo.modname)) return undefined;
     const onMsg = (e) => {
       const d = e?.data;
-      if (!d || typeof d !== 'object') return;
-      if (d.type !== 'kenth:resource_h5p_ready' && d.type !== 'kenth:resource_meta') return;
+      if (!d || typeof d !== 'object' || d.type !== 'kenth:resource_meta') return;
       if (d.resourceId != null && String(d.resourceId) !== String(modulo.id)) return;
-      setIframeCargando(false);
+      if (Number.isFinite(d.duration) && d.duration > 0) setIframeCargando(false);
     };
     window.addEventListener('message', onMsg);
     const fallback = setTimeout(() => setIframeCargando(false), 15000);

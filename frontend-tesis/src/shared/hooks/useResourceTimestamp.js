@@ -158,7 +158,9 @@ export function useResourceVideoBridge({
       if (data.type === 'kenth:resource_time') {
         const raw = data.seconds ?? data.timestamp;
         const seconds = typeof raw === 'number' ? raw : parseFloat(raw);
-        if (Number.isFinite(seconds)) setCurrentTimestamp(Math.max(0, Math.floor(seconds)));
+        // Fracción (no floor): el resaltado de subtítulos necesita seguir el
+        // audio con precisión; el bridge ya emite ~4 veces/seg con decimales.
+        if (Number.isFinite(seconds)) setCurrentTimestamp(Math.max(0, seconds));
       } else if (data.type === 'kenth:resource_meta') {
         setMeta({
           duration: Number.isFinite(data.duration) ? data.duration : null,

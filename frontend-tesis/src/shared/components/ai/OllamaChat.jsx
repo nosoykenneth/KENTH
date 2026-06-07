@@ -135,7 +135,7 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null, isE
       // CRÍTICO: Verificamos si la sesión activa (según el ref) sigue siendo
       // la misma en la que disparamos la pregunta.
       if (currentSessionIdRef.current === requestSessionId) {
-        setHistorial(prev => [...prev, { role: 'assistant', content: data.respuesta }]);
+        setHistorial(prev => [...prev, { role: 'assistant', content: data.respuesta, images: data.imagenes || [], resources: data.recursos || [] }]);
       }
     } catch (error) {
       console.error("Error de conexión:", error);
@@ -224,6 +224,43 @@ export default function OllamaChat({ contextoLeccion = '', sessionId = null, isE
                     <div className={`text-sm md:text-[15px] leading-relaxed font-normal tracking-wide prose prose-invert prose-sm max-w-none ${msg.role === 'user' ? 'prose-p:text-white prose-headings:text-white' : 'prose-p:text-kenth-text prose-headings:text-kenth-text prose-strong:text-kenth-brightred'}`}>
                       <ReactMarkdown>{msg.content}</ReactMarkdown>
                     </div>
+                    {msg.role === 'assistant' && Array.isArray(msg.images) && msg.images.length > 0 && (
+                      <div className="mt-4 flex flex-col gap-3">
+                        {msg.images.map((img, i) => (
+                          <figure key={i} className="rounded-2xl overflow-hidden border border-kenth-border bg-kenth-bg/40 shadow-lg">
+                            <a href={img.url} target="_blank" rel="noopener noreferrer">
+                              <img src={img.url} alt={img.title || 'Captura del curso'} className="w-full max-w-[420px] h-auto object-contain" loading="lazy" />
+                            </a>
+                            {img.title && (
+                              <figcaption className="px-3 py-2 text-[10px] uppercase tracking-widest font-black text-kenth-subtext bg-kenth-surface/5">
+                                {img.title}
+                              </figcaption>
+                            )}
+                          </figure>
+                        ))}
+                      </div>
+                    )}
+                    {msg.role === 'assistant' && Array.isArray(msg.resources) && msg.resources.length > 0 && (
+                      <div className="mt-4 flex flex-col gap-2">
+                        {msg.resources.map((res, i) => {
+                          const icon = res.media_type === 'audio' ? '🎵' : res.media_type === 'template' ? '🎛️' : '📎';
+                          return (
+                            <a
+                              key={i}
+                              href={res.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              download
+                              className="flex items-center gap-3 px-4 py-2.5 rounded-xl border border-kenth-border bg-kenth-bg/40 hover:border-kenth-brightred/50 transition group"
+                            >
+                              <span className="text-xl">{icon}</span>
+                              <span className="flex-1 text-sm font-bold text-kenth-text truncate group-hover:text-kenth-brightred transition">{res.title}</span>
+                              <span className="text-[10px] font-black uppercase tracking-widest text-kenth-brightred">⬇ Descargar</span>
+                            </a>
+                          );
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>

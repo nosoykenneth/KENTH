@@ -305,12 +305,13 @@ export default function AdminKnowledgeView() {
     <PageContainer>
       <div className="mb-10 flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between">
         <div>
-          <span className="mb-4 block text-[10px] font-black uppercase tracking-[0.4em] text-kenth-brightred">Panel de IA</span>
+          <span className="mb-4 block text-[10px] font-black uppercase tracking-[0.4em] text-kenth-brightred">Admin · Sistema</span>
           <h1 className="text-4xl font-black uppercase italic leading-none tracking-tighter md:text-6xl">
-            Gestor de <span className="text-kenth-brightred">Conocimiento IA</span>
+            Mantenimiento del <span className="text-kenth-brightred">índice</span>
           </h1>
           <p className="mt-4 max-w-2xl text-[10px] font-bold uppercase tracking-widest text-kenth-subtext">
-            Organiza los documentos que alimentan la memoria del asistente virtual.
+            Reindexar / reconstruir el índice y ver el estado (vectorizados, bloqueados, errores).
+            El conocimiento de cada curso se gestiona en <span className="text-kenth-text">Gestión del Tutor → Conocimiento</span>.
           </p>
         </div>
 

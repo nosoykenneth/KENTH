@@ -1,10 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
-  listAllLessons,
   getLesson,
   getResourceLink,
-  upsertResourceLink,
-  deleteResourceLink,
   replaceLessonBlocks,
   upsertLesson,
   setLessonPrompts,
@@ -12,10 +9,13 @@ import {
   replaceTranscript,
   autoTranscribe,
   getTranscriptStatus,
+  importLesson,
 } from '../../services/axesService';
 import { showNotification } from '../ui/Notification';
 import { useResourceVideoBridge } from '../../hooks/useResourceTimestamp';
 import BlockTimeline, { fmtTime } from './BlockTimeline';
+import AssignLessonDialog from './AssignLessonDialog';
+import LessonResourcesPanel from './LessonResourcesPanel';
 
 const IFRAME_NAME = 'kenth_editor_video';
 
@@ -43,10 +43,10 @@ const linesToArr = (s) => (s || '').split('\n').map((x) => x.trim()).filter(Bool
 const arrToLines = (a) => (Array.isArray(a) ? a.join('\n') : (a || ''));
 
 const TABS = [
-  { id: 'vinculo', label: 'Vínculo' },
   { id: 'bloques', label: 'Bloques' },
   { id: 'leccion', label: 'Lección' },
   { id: 'transcripcion', label: 'Transcripción' },
+  { id: 'recursos', label: 'Recursos' },
 ];
 
 /**
@@ -66,18 +66,25 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
   const token = localStorage.getItem('moodle_token') || '';
   const isH5P = resource?.modname === 'hvp' || resource?.modname === 'h5pactivity';
 
-  const [tab, setTab] = useState('vinculo');
+  const [tab, setTab] = useState('bloques');
   const [iframeLoading, setIframeLoading] = useState(true);
+  const [revealFallback, setRevealFallback] = useState(false); // revelar aunque no llegue duración
 
-  const [lessons, setLessons] = useState([]);
   const [currentLink, setCurrentLink] = useState(null);
   const [selectedLessonId, setSelectedLessonId] = useState('');
   const [lesson, setLesson] = useState(null);
   const [selectedBlockIdx, setSelectedBlockIdx] = useState(-1);
+  const [showAssign, setShowAssign] = useState(false); // "Corregir vínculo"
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirtyChange, setDirtyChange] = useState(false); // hubo cambios persistidos -> refrescar al cerrar
+
+  // Cambios sin guardar, por sección (para el único botón Guardar y el aviso al cerrar).
+  const [dirty, setDirty] = useState({ lesson: false, blocks: false, transcript: false });
+  const [showUnsaved, setShowUnsaved] = useState(false);
+  const mark = useCallback((k) => setDirty((d) => (d[k] ? d : { ...d, [k]: true })), []);
+  const isDirty = dirty.lesson || dirty.blocks || dirty.transcript;
 
   // Transcripción
   const [transcript, setTranscript] = useState([]);
@@ -106,16 +113,11 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
     (async () => {
       try {
         setLoading(true);
-        const [all, link] = await Promise.all([
-          listAllLessons(courseId),
-          getResourceLink(resource.id),
-        ]);
+        const link = await getResourceLink(resource.id);
         if (!alive) return;
-        setLessons(all);
         setCurrentLink(link);
         setSelectedLessonId(link?.lesson_id || '');
-        if (!link?.lesson_id) setTab('vinculo');
-        else setTab('bloques');
+        setTab('bloques');
       } catch (e) {
         if (alive) showNotification('error', e.message);
       } finally {
@@ -138,6 +140,7 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
         blocks: (data.blocks || []).map((b) => ({ ...EMPTY_BLOCK, ...b })),
       });
       setSelectedBlockIdx((data.blocks || []).length ? 0 : -1);
+      setDirty((d) => ({ ...d, lesson: false, blocks: false }));
     } catch (e) {
       showNotification('error', e.message);
     }
@@ -154,6 +157,7 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
       setTranscript(data.segments || []);
       setJob(data.job || null);
       setTranscriptView('segments');
+      setDirty((d) => ({ ...d, transcript: false }));
     } catch (e) {
       showNotification('error', e.message);
     } finally {
@@ -202,29 +206,12 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
     }
   };
 
-  const saveTranscript = async () => {
-    if (!selectedLessonId) return;
-    setSaving(true);
-    try {
-      const segs = transcript.map((s, i) => ({
-        seq: i,
-        start_time: Number(s.start_time) || 0,
-        end_time: Number(s.end_time) || 0,
-        text: s.text || '',
-        speaker: s.speaker || '',
-      }));
-      await replaceTranscript(courseId, selectedLessonId, segs);
-      setDirtyChange(true);
-      showNotification('success', `${segs.length} segmentos guardados.`);
-    } catch (e) { showNotification('error', e.message); }
-    finally { setSaving(false); }
-  };
-
   const setSegText = (idx, text) => {
     setTranscript((p) => p.map((s, i) => (i === idx ? { ...s, text } : s)));
+    mark('transcript');
     if (pauseOnType) pause();
   };
-  const setSegTime = (idx, key, val) => setTranscript((p) => p.map((s, i) => (i === idx ? { ...s, [key]: val } : s)));
+  const setSegTime = (idx, key, val) => { setTranscript((p) => p.map((s, i) => (i === idx ? { ...s, [key]: val } : s))); mark('transcript'); };
   // Edición del inicio como timecode HH:MM:SS.mmm (4 campos). Conserva la
   // precisión real (milisegundos) que ya trae la transcripción de Whisper.
   const setSegStartPart = (idx, part, raw) => {
@@ -242,12 +229,14 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
       else if (part === 'ms') ms = Math.min(999, v);
       return { ...s, start_time: h * 3600 + m * 60 + sec + ms / 1000 };
     }));
+    mark('transcript');
   };
   const addSegment = () => {
     const start = Math.round(currentTime);
     setTranscript((p) => [...p, { seq: p.length, start_time: start, end_time: start + 3, text: '', speaker: '' }]);
+    mark('transcript');
   };
-  const removeSegment = (idx) => setTranscript((p) => p.filter((_, i) => i !== idx));
+  const removeSegment = (idx) => { setTranscript((p) => p.filter((_, i) => i !== idx)); mark('transcript'); };
 
   // ---- Edición como texto (toggle estilo YouTube): una línea = un segmento ----
   // Rehace la lista de segmentos manteniendo los tiempos por índice; las líneas
@@ -284,22 +273,16 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
   const onTextBufferChange = (val) => {
     setTextBuffer(val);
     applyTextBuffer(val);
+    mark('transcript');
     if (pauseOnType) pause();
   };
 
-  const clearTranscript = async () => {
-    if (!selectedLessonId) return;
-    if (!window.confirm('¿Borrar TODA la transcripción de esta lección? Esta acción no se puede deshacer.')) return;
-    setSaving(true);
-    try {
-      await replaceTranscript(courseId, selectedLessonId, []);
-      setTranscript([]);
-      setTextBuffer('');
-      setJob(null);
-      setDirtyChange(true);
-      showNotification('success', 'Transcripción borrada.');
-    } catch (e) { showNotification('error', e.message); }
-    finally { setSaving(false); }
+  const clearTranscript = () => {
+    if (!transcript.length) return;
+    if (!window.confirm('¿Borrar TODA la transcripción de esta lección? Se aplicará al Guardar cambios.')) return;
+    setTranscript([]);
+    setTextBuffer('');
+    mark('transcript');
   };
 
   const activeSegIdx = useMemo(() => {
@@ -319,13 +302,25 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
     return () => clearInterval(iv);
   }, [isH5P, duration, requestMeta]);
 
+  // Revelar el H5P solo cuando ya llegó la duración (metadatos): así no se ve el
+  // frame oscuro/incompleto. Fallback a los 12s por si la duración nunca llega.
+  useEffect(() => {
+    if (iframeLoading || duration) return undefined;
+    const t = setTimeout(() => setRevealFallback(true), 12000);
+    return () => clearTimeout(t);
+  }, [iframeLoading, duration]);
+  const videoReady = !iframeLoading && (Boolean(duration) || revealFallback);
+
   // ---- Mutaciones locales de bloques ----
-  const setBlockField = (idx, k, v) => setLesson((p) => {
-    if (!p) return p;
-    const blocks = [...p.blocks];
-    blocks[idx] = { ...blocks[idx], [k]: v };
-    return { ...p, blocks };
-  });
+  const setBlockField = (idx, k, v) => {
+    setLesson((p) => {
+      if (!p) return p;
+      const blocks = [...p.blocks];
+      blocks[idx] = { ...blocks[idx], [k]: v };
+      return { ...p, blocks };
+    });
+    mark('blocks');
+  };
 
   const changeBlockTime = useCallback((idx, patch) => {
     setLesson((p) => {
@@ -337,7 +332,8 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
       blocks[idx] = next;
       return { ...p, blocks };
     });
-  }, []);
+    mark('blocks');
+  }, [mark]);
 
   const addBlock = () => {
     if (!lesson) return;
@@ -349,107 +345,104 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
       blocks: [...p.blocks, { ...EMPTY_BLOCK, block_id: `${p.lesson_id}-B${p.blocks.length + 1}`, start_time: start, end_time: end }],
     } : p));
     setSelectedBlockIdx(newIdx);
+    mark('blocks');
   };
 
   const removeBlock = (idx) => {
     setLesson((p) => (p ? { ...p, blocks: p.blocks.filter((_, i) => i !== idx) } : p));
     setSelectedBlockIdx((cur) => (cur === idx ? -1 : cur > idx ? cur - 1 : cur));
+    mark('blocks');
   };
 
-  // ---- Guardados ----
-  const saveLink = async () => {
-    if (!selectedLessonId) return;
+  // ---- Guardado único de todos los cambios ----
+  const saveAll = useCallback(async () => {
+    if (!isDirty) return true;
     setSaving(true);
     try {
-      await upsertResourceLink(resource.id, {
-        lesson_id: selectedLessonId,
-        course_id: String(courseId || ''),
-        resource_type: isH5P ? 'web_page' : (resource.modname || ''),
-        resource_subtype: isH5P ? 'h5p_video' : '',
-      });
-      const link = await getResourceLink(resource.id);
-      setCurrentLink(link);
+      if (lesson) {
+        if (dirty.lesson) {
+          await upsertLesson(courseId, lesson.lesson_id, {
+            lesson_id: lesson.lesson_id,
+            axis_id: lesson.axis_id || '',
+            title: lesson.lesson_title || lesson.title || '',
+            order: Number(lesson.order) || 0,
+            learning_goal: lesson.learning_goal || '',
+            expected_action: lesson.expected_action || '',
+            learning_goals: linesToArr(lesson._learning_goals),
+            expected_actions: lesson.expected_actions || [],
+            source_script_file: lesson.source_script_file || '',
+            resources: lesson.resources || [],
+            prerequisites: (lesson._prerequisites || '').split(',').map((x) => x.trim()).filter(Boolean),
+            notes: lesson.notes || '',
+          });
+          await setLessonPrompts(courseId, lesson.lesson_id, {
+            proactive_message: lesson.proactive_message || '',
+            suggested_prompts: linesToArr(lesson._suggested),
+          });
+        }
+        if (dirty.blocks) {
+          const blocks = lesson.blocks.map((b) => ({
+            block_id: b.block_id || '',
+            start_time: Number(b.start_time) || 0,
+            end_time: Number(b.end_time) || 0,
+            block_title: b.block_title || '',
+            summary: b.summary || '',
+            interaction_mode: b.interaction_mode || '',
+            tutor_focus: b.tutor_focus || '',
+            concepts: Array.isArray(b.concepts) ? b.concepts : linesToArr(b.concepts),
+            preguntas_probables: Array.isArray(b.preguntas_probables) ? b.preguntas_probables : linesToArr(b.preguntas_probables),
+          }));
+          await replaceLessonBlocks(courseId, lesson.lesson_id, blocks);
+        }
+        if (dirty.transcript) {
+          const segs = transcript.map((s, i) => ({
+            seq: i,
+            start_time: Number(s.start_time) || 0,
+            end_time: Number(s.end_time) || 0,
+            text: s.text || '',
+            speaker: s.speaker || '',
+          }));
+          await replaceTranscript(courseId, lesson.lesson_id, segs);
+        }
+      }
+      setDirty({ lesson: false, blocks: false, transcript: false });
       setDirtyChange(true);
-      showNotification('success', 'Vínculo guardado.');
-      setTab('bloques');
+      showNotification('success', 'Cambios guardados.');
+      return true;
+    } catch (e) {
+      showNotification('error', e.message);
+      return false;
+    } finally {
+      setSaving(false);
+    }
+  }, [isDirty, dirty, lesson, transcript, courseId]);
+
+  const handleCloseRequest = () => {
+    if (isDirty) setShowUnsaved(true);
+    else onClose(dirtyChange);
+  };
+
+  // Importar archivo JSON sobre ESTA lección (rellena todos los campos).
+  const importFromFile = async (file) => {
+    if (!file || !selectedLessonId) return;
+    let json;
+    try { json = JSON.parse(await file.text()); }
+    catch (e) { showNotification('error', 'JSON inválido: ' + e.message); return; }
+    if (isDirty && !window.confirm('Tienes cambios sin guardar que se descartarán, y el archivo reemplazará los campos de esta lección. ¿Continuar?')) return;
+    if (!isDirty && !window.confirm('El archivo reemplazará todos los campos de esta lección. ¿Continuar?')) return;
+    setSaving(true);
+    try {
+      await importLesson(courseId, json, selectedLessonId); // no toca el vínculo
+      await loadLessonDetail(selectedLessonId);
+      await loadTranscript(selectedLessonId);
+      setDirty({ lesson: false, blocks: false, transcript: false });
+      setDirtyChange(true);
+      showNotification('success', 'Lección importada.');
     } catch (e) { showNotification('error', e.message); }
     finally { setSaving(false); }
   };
 
-  const removeLink = async () => {
-    if (!currentLink) return;
-    if (!window.confirm('¿Quitar el vínculo de este recurso con la lección?')) return;
-    setSaving(true);
-    try {
-      await deleteResourceLink(resource.id);
-      setCurrentLink(null);
-      setDirtyChange(true);
-      showNotification('success', 'Vínculo quitado.');
-    } catch (e) { showNotification('error', e.message); }
-    finally { setSaving(false); }
-  };
-
-  const saveBlocks = async () => {
-    if (!lesson) return;
-    setSaving(true);
-    try {
-      const blocks = lesson.blocks.map((b) => ({
-        block_id: b.block_id || '',
-        start_time: Number(b.start_time) || 0,
-        end_time: Number(b.end_time) || 0,
-        block_title: b.block_title || '',
-        summary: b.summary || '',
-        interaction_mode: b.interaction_mode || '',
-        tutor_focus: b.tutor_focus || '',
-        concepts: Array.isArray(b.concepts) ? b.concepts : linesToArr(b.concepts),
-        preguntas_probables: Array.isArray(b.preguntas_probables) ? b.preguntas_probables : linesToArr(b.preguntas_probables),
-      }));
-      await replaceLessonBlocks(courseId, lesson.lesson_id, blocks);
-      setDirtyChange(true);
-      showNotification('success', `${blocks.length} bloques guardados.`);
-    } catch (e) { showNotification('error', e.message); }
-    finally { setSaving(false); }
-  };
-
-  const saveMeta = async () => {
-    if (!lesson) return;
-    setSaving(true);
-    try {
-      await upsertLesson(courseId, lesson.lesson_id, {
-        lesson_id: lesson.lesson_id,
-        axis_id: lesson.axis_id || '',
-        title: lesson.lesson_title || lesson.title || '',
-        order: Number(lesson.order) || 0,
-        learning_goal: lesson.learning_goal || '',
-        expected_action: lesson.expected_action || '',
-        learning_goals: linesToArr(lesson._learning_goals),
-        expected_actions: lesson.expected_actions || [],
-        source_script_file: lesson.source_script_file || '',
-        resources: lesson.resources || [],
-        prerequisites: (lesson._prerequisites || '').split(',').map((x) => x.trim()).filter(Boolean),
-        notes: lesson.notes || '',
-      });
-      setDirtyChange(true);
-      showNotification('success', 'Lección guardada.');
-    } catch (e) { showNotification('error', e.message); }
-    finally { setSaving(false); }
-  };
-
-  const savePrompts = async () => {
-    if (!lesson) return;
-    setSaving(true);
-    try {
-      await setLessonPrompts(courseId, lesson.lesson_id, {
-        proactive_message: lesson.proactive_message || '',
-        suggested_prompts: linesToArr(lesson._suggested),
-      });
-      setDirtyChange(true);
-      showNotification('success', 'Prompts guardados.');
-    } catch (e) { showNotification('error', e.message); }
-    finally { setSaving(false); }
-  };
-
-  const setField = (k, v) => setLesson((p) => (p ? { ...p, [k]: v } : p));
+  const setField = (k, v) => { setLesson((p) => (p ? { ...p, [k]: v } : p)); mark('lesson'); };
 
   const selectedBlock = selectedBlockIdx >= 0 ? lesson?.blocks?.[selectedBlockIdx] : null;
 
@@ -472,16 +465,32 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
             {resource?.name}
             {currentLink?.lesson_id && (
               <span className="ml-2 text-[10px] not-italic font-bold text-emerald-300 align-middle">
-                · {currentLink.lesson_id}
+                · {currentLink.axis_id ? `${currentLink.axis_id} · ` : ''}{currentLink.lesson_id}
               </span>
             )}
           </h3>
+          <button onClick={() => setShowAssign(true)} className="text-[10px] uppercase tracking-widest text-kenth-subtext hover:text-kenth-text mt-0.5" title="Reasignar este video a otra lección (solo para corregir errores)">
+            Corregir vínculo
+          </button>
         </div>
-        <button onClick={() => onClose(dirtyChange)} className="text-kenth-subtext hover:text-kenth-text flex-shrink-0">
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+        <div className="flex items-center gap-3 flex-shrink-0">
+          <label className="px-3 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs font-bold uppercase tracking-widest hover:border-kenth-brightred/50 cursor-pointer transition" title="Rellenar todos los campos de esta lección desde un JSON">
+            Importar archivo
+            <input type="file" accept="application/json,.json" className="hidden" onChange={(e) => { importFromFile(e.target.files?.[0]); e.target.value = ''; }} />
+          </label>
+          <button
+            onClick={saveAll}
+            disabled={saving || !isDirty}
+            className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40 transition"
+          >
+            {saving ? 'Guardando…' : (isDirty ? 'Guardar cambios' : 'Guardado')}
+          </button>
+          <button onClick={handleCloseRequest} className="text-kenth-subtext hover:text-kenth-text">
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Body */}
@@ -493,16 +502,16 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
               <div className="relative w-full max-w-[820px] rounded-xl overflow-hidden bg-black">
                 <div style={{ paddingTop: '56.25%' }} />
                 <div style={{ height: '36px' }} />
-                {iframeLoading && (
+                {!videoReady && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center bg-kenth-bg text-indigo-400 text-xs uppercase tracking-widest">
-                    Sincronizando H5P…
+                    Cargando video…
                   </div>
                 )}
                 <iframe
                   name={IFRAME_NAME}
                   onLoad={() => setIframeLoading(false)}
                   src={videoSrc}
-                  className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-500 ${iframeLoading ? 'opacity-0' : 'opacity-100'}`}
+                  className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
                   style={{ height: 'calc(100% + 50px)' }}
                   allow="autoplay *; encrypted-media *"
                   scrolling="no"
@@ -568,43 +577,6 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
               <p className="text-sm text-kenth-subtext">Cargando…</p>
             ) : (
               <>
-                {/* ---------- VÍNCULO ---------- */}
-                {tab === 'vinculo' && (
-                  <div className="flex flex-col gap-3">
-                    {currentLink && (
-                      <div className="px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-300">
-                        Enlazado a <strong>{currentLink.lesson_id}</strong>{currentLink.axis_id ? ` (${currentLink.axis_id})` : ''}.
-                      </div>
-                    )}
-                    {lessons.length === 0 ? (
-                      <p className="text-sm text-red-400">No hay lecciones registradas en el curso.</p>
-                    ) : (
-                      <div className="flex flex-col gap-2">
-                        {lessons.map((p) => {
-                          const checked = selectedLessonId === p.lesson_id;
-                          return (
-                            <label key={p.lesson_id} className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition ${checked ? 'bg-kenth-brightred/10 border-kenth-brightred/50' : 'bg-kenth-surface/5 border-kenth-border hover:border-kenth-brightred/30'}`}>
-                              <input type="radio" name="lesson" value={p.lesson_id} checked={checked} onChange={() => setSelectedLessonId(p.lesson_id)} className="mt-1 accent-kenth-brightred" />
-                              <div className="flex flex-col min-w-0">
-                                <span className="text-sm font-bold text-kenth-text">{p.lesson_id} · {p.lesson_title}</span>
-                                <span className="text-[10px] uppercase tracking-widest text-kenth-subtext">{p.axis_id}</span>
-                              </div>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    )}
-                    <div className="flex items-center justify-between gap-2 mt-1">
-                      {currentLink ? (
-                        <button onClick={removeLink} disabled={saving} className="text-xs text-red-400 hover:text-red-300 font-bold uppercase tracking-widest disabled:opacity-40">Quitar vínculo</button>
-                      ) : <span />}
-                      <button onClick={saveLink} disabled={saving || !selectedLessonId} className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
-                        {saving ? 'Guardando…' : 'Guardar vínculo'}
-                      </button>
-                    </div>
-                  </div>
-                )}
-
                 {/* ---------- BLOQUES ---------- */}
                 {tab === 'bloques' && (
                   !lesson ? (
@@ -683,10 +655,6 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
                       ) : (
                         <p className="text-xs text-kenth-subtext">Selecciona un bloque (en el timeline o arriba) para editarlo, o crea uno nuevo.</p>
                       )}
-
-                      <button onClick={saveBlocks} disabled={saving} className="mt-1 px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
-                        {saving ? 'Guardando…' : 'Guardar bloques'}
-                      </button>
                     </div>
                   )
                 )}
@@ -723,9 +691,6 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
                         <label className={labelCls}>Metas (una por línea)</label>
                         <textarea rows={2} className={inputCls} value={lesson._learning_goals} onChange={(e) => setField('_learning_goals', e.target.value)} />
                       </div>
-                      <button onClick={saveMeta} disabled={saving} className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
-                        {saving ? 'Guardando…' : 'Guardar datos'}
-                      </button>
 
                       <div className="h-px bg-kenth-border my-2" />
 
@@ -738,9 +703,6 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
                         <label className={labelCls}>Preguntas sugeridas (una por línea)</label>
                         <textarea rows={3} className={inputCls} value={lesson._suggested} onChange={(e) => setField('_suggested', e.target.value)} />
                       </div>
-                      <button onClick={savePrompts} disabled={saving} className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
-                        {saving ? 'Guardando…' : 'Guardar prompts'}
-                      </button>
                     </div>
                   )
                 )}
@@ -875,11 +837,16 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
                           ))}
                         </div>
                       )}
-
-                      <button onClick={saveTranscript} disabled={saving} className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
-                        {saving ? 'Guardando…' : 'Guardar transcripción'}
-                      </button>
                     </div>
+                  )
+                )}
+
+                {/* ---------- RECURSOS ---------- */}
+                {tab === 'recursos' && (
+                  !selectedLessonId ? (
+                    <p className="text-sm text-kenth-subtext">Enlaza una lección para añadirle recursos.</p>
+                  ) : (
+                    <LessonResourcesPanel courseId={courseId} lessonId={selectedLessonId} />
                   )
                 )}
               </>
@@ -887,6 +854,64 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
           </div>
         </div>
       </div>
+
+      {/* Aviso de cambios sin guardar al cerrar (estilo propio, no del navegador) */}
+      {showUnsaved && (
+        <div
+          className="fixed inset-0 z-[210] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => !saving && setShowUnsaved(false)}
+        >
+          <div
+            className="w-full max-w-md bg-kenth-card border border-kenth-border rounded-2xl shadow-2xl p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p className="text-[10px] uppercase font-black tracking-widest text-kenth-brightred">Cambios sin guardar</p>
+            <h3 className="text-lg font-black uppercase italic text-kenth-text tracking-tight mt-1">¿Salir sin guardar?</h3>
+            <p className="text-sm text-kenth-subtext mt-2">
+              Tienes cambios que no has guardado. ¿Quieres guardarlos antes de salir?
+            </p>
+            <div className="flex flex-col gap-2 mt-5">
+              <button
+                onClick={async () => { const ok = await saveAll(); if (ok) { setShowUnsaved(false); onClose(true); } }}
+                disabled={saving}
+                className="w-full px-4 py-2.5 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40 transition"
+              >
+                {saving ? 'Guardando…' : 'Guardar y salir'}
+              </button>
+              <button
+                onClick={() => { setShowUnsaved(false); onClose(dirtyChange); }}
+                disabled={saving}
+                className="w-full px-4 py-2.5 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs font-bold uppercase tracking-widest hover:border-red-400/50 disabled:opacity-40 transition"
+              >
+                Salir sin guardar
+              </button>
+              <button
+                onClick={() => setShowUnsaved(false)}
+                disabled={saving}
+                className="w-full px-4 py-2 text-xs font-bold uppercase tracking-widest text-kenth-subtext hover:text-kenth-text disabled:opacity-40"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Corregir vínculo: reasignar este video a otra lección (solo errores) */}
+      {showAssign && (
+        <AssignLessonDialog
+          resource={resource}
+          courseId={courseId}
+          onClose={async (lessonId) => {
+            setShowAssign(false);
+            if (lessonId) {
+              try { setCurrentLink(await getResourceLink(resource.id)); } catch { /* ignore */ }
+              setSelectedLessonId(lessonId);
+              setDirtyChange(true);
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

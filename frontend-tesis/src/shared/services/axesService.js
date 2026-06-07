@@ -65,6 +65,17 @@ export function reorderLessons(courseId, items) {
   return writeJson('PUT', `/authoring/lessons-reorder`, courseId, { items });
 }
 
+/**
+ * Importa una lección desde un JSON (formato semilla).
+ * @param {string} courseId  id firmado del curso.
+ * @param {object} json      contenido de la lección.
+ * @param {string} [targetLessonId]  si se pasa, rellena ESA lección (no toca el vínculo).
+ */
+export function importLesson(courseId, json, targetLessonId = '') {
+  const qs = targetLessonId ? `?target_lesson_id=${encodeURIComponent(targetLessonId)}` : '';
+  return writeJson('POST', `/authoring/lessons/import${qs}`, courseId, json);
+}
+
 // ---- Transcripción (segmentos por lección) ----
 export async function getTranscript(courseId, lessonId) {
   const res = await fetch(`${RAG_API_URL}/authoring/lessons/${encodeURIComponent(lessonId)}/transcript`, {

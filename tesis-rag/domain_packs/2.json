@@ -1,0 +1,1009 @@
+{
+  "domain_id": "mezcla_masterizacion",
+  "course_id": "2",
+  "description": "Domain Pack del curso Mezcla y Masterizacion (course_id Moodle = 2).",
+  "persona": {
+    "tutor_name": "KENTH",
+    "domain_label": "mezcla y masterizacion"
+  },
+  "taxonomy": {
+    "course_axes": [
+      {
+        "id": "eje0_identidad_acustica",
+        "evaluation_category": "fundamentos_acustica",
+        "keywords": [
+          "eje 0",
+          "identidad",
+          "frecuencia",
+          "amplitud",
+          "acustica",
+          "medicion"
+        ]
+      },
+      {
+        "id": "eje1_estructura_flujo",
+        "evaluation_category": "estructura_ganancia",
+        "keywords": [
+          "eje 1",
+          "gain staging",
+          "headroom",
+          "flujo de senal",
+          "ruteo",
+          "db"
+        ]
+      },
+      {
+        "id": "eje2_espacio_fase",
+        "evaluation_category": "fase_imagen_estereo",
+        "keywords": [
+          "eje 2",
+          "polaridad",
+          "fase",
+          "mono",
+          "estereo",
+          "correlacion"
+        ]
+      },
+      {
+        "id": "eje3_identidad_espectral",
+        "evaluation_category": "ecualizacion",
+        "keywords": [
+          "eje 3",
+          "eq",
+          "filtro",
+          "frecuencia de corte",
+          "balance tonal"
+        ]
+      },
+      {
+        "id": "eje4_control_dinamico",
+        "evaluation_category": "dinamica",
+        "keywords": [
+          "eje 4",
+          "compresion",
+          "threshold",
+          "ratio",
+          "ataque",
+          "release"
+        ]
+      },
+      {
+        "id": "eje5_dimension_ambiencia",
+        "evaluation_category": "espacialidad",
+        "keywords": [
+          "eje 5",
+          "reverb",
+          "delay",
+          "profundidad",
+          "ambiencia"
+        ]
+      },
+      {
+        "id": "eje6_criterio_integracion",
+        "evaluation_category": "mezcla_general",
+        "keywords": [
+          "eje 6",
+          "mezcla",
+          "integracion",
+          "criterio",
+          "jerarquia"
+        ]
+      },
+      {
+        "id": "eje7_optimizacion_entrega",
+        "evaluation_category": "mastering",
+        "keywords": [
+          "eje 7",
+          "mastering",
+          "lufs",
+          "limitador",
+          "streaming"
+        ]
+      }
+    ],
+    "strong_axis_terms": {
+      "Eje 0": [
+        "frecuencia",
+        "tono",
+        "curvas isofonicas",
+        "sala",
+        "resonadores",
+        "acustica"
+      ],
+      "Eje 1": [
+        "gain staging",
+        "headroom",
+        "fader",
+        "trim",
+        "clip gain",
+        "flujo de senal",
+        "bus",
+        "envio"
+      ],
+      "Eje 2": [
+        "polaridad",
+        "fase",
+        "mono",
+        "monocompatibilidad",
+        "correlacion",
+        "estereo"
+      ],
+      "Eje 3": [
+        "frecuencia de corte",
+        "filtro",
+        "pendiente",
+        "factor q",
+        "eq",
+        "ecualizacion"
+      ],
+      "Eje 4": [
+        "compresor",
+        "compresion",
+        "threshold",
+        "ratio",
+        "ataque",
+        "release",
+        "dinamica"
+      ],
+      "Eje 5": [
+        "reverb",
+        "delay",
+        "espacialidad",
+        "profundidad",
+        "ambiencia"
+      ],
+      "Eje 6": [
+        "mezcla integradora",
+        "criterio de mezcla",
+        "jerarquia",
+        "contexto",
+        "integracion"
+      ],
+      "Eje 7": [
+        "mastering",
+        "lufs",
+        "limitador",
+        "streaming",
+        "normalizacion"
+      ]
+    }
+  },
+  "lexicon": {
+    "concept_patterns": [
+      [
+        "frecuencia",
+        [
+          "frecuencia"
+        ]
+      ],
+      [
+        "tono",
+        [
+          "tono"
+        ]
+      ],
+      [
+        "sala",
+        [
+          "sala",
+          "acustica de sala",
+          "espuma",
+          "graves inflados"
+        ]
+      ],
+      [
+        "serie",
+        [
+          "serie",
+          "en serie"
+        ]
+      ],
+      [
+        "paralelo",
+        [
+          "paralelo",
+          "en paralelo"
+        ]
+      ],
+      [
+        "clip",
+        [
+          "clip",
+          "clipea",
+          "clipping",
+          "no clipea"
+        ]
+      ],
+      [
+        "flujo de senal",
+        [
+          "flujo de senal",
+          "ruteo",
+          "bus",
+          "envio",
+          "subgrupo",
+          "fader",
+          "trim",
+          "clip gain"
+        ]
+      ],
+      [
+        "polaridad",
+        [
+          "polaridad",
+          "inversion de polaridad",
+          "invertir polaridad"
+        ]
+      ],
+      [
+        "fase",
+        [
+          "fase"
+        ]
+      ],
+      [
+        "mono",
+        [
+          "mono",
+          "revisar en mono",
+          "pasar a mono"
+        ]
+      ],
+      [
+        "monocompatibilidad",
+        [
+          "monocompatibilidad",
+          "mono compatible",
+          "monocompatible"
+        ]
+      ],
+      [
+        "correlacion",
+        [
+          "correlacion",
+          "correlator",
+          "correlometro"
+        ]
+      ],
+      [
+        "goniÃ³metro",
+        [
+          "goniometro",
+          "goniÃ³metro"
+        ]
+      ],
+      [
+        "filtro peine",
+        [
+          "comb filtering",
+          "filtro peine"
+        ]
+      ],
+      [
+        "compresion multibanda",
+        [
+          "compresion multibanda",
+          "multibanda"
+        ]
+      ],
+      [
+        "compresion paralela",
+        [
+          "compresion paralela"
+        ]
+      ],
+      [
+        "makeup gain",
+        [
+          "makeup gain",
+          "ganancia de compensacion"
+        ]
+      ],
+      [
+        "reduccion de ganancia",
+        [
+          "reduccion de ganancia",
+          "gain reduction"
+        ]
+      ],
+      [
+        "headroom",
+        [
+          "headroom"
+        ]
+      ],
+      [
+        "threshold",
+        [
+          "threshold",
+          "umbral"
+        ]
+      ],
+      [
+        "lufs",
+        [
+          "lufs"
+        ]
+      ],
+      [
+        "limitador",
+        [
+          "limitador",
+          "limiter"
+        ]
+      ],
+      [
+        "frecuencia de corte",
+        [
+          "frecuencia de corte"
+        ]
+      ],
+      [
+        "pendiente",
+        [
+          "pendiente",
+          "pendientes",
+          "pendiente abrupta",
+          "pendientes abruptas",
+          "slope"
+        ]
+      ],
+      [
+        "factor q",
+        [
+          "factor q",
+          " q ",
+          " q?",
+          "q que",
+          "que pendiente"
+        ]
+      ],
+      [
+        "fase lineal",
+        [
+          "fase lineal"
+        ]
+      ],
+      [
+        "ecualizacion dinamica",
+        [
+          "ecualizacion dinamica",
+          "eq dinamica"
+        ]
+      ],
+      [
+        "eq correctiva",
+        [
+          "eq correctiva",
+          "ecualizacion correctiva",
+          "eq correctivo"
+        ]
+      ],
+      [
+        "eq tonal",
+        [
+          "eq tonal",
+          "ecualizacion tonal",
+          "eq estetica",
+          "eq estetico"
+        ]
+      ],
+      [
+        "ecualizacion",
+        [
+          "ecualizacion",
+          "ecualizador",
+          "eq"
+        ]
+      ],
+      [
+        "compresion",
+        [
+          "compresion",
+          "compresor"
+        ]
+      ],
+      [
+        "filtro",
+        [
+          "filtro",
+          "filtros",
+          "filtrar",
+          "filtrado",
+          "hpf",
+          "lpf"
+        ]
+      ],
+      [
+        "saturacion",
+        [
+          "saturacion"
+        ]
+      ],
+      [
+        "reverb",
+        [
+          "reverb",
+          "reverberacion"
+        ]
+      ],
+      [
+        "delay",
+        [
+          "delay"
+        ]
+      ],
+      [
+        "mezcla integradora",
+        [
+          "mezclar bien",
+          "plugins a todo",
+          "aplicar plugins a todo",
+          "criterio de mezcla",
+          "escuchar en contexto"
+        ]
+      ],
+      [
+        "panorama",
+        [
+          "panorama",
+          "pan law",
+          "ley de panorama",
+          "paneo"
+        ]
+      ],
+      [
+        "falso estereo",
+        [
+          "falso estereo"
+        ]
+      ],
+      [
+        "mastering",
+        [
+          "mastering",
+          "master",
+          "masterizacion"
+        ]
+      ],
+      [
+        "dither",
+        [
+          "dither",
+          "noise shaping"
+        ]
+      ],
+      [
+        "true peak",
+        [
+          "true peak",
+          "dbtp"
+        ]
+      ],
+      [
+        "plr",
+        [
+          "plr",
+          "peak to loudness ratio",
+          "peak-to-loudness"
+        ]
+      ],
+      [
+        "mix bus",
+        [
+          "mix bus",
+          "master fader",
+          "bus master"
+        ]
+      ]
+    ],
+    "technical_word_list": [
+      "filtro",
+      "filtros",
+      "filtrar",
+      "filtrado",
+      "ecualizacion",
+      "ecualizador",
+      "eq",
+      "eq correctivo",
+      "eq estetico",
+      "eq correctiva",
+      "eq estetica",
+      "frecuencia de corte",
+      "pendiente",
+      "pendientes",
+      "pendiente abrupta",
+      "pendientes abruptas",
+      "factor q",
+      "fase lineal",
+      "shelving",
+      "campana",
+      "notch",
+      "hpf",
+      "lpf",
+      "layering",
+      "capa",
+      "capas",
+      "headroom",
+      "ganancia",
+      "mezcla",
+      "masterizacion",
+      "mastering",
+      "master",
+      "frecuencia",
+      "tono",
+      "espuma",
+      "graves",
+      "sala",
+      "serie",
+      "paralelo",
+      "compresion paralela",
+      "bus",
+      "mix bus",
+      "master fader",
+      "envio",
+      "fader",
+      "clipea",
+      "clipping",
+      "polaridad",
+      "fase",
+      "mono",
+      "monocompatibilidad",
+      "correlacion",
+      "correlator",
+      "goniometro",
+      "goniÃ³metro",
+      "oversampling",
+      "panorama",
+      "pan law",
+      "paneo",
+      "falso estereo",
+      "tom",
+      "toms",
+      "resonancia",
+      "resonancias",
+      "gate",
+      "compuerta",
+      "doubling",
+      "hiss",
+      "plano",
+      "planos",
+      "ambiencia",
+      "eco",
+      "reflexion",
+      "reflexiones",
+      "dither",
+      "true peak",
+      "plr",
+      "solo"
+    ],
+    "domain_hint_terms": [
+      "audio",
+      "mezcla",
+      "master",
+      "mastering",
+      "masterizacion",
+      "daw",
+      "plugin",
+      "plugins",
+      "vst",
+      "track",
+      "tracks",
+      "bajo",
+      "voz",
+      "kick",
+      "snare",
+      "bus",
+      "buses",
+      "reverb",
+      "delay",
+      "eq",
+      "ecualizacion",
+      "compresion",
+      "fase",
+      "mono",
+      "estereo",
+      "frecuencia",
+      "tono",
+      "dinamica",
+      "limitador",
+      "headroom",
+      "clip",
+      "clipping",
+      "curso",
+      "modulo",
+      "clase",
+      "leccion",
+      "eje",
+      "vu",
+      "0 vu",
+      "db",
+      "dbfs",
+      "dbtp",
+      "lufs",
+      "true peak",
+      "dither",
+      "noise shaping",
+      "master fader",
+      "mix bus",
+      "gain staging",
+      "threshold",
+      "ratio",
+      "attack",
+      "release",
+      "make up gain",
+      "compressor",
+      "limiter",
+      "doubling",
+      "gate",
+      "compuerta",
+      "hiss",
+      "analizador",
+      "espectro",
+      "spectrum",
+      "spectrum analyzer",
+      "plano",
+      "planos",
+      "balance",
+      "ambiencia",
+      "eco",
+      "reflexion",
+      "reflexiones",
+      "room",
+      "overhead",
+      "tom",
+      "toms",
+      "bleed",
+      "pegamento",
+      "glue",
+      "auxiliar",
+      "panorama",
+      "pan law",
+      "paneo",
+      "filtrar",
+      "filtrado",
+      "eq correctiva",
+      "eq estetica",
+      "eq correctivo",
+      "eq estetico",
+      "plr",
+      "falso estereo",
+      "solo",
+      "hpf",
+      "lpf"
+    ],
+    "lookup_stopwords": [
+      "ahi",
+      "alli",
+      "allÃ­",
+      "clase",
+      "con",
+      "cual",
+      "cuando",
+      "cuÃƒÂ¡l",
+      "cuÃƒÂ¡ndo",
+      "de",
+      "del",
+      "donde",
+      "el",
+      "en",
+      "entender",
+      "entre",
+      "eso",
+      "esto",
+      "explica",
+      "explican",
+      "la",
+      "las",
+      "leer",
+      "lo",
+      "los",
+      "mejor",
+      "minuto",
+      "misma",
+      "mismo",
+      "pagina",
+      "para",
+      "pdf",
+      "por",
+      "pÃ¡gina",
+      "que",
+      "quÃ©",
+      "recurso",
+      "revisar",
+      "reviso",
+      "siempre",
+      "significa",
+      "tengo",
+      "un",
+      "una",
+      "unas",
+      "unos",
+      "usar",
+      "volver"
+    ]
+  },
+  "blocklist": {
+    "unsupported_terms": [
+      "serum",
+      "sintesis",
+      "synthesis",
+      "fm",
+      "wavetable",
+      "granular",
+      "ableton",
+      "logic",
+      "fl studio",
+      "cubase",
+      "pro tools",
+      "reaper",
+      "massive",
+      "sylenth",
+      "vital",
+      "kontakt",
+      "oversampling"
+    ]
+  },
+  "intents": {
+    "common_rules": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\n",
+    "by_intent": {
+      "aclaracion_concepto": {
+        "id": "aclaracion_concepto_v1",
+        "text": "INTENCION PEDAGOGICA: aclaracion de concepto.\nObjetivo: explicar un concepto del curso de forma clara y verificable.\nEstructura: definicion breve, importancia practica y orientacion concreta respaldada por evidencia.\nNo agregues ejemplos o recursos que no esten en la evidencia o en la pregunta.\n"
+      },
+      "diagnostico_tecnico": {
+        "id": "diagnostico_tecnico_v1",
+        "text": "INTENCION PEDAGOGICA: diagnostico tecnico.\nObjetivo: ayudar a razonar posibles causas sin fingir que escuchaste el audio.\nEstructura: hipotesis cautelosa, comprobacion practica y siguiente paso.\nNo afirmes diagnosticos definitivos ni valores exactos sin evidencia.\n"
+      },
+      "consejo_estetico_espacialidad": {
+        "id": "consejo_estetico_espacialidad_v1",
+        "text": "INTENCION PEDAGOGICA: consejo estetico/espacialidad.\nObjetivo: orientar decisiones de profundidad, paneo, ambiente o imagen estereo.\nDistingue decision tecnica de decision estetica. Evita recetas universales.\nConecta con fase, mono o balance solo si la evidencia lo respalda.\n"
+      },
+      "optimizacion_mastering_comercial": {
+        "id": "optimizacion_mastering_comercial_v1",
+        "text": "INTENCION PEDAGOGICA: mastering u optimizacion comercial.\nObjetivo: orientar decisiones de acabado, traduccion y preparacion final.\nNo inventes LUFS, dBTP, plataformas, estandares comerciales ni cadenas de mastering si no aparecen en la evidencia.\n"
+      },
+      "busqueda_fuente": {
+        "id": "busqueda_fuente_v1",
+        "text": "INTENCION PEDAGOGICA: busqueda de fuente.\nObjetivo: responder primero donde revisar, no desarrollar teoria larga.\nEstructura: recurso concreto, modulo/clase/minuto/pagina si existe, y explicacion minima de relevancia.\nSi no hay metadatos suficientes, dilo y pide el concepto exacto.\n"
+      },
+      "fuera_dominio": {
+        "id": "fuera_dominio_v1",
+        "text": "INTENCION PEDAGOGICA: fuera de dominio.\nObjetivo: bloquear breve, limpio y util.\nNo expliques el tema externo. Redirige solo al dominio del curso de mezcla y masterizacion.\n"
+      },
+      "ambigua": {
+        "id": "ambigua_v1",
+        "text": "INTENCION PEDAGOGICA: pregunta ambigua.\nObjetivo: pedir aclaracion minima en una sola frase cuando el referente no sea unico.\nNo desarrolles teoria ni adivines el referente.\n"
+      },
+      "estudiante_perdido": {
+        "id": "estudiante_perdido_v1",
+        "text": "INTENCION PEDAGOGICA: estudiante perdido.\nObjetivo: guiar paso a paso, con lenguaje simple y una pregunta corta de calibracion.\n"
+      },
+      "consulta_externa": {
+        "id": "consulta_externa_v1",
+        "text": "INTENCION PEDAGOGICA: respuesta con fuente externa.\nObjetivo: separar informacion web de evidencia del curso y advertir que no reemplaza el material cargado.\n"
+      },
+      "retroalimentacion_visual": {
+        "id": "retroalimentacion_visual_v1",
+        "text": "INTENCION PEDAGOGICA: retroalimentacion visual.\nObjetivo: describir solo lo observable en la imagen y no inferir sonido real.\n"
+      },
+      "saludo": {
+        "id": "saludo_v1",
+        "text": "INTENCION PEDAGOGICA: saludo o cortesia. Responder breve y redirigir al curso.\n"
+      }
+    },
+    "selection_keywords": [
+      [
+        "optimizacion_mastering_comercial",
+        [
+          "master",
+          "mastering",
+          "masterizacion",
+          "comercial",
+          "lufs"
+        ]
+      ],
+      [
+        "diagnostico_tecnico",
+        [
+          "suena",
+          "porque",
+          "problema",
+          "reviso",
+          "corrijo",
+          "pierde",
+          "satura"
+        ]
+      ],
+      [
+        "consejo_estetico_espacialidad",
+        [
+          "espacio",
+          "profundidad",
+          "reverb",
+          "delay",
+          "estereo",
+          "ambiencia",
+          "paneo"
+        ]
+      ]
+    ]
+  },
+  "node_prompts": {
+    "rag_system": "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen literalmente en la evidencia o en la pregunta del alumno.\n7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n9. Si hay incertidumbre, pide una aclaracion breve.\n10. Mantente conciso, profesional y pedagogico.\n\n11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje salvo que el alumno pregunte explicitamente donde revisar o pida fuentes. Esos datos ya viajan en el JSON.\n\n",
+    "vision_rag_intro": "Eres KENTH, ingeniero de mezcla profesional y tutor.\nEl alumno adjunto una imagen. Analizala cuidadosamente.\n\n",
+    "vision_rag_rules": "REGLAS ESTRICTAS:\n1. La imagen ya fue clasificada como relacionada con audio. Describe solo lo visible: interfaz, controles, medidores, forma de onda o plugin.\n2. No infieras como suena. Una captura no permite saber si algo suena bien o mal.\n3. Usa EVIDENCIA DEL CURSO solo si conecta claramente con lo visible. Si no conecta, no fuerces teoria.\n4. NO des parametros exactos, valores en dB, presets ni diagnosticos auditivos sin audio.\n5. Recomienda recursos, software o plugins solo si aparecen en la evidencia o en la pregunta.\n6. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n7. Si no estas seguro de lo que se ve, pide una aclaracion breve.\n\n",
+    "lost_intro": "Eres KENTH, tutor del curso de mezcla y masterizacion.\nEl alumno esta confundido o frustrado. Responde como guia pedagogico, no como enciclopedia.\n\n",
+    "lost_rules": "REGLAS:\n1. Usa exactamente 4 bloques con estos titulos: Validacion, Explicacion simple, Siguiente paso, Pregunta de calibracion.\n2. Se breve: 1 o 2 frases por bloque.\n3. Recomienda recursos, software, plugins, DAWs o tecnicas especificas SOLO si aparecen literalmente en la evidencia o pregunta.\n4. No menciones Ableton, Logic, Serum ni nombres propios si no aparecen en evidencia o pregunta.\n5. Si no hay evidencia suficiente, guia el proceso sin inventar clase, recurso, timestamp ni parametro.\n\n",
+    "web_query_suffix": " plugins audio VST mezcla masterizacion",
+    "web_intro": "Eres el asistente experto del curso de KENTH.\nEstas en MODO INTERNET: la informacion externa NO reemplaza el material del curso.\n",
+    "web_rules": "Usala solo para links, descargas, plugins o informacion externa solicitada.\nNo inventes enlaces y aclara cuando algo viene de informacion externa.\nNo sugieras software, plugins o recursos que no aparezcan en la pregunta o en la informacion web.\n\n",
+    "guard_reply": "Solo puedo ayudarte con mezcla, masterizacion, audio, DAWs, plugins y contenido del curso. Si tu duda esta relacionada con el curso, dime el eje, clase o concepto que quieres revisar.",
+    "greetings": {
+      "thanks": "De nada. Estoy aqui para ayudarte con mezcla, mastering y el material del curso. Que duda seguimos puliendo?",
+      "ok": "Excelente. Sigamos con el curso. Tienes alguna duda puntual de mezcla o masterizacion?",
+      "bye": "Hasta luego. Cuando vuelvas, puedo ayudarte a revisar conceptos, plugins o ejercicios del curso.",
+      "default": "Hola. Soy KENTH, tu tutor de mezcla y masterizacion. En que parte del curso necesitas ayuda?"
+    },
+    "vision_classify": "Clasifica la imagen. Responde solo una palabra:\nAUDIO si parece una interfaz de DAW, plugin, medidor, forma de onda, mezclador, ecualizador, compresor o sesion de audio.\nNO_AUDIO si parece cualquier otra cosa: personas, fuego, paisajes, documentos, comida, objetos generales, etc.\nNo expliques.",
+    "vision_caption": "Eres un asistente que documenta capturas de software de audio (DAW, plugins, medidores, mezcladores) para enseñanza. Describe SOLO lo observable en la imagen: qué interfaz/plugin es, qué controles/medidores/parámetros se ven y para qué sirven. Sé concreto y breve (4-8 líneas). No inventes nada que no se vea.",
+    "vision_no_evidence": "Eres KENTH, tutor de mezcla y masterizacion.\nLa imagen fue clasificada como relacionada con audio.\nResponde mirando la imagen. No uses teoria del curso salvo que sea estrictamente visible.\n\nReglas:\n1. Describe solo lo observable en la captura: interfaz, controles, medidores, pistas, forma de onda o plugin.\n2. No infieras como suena. No inventes problemas de mezcla.\n3. No menciones recursos, clases, DAWs, plugins o tecnicas que no se vean en la imagen o no esten en la pregunta.\n4. Cierra con una pregunta breve para que el alumno precise que quiere revisar.\n\n"
+  },
+  "controlled_answers": [
+    {
+      "all_of": [
+        [
+          "frecuencia"
+        ],
+        [
+          "tono"
+        ],
+        [
+          "diferencia",
+          "diferencia hay"
+        ]
+      ],
+      "answer": "La frecuencia es una magnitud fisica medible: cuantas veces vibra una senal por segundo. El tono es la percepcion auditiva asociada a esa frecuencia: como sentimos si algo es mas grave o mas agudo. No son lo mismo: una es medicion fisica y la otra es percepcion."
+    },
+    {
+      "all_of": [
+        [
+          "espuma"
+        ],
+        [
+          "grave",
+          "graves"
+        ]
+      ],
+      "answer": "No necesariamente. En el marco de acustica del curso, la espuma puede ayudar con reflexiones o contenido medio-agudo, pero no conviene tratarla como solucion automatica para graves inflados. Para graves suele hacer falta diagnosticar sala, modos/resonancias y tratamiento adecuado, no solo pegar espuma."
+    },
+    {
+      "all_of": [
+        [
+          "serie"
+        ],
+        [
+          "paralelo"
+        ],
+        [
+          "diferencia",
+          "diferencia hay"
+        ]
+      ],
+      "answer": "En serie, la senal pasa por un proceso y luego por el siguiente: el orden cambia el resultado. En paralelo, una copia o envio se procesa por otra ruta y luego se mezcla con la senal original. La diferencia practica es flujo: cadena unica versus rutas simultaneas que se recombinan."
+    },
+    {
+      "all_of": [
+        [
+          "frecuencia de corte"
+        ],
+        [
+          "que es",
+          "explicame",
+          "defineme",
+          "define"
+        ]
+      ],
+      "answer": "La frecuencia de corte es un punto de referencia tecnico dentro del comportamiento de un filtro. Sirve para ubicar desde donde se entiende o se mide la transicion del filtro, pero no debe pensarse como un muro instantaneo. Algunas definiciones usan referencias numericas segun el tipo de filtro o contexto, pero no conviene fijarlas como doctrina universal cerrada sin matiz."
+    },
+    {
+      "all_of": [
+        [
+          "compresor"
+        ],
+        [
+          "que hace",
+          "que es",
+          "para que sirve"
+        ]
+      ],
+      "answer": "Un compresor controla la dinamica: reduce o contiene el excedente de una senal cuando supera un umbral, segun parametros como ratio, ataque y release. En la practica no es un boton de mejora automatica; sirve para ordenar, sostener o moldear movimiento dinamico segun el problema."
+    },
+    {
+      "all_of": [
+        [
+          "comprimir",
+          "comprimo",
+          "compresion"
+        ],
+        [
+          "ecualizador",
+          "ecualizacion",
+          " eq "
+        ]
+      ],
+      "answer": "Tecnicamente no se comprime un ecualizador: se comprime una senal con un compresor y se ecualiza con un EQ. Si te refieres a controlar una frecuencia solo cuando se dispara, eso se parece mas a ecualizacion dinamica o compresion multibanda. Primero identifica el problema: balance tonal, resonancia puntual o exceso dinamico en una banda."
+    },
+    {
+      "all_of": [
+        [
+          "master"
+        ],
+        [
+          "clipea",
+          "clip"
+        ],
+        [
+          "bien"
+        ]
+      ],
+      "answer": "No. Que el master no clipee solo indica que no esta superando ese limite de pico. No demuestra por si solo que el flujo de nivel, el margen, la dinamica, el balance o la traduccion esten bien. Es una condicion tecnica basica, no una validacion completa."
+    },
+    {
+      "all_of": [
+        [
+          "revisar en mono"
+        ]
+      ],
+      "answer": "Porque al cerrar a mono aparecen problemas de suma que en estereo pueden quedar disimulados. Si elementos importantes como voz, bombo, caja o bajo pierden solidez, hay un problema real de compatibilidad. La revision en mono no busca que todo sea estrecho, sino comprobar que la mezcla no se desarme fuera del punto ideal de escucha."
+    },
+    {
+      "all_of": [
+        [
+          "por que"
+        ],
+        [
+          "mono"
+        ]
+      ],
+      "answer": "Porque al cerrar a mono aparecen problemas de suma que en estereo pueden quedar disimulados. Si elementos importantes como voz, bombo, caja o bajo pierden solidez, hay un problema real de compatibilidad. La revision en mono no busca que todo sea estrecho, sino comprobar que la mezcla no se desarme fuera del punto ideal de escucha."
+    },
+    {
+      "all_of": [
+        [
+          "polaridad"
+        ],
+        [
+          "invierto",
+          "invertir",
+          "inversion"
+        ]
+      ],
+      "answer": "No necesariamente. Invertir polaridad puede resolver casos donde dos senales estan opuestas de forma binaria, pero no corrige cualquier problema de fase o de tiempo. Si el conflicto viene de retraso, alineacion o filtrado peine, hay que diagnosticar la relacion temporal, no solo apretar el boton de polaridad."
+    },
+    {
+      "all_of": [
+        [
+          "mezclar bien"
+        ],
+        [
+          "plugin",
+          "plugins",
+          "aplicar"
+        ]
+      ],
+      "answer": "No. Mezclar bien no es aplicar plugins a todo. Desde la practica integradora, primero se diagnostica que problema existe, que jerarquia tiene cada elemento, que pasa en contexto y cual es el costo de intervenir. Si una fuente ya cumple su funcion, procesarla por reflejo puede empeorar la mezcla."
+    },
+    {
+      "all_of": [
+        [
+          "correlacion",
+          "correlaci",
+          "correlator",
+          "correlometro"
+        ]
+      ],
+      "answer": "En este curso, correlacion se entiende como una lectura de relacion entre canales o senales para estimar como suman y que tan compatibles son al revisar mono. Sirve como orientacion: valores muy positivos suelen indicar suma mas estable, y valores negativos advierten posible cancelacion. No es una verdad absoluta; hay que leerla por contexto, por bandas y por rol musical."
+    }
+  ]
+}

@@ -201,6 +201,116 @@ def _bool(value: bool) -> int:
     return 1 if value else 0
 
 
+# ==========================================
+# SCOPE EXPLICITO (Fase 1 saneamiento)
+# ==========================================
+
+# Estados de indexacion de un documento/recurso.
+INDEX_STATUS = {"pending", "indexed", "failed", "stale"}
+# Niveles de alcance de un documento/recurso.
+DOC_SCOPES = {"global", "course", "axis", "lesson"}
+# resource_type = USO pedagogico (distinto de media_type = formato tecnico).
+RESOURCE_TYPES = {
+    "theory", "transcription", "script", "canonical_content", "clean_package",
+    "pdf_reading", "audio_practice", "daw_template", "image_reference",
+    "exercise", "solution", "rubric", "downloadable", "other",
+}
+# resource_type que por defecto NO son visibles al alumno (material del docente).
+TEACHER_ONLY_RESOURCE_TYPES = {"solution", "rubric"}
+
+
+def default_resource_type(media_type: str = "", doc_type: str = "") -> str:
+    """Uso pedagogico por defecto a partir del formato tecnico (media_type)."""
+    m = (media_type or "").strip().lower()
+    if m == "template":
+        return "daw_template"
+    if m == "audio":
+        return "audio_practice"
+    if m == "image":
+        return "image_reference"
+    if m == "document":
+        return "pdf_reading" if (doc_type or "").strip().lower() == "pdf" else "theory"
+    if m == "file":
+        return "downloadable"
+    return "other"
+
+
+def derive_scope(
+    course_id: str = "",
+    axis_id: str = "",
+    lesson_id: str = "",
+    is_global: bool = False,
+) -> str:
+    """Deriva el scope canonico a partir de los campos presentes.
+
+    Reglas (ver auditoria Fase 1):
+      - global : is_global=1 (o, en backfill, sin course/axis/lesson).
+      - lesson : course_id + axis_id + lesson_id.
+      - axis   : course_id + axis_id (sin lesson_id).
+      - course : course_id (sin axis/lesson).
+    NO infiere global solo por course_id vacio: eso lo decide is_global.
+    """
+    if is_global:
+        return "global"
+    cid = str(course_id or "").strip()
+    aid = str(axis_id or "").strip()
+    lid = str(lesson_id or "").strip()
+    if not cid and not aid and not lid:
+        # Sin ninguna coordenada y sin is_global explicito: tratado como
+        # global SOLO en backfill de datos legacy (course_id="" historico).
+        return "global"
+    if lid:
+        return "lesson"
+    if aid:
+        return "axis"
+    return "course"
+
+
+def validate_scope(
+    *,
+    scope: str = "",
+    course_id: str = "",
+    axis_id: str = "",
+    lesson_id: str = "",
+    is_global: bool = False,
+):
+    """Valida la coherencia scope<->campos. Devuelve (scope, is_global) normalizados.
+
+    Lanza ValueError con mensaje claro si la combinacion es invalida. Pensado
+    para llamarse desde los endpoints de subida (que traducen a HTTP 400).
+    """
+    cid = str(course_id or "").strip()
+    aid = str(axis_id or "").strip()
+    lid = str(lesson_id or "").strip()
+    sc = (scope or "").strip().lower() or derive_scope(cid, aid, lid, is_global)
+    if sc not in DOC_SCOPES:
+        raise ValueError(f"scope invalido: '{scope}'. Use uno de {sorted(DOC_SCOPES)}.")
+
+    if sc == "global":
+        # global SIEMPRE implica is_global=1 y no depende de course_id vacio.
+        return "global", True
+
+    # No-global: is_global debe ser falso y se exige course_id.
+    if is_global:
+        raise ValueError("is_global=1 solo es valido con scope='global'.")
+    if not cid:
+        raise ValueError(f"scope='{sc}' requiere course_id (no es global explicito).")
+    if sc == "course":
+        if lid:
+            raise ValueError("scope='course' no debe llevar lesson_id.")
+        return "course", False
+    if sc == "axis":
+        if not aid:
+            raise ValueError("scope='axis' requiere axis_id.")
+        if lid:
+            raise ValueError("scope='axis' no debe llevar lesson_id.")
+        return "axis", False
+    # sc == "lesson"
+    if not (aid and lid):
+        raise ValueError("scope='lesson' requiere axis_id y lesson_id.")
+    return "lesson", False
+
+
 @contextmanager
 def get_connection():
     """Conexion a Moodle/MariaDB o fallback SQLite."""
@@ -510,6 +620,7 @@ def _init_mysql(conn) -> None:
             doc_id VARCHAR(96) NOT NULL,
             course_id VARCHAR(64) NOT NULL DEFAULT '',
             axis_id VARCHAR(32) NOT NULL DEFAULT '',
+            lesson_id VARCHAR(64) NOT NULL DEFAULT '',
             title VARCHAR(255) NOT NULL DEFAULT '',
             doc_layer VARCHAR(32) NOT NULL DEFAULT 'canonico',
             doc_type VARCHAR(64) NOT NULL DEFAULT '',
@@ -517,6 +628,13 @@ def _init_mysql(conn) -> None:
             relpath VARCHAR(512) NOT NULL DEFAULT '',
             attribution_required TINYINT(1) NOT NULL DEFAULT 0,
             allowed_for_indexing TINYINT(1) NOT NULL DEFAULT 1,
+            visible_to_student TINYINT(1) NOT NULL DEFAULT 0,
+            media_type VARCHAR(32) NOT NULL DEFAULT '',
+            resource_type VARCHAR(32) NOT NULL DEFAULT 'other',
+            scope VARCHAR(16) NOT NULL DEFAULT 'course',
+            is_global TINYINT(1) NOT NULL DEFAULT 0,
+            index_status VARCHAR(16) NOT NULL DEFAULT 'pending',
+            chunk_count INT NOT NULL DEFAULT 0,
             ownership VARCHAR(128) NOT NULL DEFAULT '',
             source_uri VARCHAR(512) NOT NULL DEFAULT '',
             status VARCHAR(32) NOT NULL DEFAULT 'active',
@@ -527,7 +645,9 @@ def _init_mysql(conn) -> None:
             timemodified BIGINT NOT NULL,
             UNIQUE KEY uq_document (course_id, doc_id),
             KEY idx_doc_course (course_id),
-            KEY idx_doc_status (status)
+            KEY idx_doc_status (status),
+            KEY idx_doc_scope (scope),
+            KEY idx_doc_lesson (lesson_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """,
         f"""
@@ -548,6 +668,51 @@ def _init_mysql(conn) -> None:
     ]
     for statement in statements:
         _execute(conn, statement)
+
+    _ensure_documents_columns(conn, mysql=True)
+
+
+def _ensure_documents_columns(conn, mysql: bool) -> None:
+    """Migracion idempotente: agrega columnas nuevas a `documents` si la tabla ya existia
+    (CREATE TABLE IF NOT EXISTS no altera tablas previas). Recursos por leccion = lesson_id +
+    visible_to_student sobre el mismo registro de documento."""
+    table = table_name("documents")
+    nuevas = {
+        "lesson_id": "VARCHAR(64) NOT NULL DEFAULT ''" if mysql else "TEXT DEFAULT ''",
+        "visible_to_student": "TINYINT(1) NOT NULL DEFAULT 0" if mysql else "INTEGER DEFAULT 0",
+        # Fase 1: scope explicito + estado de indexacion (antes inferidos).
+        "media_type": "VARCHAR(32) NOT NULL DEFAULT ''" if mysql else "TEXT DEFAULT ''",
+        # Fase 2: resource_type semantico (uso pedagogico).
+        "resource_type": "VARCHAR(32) NOT NULL DEFAULT 'other'" if mysql else "TEXT DEFAULT 'other'",
+        "scope": "VARCHAR(16) NOT NULL DEFAULT 'course'" if mysql else "TEXT DEFAULT 'course'",
+        "is_global": "TINYINT(1) NOT NULL DEFAULT 0" if mysql else "INTEGER DEFAULT 0",
+        "index_status": "VARCHAR(16) NOT NULL DEFAULT 'pending'" if mysql else "TEXT DEFAULT 'pending'",
+        "chunk_count": "INT NOT NULL DEFAULT 0" if mysql else "INTEGER DEFAULT 0",
+    }
+    try:
+        if mysql:
+            existentes = {
+                r.get("COLUMN_NAME") or r.get("column_name")
+                for r in _fetchall(
+                    conn,
+                    "SELECT COLUMN_NAME FROM information_schema.COLUMNS "
+                    "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s",
+                    (table,),
+                )
+            }
+        else:
+            existentes = {r.get("name") for r in _fetchall(conn, f"PRAGMA table_info({table})")}
+    except Exception as e:
+        _log("MIGRATE_SKIP", table=table, error=str(e))
+        return
+
+    for col, ddl in nuevas.items():
+        if col not in existentes:
+            try:
+                _execute(conn, f"ALTER TABLE {table} ADD COLUMN {col} {ddl}")
+                _log("MIGRATE", table=table, added=col)
+            except Exception as e:
+                _log("MIGRATE_FAIL", table=table, column=col, error=str(e))
 
 
 def _init_sqlite(conn) -> None:
@@ -616,9 +781,13 @@ def _init_sqlite(conn) -> None:
         UNIQUE(course_id, axis_id))""")
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['documents']} (
         id INTEGER PRIMARY KEY AUTOINCREMENT, doc_id TEXT, course_id TEXT DEFAULT '',
-        axis_id TEXT DEFAULT '', title TEXT DEFAULT '', doc_layer TEXT DEFAULT 'canonico',
+        axis_id TEXT DEFAULT '', lesson_id TEXT DEFAULT '', title TEXT DEFAULT '', doc_layer TEXT DEFAULT 'canonico',
         doc_type TEXT DEFAULT '', filename TEXT DEFAULT '', relpath TEXT DEFAULT '',
         attribution_required INTEGER DEFAULT 0, allowed_for_indexing INTEGER DEFAULT 1,
+        visible_to_student INTEGER DEFAULT 0, media_type TEXT DEFAULT '',
+        resource_type TEXT DEFAULT 'other',
+        scope TEXT DEFAULT 'course', is_global INTEGER DEFAULT 0,
+        index_status TEXT DEFAULT 'pending', chunk_count INTEGER DEFAULT 0,
         ownership TEXT DEFAULT '', source_uri TEXT DEFAULT '', status TEXT DEFAULT 'active',
         uploaded_by TEXT DEFAULT '', notes TEXT, metadata_json TEXT,
         timecreated INTEGER, timemodified INTEGER, UNIQUE(course_id, doc_id))""")
@@ -626,6 +795,8 @@ def _init_sqlite(conn) -> None:
         id INTEGER PRIMARY KEY AUTOINCREMENT, lesson_id TEXT, seq INTEGER DEFAULT 0,
         start_time REAL, end_time REAL, text TEXT, speaker TEXT DEFAULT '',
         timecreated INTEGER, timemodified INTEGER, UNIQUE(lesson_id, seq))""")
+
+    _ensure_documents_columns(conn, mysql=False)
 
 
 def _ts() -> int:
@@ -950,6 +1121,7 @@ def _normalize_document(row: Dict[str, Any]) -> Dict[str, Any]:
         "doc_id": row.get("doc_id", "") or "",
         "course_id": row.get("course_id", "") or "",
         "axis_id": row.get("axis_id", "") or "",
+        "lesson_id": row.get("lesson_id", "") or "",
         "title": row.get("title", "") or "",
         "doc_layer": row.get("doc_layer", "canonico") or "canonico",
         "doc_type": row.get("doc_type", "") or "",
@@ -957,6 +1129,19 @@ def _normalize_document(row: Dict[str, Any]) -> Dict[str, Any]:
         "relpath": row.get("relpath", "") or "",
         "attribution_required": bool(row.get("attribution_required")),
         "allowed_for_indexing": bool(row.get("allowed_for_indexing")),
+        "visible_to_student": bool(row.get("visible_to_student")),
+        "media_type": row.get("media_type", "") or (_json_load(row.get("metadata_json"), {}) or {}).get("media_type", ""),
+        "resource_type": row.get("resource_type", "") or default_resource_type(
+            row.get("media_type", "") or (_json_load(row.get("metadata_json"), {}) or {}).get("media_type", ""),
+            row.get("doc_type", ""),
+        ),
+        "scope": row.get("scope", "") or derive_scope(
+            row.get("course_id", ""), row.get("axis_id", ""), row.get("lesson_id", ""),
+            bool(row.get("is_global")),
+        ),
+        "is_global": bool(row.get("is_global")),
+        "index_status": row.get("index_status", "") or "pending",
+        "chunk_count": int(row.get("chunk_count") or 0),
         "ownership": row.get("ownership", "") or "",
         "source_uri": row.get("source_uri", "") or "",
         "status": row.get("status", "active") or "active",
@@ -972,6 +1157,7 @@ def upsert_document(
     doc_id: str,
     course_id: str = "",
     axis_id: str = "",
+    lesson_id: str = "",
     title: str = "",
     doc_layer: str = "canonico",
     doc_type: str = "",
@@ -979,6 +1165,13 @@ def upsert_document(
     relpath: str = "",
     attribution_required: bool = False,
     allowed_for_indexing: bool = True,
+    visible_to_student: bool = False,
+    media_type: str = "",
+    resource_type: str = "",
+    scope: str = "",
+    is_global: bool = False,
+    index_status: str = "pending",
+    chunk_count: int = 0,
     ownership: str = "",
     source_uri: str = "",
     status: str = "active",
@@ -989,41 +1182,161 @@ def upsert_document(
     init_db()
     t = _ts()
     name = table_name("documents")
+    # Scope explicito + auto-reparacion de coherencia. El scope declarado nunca
+    # debe contradecir las coordenadas reales: un lesson_id presente => 'lesson'
+    # (caso del bug: un INSERT que hereda el DEFAULT 'course' de la columna pese a
+    # traer lesson_id). is_global solo es valido con scope='global'.
+    scope = (scope or "").strip().lower()
+    derived = derive_scope(course_id, axis_id, lesson_id, is_global)
+    if not scope:
+        scope = derived
+    if scope == "global":
+        is_global = True
+    elif is_global:
+        scope = "global"
+    elif scope != derived:
+        # Incoherencia entre lo declarado y las coordenadas: mandan las coordenadas.
+        if str(lesson_id or "").strip() and scope != "lesson":
+            _log("SCOPE_REPAIR", doc_id=doc_id, declared=scope, repaired="lesson", lesson_id=lesson_id)
+            scope = "lesson"
+        elif str(axis_id or "").strip() and not str(lesson_id or "").strip() and scope == "course":
+            _log("SCOPE_REPAIR", doc_id=doc_id, declared=scope, repaired="axis", axis_id=axis_id)
+            scope = "axis"
+    if index_status not in INDEX_STATUS:
+        index_status = "pending"
+    # resource_type: si no viene o es invalido, se deriva del formato tecnico.
+    resource_type = (resource_type or "").strip().lower()
+    if resource_type not in RESOURCE_TYPES:
+        resource_type = default_resource_type(media_type, doc_type)
     with get_connection() as conn:
         if using_moodle_db():
             sql = f"""INSERT INTO {name}
-                (doc_id, course_id, axis_id, title, doc_layer, doc_type, filename, relpath,
-                 attribution_required, allowed_for_indexing, ownership, source_uri, status,
+                (doc_id, course_id, axis_id, lesson_id, title, doc_layer, doc_type, filename, relpath,
+                 attribution_required, allowed_for_indexing, visible_to_student, media_type, resource_type,
+                 scope, is_global, index_status, chunk_count, ownership, source_uri, status,
                  uploaded_by, notes, metadata_json, timecreated, timemodified)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                ON DUPLICATE KEY UPDATE axis_id=VALUES(axis_id), title=VALUES(title),
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                ON DUPLICATE KEY UPDATE axis_id=VALUES(axis_id), lesson_id=VALUES(lesson_id), title=VALUES(title),
                 doc_layer=VALUES(doc_layer), doc_type=VALUES(doc_type), filename=VALUES(filename),
                 relpath=VALUES(relpath), attribution_required=VALUES(attribution_required),
-                allowed_for_indexing=VALUES(allowed_for_indexing), ownership=VALUES(ownership),
+                allowed_for_indexing=VALUES(allowed_for_indexing), visible_to_student=VALUES(visible_to_student),
+                media_type=VALUES(media_type), resource_type=VALUES(resource_type),
+                scope=VALUES(scope), is_global=VALUES(is_global),
+                index_status=VALUES(index_status), chunk_count=VALUES(chunk_count), ownership=VALUES(ownership),
                 source_uri=VALUES(source_uri), status=VALUES(status), uploaded_by=VALUES(uploaded_by),
                 notes=VALUES(notes), metadata_json=VALUES(metadata_json), timemodified=VALUES(timemodified)"""
         else:
             sql = f"""INSERT INTO {name}
-                (doc_id, course_id, axis_id, title, doc_layer, doc_type, filename, relpath,
-                 attribution_required, allowed_for_indexing, ownership, source_uri, status,
+                (doc_id, course_id, axis_id, lesson_id, title, doc_layer, doc_type, filename, relpath,
+                 attribution_required, allowed_for_indexing, visible_to_student, media_type, resource_type,
+                 scope, is_global, index_status, chunk_count, ownership, source_uri, status,
                  uploaded_by, notes, metadata_json, timecreated, timemodified)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(course_id, doc_id) DO UPDATE SET axis_id=excluded.axis_id,
+                lesson_id=excluded.lesson_id,
                 title=excluded.title, doc_layer=excluded.doc_layer, doc_type=excluded.doc_type,
                 filename=excluded.filename, relpath=excluded.relpath,
                 attribution_required=excluded.attribution_required,
-                allowed_for_indexing=excluded.allowed_for_indexing, ownership=excluded.ownership,
+                allowed_for_indexing=excluded.allowed_for_indexing, visible_to_student=excluded.visible_to_student,
+                media_type=excluded.media_type, resource_type=excluded.resource_type,
+                scope=excluded.scope, is_global=excluded.is_global,
+                index_status=excluded.index_status, chunk_count=excluded.chunk_count, ownership=excluded.ownership,
                 source_uri=excluded.source_uri, status=excluded.status, uploaded_by=excluded.uploaded_by,
                 notes=excluded.notes, metadata_json=excluded.metadata_json, timemodified=excluded.timemodified"""
         _execute(conn, sql, (
-            doc_id, course_id, axis_id, title, doc_layer, doc_type, filename, relpath,
-            _bool(attribution_required), _bool(allowed_for_indexing), ownership, source_uri,
-            status, uploaded_by, notes, _json_dump(metadata or {}), t, t,
+            doc_id, course_id, axis_id, lesson_id, title, doc_layer, doc_type, filename, relpath,
+            _bool(attribution_required), _bool(allowed_for_indexing), _bool(visible_to_student),
+            media_type, resource_type, scope, _bool(is_global), index_status, int(chunk_count or 0),
+            ownership, source_uri, status, uploaded_by, notes, _json_dump(metadata or {}), t, t,
         ))
-    _log_write("documents", id=doc_id, course_id=course_id, status=status)
+    _log_write("documents", id=doc_id, course_id=course_id, status=status, scope=scope, index_status=index_status)
 
 
-def list_documents(course_id: Optional[str] = None, status: Optional[str] = None) -> List[Dict[str, Any]]:
+def backfill_document_scopes(*, dry_run: bool = False) -> Dict[str, Any]:
+    """Rellena scope/is_global/index_status/chunk_count en filas existentes (Fase 1).
+
+    Reglas de migracion compatibles (no rompe datos):
+      - course_id="" y sin axis/lesson  -> scope='global', is_global=1 (legacy global).
+      - course_id + axis_id + lesson_id  -> scope='lesson'.
+      - course_id + axis_id (sin lesson) -> scope='axis'.
+      - course_id (sin axis/lesson)      -> scope='course'.
+      - index_status/chunk_count se derivan de metadata.chunks si existe.
+    Reporta filas ambiguas (p.ej. lesson_id sin axis_id, o sin course y no global).
+    """
+    init_db()
+    name = table_name("documents")
+    with get_connection() as conn:
+        rows = _fetchall(conn, f"SELECT * FROM {name}")
+    updated = 0
+    ambiguous: List[Dict[str, Any]] = []
+    summary: Dict[str, int] = {"global": 0, "course": 0, "axis": 0, "lesson": 0}
+    for row in rows:
+        cid = str(row.get("course_id", "") or "").strip()
+        aid = str(row.get("axis_id", "") or "").strip()
+        lid = str(row.get("lesson_id", "") or "").strip()
+        legacy_global = not cid and not aid and not lid
+        is_global = bool(row.get("is_global")) or legacy_global
+        scope = derive_scope(cid, aid, lid, is_global)
+
+        # Coherencia: lesson sin axis, o axis/lesson sin course -> ambiguo.
+        if (lid and not aid) or ((aid or lid) and not cid and not is_global):
+            ambiguous.append({"doc_id": row.get("doc_id"), "course_id": cid, "axis_id": aid, "lesson_id": lid})
+
+        meta = _json_load(row.get("metadata_json"), {}) or {}
+        chunks_meta = meta.get("chunks")
+        chunk_count = int(chunks_meta) if isinstance(chunks_meta, (int, float)) else int(row.get("chunk_count") or 0)
+        if not bool(row.get("allowed_for_indexing")):
+            index_status = "pending"
+        elif chunk_count > 0:
+            index_status = "indexed"
+        else:
+            index_status = row.get("index_status") or "pending"
+        media_type = row.get("media_type") or meta.get("media_type") or ""
+        resource_type = row.get("resource_type") or default_resource_type(media_type, row.get("doc_type", ""))
+
+        summary[scope] = summary.get(scope, 0) + 1
+        if not dry_run:
+            with get_connection() as conn:
+                _execute(
+                    conn,
+                    f"UPDATE {name} SET scope={_q()}, is_global={_q()}, index_status={_q()}, "
+                    f"chunk_count={_q()}, media_type={_q()}, resource_type={_q()} "
+                    f"WHERE course_id={_q()} AND doc_id={_q()}",
+                    (scope, _bool(scope == "global"), index_status, chunk_count, media_type, resource_type,
+                     row.get("course_id", ""), row.get("doc_id", "")),
+                )
+            updated += 1
+    _log("BACKFILL", table=name, updated=updated, ambiguous=len(ambiguous), dry_run=dry_run)
+    return {"total": len(rows), "updated": updated, "by_scope": summary, "ambiguous": ambiguous}
+
+
+def update_document_index_state(
+    doc_id: str, course_id: str, *, index_status: str, chunk_count: Optional[int] = None
+) -> None:
+    """Actualiza solo el estado de indexacion (sin reescribir toda la fila)."""
+    init_db()
+    if index_status not in INDEX_STATUS:
+        index_status = "pending"
+    name = table_name("documents")
+    sets = [f"index_status={_q()}"]
+    params: List[Any] = [index_status]
+    if chunk_count is not None:
+        sets.append(f"chunk_count={_q()}")
+        params.append(int(chunk_count))
+    params.extend([str(course_id), doc_id])
+    with get_connection() as conn:
+        _execute(conn, f"UPDATE {name} SET {', '.join(sets)} WHERE course_id={_q()} AND doc_id={_q()}", params)
+    _log_write("documents", id=doc_id, index_status=index_status, chunk_count=chunk_count)
+
+
+def list_documents(
+    course_id: Optional[str] = None,
+    status: Optional[str] = None,
+    lesson_id: Optional[str] = None,
+    visible_only: bool = False,
+    scope: Optional[str] = None,
+    is_global: Optional[bool] = None,
+) -> List[Dict[str, Any]]:
     init_db()
     sql = f"SELECT * FROM {table_name('documents')}"
     clauses: List[str] = []
@@ -1036,6 +1349,17 @@ def list_documents(course_id: Optional[str] = None, status: Optional[str] = None
     if status:
         clauses.append(f"status={_q()}")
         params.append(status)
+    if lesson_id:
+        clauses.append(f"lesson_id={_q()}")
+        params.append(lesson_id)
+    if scope:
+        clauses.append(f"scope={_q()}")
+        params.append(scope)
+    if is_global is not None:
+        clauses.append(f"is_global={_q()}")
+        params.append(_bool(is_global))
+    if visible_only:
+        clauses.append("visible_to_student=1")
     if clauses:
         sql += " WHERE " + " AND ".join(clauses)
     sql += " ORDER BY axis_id, doc_id"

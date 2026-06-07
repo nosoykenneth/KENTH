@@ -11,6 +11,8 @@ import {
   INTERACTION_MODES,
 } from '../../shared/services/activityContext';
 import LessonVideoEditor from '../../shared/components/ai/LessonVideoEditor';
+import AssignLessonDialog from '../../shared/components/ai/AssignLessonDialog';
+import StudentLessonResources from '../../shared/components/ai/StudentLessonResources';
 import { listResourceLinks, getLesson } from '../../shared/services/axesService';
 import useResourceTimestamp from '../../shared/hooks/useResourceTimestamp';
 
@@ -93,6 +95,8 @@ export default function CourseContentView() {
   // resourceLinks: { [resource_id]: link } cargado en bulk por curso.
   const [resourceLinks, setResourceLinks] = useState({});
   const [linkModalRecurso, setLinkModalRecurso] = useState(null);
+  // Diálogo de asignación de lección (crea el vínculo fijo al crear el recurso).
+  const [assignRecurso, setAssignRecurso] = useState(null);
   // Detalle de la leccion piloto enlazada al visorActivo (si la tiene).
   // Se usa para que el TutorAssistCard reciba learning_goal/expected_action
   // del manifest piloto en lugar del description de Moodle.
@@ -265,7 +269,7 @@ export default function CourseContentView() {
               }
               if (nuevoMod) break;
             }
-            if (nuevoMod) setLinkModalRecurso(nuevoMod);
+            if (nuevoMod) setAssignRecurso(nuevoMod);
           } catch (err) {
             console.error('Error refrescando tras creacion Moodle', err);
             fetchContenido();
@@ -843,7 +847,7 @@ export default function CourseContentView() {
                                     Editar ajustes
                                   </button>
                                   <button
-                                    onClick={() => { setMenuActivo(null); setLinkModalRecurso(mod); }}
+                                    onClick={() => { setMenuActivo(null); if (resourceLinks[String(mod.id)]) setLinkModalRecurso(mod); else setAssignRecurso(mod); }}
                                     className="w-full text-left px-4 py-2.5 text-sm text-kenth-subtext hover:bg-kenth-surface/10 hover:text-kenth-text flex items-center gap-3 transition"
                                   >
                                     <svg className="w-4 h-4 text-kenth-brightred" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
@@ -1138,7 +1142,7 @@ export default function CourseContentView() {
       {visorActivo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-2 md:p-10 animate-kenth-blur">
           <div className="bg-kenth-card w-full h-full max-w-6xl rounded-[2.5rem] flex flex-col border border-kenth-border overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.6)] animate-kenth-pop">
-            <div className="p-5 flex justify-between items-center border-b border-kenth-border bg-kenth-surface/5 backdrop-blur-xl relative">
+            <div className="p-5 flex justify-between items-center border-b border-kenth-border bg-kenth-surface/5 backdrop-blur-xl relative z-[60]">
               <div className="flex items-center gap-4">
                 <div className="w-10 h-10 bg-kenth-surface/10 rounded-2xl flex items-center justify-center p-2 border border-kenth-border shadow-inner">
                   <img src={visorActivo.modicon} alt="icon" className="w-full h-full object-contain" />
@@ -1148,15 +1152,20 @@ export default function CourseContentView() {
                   <p className="text-[10px] text-kenth-brightred font-black tracking-widest uppercase mt-1 opacity-80">Recurso Interactivo</p>
                 </div>
               </div>
-              <button 
-                onClick={cerrarVisorRecurso} 
-                className="group relative overflow-hidden bg-kenth-surface/10 hover:bg-kenth-brightred text-kenth-subtext hover:text-white px-6 py-2.5 rounded-2xl transition-all duration-300 font-black text-[10px] tracking-widest uppercase flex items-center gap-3 border border-kenth-border hover:border-kenth-brightred hover:shadow-[0_0_20px_rgba(225,29,72,0.4)]"
-              >
-                <span className="relative z-10 flex items-center gap-2">
-                  <svg className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg> 
-                  Cerrar Recurso
-                </span>
-              </button>
+              <div className="flex items-center gap-3">
+                {resourceLinks[String(visorActivo.id)]?.lesson_id && (
+                  <StudentLessonResources courseId={id} lessonId={resourceLinks[String(visorActivo.id)].lesson_id} />
+                )}
+                <button
+                  onClick={cerrarVisorRecurso}
+                  className="group relative overflow-hidden bg-kenth-surface/10 hover:bg-kenth-brightred text-kenth-subtext hover:text-white px-6 py-2.5 rounded-2xl transition-all duration-300 font-black text-[10px] tracking-widest uppercase flex items-center gap-3 border border-kenth-border hover:border-kenth-brightred hover:shadow-[0_0_20px_rgba(225,29,72,0.4)]"
+                >
+                  <span className="relative z-10 flex items-center gap-2">
+                    <svg className="w-4 h-4 transition-transform group-hover:rotate-90 duration-300" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
+                    Cerrar Recurso
+                  </span>
+                </button>
+              </div>
             </div>
             
             {(() => {
@@ -1311,6 +1320,20 @@ export default function CourseContentView() {
           onClose={(refresh) => {
             setLinkModalRecurso(null);
             if (refresh) cargarLinks();
+          }}
+        />
+      )}
+      {assignRecurso && (
+        <AssignLessonDialog
+          resource={assignRecurso}
+          courseId={id}
+          onClose={(lessonId) => {
+            const mod = assignRecurso;
+            setAssignRecurso(null);
+            if (lessonId) {
+              cargarLinks();
+              setLinkModalRecurso(mod); // abrir el editor con el vínculo ya creado
+            }
           }}
         />
       )}

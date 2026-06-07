@@ -1,0 +1,52 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"root:%{http_code}\\\\n\" http://localhost:8000/)",
+      "Bash(curl -s -o /dev/null -w \"docs:%{http_code}\\\\n\" http://localhost:8000/docs)",
+      "Bash(curl -s -o /dev/null -w \"summary:%{http_code}\\\\n\" \"http://localhost:8000/authoring/documents/knowledge/summary\" -H \"X-Course-Id: 2\")",
+      "Bash(curl -s -o /dev/null -w \"caption\\(no-file\\):%{http_code}\\\\n\" -X POST \"http://localhost:8000/authoring/documents/caption\" -H \"X-Course-Id: 2\")",
+      "Bash(curl -s -o /dev/null -w \"media\\(fake\\):%{http_code}\\\\n\" \"http://localhost:8000/authoring/documents/media/nope\" -H \"X-Course-Id: 2\")",
+      "Bash(./.venv/Scripts/python.exe -c \"import api.routes.chat, api.routes.documents, services.agent.retrieval; print\\('OK chat/documents/retrieval import'\\)\")",
+      "Bash(./.venv/Scripts/python.exe -c \"import services.agent.retrieval; print\\('retrieval OK'\\)\")",
+      "Bash(./.venv/Scripts/python.exe -c ' *)",
+      "Bash(./.venv/Scripts/python.exe -c \"import api.routes.chat, services.agent.retrieval; print\\('backend OK'\\)\")",
+      "Bash(curl -s \"http://localhost:8000/lessons/E2-L01/resources?course_id=2\")",
+      "Bash(curl -s \"http://localhost:8000/lessons/E2-L01/resources?course_id=Mi42YjU4ZDdhMDdkMjE%3D\")",
+      "Bash(./.venv/Scripts/python.exe -c \"import api.routes.course_documents as c; print\\('routes:', sorted\\({r.path for r in c.router.routes}\\)\\); print\\('OK'\\)\")",
+      "Bash(./.venv/Scripts/python.exe -c \"import api.routes.course_documents as c; print\\('routes:', [r.path for r in c.router.routes if 'knowledge' in r.path]\\); print\\('OK'\\)\")",
+      "Bash(python -m py_compile services/db_service.py ingest.py api/routes/lesson_resources.py api/routes/course_documents.py api/routes/documents.py api/routes/chat.py services/agent/retrieval.py scripts/phase1_backfill_scopes.py scripts/verify_phase1.py)",
+      "Bash(python -m scripts.verify_phase1)",
+      "Bash(python scripts/verify_phase1.py)",
+      "Bash(python scripts/phase1_backfill_scopes.py --dry-run)",
+      "Bash(python scripts/phase1_backfill_scopes.py)",
+      "Bash(curl -s -m 5 http://localhost:11434/api/tags)",
+      "Bash(echo \"EXIT=$?\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\([m['name'] for m in d.get\\('models',[]\\)]\\)\")",
+      "Bash(python scripts/verify_phase1.py --course 2)",
+      "Bash(python -c ' *)",
+      "Bash(python -m py_compile services/db_service.py api/routes/lesson_resources.py scripts/verify_lesson_upload.py)",
+      "Bash(python scripts/verify_lesson_upload.py)",
+      "Bash(python -m py_compile services/db_service.py ingest.py api/routes/lesson_resources.py api/routes/course_documents.py api/routes/documents.py)",
+      "Bash(python -m py_compile scripts/verify_phase2.py)",
+      "Bash(python scripts/verify_phase2.py)",
+      "Bash(npx vite *)",
+      "Bash(python -m py_compile services/db_service.py ingest.py api/routes/lesson_resources.py api/routes/course_documents.py api/routes/documents.py scripts/verify_phase2.py)",
+      "Bash(.venv/Scripts/python.exe scripts/measure_chunks.py)",
+      "Bash(.venv/Scripts/python.exe -c ' *)",
+      "Bash(./.venv/Scripts/python.exe scripts/phase0_snapshot.py tests/phase0_baseline.json)",
+      "Bash(./.venv/Scripts/python.exe -c \"import services.agent.graph as g, services.agent.vision as v; print\\('import OK'\\); print\\('RAG len', len\\(g.RAG_SYSTEM_PROMPT\\)\\); print\\('GREETINGS keys', list\\(g.GREETINGS\\)\\); print\\('VISION_CLASSIFY len', len\\(v.VISION_CLASSIFY_PROMPT\\)\\)\")",
+      "Bash(./.venv/Scripts/python.exe scripts/phase0_verify_pass1.py)",
+      "Bash(git -C /d/ESPE/MIC/ACTIVITIES/PROYECTO log --oneline -1 -- tesis-rag/services/agent/vision.py)",
+      "Bash(git -C /d/ESPE/MIC/ACTIVITIES/PROYECTO show HEAD:tesis-rag/services/agent/vision.py)",
+      "Bash(git -C /d/ESPE/MIC/ACTIVITIES/PROYECTO status --porcelain -- tesis-rag/services/agent/)",
+      "Bash(./.venv/Scripts/python.exe scripts/phase0_snapshot.py tests/phase0_after.json)",
+      "Bash(./.venv/Scripts/python.exe scripts/phase0_compare.py tests/phase0_baseline.json tests/phase0_after.json)",
+      "Bash(./.venv/Scripts/python.exe scripts/phase0_generate_pack.py)",
+      "Bash(./.venv/Scripts/python.exe -m pytest tests/test_domain_pack_phase0.py -q)",
+      "Bash(./.venv/Scripts/python.exe tests/test_domain_pack_phase0.py)"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Kenneth\\.claude\\projects\\D--ESPE-MIC-ACTIVITIES-PROYECTO\\memory"
+    ]
+  }
+}

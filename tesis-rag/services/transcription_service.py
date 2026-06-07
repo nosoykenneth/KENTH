@@ -66,7 +66,7 @@ def _set(lesson_id: str, **fields: Any) -> None:
         job.update(fields)
 
 
-def _run(lesson_id: str, video_path: str, language: str) -> None:
+def _run(lesson_id: str, video_path: str, language: str, course_id: str = "", axis_id: str = "") -> None:
     try:
         _set(lesson_id, status="running", progress=0.0, error="", segments=0)
         model = _load_model()
@@ -103,6 +103,14 @@ def _run(lesson_id: str, video_path: str, language: str) -> None:
                 _set(lesson_id, progress=progress, segments=len(collected))
 
         db_service.replace_transcript(lesson_id, collected)
+
+        # Indexar en RAG (no debe tumbar el job si falla).
+        try:
+            import ingest
+            ingest.index_lesson_transcript(course_id, lesson_id, collected, axis_id=axis_id)
+        except Exception as exc:  # pragma: no cover
+            print(f"[transcript-index] fallo indexando {lesson_id}: {exc}")
+
         _set(
             lesson_id,
             status="done",
@@ -114,7 +122,13 @@ def _run(lesson_id: str, video_path: str, language: str) -> None:
         _set(lesson_id, status="error", error=str(exc), finished_at=time.time())
 
 
-def start_transcription(lesson_id: str, video_path: str, language: str = "es") -> Dict[str, Any]:
+def start_transcription(
+    lesson_id: str,
+    video_path: str,
+    language: str = "es",
+    course_id: str = "",
+    axis_id: str = "",
+) -> Dict[str, Any]:
     """Arranca (o reusa) un job de transcripcion para una leccion."""
     with _jobs_lock:
         existing = _jobs.get(lesson_id)
@@ -131,7 +145,7 @@ def start_transcription(lesson_id: str, video_path: str, language: str = "es") -
 
     thread = threading.Thread(
         target=_run,
-        args=(lesson_id, video_path, language),
+        args=(lesson_id, video_path, language, course_id, axis_id),
         name=f"whisper-{lesson_id}",
         daemon=True,
     )

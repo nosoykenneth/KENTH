@@ -11,6 +11,7 @@ from services.db_service import (
     save_interaction_trace,
     ensure_chat_exists,
     resolve_course_numeric,
+    get_document,
 )
 import json
 import time
@@ -46,6 +47,69 @@ def _normalizar_historial(raw_historial, max_messages: int = 10):
         anterior = item
 
     return normalizado[-max_messages:]
+
+
+def _imagenes_desde_fuentes(fuentes, limite: int = 3):
+    """Extrae las imagenes (capturas que el profe subio) entre las fuentes usadas,
+    para que el tutor las MUESTRE en el chat. Devuelve URLs servibles por <img>."""
+    from urllib.parse import quote
+    imagenes = []
+    vistos = set()
+    for f in fuentes or []:
+        if not isinstance(f, dict):
+            continue
+        if f.get("media_type") != "image":
+            continue
+        # Visible=false e indexado=true: el tutor puede USAR el texto como conocimiento,
+        # pero NO debe mostrar/enlazar el archivo al alumno. Default permisivo solo para
+        # imagenes legacy sin el flag (canonicas de teoria).
+        if f.get("visible_to_student") is False:
+            continue
+        media_path = (f.get("media_path") or "").strip()
+        if not media_path or media_path in vistos:
+            continue
+        vistos.add(media_path)
+        imagenes.append({
+            "url": f"/api/ai/documents/media?path={quote(media_path)}",
+            "title": f.get("title") or f.get("resource_title") or f.get("filename") or "Captura",
+        })
+        if len(imagenes) >= limite:
+            break
+    return imagenes
+
+
+def _recursos_desde_fuentes(fuentes, course_id, limite: int = 4):
+    """Recursos descargables (audio/plantilla/binario) entre las fuentes usadas, para que el
+    tutor los OFREZCA como enlace. Solo los marcados visibles al alumno. Los chunks de estos
+    recursos llevan source='resource:<doc_id>' (index_resource_description)."""
+    recursos = []
+    vistos = set()
+    for f in fuentes or []:
+        if not isinstance(f, dict):
+            continue
+        if f.get("media_type") not in ("audio", "template", "file"):
+            continue
+        source = (f.get("source") or "")
+        if not source.startswith("resource:"):
+            continue
+        doc_id = source.split(":", 1)[1].strip()
+        if not doc_id or doc_id in vistos:
+            continue
+        vistos.add(doc_id)
+        try:
+            doc = get_document(doc_id, course_id)
+        except Exception:
+            doc = None
+        if not doc or not doc.get("visible_to_student"):
+            continue
+        recursos.append({
+            "url": f"/api/ai/lessons/resources/{doc_id}/file?course_id={doc.get('course_id', '') or course_id}",
+            "title": f.get("title") or doc.get("title") or doc.get("filename") or "Recurso",
+            "media_type": f.get("media_type"),
+        })
+        if len(recursos) >= limite:
+            break
+    return recursos
 
 
 @router.post("/chat")
@@ -111,9 +175,15 @@ def chat_endpoint(
     # contaminar la query vectorial. El bloque renderizado se inyecta
     # al prompt como CONTEXTO ACTIVO; el envelope completo viaja en el
     # estado por si nodos posteriores lo necesitan (recuperacion contextual).
+    raw_activity_context = consulta.activity_context
+    if raw_activity_context is None and consulta.lesson_id:
+        raw_activity_context = {"current_lesson_id": consulta.lesson_id}
+    elif isinstance(raw_activity_context, dict) and consulta.lesson_id and not raw_activity_context.get("current_lesson_id"):
+        raw_activity_context = {**raw_activity_context, "current_lesson_id": consulta.lesson_id}
+
     envelope = build_envelope(
         question=consulta.pregunta,
-        raw_activity_context=consulta.activity_context,
+        raw_activity_context=raw_activity_context,
         session_id=consulta.session_id,
         has_image=bool(consulta.imagen),
     )
@@ -137,6 +207,8 @@ def chat_endpoint(
     estado_inicial = {
         "pregunta": consulta.pregunta,
         "course_id": scoped_course_id,
+        "current_lesson_id": envelope.activity_context.current_lesson_id,
+        "current_axis_id": envelope.activity_context.current_axis,
         "contexto_leccion": contexto,
         "imagen": consulta.imagen,
         "ruta": ruta_forzada,
@@ -163,6 +235,8 @@ def chat_endpoint(
     respuesta = resultado["respuesta_final"]
 
     fuentes = resultado.get("evidencias", [])
+    imagenes = _imagenes_desde_fuentes(fuentes)
+    recursos = _recursos_desde_fuentes(fuentes, scoped_course_id)
     evidence_level = resultado.get("evidence_level", "")
     ruta = resultado.get("ruta", "")
     intent = resultado.get("intent", "")
@@ -225,6 +299,8 @@ def chat_endpoint(
 
     return {
         "respuesta": respuesta,
+        "imagenes": imagenes,
+        "recursos": recursos,
         "answer_type": answer_type,
         "intent": intent,
         "course_module": course_module,

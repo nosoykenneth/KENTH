@@ -6,6 +6,7 @@ import concurrent.futures
 
 from models.schemas import EstadoAgente
 from config import TEXT_MODEL, VISION_MODEL
+from services.domain import get_domain_pack
 from services.agent.prompts import _campos_pedagogicos, _prompt_por_intent
 from services.agent.routing import (
     _conceptos_relevantes_pregunta,
@@ -60,6 +61,265 @@ llm_vision = ChatOllama(model=VISION_MODEL, temperature=0.1)
 buscador_web = DuckDuckGoSearchRun()
 
 
+# ==========================================
+# PROMPTS DE NODO (DOMINIO) — Fase 0
+# ==========================================
+# La persona y los prompts de nodo viven en el Domain Pack (datos en
+# domain_packs/<course_id>.json), no aqui. _PACK resuelve el curso por defecto
+# para el piloto mono-curso; la resolucion por course_id en runtime es Fase 1.
+_PACK = get_domain_pack()
+
+RAG_SYSTEM_PROMPT = _PACK.node_prompt("rag_system")
+VISION_RAG_INTRO = _PACK.node_prompt("vision_rag_intro")
+VISION_RAG_RULES = _PACK.node_prompt("vision_rag_rules")
+LOST_INTRO = _PACK.node_prompt("lost_intro")
+LOST_RULES = _PACK.node_prompt("lost_rules")
+WEB_QUERY_SUFFIX = _PACK.node_prompt("web_query_suffix")
+WEB_INTRO = _PACK.node_prompt("web_intro")
+WEB_RULES = _PACK.node_prompt("web_rules")
+GUARD_REPLY = _PACK.node_prompt("guard_reply")
+GREETINGS = _PACK.greetings()
+
+
+def _bool_fuente(value):
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, (int, float)):
+        return bool(value)
+    if isinstance(value, str):
+        return value.strip().lower() in {"1", "true", "yes", "si", "sí"}
+    return bool(value)
+
+
+def _fuente_titulo(fuente: dict):
+    return (
+        fuente.get("title")
+        or fuente.get("resource_title")
+        or fuente.get("filename")
+        or "recurso"
+    )
+
+
+def _fuente_descripcion(fuente: dict):
+    return (
+        fuente.get("description")
+        or fuente.get("topic")
+        or fuente.get("lesson_title")
+        or ""
+    )
+
+
+def _fuente_contextual_suficiente(fuente: dict):
+    if not isinstance(fuente, dict):
+        return False
+    relation = fuente.get("context_relation")
+    if relation not in {"same_lesson", "same_axis"}:
+        return False
+    return bool(
+        _fuente_titulo(fuente)
+        and (
+            _fuente_descripcion(fuente)
+            or fuente.get("resource_type")
+            or fuente.get("media_type")
+        )
+    )
+
+
+def _fuente_es_recurso_descargable(fuente: dict):
+    return (fuente.get("media_type") or "") in {"audio", "template", "file"} or bool(fuente.get("source", "").startswith("resource:"))
+
+
+def _regla_resource_type(fuente: dict):
+    resource_type = (fuente.get("resource_type") or "").strip().lower()
+    media_type = (fuente.get("media_type") or "").strip().lower()
+    visible = fuente.get("visible_to_student") is True or _bool_fuente(fuente.get("visible_to_student"))
+    titulo = _fuente_titulo(fuente)
+    descripcion = _fuente_descripcion(fuente)
+
+    lineas = [
+        f"- Fuente {fuente.get('index')}: {titulo}",
+        f"  scope={fuente.get('scope') or ''}; relation={fuente.get('context_relation') or ''}; "
+        f"resource_type={resource_type or ''}; media_type={media_type or ''}; "
+        f"lesson_id={fuente.get('lesson_id') or ''}; axis_id={fuente.get('axis_id') or ''}.",
+    ]
+    if descripcion:
+        lineas.append(f"  descripcion usable: {descripcion}")
+
+    if resource_type == "daw_template" or media_type == "template":
+        lineas.append(
+            "  regla: tratalo como plantilla/proyecto DAW descargable para practicar; "
+            "no intentes leer ni interpretar el archivo binario. Usa titulo, descripcion y contexto de leccion."
+        )
+    elif resource_type == "audio_practice" or media_type == "audio":
+        lineas.append(
+            "  regla: explica para que practica auditiva sirve segun su descripcion; no finjas que escuchaste el audio."
+        )
+    elif resource_type in {"pdf_reading", "theory"} or media_type == "document":
+        lineas.append("  regla: usalo como apoyo conceptual o lectura de teoria.")
+    elif resource_type == "exercise":
+        lineas.append("  regla: explica que debe hacer el alumno y cual es el siguiente paso practico.")
+    elif resource_type in {"solution", "rubric"}:
+        lineas.append("  regla: usalo con cuidado como criterio interno; no reveles literalmente si no es visible.")
+
+    if _fuente_es_recurso_descargable(fuente):
+        if visible:
+            lineas.append("  visibilidad: puedes decir que el alumno puede abrirlo o descargarlo.")
+        else:
+            lineas.append("  visibilidad: NO ofrezcas descarga ni enlace; usalo solo como conocimiento textual.")
+    return "\n".join(lineas)
+
+
+def _bloque_uso_evidencia(fuentes: list, state: EstadoAgente):
+    fuentes = [f for f in fuentes or [] if isinstance(f, dict)]
+    top = fuentes[:4]
+    if not top:
+        return "", {
+            "downloadable_resource_rule": False,
+            "context_jump_rule": False,
+            "contextual_resource_sufficient": False,
+            "missing_evidence_rule": True,
+        }
+
+    contextual_sufficient = any(_fuente_contextual_suficiente(f) for f in top)
+    downloadable = any(_fuente_es_recurso_descargable(f) for f in top)
+    context_jump = any(f.get("context_relation") == "other_axis" for f in top)
+    weak_generic = not contextual_sufficient and all(
+        f.get("context_relation") in {"global", "unknown", ""} for f in top
+    )
+
+    lineas = [
+        "--- POLITICA DE USO DE EVIDENCIA CONTEXTUAL ---",
+        f"Curso actual: {state.get('course_id') or ''}.",
+        f"Eje actual: {state.get('current_axis_id') or ''}.",
+        f"Leccion actual: {state.get('current_lesson_id') or ''}.",
+        "Usa esta politica para decidir el tono de certeza y el tipo de respuesta.",
+    ]
+
+    if contextual_sufficient:
+        lineas.append(
+            "Hay evidencia contextual suficiente de la leccion/eje actual. "
+            "NO abras con 'no hay suficiente contexto/evidencia'. Responde directamente con lo que si se sabe; "
+            "si falta un detalle, cierra con una pregunta especifica."
+        )
+    elif weak_generic:
+        lineas.append(
+            "La evidencia es generica o debil. Si no alcanza, di que no ves ese recurso/concepto en la leccion o eje actual "
+            "y pide el nombre exacto o una coordenada concreta."
+        )
+
+    if context_jump:
+        lineas.append(
+            "Si usas una fuente marcada other_axis, indica brevemente el salto: pertenece mas a otro eje que al eje actual, "
+            "y responde como anticipo corto sin hacerlo pasar como parte de la leccion actual."
+        )
+
+    lineas.append("Reglas por fuente:")
+    lineas.extend(_regla_resource_type(f) for f in top)
+    lineas.append("------------------------\n")
+
+    flags = {
+        "downloadable_resource_rule": downloadable,
+        "context_jump_rule": context_jump,
+        "contextual_resource_sufficient": contextual_sufficient,
+        "missing_evidence_rule": weak_generic,
+    }
+    return "\n".join(lineas), flags
+
+
+def _respuesta_recurso_contextual_desde_metadata(pregunta: str, fuentes: list, state: EstadoAgente):
+    fuente = next((f for f in fuentes or [] if _fuente_contextual_suficiente(f)), None)
+    if not fuente:
+        return ""
+
+    resource_type = (fuente.get("resource_type") or "").strip().lower()
+    media_type = (fuente.get("media_type") or "").strip().lower()
+    titulo = _fuente_titulo(fuente)
+    descripcion = _fuente_descripcion(fuente)
+    relation = fuente.get("context_relation") or ""
+    visible = fuente.get("visible_to_student") is True or _bool_fuente(fuente.get("visible_to_student"))
+    lesson_id = fuente.get("lesson_id") or state.get("current_lesson_id") or "esta leccion"
+
+    if relation == "other_axis":
+        axis = fuente.get("axis_id") or "otro eje"
+        current_axis = state.get("current_axis_id") or "el eje actual"
+        return (
+            f"Eso pertenece mas a {axis}; ahora estas en {current_axis}. "
+            f"Con esa salvedad: {titulo} se debe leer segun su descripcion disponible: {descripcion or 'material recuperado del curso'}."
+        )
+
+    if resource_type == "daw_template" or media_type == "template":
+        base = (
+            f"{titulo} es una plantilla/proyecto DAW de {lesson_id}. "
+            "Te sirve como base de practica para trabajar sin armar la sesion desde cero. "
+            "No interpreto el archivo binario directamente; me baso en su descripcion y en el contexto de la leccion"
+        )
+        if descripcion:
+            base += f": {descripcion}."
+        else:
+            base += "."
+        if visible:
+            base += " Como esta visible para el alumno, puedes abrirla o descargarla desde el recurso."
+        return base
+
+    if resource_type == "audio_practice" or media_type == "audio":
+        base = (
+            f"{titulo} es un recurso de practica auditiva de {lesson_id}. "
+            "No puedo fingir que lo escuche; lo explico por su descripcion"
+        )
+        base += f": {descripcion}." if descripcion else "."
+        if visible:
+            base += " Si esta disponible en la interfaz, puedes abrirlo para escucharlo y comparar tus decisiones."
+        return base
+
+    if resource_type in {"solution", "rubric"} and not visible:
+        return (
+            f"Puedo usar {titulo} como criterio interno de apoyo, pero no debo revelarlo literalmente ni ofrecer descarga. "
+            f"Con lo recuperado, orienta la respuesta segun esta descripcion: {descripcion or 'criterio indexado del curso'}."
+        )
+
+    return (
+        f"{titulo} es material de apoyo de {lesson_id}. "
+        f"Segun la evidencia recuperada, sirve para: {descripcion or 'orientar la practica o el concepto consultado'}."
+    )
+
+
+def _respuesta_menciona_falta_evidencia(respuesta: str):
+    norm = _normalizar_texto(respuesta or "")
+    marcas = [
+        "no hay suficiente contexto",
+        "no tengo suficiente contexto",
+        "no hay suficiente evidencia",
+        "no tengo suficiente evidencia",
+        "no tengo evidencia suficiente",
+        "no hay respaldo suficiente",
+    ]
+    return any(marca in norm for marca in marcas)
+
+
+def _reparar_incertidumbre_recurso_contextual(respuesta: str, pregunta: str, fuentes: list, state: EstadoAgente):
+    if not _respuesta_menciona_falta_evidencia(respuesta):
+        return respuesta
+    reparada = _respuesta_recurso_contextual_desde_metadata(pregunta, fuentes, state)
+    if reparada:
+        print("[AGENTE RAG]: Reparando incertidumbre generica con metadata contextual suficiente.")
+        return reparada
+    return respuesta
+
+
+def _respuesta_sin_evidencia_contextual(state: EstadoAgente):
+    lesson = state.get("current_lesson_id") or ""
+    axis = state.get("current_axis_id") or ""
+    if lesson or axis:
+        scope = f" en {lesson}" if lesson else ""
+        if axis:
+            scope += f" del {axis}" if scope else f" en {axis}"
+        return (
+            f"No veo una fuente relevante{scope} para responder eso con seguridad. "
+            "Dame el nombre exacto del recurso o dime si quieres que busque fuera de la leccion actual."
+        )
+    return _respuesta_sin_evidencia(state)
+
+
 def nodo_rag(state: EstadoAgente):
 
     pregunta = state["pregunta"].strip()
@@ -92,23 +352,15 @@ def nodo_rag(state: EstadoAgente):
         if evidencias_imagen:
             print(f"[VISION+RAG]: Imagen AUDIO con {len(evidencias_imagen)} evidencias del curso.")
             teoria, fuentes = _construir_contexto_evidencia(evidencias_imagen)
-            best_score = evidencias_imagen[0]["score"]
+            best_score = evidencias_imagen[0].get("final_score", evidencias_imagen[0]["score"])
             evidence_level = "alto" if best_score >= 0.65 else "medio"
 
             instrucciones_vision = (
-                "Eres KENTH, ingeniero de mezcla profesional y tutor.\n"
-                "El alumno adjunto una imagen. Analizala cuidadosamente.\n\n"
-                f"{_prompt_por_intent('retroalimentacion_visual')}"
-                "REGLAS ESTRICTAS:\n"
-                "1. La imagen ya fue clasificada como relacionada con audio. Describe solo lo visible: interfaz, controles, medidores, forma de onda o plugin.\n"
-                "2. No infieras como suena. Una captura no permite saber si algo suena bien o mal.\n"
-                "3. Usa EVIDENCIA DEL CURSO solo si conecta claramente con lo visible. Si no conecta, no fuerces teoria.\n"
-                "4. NO des parametros exactos, valores en dB, presets ni diagnosticos auditivos sin audio.\n"
-                "5. Recomienda recursos, software o plugins solo si aparecen en la evidencia o en la pregunta.\n"
-                "6. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n"
-                "7. Si no estas seguro de lo que se ve, pide una aclaracion breve.\n\n"
-                f"--- EVIDENCIA DEL CURSO ---\n{teoria}\n------------------------\n"
-                f"Pregunta del alumno: {pregunta}"
+                VISION_RAG_INTRO
+                + f"{_prompt_por_intent('retroalimentacion_visual')}"
+                + VISION_RAG_RULES
+                + f"--- EVIDENCIA DEL CURSO ---\n{teoria}\n------------------------\n"
+                + f"Pregunta del alumno: {pregunta}"
             )
             mensaje = [HumanMessage(content=[
                 {"type": "text", "text": instrucciones_vision},
@@ -185,7 +437,7 @@ def nodo_rag(state: EstadoAgente):
         print("[AGENTE RAG]: Intencion lookup detectada. Priorizando metadatos concretos.")
         evidencias_lookup = _buscar_evidencia_lookup(query_retrieval, state=state)
         fuentes_lookup = [
-            _formatear_fuente(item["document"].metadata or {}, item["score"], index)
+            _formatear_fuente(item["document"].metadata or {}, item["score"], index, item)
             for index, item in enumerate(evidencias_lookup, start=1)
         ]
         return {
@@ -209,7 +461,7 @@ def nodo_rag(state: EstadoAgente):
     if not evidencias:
         print("[AGENTE RAG]: Evidencia insuficiente. Respuesta segura sin invencion.")
         return {
-            "respuesta_final": _respuesta_sin_evidencia(state),
+            "respuesta_final": _respuesta_sin_evidencia_contextual(state),
             "evidencias": [],
             "evidence_level": "bajo",
             **_campos_pedagogicos(
@@ -246,9 +498,11 @@ def nodo_rag(state: EstadoAgente):
 
     print(f"[AGENTE RAG]: Evidencias aceptadas: {len(evidencias)}")
 
-    evidencias_para_respuesta = _ordenar_para_respuesta_directa(evidencias, pregunta)
+    evidencias_para_respuesta = _ordenar_para_respuesta_directa(evidencias, pregunta, state)
     teoria, fuentes = _construir_contexto_evidencia(evidencias_para_respuesta)
-    best_score = evidencias[0]["score"]
+    politica_evidencia, evidence_policy_flags = _bloque_uso_evidencia(fuentes, state)
+    print("[EVIDENCE POLICY DEBUG]", evidence_policy_flags)
+    best_score = evidencias[0].get("final_score", evidencias[0]["score"])
     evidence_level = "alto" if best_score >= 0.65 else "medio"
 
     respuesta_controlada = _respuesta_conceptual_controlada(pregunta)
@@ -399,28 +653,13 @@ def nodo_rag(state: EstadoAgente):
     )
 
     instrucciones = (
-        "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\n"
-        "Tu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\n"
-        "Si la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\n"
-        "REGLAS ESTRICTAS:\n"
-        "1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n"
-        "2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n"
-        "3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n"
-        "4. Si respondes teoria, explica claro y directo.\n"
-        "5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n"
-        "6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen "
-        "literalmente en la evidencia o en la pregunta del alumno.\n"
-        "7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n"
-        "8. Nunca inventes URLs, modulos, ejes, recursos, DAWs, plugins, parametros ni valores en dB.\n"
-        "9. Si hay incertidumbre, pide una aclaracion breve.\n"
-        "10. Mantente conciso, profesional y pedagogico.\n\n"
-        "11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o eje "
-        "salvo que el alumno pregunte explicitamente donde revisar o pida fuentes. Esos datos ya viajan en el JSON.\n\n"
-        f"{_prompt_por_intent(intent_efectivo)}"
+        RAG_SYSTEM_PROMPT
+        + f"{_prompt_por_intent(intent_efectivo)}"
         f"{regla_curricular}"
         f"{regla_prioridad_piloto}"
         f"{contexto_actividad}"
         f"{regla_evidence_gate}"
+        f"{politica_evidencia}"
         f"--- EVIDENCIA DEL CURSO ---\n{teoria}\n------------------------\n"
         f"{contexto_actual}"
         f"{historial_formateado}"
@@ -435,6 +674,7 @@ def nodo_rag(state: EstadoAgente):
     print("[AGENTE RAG]: Generando respuesta de texto con evidencia del curso...")
     respuesta = llm_logico.invoke(instrucciones + "\nPregunta del alumno: " + pregunta).content
 
+    respuesta = _reparar_incertidumbre_recurso_contextual(respuesta, pregunta, fuentes, state)
     respuesta = _verificar_respuesta(respuesta, fuentes, evidencias)
     respuesta = _bloquear_localizacion_no_validada(respuesta, fuentes)
     respuesta = _recortar_relleno_sin_evidencia(respuesta)
@@ -443,6 +683,13 @@ def nodo_rag(state: EstadoAgente):
         respuesta = _limitar_anticipo_eje_posterior(respuesta, requested_axis)
 
     print("[AGENTE RAG]: Respuesta generada y verificada.")
+    policy_warnings = []
+    if evidence_policy_flags.get("context_jump_rule"):
+        policy_warnings.append(_warning("CONTEXT_JUMP", "La evidencia principal pertenece a otro eje."))
+    if evidence_policy_flags.get("downloadable_resource_rule"):
+        policy_warnings.append(_warning("DOWNLOADABLE_RESOURCE_POLICY", "Se activo politica de recurso descargable/media."))
+    if evidence_policy_flags.get("contextual_resource_sufficient"):
+        policy_warnings.append(_warning("CONTEXTUAL_RESOURCE_EVIDENCE", "Hay evidencia contextual suficiente de leccion/eje."))
     return {
         "respuesta_final": respuesta,
         "evidencias": fuentes,
@@ -455,6 +702,7 @@ def nodo_rag(state: EstadoAgente):
             warnings=(
                 ([_warning("FUTURE_AXIS_PREVIEW", f"La consulta apunta a Eje {requested_axis}, posterior al eje actual.")]
                  if future_axis_question else [])
+                + policy_warnings
                 + ([] if evidence_level == "alto" else [
                     _warning("LOW_EVIDENCE", "La evidencia recuperada tiene relevancia moderada.")
                 ])
@@ -479,7 +727,7 @@ def nodo_perdido(state: EstadoAgente):
     if evidencias:
         teoria, fuentes = _construir_contexto_evidencia(evidencias)
         evidencia_bloque = f"--- EVIDENCIA DEL CURSO ---\n{teoria}\n------------------------\n"
-        evidence_level = "alto" if evidencias[0]["score"] >= 0.65 else "medio"
+        evidence_level = "alto" if evidencias[0].get("final_score", evidencias[0]["score"]) >= 0.65 else "medio"
     else:
         fuentes = []
         evidencia_bloque = (
@@ -490,17 +738,11 @@ def nodo_perdido(state: EstadoAgente):
         evidence_level = "bajo"
 
     prompt = (
-        "Eres KENTH, tutor del curso de mezcla y masterizacion.\n"
-        "El alumno esta confundido o frustrado. Responde como guia pedagogico, no como enciclopedia.\n\n"
-        f"{_prompt_por_intent('estudiante_perdido')}"
-        "REGLAS:\n"
-        "1. Usa exactamente 4 bloques con estos titulos: Validacion, Explicacion simple, Siguiente paso, Pregunta de calibracion.\n"
-        "2. Se breve: 1 o 2 frases por bloque.\n"
-        "3. Recomienda recursos, software, plugins, DAWs o tecnicas especificas SOLO si aparecen literalmente en la evidencia o pregunta.\n"
-        "4. No menciones Ableton, Logic, Serum ni nombres propios si no aparecen en evidencia o pregunta.\n"
-        "5. Si no hay evidencia suficiente, guia el proceso sin inventar clase, recurso, timestamp ni parametro.\n\n"
-        f"{evidencia_bloque}"
-        f"Pregunta/frustracion del alumno: {pregunta}"
+        LOST_INTRO
+        + f"{_prompt_por_intent('estudiante_perdido')}"
+        + LOST_RULES
+        + f"{evidencia_bloque}"
+        + f"Pregunta/frustracion del alumno: {pregunta}"
     )
 
     respuesta = llm_logico.invoke(prompt).content
@@ -525,7 +767,7 @@ def nodo_web(state: EstadoAgente):
     """Busca en DuckDuckGo solo cuando el usuario fuerza modo internet."""
     print("[AGENTE WEB]: Conectando a internet...")
 
-    query_optimizada = state["pregunta"] + " plugins audio VST mezcla masterizacion"
+    query_optimizada = state["pregunta"] + WEB_QUERY_SUFFIX
     print(f"[AGENTE WEB]: Buscando en DuckDuckGo: {query_optimizada}")
 
     info_web = "No se pudo obtener informacion de internet a tiempo o hubo un error de red."
@@ -539,14 +781,11 @@ def nodo_web(state: EstadoAgente):
         print(f"[AGENTE WEB]: Error al conectar a internet: {e}")
 
     prompt = (
-        "Eres el asistente experto del curso de KENTH.\n"
-        "Estas en MODO INTERNET: la informacion externa NO reemplaza el material del curso.\n"
-        f"{_prompt_por_intent('consulta_externa')}"
-        "Usala solo para links, descargas, plugins o informacion externa solicitada.\n"
-        "No inventes enlaces y aclara cuando algo viene de informacion externa.\n"
-        "No sugieras software, plugins o recursos que no aparezcan en la pregunta o en la informacion web.\n\n"
-        f"--- INFO WEB ---\n{info_web}\n----------------\n"
-        f"Pregunta original del alumno: {state['pregunta']}"
+        WEB_INTRO
+        + f"{_prompt_por_intent('consulta_externa')}"
+        + WEB_RULES
+        + f"--- INFO WEB ---\n{info_web}\n----------------\n"
+        + f"Pregunta original del alumno: {state['pregunta']}"
     )
     respuesta = llm_logico.invoke(prompt).content
     fuente_externa = [{
@@ -588,10 +827,7 @@ def nodo_guardia(state: EstadoAgente):
     """Rechaza preguntas fuera del dominio del curso sin improvisar."""
     print("[GUARDIA]: Bloqueando pregunta fuera de dominio...")
     return {
-        "respuesta_final": (
-            "Solo puedo ayudarte con mezcla, masterizacion, audio, DAWs, plugins y contenido del curso. "
-            "Si tu duda esta relacionada con el curso, dime el eje, clase o concepto que quieres revisar."
-        ),
+        "respuesta_final": GUARD_REPLY,
         "evidencias": [],
         "evidence_level": "bajo",
         **_campos_pedagogicos(
@@ -614,13 +850,13 @@ def nodo_saludo(state: EstadoAgente):
     pregunta = state["pregunta"].lower()
 
     if "gracias" in pregunta:
-        respuesta = "De nada. Estoy aqui para ayudarte con mezcla, mastering y el material del curso. Que duda seguimos puliendo?"
+        respuesta = GREETINGS["thanks"]
     elif "ok" in pregunta or "vale" in pregunta or "perfecto" in pregunta or "entendido" in pregunta:
-        respuesta = "Excelente. Sigamos con el curso. Tienes alguna duda puntual de mezcla o masterizacion?"
+        respuesta = GREETINGS["ok"]
     elif "adios" in pregunta or "chao" in pregunta or "luego" in pregunta:
-        respuesta = "Hasta luego. Cuando vuelvas, puedo ayudarte a revisar conceptos, plugins o ejercicios del curso."
+        respuesta = GREETINGS["bye"]
     else:
-        respuesta = "Hola. Soy KENTH, tu tutor de mezcla y masterizacion. En que parte del curso necesitas ayuda?"
+        respuesta = GREETINGS["default"]
 
     return {
         "respuesta_final": respuesta,

@@ -55,6 +55,14 @@ export default function BlockTimeline({
 }) {
   const trackRef = useRef(null);
   const [drag, setDrag] = useState(null); // { idx, edge: 'start'|'end' }
+  const dragOriginRef = useRef(null); // snapshot de tiempos al iniciar el arrastre
+  const dragStateRef = useRef({ startX: 0, moved: false }); // para distinguir clic de arrastre
+
+  const beginDrag = (idx, edge, clientX = 0) => {
+    dragOriginRef.current = blocks.map((bb) => ({ s: Number(bb.start_time) || 0, e: Number(bb.end_time) || 0 }));
+    dragStateRef.current = { startX: clientX, moved: false };
+    setDrag({ idx, edge });
+  };
   const [hover, setHover] = useState(null); // { x, time }
   const [thumb, setThumb] = useState(''); // dataUrl
   const [hoverSeg, setHoverSeg] = useState(-1); // segmento de subtítulo bajo el cursor
@@ -76,29 +84,90 @@ export default function BlockTimeline({
     return ratio * duration;
   }, [duration, hasDuration]);
 
-  // ---- Drag de bordes ----
+  // ---- Drag de bordes: borde compartido. Al arrastrar, solo el bloque vecino
+  // inmediato se achica/crece (su borde lejano queda fijo); el resto no se mueve.
+  // Tope = borde lejano del vecino (≈ inicio del bloque siguiente a esos dos).
   useEffect(() => {
     if (!drag) return undefined;
+    const MIN = 1; // duración mínima de un bloque (s)
+    const orig = dragOriginRef.current;
+    if (!orig) return undefined;
+
     const onMove = (e) => {
       const t = timeFromClientX(e.clientX);
-      const b = blocks[drag.idx];
-      if (!b) return;
-      if (drag.edge === 'start') {
-        const end = Number(b.end_time) || duration;
-        onChangeBlockTime?.(drag.idx, { start_time: Math.min(Math.max(0, t), Math.max(0, end - 1)) });
+      const i = drag.idx;
+      const o = orig[i];
+      if (!o) return;
+      const trackW = trackRef.current?.clientWidth || 1;
+      const snap = duration > 0 ? (7 / trackW) * duration : 0.5; // imán ~7px
+
+      if (drag.edge === 'move') {
+        // Mover el bloque completo (conserva duración), topado entre el vecino
+        // izquierdo y el derecho. No empuja a nadie.
+        const dur = o.e - o.s;
+        const dx = e.clientX - dragStateRef.current.startX;
+        if (!dragStateRef.current.moved && Math.abs(dx) < 4) return; // umbral clic vs arrastre
+        dragStateRef.current.moved = true;
+        const deltaSec = duration > 0 ? (dx / trackW) * duration : 0;
+        const prev = orig[i - 1];
+        const next = orig[i + 1];
+        const lower = prev ? prev.e : 0;
+        const rightEdge = next ? next.s : duration;
+        const upper = rightEdge - dur;
+        let ns = Math.max(lower, Math.min(o.s + deltaSec, upper));
+        if (Math.abs(ns - lower) <= snap) ns = lower; // imán al vecino izquierdo
+        if (Math.abs((ns + dur) - rightEdge) <= snap) ns = rightEdge - dur; // imán al derecho
+        onChangeBlockTime?.(i, { start_time: ns, end_time: ns + dur });
+      } else if (drag.edge === 'end') {
+        const next = orig[i + 1];
+        let end = Math.max(t, o.s + MIN);
+        if (next) {
+          end = Math.min(end, next.e - MIN); // tope: borde lejano del vecino (≈ inicio del 3.º)
+          if (Math.abs(end - next.s) <= snap) end = next.s; // imán al punto de unión original
+          onChangeBlockTime?.(i, { end_time: end });
+          if (end > next.s) {
+            // Achicar el vecino desde la izquierda (su fin queda fijo).
+            onChangeBlockTime?.(i + 1, { start_time: end, end_time: next.e });
+          } else {
+            // Antes de unirse: vecino intacto (sin solape).
+            onChangeBlockTime?.(i + 1, { start_time: next.s, end_time: next.e });
+          }
+        } else {
+          onChangeBlockTime?.(i, { end_time: Math.min(end, duration) });
+        }
       } else {
-        const start = Number(b.start_time) || 0;
-        onChangeBlockTime?.(drag.idx, { end_time: Math.max(t, start + 1) });
+        const prev = orig[i - 1];
+        let start = Math.max(Math.min(t, o.e - MIN), 0);
+        if (prev) {
+          start = Math.max(start, prev.s + MIN); // tope: borde lejano del vecino
+          if (Math.abs(start - prev.e) <= snap) start = prev.e; // imán
+          onChangeBlockTime?.(i, { start_time: start });
+          if (start < prev.e) {
+            // Achicar el vecino desde la derecha (su inicio queda fijo).
+            onChangeBlockTime?.(i - 1, { start_time: prev.s, end_time: start });
+          } else {
+            onChangeBlockTime?.(i - 1, { start_time: prev.s, end_time: prev.e });
+          }
+        } else {
+          onChangeBlockTime?.(i, { start_time: start });
+        }
       }
     };
-    const onUp = () => setDrag(null);
+    const onUp = () => {
+      // Si fue un clic (no hubo arrastre real) sobre el cuerpo: seleccionar + ir.
+      if (drag.edge === 'move' && !dragStateRef.current.moved) {
+        onSelectBlock?.(drag.idx);
+        onSeek?.(orig[drag.idx]?.s || 0);
+      }
+      setDrag(null);
+    };
     window.addEventListener('mousemove', onMove);
     window.addEventListener('mouseup', onUp);
     return () => {
       window.removeEventListener('mousemove', onMove);
       window.removeEventListener('mouseup', onUp);
     };
-  }, [drag, blocks, duration, timeFromClientX, onChangeBlockTime]);
+  }, [drag, duration, timeFromClientX, onChangeBlockTime, onSelectBlock, onSeek]);
 
   // ---- Hover + miniatura (throttled) ----
   const handleTrackMove = (e) => {
@@ -191,9 +260,10 @@ export default function BlockTimeline({
             return (
               <div
                 key={b.block_id || idx}
-                onClick={(e) => { e.stopPropagation(); onSelectBlock?.(idx); onSeek?.(start); }}
+                onMouseDown={(e) => { e.stopPropagation(); beginDrag(idx, 'move', e.clientX); }}
+                onClick={(e) => e.stopPropagation()}
                 title={b.block_title || `Bloque ${idx + 1}`}
-                className={`absolute top-0 h-full border-l border-r ${color} transition-colors ${selected ? 'ring-2 ring-inset ring-white/80 z-10' : 'hover:brightness-125'}`}
+                className={`absolute top-0 h-full cursor-grab active:cursor-grabbing border-l border-r ${color} transition-colors ${selected ? 'ring-2 ring-inset ring-white/80 z-10' : 'hover:brightness-125'}`}
                 style={{ left: `${left}%`, width: `${width}%` }}
               >
                 <span className="absolute left-1 top-0.5 text-[9px] font-bold text-white/90 truncate max-w-full pr-1 pointer-events-none">
@@ -201,11 +271,11 @@ export default function BlockTimeline({
                 </span>
                 {/* Handles de borde */}
                 <div
-                  onMouseDown={(e) => { e.stopPropagation(); setDrag({ idx, edge: 'start' }); }}
+                  onMouseDown={(e) => { e.stopPropagation(); beginDrag(idx, 'start'); }}
                   className="absolute left-0 top-0 h-full w-1.5 -ml-0.5 cursor-ew-resize bg-white/0 hover:bg-white/60"
                 />
                 <div
-                  onMouseDown={(e) => { e.stopPropagation(); setDrag({ idx, edge: 'end' }); }}
+                  onMouseDown={(e) => { e.stopPropagation(); beginDrag(idx, 'end'); }}
                   className="absolute right-0 top-0 h-full w-1.5 -mr-0.5 cursor-ew-resize bg-white/0 hover:bg-white/60"
                 />
               </div>
