@@ -2,6 +2,10 @@
 @plugin "@tailwindcss/typography";
 
 :root {
+  /* Hace que los controles nativos (select desplegable, scrollbars, date pickers)
+     se rendericen en esquema oscuro. Sin esto, el popup de <option> sale claro y
+     el texto blanco del tema casi no se ve. */
+  color-scheme: dark;
   --kenth-bg: #1A1A1D;
   --kenth-surface: #4E4E50;
   --kenth-text-primary: #ffffff;
@@ -15,6 +19,7 @@
 }
 
 .light {
+  color-scheme: light;
   --kenth-bg: #F5F5F7;
   --kenth-surface: #D1D1D6;
   --kenth-text-primary: #1A1A1D;
@@ -47,6 +52,19 @@
 
   html {
     scroll-behavior: smooth;
+  }
+
+  /* Desplegables nativos con el estilo del tema. El popup de <option> ignora casi
+     todo el CSS del <select>, asi que hay que pintar la opcion directamente. Usa
+     las variables del tema => correcto en claro y oscuro. */
+  select option,
+  select optgroup {
+    background-color: var(--kenth-bg);
+    color: var(--kenth-text-primary);
+  }
+  select option:checked {
+    background-color: var(--kenth-brightred);
+    color: #ffffff;
   }
 
   body {

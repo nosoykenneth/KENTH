@@ -1,0 +1,26 @@
+{
+  "status": "ready_for_indexing",
+  "source_origin": "course",
+  "allowed_for_indexing": true,
+  "visible_to_student": true,
+  "doc_layer": "canonico",
+  "axis": "Eje 4",
+  "axis_id": "Eje 4",
+  "course_id": "2",
+  "lesson_id": "E4-L01",
+  "scope": "lesson",
+  "is_global": false,
+  "title": "E4-L01_guia_practica_Threshold_Ratio_Knee",
+  "description": "Guía de apoyo para configurar los primeros parámetros de un compresor, identificar cuándo entra la compresión y evitar decidir solo por los números del plugin.",
+  "concepts": [
+    "compresión",
+    "threshold",
+    "ratio",
+    "knee",
+    "reducción de ganancia",
+    "makeup gain",
+    "dinámica"
+  ],
+  "media_type": "document",
+  "resource_type": "theory"
+}

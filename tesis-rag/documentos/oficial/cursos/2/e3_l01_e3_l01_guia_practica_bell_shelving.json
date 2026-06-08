@@ -1,0 +1,27 @@
+{
+  "status": "ready_for_indexing",
+  "source_origin": "course",
+  "allowed_for_indexing": true,
+  "visible_to_student": true,
+  "doc_layer": "canonico",
+  "axis": "Eje 3",
+  "axis_id": "Eje 3",
+  "course_id": "2",
+  "lesson_id": "E3-L01",
+  "scope": "lesson",
+  "is_global": false,
+  "title": "E3-L01_guia_practica_Bell_Shelving",
+  "description": "Guía de apoyo para entender frecuencia, ganancia, Q, campanas de EQ y shelving, comparando intervenciones localizadas con cambios tonales amplios.",
+  "concepts": [
+    "EQ",
+    "bell",
+    "shelving",
+    "Q",
+    "frecuencia central",
+    "ganancia",
+    "presencia",
+    "brillo"
+  ],
+  "media_type": "document",
+  "resource_type": "theory"
+}

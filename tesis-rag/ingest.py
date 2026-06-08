@@ -3,6 +3,8 @@ import json
 import os
 import re
 
+import pdfplumber
+
 from langchain_chroma import Chroma
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
@@ -750,44 +752,147 @@ def _metadata_transcripcion(filepath: str, item: dict, chunk_index: int, parent_
 
 
 def _texto_chunk(page_content: str, metadata: dict) -> str:
-    partes = [
-        f"Tipo de documento: {metadata.get('doc_type', '')}",
-        f"Eje: {metadata.get('axis', '')}",
-        f"Capa: {metadata.get('layer', '')}",
-        f"Clase: {metadata.get('lesson_title', '')}",
-        f"Tema: {metadata.get('topic', '')}",
-        f"Objetivo: {metadata.get('learning_objective', '')}",
-        f"Recurso: {metadata.get('resource_title', '')}",
-        f"Tiempo: {metadata.get('start_time', '')}-{metadata.get('end_time', '')}",
-        "Contenido:",
-        page_content,
-    ]
-    return "\n".join(str(parte) for parte in partes if parte not in ("", None))
+    """Texto que se VECTORIZA. Estandar RAG: la metadata-maquina (doc_type, capa,
+    filename, etc.) vive en el dict de metadata (Chroma la guarda aparte para
+    filtrar/scope), NO embebida en el texto. Aqui solo va un prefijo de CONTEXTO
+    corto y con sentido (leccion/eje) + el contenido limpio. Esto evita ruido
+    repetido en cada chunk y mejora la discriminacion semantica."""
+    lesson = str(metadata.get("lesson_id") or "").strip()
+    axis = str(metadata.get("axis") or metadata.get("axis_id") or "").strip()
+    ctx = list(dict.fromkeys([v for v in (lesson, axis) if v]))  # dedup, preserva orden
+    prefix = f"[{' · '.join(ctx)}]\n" if ctx else ""
+    return f"{prefix}{(page_content or '').strip()}".strip()
 
 
-def _crear_chunks_pdf(filepath: str):
+_PDF_PAGE_ARTIFACT = re.compile(r"^\s*(p[áa]gina|page)\s*\d+\s*$", re.IGNORECASE)
+# Token de numeracion al final de una linea (footer tipo "Banner ... Página 1"):
+# se quita ANTES de detectar repetidos, asi el banner queda identico entre paginas.
+_PDF_PAGE_TOKEN = re.compile(r"\s*(p[áa]gina|page)\s*\d+\s*$", re.IGNORECASE)
+
+
+def _norm_pdf_line(s: str) -> str:
+    return _PDF_PAGE_TOKEN.sub("", (s or "").strip()).strip()
+
+
+def _tabla_a_markdown(rows) -> str:
+    """Convierte una tabla (lista de filas) a markdown, preservando la relacion
+    encabezado<->celda. Limpia None, saltos de linea internos y filas vacias."""
+    limpias = []
+    for r in rows or []:
+        celdas = [(c or "").strip().replace("\n", " ") for c in r]
+        if any(celdas):
+            limpias.append(celdas)
+    if not limpias:
+        return ""
+    ncol = max(len(r) for r in limpias)
+    limpias = [r + [""] * (ncol - len(r)) for r in limpias]
+    header = limpias[0]
+    out = ["| " + " | ".join(header) + " |",
+           "| " + " | ".join("---" for _ in header) + " |"]
+    for r in limpias[1:]:
+        out.append("| " + " | ".join(r) + " |")
+    return "\n".join(out)
+
+
+def _lineas_repetidas(textos_pagina) -> set:
+    """Detecta headers/footers: lineas cortas que se repiten en (casi) todas las
+    paginas. Estas son banner/titulo corrido/numeracion, no contenido."""
+    from collections import Counter
+    cont = Counter()
+    for t in textos_pagina:
+        for ln in {_norm_pdf_line(l) for l in (t or "").splitlines() if l.strip()}:
+            if ln:
+                cont[ln] += 1
+    n = len(textos_pagina)
+    umbral = 2 if n <= 2 else (n // 2 + 1)
+    return {ln for ln, c in cont.items() if c >= umbral and len(ln) < 120}
+
+
+def _crear_chunks_pdf_pypdf(filepath: str):
+    """Fallback: extraccion lineal con PyPDFLoader (comportamiento previo)."""
     loader = PyPDFLoader(filepath)
     documentos = loader.load()
-
     if not documentos:
         return []
-
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=PDF_CHUNK_SIZE,
-        chunk_overlap=PDF_CHUNK_OVERLAP,
-    )
-    chunks = []
-    chunk_index = 0
-
+    splitter = RecursiveCharacterTextSplitter(chunk_size=PDF_CHUNK_SIZE, chunk_overlap=PDF_CHUNK_OVERLAP)
+    chunks, chunk_index = [], 0
     for doc in documentos:
         page_raw = doc.metadata.get("page", "")
         page = page_raw + 1 if isinstance(page_raw, int) else page_raw
-        for text in text_splitter.split_text(doc.page_content or ""):
+        for text in splitter.split_text(doc.page_content or ""):
             metadata = _metadata_pdf(filepath, page, chunk_index)
             chunks.append(Document(page_content=_texto_chunk(text, metadata), metadata=metadata))
             chunk_index += 1
-
     return chunks
+
+
+def _crear_chunks_pdf(filepath: str):
+    """Extraccion limpia con pdfplumber: texto narrativo FUERA de las tablas +
+    tablas renderizadas como markdown (preserva encabezado<->celda) + strip de
+    headers/footers/numeracion de pagina. Si pdfplumber falla, cae a PyPDFLoader."""
+    splitter = RecursiveCharacterTextSplitter(chunk_size=PDF_CHUNK_SIZE, chunk_overlap=PDF_CHUNK_OVERLAP)
+    chunks, chunk_index = [], 0
+    try:
+        with pdfplumber.open(filepath) as pdf:
+            paginas = pdf.pages
+            crudos = [(p.extract_text() or "") for p in paginas]
+            repetidas = _lineas_repetidas(crudos)
+            for i, page in enumerate(paginas):
+                page_no = i + 1
+                tablas = page.find_tables() or []
+                bboxes = [t.bbox for t in tablas]
+
+                def _fuera_de_tabla(obj, _bboxes=bboxes):
+                    cx = (obj.get("x0", 0) + obj.get("x1", 0)) / 2
+                    cy = (obj.get("top", 0) + obj.get("bottom", 0)) / 2
+                    for (x0, top, x1, bottom) in _bboxes:
+                        if x0 <= cx <= x1 and top <= cy <= bottom:
+                            return False
+                    return True
+
+                if bboxes:
+                    try:
+                        narrativa = page.filter(_fuera_de_tabla).extract_text() or ""
+                    except Exception:
+                        narrativa = crudos[i]
+                else:
+                    narrativa = crudos[i]
+
+                lineas = []
+                for ln in narrativa.splitlines():
+                    s = ln.strip()
+                    if not s or _PDF_PAGE_ARTIFACT.match(s):
+                        continue
+                    s = _norm_pdf_line(s)  # quita "Página N" del footer "Banner ... Página 1"
+                    if not s or s in repetidas:
+                        continue
+                    lineas.append(s)
+                narrativa_limpia = "\n".join(lineas)
+
+                partes_tabla = []
+                for t in tablas:
+                    try:
+                        md = _tabla_a_markdown(t.extract())
+                    except Exception:
+                        md = ""
+                    if md:
+                        partes_tabla.append(md)
+
+                page_content = narrativa_limpia
+                if partes_tabla:
+                    page_content = (page_content + "\n\n" + "\n\n".join(partes_tabla)).strip()
+                if not page_content.strip():
+                    continue
+
+                for text in splitter.split_text(page_content):
+                    metadata = _metadata_pdf(filepath, page_no, chunk_index)
+                    chunks.append(Document(page_content=_texto_chunk(text, metadata), metadata=metadata))
+                    chunk_index += 1
+    except Exception as e:
+        print(f"[PDF] pdfplumber fallo en {filepath}: {e}. Fallback a PyPDFLoader.")
+        return _crear_chunks_pdf_pypdf(filepath)
+
+    return chunks if chunks else _crear_chunks_pdf_pypdf(filepath)
 
 
 def _crear_chunks_json(filepath: str):

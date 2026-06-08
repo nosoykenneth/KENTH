@@ -43,7 +43,16 @@
       "Bash(./.venv/Scripts/python.exe scripts/phase0_compare.py tests/phase0_baseline.json tests/phase0_after.json)",
       "Bash(./.venv/Scripts/python.exe scripts/phase0_generate_pack.py)",
       "Bash(./.venv/Scripts/python.exe -m pytest tests/test_domain_pack_phase0.py -q)",
-      "Bash(./.venv/Scripts/python.exe tests/test_domain_pack_phase0.py)"
+      "Bash(./.venv/Scripts/python.exe tests/test_domain_pack_phase0.py)",
+      "Bash(./.venv/Scripts/python.exe scripts/validate_pilot.py)",
+      "Bash(./.venv/Scripts/python.exe scripts/diag_transcript_encoding.py)",
+      "Bash(npx eslint *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(./.venv/Scripts/python.exe scripts/validate_pilot_final.py)",
+      "Bash(./.venv/Scripts/python.exe scripts/validate_pilot_hardening.py)",
+      "Bash(./.venv/Scripts/python.exe scripts/phase0_snapshot.py tests/phase0_after_vocab.json)",
+      "Bash(./.venv/Scripts/python.exe scripts/phase0_compare.py tests/phase0_baseline.json tests/phase0_after_vocab.json)",
+      "Bash(./.venv/Scripts/python.exe -m pip install pdfplumber)"
     ],
     "additionalDirectories": [
       "C:\\Users\\Kenneth\\.claude\\projects\\D--ESPE-MIC-ACTIVITIES-PROYECTO\\memory"

@@ -575,7 +575,14 @@
       "dither",
       "true peak",
       "plr",
-      "solo"
+      "solo",
+      "shelf",
+      "high shelf",
+      "low shelf",
+      "knee",
+      "soft knee",
+      "hard knee",
+      "makeup"
     ],
     "domain_hint_terms": [
       "audio",
@@ -670,7 +677,14 @@
       "falso estereo",
       "solo",
       "hpf",
-      "lpf"
+      "lpf",
+      "shelf",
+      "high shelf",
+      "low shelf",
+      "knee",
+      "soft knee",
+      "hard knee",
+      "makeup"
     ],
     "lookup_stopwords": [
       "ahi",

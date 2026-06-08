@@ -1,0 +1,26 @@
+{
+  "status": "ready_for_indexing",
+  "source_origin": "course",
+  "allowed_for_indexing": true,
+  "visible_to_student": true,
+  "doc_layer": "canonico",
+  "axis": "Eje 2",
+  "axis_id": "Eje 2",
+  "course_id": "2",
+  "lesson_id": "E2-L01",
+  "scope": "lesson",
+  "is_global": false,
+  "title": "E2-L01_guia_practica_HPF_LPF",
+  "description": "Guía de apoyo para decidir cuándo aplicar HPF o LPF, cómo elegir el punto de corte, cómo revisar en solo y en mezcla, y qué errores evitar al filtrar por costumbre.",
+  "concepts": [
+    "HPF",
+    "LPF",
+    "frecuencia de corte",
+    "pendiente",
+    "filtrado",
+    "limpieza",
+    "mezcla en contexto"
+  ],
+  "media_type": "document",
+  "resource_type": "theory"
+}

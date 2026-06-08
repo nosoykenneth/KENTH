@@ -1,0 +1,16 @@
+
+======================================================================
+RESUMEN POR CATEGORIA
+======================================================================
+  A: 10 casos | errores(500/excepcion)=0
+  B: 14 casos | errores(500/excepcion)=0
+  C: 7 casos | errores(500/excepcion)=0
+  D: 6 casos | errores(500/excepcion)=0
+  E: 4 casos | errores(500/excepcion)=0
+  F: 15 casos | errores(500/excepcion)=0
+  G: 16 casos | errores(500/excepcion)=0
+  H: 8 casos | errores(500/excepcion)=0
+  I: 6 casos | errores(500/excepcion)=0
+  J: 5 casos | errores(500/excepcion)=0
+
+TOTAL casos=91 | con error=0

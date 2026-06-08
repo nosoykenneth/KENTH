@@ -22,14 +22,40 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
  *   - requestThumbnail(seconds) => Promise<dataUrl>
  */
 
+// Color del bloque por su modo pedagogico (interaction_mode), agrupado por FAMILIA
+// para que los modos reales del profe no caigan todos al rojo por defecto.
+// Solo afecta el color de la timeline (frontend). No toca BD, backend, enum ni RAG.
+const FAMILY = {
+  indigo: 'bg-indigo-500/40 border-indigo-400/70',
+  emerald: 'bg-emerald-500/40 border-emerald-400/70',
+  rose: 'bg-rose-500/40 border-rose-400/70',
+  amber: 'bg-amber-500/40 border-amber-400/70',
+  sky: 'bg-sky-500/40 border-sky-400/70',
+};
 const MODE_COLORS = {
-  navegacion_de_recurso: 'bg-sky-500/40 border-sky-400/70',
-  criterio_operativo: 'bg-amber-500/40 border-amber-400/70',
-  practica: 'bg-emerald-500/40 border-emerald-400/70',
-  teoria: 'bg-indigo-500/40 border-indigo-400/70',
-  troubleshooting: 'bg-rose-500/40 border-rose-400/70',
+  // indigo — teoria
+  teoria: FAMILY.indigo,
+  teoria_aplicada: FAMILY.indigo,
+  // verde — practica
+  practica: FAMILY.emerald,
+  demostracion_practica: FAMILY.emerald,
+  // rosa — diagnostico / troubleshooting
+  diagnostico_guiado: FAMILY.rose,
+  troubleshooting: FAMILY.rose,
+  verificacion: FAMILY.rose,
+  // ambar — criterio
+  criterio_operativo: FAMILY.amber,
+  criterio_de_decision: FAMILY.amber,
+  // azul cielo — navegacion / apertura / cierre
+  navegacion_de_recurso: FAMILY.sky,
+  orientacion_inicial: FAMILY.sky,
+  cierre_reflexivo: FAMILY.sky,
+  comparacion_contextual: FAMILY.sky,
 };
 const DEFAULT_COLOR = 'bg-kenth-brightred/40 border-kenth-brightred/70';
+
+// Resuelve el color tolerando mayusculas/espacios; cualquier modo no listado -> rojo.
+const colorForMode = (mode) => MODE_COLORS[(mode || '').trim().toLowerCase()] || DEFAULT_COLOR;
 
 export function fmtTime(s) {
   if (!Number.isFinite(s) || s < 0) return '0:00';
@@ -256,7 +282,7 @@ export default function BlockTimeline({
             const left = pct(start);
             const width = Math.max(0.5, pct(end) - left);
             const selected = idx === selectedIndex;
-            const color = MODE_COLORS[b.interaction_mode] || DEFAULT_COLOR;
+            const color = colorForMode(b.interaction_mode);
             return (
               <div
                 key={b.block_id || idx}
