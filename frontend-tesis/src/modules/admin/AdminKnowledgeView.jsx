@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { getDocuments, uploadDocument, deleteDocument, indexKnowledgeBase, rebuildKnowledgeBase } from '../../shared/services/ragService';
-import { showNotification } from '../../shared/components/ui/Notification';
+import { showNotification } from '../../shared/utils/notify';
 import PageContainer from '../../shared/components/layout/PageContainer';
 
 export default function AdminKnowledgeView() {

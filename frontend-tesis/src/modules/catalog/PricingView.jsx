@@ -64,7 +64,7 @@ export default function PricingView() {
                  <p className="text-kenth-subtext font-bold uppercase tracking-widest text-xs">No hay planes configurados.</p>
                </div>
             ) : (
-              courses.map((curso, idx) => {
+              courses.map((curso) => {
                 const hasOffer = curso.commercial?.offer_price > 0 && curso.commercial?.offer_price < curso.commercial?.price;
                 const finalPrice = hasOffer ? curso.commercial.offer_price : curso.commercial?.price;
 

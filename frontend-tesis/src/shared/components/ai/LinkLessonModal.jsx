@@ -5,7 +5,7 @@ import {
   getResourceLink,
   upsertResourceLink,
   deleteResourceLink,
-} from '../../services/axesService';
+} from '../../services/sectionsService';
 
 /**
  * Modal de vinculación recurso Moodle <-> lección formal del curso.
@@ -15,7 +15,7 @@ import {
  *   - courseId:  id del curso (para hidratar el campo course_id del vinculo).
  *   - onClose(refresh: boolean): cierra el modal. refresh=true si hubo cambio.
  */
-export default function LinkLessonModal({ resource, courseId, onClose }) {
+export default function LinkLessonModal({ resource, courseId, sectionContext = null, onClose }) {
   const [lessons, setLessons] = useState([]);
   const [details, setDetails] = useState({}); // lesson_id -> manifest detail
   const [currentLink, setCurrentLink] = useState(null);
@@ -64,6 +64,7 @@ export default function LinkLessonModal({ resource, courseId, onClose }) {
       await upsertResourceLink(resource.id, {
         lesson_id: selectedId,
         course_id: String(courseId || ''),
+        moodle_section_id: sectionContext?.moodle_section_id || details[selectedId]?.moodle_section_id || '',
         resource_type: resource.modname === 'hvp' || resource.modname === 'h5pactivity'
           ? 'web_page'
           : (resource.modname || ''),
@@ -128,7 +129,8 @@ export default function LinkLessonModal({ resource, courseId, onClose }) {
         {currentLink && (
           <div className="mb-3 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-300">
             Vinculado actualmente a <strong>{currentLink.lesson_id}</strong>
-            {currentLink.axis_id ? ` (${currentLink.axis_id})` : ''}.
+            {currentLink.moodle_section_id ? ` (sección ${currentLink.moodle_section_id})` : ''}.
+            {currentLink.moodle_section_id ? ` SecciÃ³n Moodle: ${currentLink.moodle_section_id}.` : ''}
           </div>
         )}
 
@@ -165,7 +167,7 @@ export default function LinkLessonModal({ resource, courseId, onClose }) {
                       {p.lesson_id} - {p.lesson_title}
                     </span>
                     <span className="text-[10px] uppercase tracking-widest text-kenth-subtext">
-                      {p.axis_id}
+                      {p.moodle_section_id ? `Sección ${p.moodle_section_id}` : ''}
                     </span>
                     {det?.learning_goal && (
                       <span className="text-xs text-kenth-subtext mt-1 line-clamp-3">

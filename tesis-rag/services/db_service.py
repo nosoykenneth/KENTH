@@ -208,7 +208,7 @@ def _bool(value: bool) -> int:
 # Estados de indexacion de un documento/recurso.
 INDEX_STATUS = {"pending", "indexed", "failed", "stale"}
 # Niveles de alcance de un documento/recurso.
-DOC_SCOPES = {"global", "course", "axis", "lesson"}
+DOC_SCOPES = {"global", "course", "section", "axis", "lesson"}
 # resource_type = USO pedagogico (distinto de media_type = formato tecnico).
 RESOURCE_TYPES = {
     "theory", "transcription", "script", "canonical_content", "clean_package",
@@ -240,13 +240,15 @@ def derive_scope(
     axis_id: str = "",
     lesson_id: str = "",
     is_global: bool = False,
+    moodle_section_id: str = "",
 ) -> str:
     """Deriva el scope canonico a partir de los campos presentes.
 
     Reglas (ver auditoria Fase 1):
       - global : is_global=1 (o, en backfill, sin course/axis/lesson).
-      - lesson : course_id + axis_id + lesson_id.
-      - axis   : course_id + axis_id (sin lesson_id).
+      - lesson : course_id + lesson_id.
+      - section: course_id + moodle_section_id (sin lesson_id).
+      - axis   : legacy course_id + axis_id (sin lesson_id).
       - course : course_id (sin axis/lesson).
     NO infiere global solo por course_id vacio: eso lo decide is_global.
     """
@@ -255,12 +257,15 @@ def derive_scope(
     cid = str(course_id or "").strip()
     aid = str(axis_id or "").strip()
     lid = str(lesson_id or "").strip()
-    if not cid and not aid and not lid:
+    sid = str(moodle_section_id or "").strip()
+    if not cid and not aid and not lid and not sid:
         # Sin ninguna coordenada y sin is_global explicito: tratado como
         # global SOLO en backfill de datos legacy (course_id="" historico).
         return "global"
     if lid:
         return "lesson"
+    if sid:
+        return "section"
     if aid:
         return "axis"
     return "course"
@@ -271,6 +276,7 @@ def validate_scope(
     scope: str = "",
     course_id: str = "",
     axis_id: str = "",
+    moodle_section_id: str = "",
     lesson_id: str = "",
     is_global: bool = False,
 ):
@@ -281,8 +287,9 @@ def validate_scope(
     """
     cid = str(course_id or "").strip()
     aid = str(axis_id or "").strip()
+    sid = str(moodle_section_id or "").strip()
     lid = str(lesson_id or "").strip()
-    sc = (scope or "").strip().lower() or derive_scope(cid, aid, lid, is_global)
+    sc = (scope or "").strip().lower() or derive_scope(cid, aid, lid, is_global, sid)
     if sc not in DOC_SCOPES:
         raise ValueError(f"scope invalido: '{scope}'. Use uno de {sorted(DOC_SCOPES)}.")
 
@@ -299,15 +306,22 @@ def validate_scope(
         if lid:
             raise ValueError("scope='course' no debe llevar lesson_id.")
         return "course", False
+    if sc == "section":
+        if not sid:
+            raise ValueError("scope='section' requiere moodle_section_id.")
+        if lid:
+            raise ValueError("scope='section' no debe llevar lesson_id.")
+        return "section", False
     if sc == "axis":
+        # Compatibilidad de lectura/escritura legacy. El flujo nuevo debe usar section.
         if not aid:
             raise ValueError("scope='axis' requiere axis_id.")
         if lid:
             raise ValueError("scope='axis' no debe llevar lesson_id.")
         return "axis", False
     # sc == "lesson"
-    if not (aid and lid):
-        raise ValueError("scope='lesson' requiere axis_id y lesson_id.")
+    if not lid:
+        raise ValueError("scope='lesson' requiere lesson_id.")
     return "lesson", False
 
 
@@ -452,28 +466,31 @@ def _init_mysql(conn) -> None:
             lesson_id VARCHAR(64) PRIMARY KEY,
             course_id VARCHAR(64) NOT NULL DEFAULT '',
             axis_id VARCHAR(32) NOT NULL DEFAULT '',
+            moodle_section_id VARCHAR(64) NOT NULL DEFAULT '',
             title VARCHAR(255) NOT NULL DEFAULT '',
             lesson_order INT NOT NULL DEFAULT 0,
             learning_goal TEXT NULL,
             expected_action TEXT NULL,
-            source_script_file VARCHAR(512) NOT NULL DEFAULT '',
             is_pilot TINYINT(1) NOT NULL DEFAULT 0,
             learning_goals_json LONGTEXT NULL,
-            expected_actions_json LONGTEXT NULL,
             resources_json LONGTEXT NULL,
             prerequisites_json LONGTEXT NULL,
+            delegated_to_tutor_json LONGTEXT NULL,
+            attribution_constraints_json LONGTEXT NULL,
             notes LONGTEXT NULL,
             metadata_json LONGTEXT NULL,
             timecreated BIGINT NOT NULL,
             timemodified BIGINT NOT NULL,
             KEY idx_axis (axis_id),
             KEY idx_course (course_id),
+            KEY idx_lesson_course_section (course_id, moodle_section_id),
             KEY idx_pilot (is_pilot)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """,
         f"""
         CREATE TABLE IF NOT EXISTS {blocks} (
             block_id VARCHAR(96) PRIMARY KEY,
+            course_id VARCHAR(64) NOT NULL DEFAULT '',
             lesson_id VARCHAR(64) NOT NULL,
             block_order INT NOT NULL DEFAULT 0,
             start_time DOUBLE NULL,
@@ -488,7 +505,8 @@ def _init_mysql(conn) -> None:
             timecreated BIGINT NOT NULL,
             timemodified BIGINT NOT NULL,
             UNIQUE KEY uq_lesson_order (lesson_id, block_order),
-            KEY idx_lesson_time (lesson_id, start_time, end_time)
+            KEY idx_lesson_time (lesson_id, start_time, end_time),
+            KEY idx_block_course_lesson (course_id, lesson_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """,
         f"""
@@ -496,6 +514,7 @@ def _init_mysql(conn) -> None:
             resource_id VARCHAR(96) PRIMARY KEY,
             course_id VARCHAR(64) NOT NULL DEFAULT '',
             axis_id VARCHAR(32) NOT NULL DEFAULT '',
+            moodle_section_id VARCHAR(64) NOT NULL DEFAULT '',
             lesson_id VARCHAR(64) NOT NULL DEFAULT '',
             resource_type VARCHAR(64) NOT NULL DEFAULT 'lesson_note',
             resource_subtype VARCHAR(64) NOT NULL DEFAULT '',
@@ -509,7 +528,8 @@ def _init_mysql(conn) -> None:
             timecreated BIGINT NOT NULL,
             timemodified BIGINT NOT NULL,
             KEY idx_resource_lesson (lesson_id),
-            KEY idx_resource_course (course_id)
+            KEY idx_resource_course (course_id),
+            KEY idx_resource_course_section (course_id, moodle_section_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """,
         f"""
@@ -518,17 +538,21 @@ def _init_mysql(conn) -> None:
             course_id VARCHAR(64) NOT NULL DEFAULT '',
             lesson_id VARCHAR(64) NOT NULL,
             axis_id VARCHAR(32) NOT NULL DEFAULT '',
+            moodle_section_id VARCHAR(64) NOT NULL DEFAULT '',
             resource_type VARCHAR(64) NOT NULL DEFAULT '',
             resource_subtype VARCHAR(64) NOT NULL DEFAULT '',
             timecreated BIGINT NOT NULL,
             timemodified BIGINT NOT NULL,
             KEY idx_link_course (course_id),
-            KEY idx_link_lesson (lesson_id)
+            KEY idx_link_lesson (lesson_id),
+            KEY idx_link_course_section (course_id, moodle_section_id),
+            KEY idx_link_resource_course (resource_id, course_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """,
         f"""
         CREATE TABLE IF NOT EXISTS {prompts} (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            course_id VARCHAR(64) NOT NULL DEFAULT '',
             lesson_id VARCHAR(64) NOT NULL,
             prompt_type VARCHAR(32) NOT NULL,
             prompt_order INT NOT NULL DEFAULT 0,
@@ -536,7 +560,8 @@ def _init_mysql(conn) -> None:
             timecreated BIGINT NOT NULL,
             timemodified BIGINT NOT NULL,
             UNIQUE KEY uq_prompt (lesson_id, prompt_type, prompt_order),
-            KEY idx_prompt_lesson (lesson_id)
+            KEY idx_prompt_lesson (lesson_id),
+            KEY idx_prompt_course_lesson (course_id, lesson_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """,
         f"""
@@ -620,6 +645,7 @@ def _init_mysql(conn) -> None:
             doc_id VARCHAR(96) NOT NULL,
             course_id VARCHAR(64) NOT NULL DEFAULT '',
             axis_id VARCHAR(32) NOT NULL DEFAULT '',
+            moodle_section_id VARCHAR(64) NOT NULL DEFAULT '',
             lesson_id VARCHAR(64) NOT NULL DEFAULT '',
             title VARCHAR(255) NOT NULL DEFAULT '',
             doc_layer VARCHAR(32) NOT NULL DEFAULT 'canonico',
@@ -645,6 +671,7 @@ def _init_mysql(conn) -> None:
             timemodified BIGINT NOT NULL,
             UNIQUE KEY uq_document (course_id, doc_id),
             KEY idx_doc_course (course_id),
+            KEY idx_doc_course_section (course_id, moodle_section_id),
             KEY idx_doc_status (status),
             KEY idx_doc_scope (scope),
             KEY idx_doc_lesson (lesson_id)
@@ -653,6 +680,7 @@ def _init_mysql(conn) -> None:
         f"""
         CREATE TABLE IF NOT EXISTS {transcripts} (
             id BIGINT AUTO_INCREMENT PRIMARY KEY,
+            course_id VARCHAR(64) NOT NULL DEFAULT '',
             lesson_id VARCHAR(64) NOT NULL,
             seq INT NOT NULL DEFAULT 0,
             start_time DOUBLE NULL,
@@ -662,7 +690,8 @@ def _init_mysql(conn) -> None:
             timecreated BIGINT NOT NULL,
             timemodified BIGINT NOT NULL,
             UNIQUE KEY uq_transcript_seq (lesson_id, seq),
-            KEY idx_transcript_lesson (lesson_id)
+            KEY idx_transcript_lesson (lesson_id),
+            KEY idx_transcript_course_lesson (course_id, lesson_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
         """,
     ]
@@ -670,6 +699,8 @@ def _init_mysql(conn) -> None:
         _execute(conn, statement)
 
     _ensure_documents_columns(conn, mysql=True)
+    _ensure_moodle_section_columns(conn, mysql=True)
+    _ensure_phase_a_schema(conn, mysql=True)
 
 
 def _ensure_documents_columns(conn, mysql: bool) -> None:
@@ -715,6 +746,172 @@ def _ensure_documents_columns(conn, mysql: bool) -> None:
                 _log("MIGRATE_FAIL", table=table, column=col, error=str(e))
 
 
+def _ensure_moodle_section_columns(conn, mysql: bool) -> None:
+    """Fase 1: agrega moodle_section_id sin tocar axis_id ni tablas legacy."""
+    specs = {
+        "lessons": {
+            "column": "moodle_section_id",
+            "ddl": "VARCHAR(64) NOT NULL DEFAULT ''" if mysql else "TEXT DEFAULT ''",
+            "indexes": [
+                ("idx_lesson_course_section", ("course_id", "moodle_section_id")),
+            ],
+        },
+        "resource_lesson_links": {
+            "column": "moodle_section_id",
+            "ddl": "VARCHAR(64) NOT NULL DEFAULT ''" if mysql else "TEXT DEFAULT ''",
+            "indexes": [
+                ("idx_link_course_section", ("course_id", "moodle_section_id")),
+                ("idx_link_resource_course", ("resource_id", "course_id")),
+            ],
+        },
+        "course_resources": {
+            "column": "moodle_section_id",
+            "ddl": "VARCHAR(64) NOT NULL DEFAULT ''" if mysql else "TEXT DEFAULT ''",
+            "indexes": [
+                ("idx_resource_course_section", ("course_id", "moodle_section_id")),
+            ],
+        },
+        "documents": {
+            "column": "moodle_section_id",
+            "ddl": "VARCHAR(64) NOT NULL DEFAULT ''" if mysql else "TEXT DEFAULT ''",
+            "indexes": [
+                ("idx_doc_course_section", ("course_id", "moodle_section_id")),
+            ],
+        },
+    }
+
+    for logical, spec in specs.items():
+        table = table_name(logical)
+        col = spec["column"]
+        try:
+            if mysql:
+                existentes = {
+                    r.get("COLUMN_NAME") or r.get("column_name")
+                    for r in _fetchall(
+                        conn,
+                        "SELECT COLUMN_NAME FROM information_schema.COLUMNS "
+                        "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s",
+                        (table,),
+                    )
+                }
+            else:
+                existentes = {r.get("name") for r in _fetchall(conn, f"PRAGMA table_info({table})")}
+        except Exception as e:
+            _log("MIGRATE_SKIP", table=table, error=str(e))
+            continue
+
+        if col not in existentes:
+            try:
+                _execute(conn, f"ALTER TABLE {table} ADD COLUMN {col} {spec['ddl']}")
+                _log("MIGRATE", table=table, added=col)
+            except Exception as e:
+                _log("MIGRATE_FAIL", table=table, column=col, error=str(e))
+
+        for index_name, columns in spec["indexes"]:
+            cols_sql = ", ".join(columns)
+            try:
+                if mysql:
+                    exists = _fetchone(
+                        conn,
+                        "SELECT INDEX_NAME FROM information_schema.STATISTICS "
+                        "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND INDEX_NAME = %s",
+                        (table, index_name),
+                    )
+                    if not exists:
+                        _execute(conn, f"CREATE INDEX {index_name} ON {table} ({cols_sql})")
+                else:
+                    _execute(conn, f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} ({cols_sql})")
+            except Exception as e:
+                _log("MIGRATE_INDEX_FAIL", table=table, index=index_name, error=str(e))
+
+
+def _existing_columns(conn, table: str, mysql: bool) -> set:
+    if mysql:
+        return {
+            r.get("COLUMN_NAME") or r.get("column_name")
+            for r in _fetchall(
+                conn,
+                "SELECT COLUMN_NAME FROM information_schema.COLUMNS "
+                "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s",
+                (table,),
+            )
+        }
+    return {r.get("name") for r in _fetchall(conn, f"PRAGMA table_info({table})")}
+
+
+def _ensure_phase_a_schema(conn, mysql: bool) -> None:
+    """Fase A del editor de leccion (idempotente, espejo de upgrade.php 2026061100):
+
+    - lessons: + delegated_to_tutor_json / attribution_constraints_json,
+      - source_script_file / expected_actions_json (deprecados, sin datos que conservar).
+    - lesson_blocks / lesson_prompts / transcript_segments: + course_id denormalizado
+      desde la leccion padre + indice (course_id, lesson_id).
+    """
+    lessons = table_name("lessons")
+    json_ddl = "LONGTEXT NULL" if mysql else "TEXT"
+    try:
+        cols = _existing_columns(conn, lessons, mysql)
+    except Exception as e:
+        _log("MIGRATE_SKIP", table=lessons, error=str(e))
+        return
+
+    for col in ("delegated_to_tutor_json", "attribution_constraints_json"):
+        if col not in cols:
+            try:
+                _execute(conn, f"ALTER TABLE {lessons} ADD COLUMN {col} {json_ddl}")
+                _log("MIGRATE", table=lessons, added=col)
+            except Exception as e:
+                _log("MIGRATE_FAIL", table=lessons, column=col, error=str(e))
+
+    for col in ("source_script_file", "expected_actions_json"):
+        if col in cols:
+            try:
+                _execute(conn, f"ALTER TABLE {lessons} DROP COLUMN {col}")
+                _log("MIGRATE", table=lessons, dropped=col)
+            except Exception as e:
+                _log("MIGRATE_FAIL", table=lessons, column=col, error=str(e))
+
+    children = {
+        "lesson_blocks": "idx_block_course_lesson",
+        "lesson_prompts": "idx_prompt_course_lesson",
+        "transcript_segments": "idx_transcript_course_lesson",
+    }
+    course_ddl = "VARCHAR(64) NOT NULL DEFAULT ''" if mysql else "TEXT DEFAULT ''"
+    for logical, index_name in children.items():
+        table = table_name(logical)
+        try:
+            child_cols = _existing_columns(conn, table, mysql)
+        except Exception as e:
+            _log("MIGRATE_SKIP", table=table, error=str(e))
+            continue
+        if "course_id" not in child_cols:
+            try:
+                _execute(conn, f"ALTER TABLE {table} ADD COLUMN course_id {course_ddl}")
+                # Backfill desde la leccion padre.
+                _execute(
+                    conn,
+                    f"UPDATE {table} SET course_id = COALESCE("
+                    f"(SELECT l.course_id FROM {lessons} l WHERE l.lesson_id = {table}.lesson_id), '')",
+                )
+                _log("MIGRATE", table=table, added="course_id", backfilled=True)
+            except Exception as e:
+                _log("MIGRATE_FAIL", table=table, column="course_id", error=str(e))
+        try:
+            if mysql:
+                exists = _fetchone(
+                    conn,
+                    "SELECT INDEX_NAME FROM information_schema.STATISTICS "
+                    "WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = %s AND INDEX_NAME = %s",
+                    (table, index_name),
+                )
+                if not exists:
+                    _execute(conn, f"CREATE INDEX {index_name} ON {table} (course_id, lesson_id)")
+            else:
+                _execute(conn, f"CREATE INDEX IF NOT EXISTS {index_name} ON {table} (course_id, lesson_id)")
+        except Exception as e:
+            _log("MIGRATE_INDEX_FAIL", table=table, index=index_name, error=str(e))
+
+
 def _init_sqlite(conn) -> None:
     names = {
         "lessons": table_name("lessons"),
@@ -733,28 +930,32 @@ def _init_sqlite(conn) -> None:
     }
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['lessons']} (
         lesson_id TEXT PRIMARY KEY, course_id TEXT DEFAULT '', axis_id TEXT DEFAULT '',
+        moodle_section_id TEXT DEFAULT '',
         title TEXT DEFAULT '', lesson_order INTEGER DEFAULT 0, learning_goal TEXT,
-        expected_action TEXT, source_script_file TEXT DEFAULT '', is_pilot INTEGER DEFAULT 0,
-        learning_goals_json TEXT, expected_actions_json TEXT, resources_json TEXT,
-        prerequisites_json TEXT, notes TEXT, metadata_json TEXT,
+        expected_action TEXT, is_pilot INTEGER DEFAULT 0,
+        learning_goals_json TEXT, resources_json TEXT,
+        prerequisites_json TEXT, delegated_to_tutor_json TEXT, attribution_constraints_json TEXT,
+        notes TEXT, metadata_json TEXT,
         timecreated INTEGER, timemodified INTEGER)""")
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['blocks']} (
-        block_id TEXT PRIMARY KEY, lesson_id TEXT, block_order INTEGER DEFAULT 0,
+        block_id TEXT PRIMARY KEY, course_id TEXT DEFAULT '', lesson_id TEXT, block_order INTEGER DEFAULT 0,
         start_time REAL, end_time REAL, block_title TEXT DEFAULT '', summary TEXT,
         interaction_mode TEXT DEFAULT '', tutor_focus TEXT, concepts_json TEXT,
         preguntas_probables_json TEXT, metadata_json TEXT, timecreated INTEGER, timemodified INTEGER)""")
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['resources']} (
         resource_id TEXT PRIMARY KEY, course_id TEXT DEFAULT '', axis_id TEXT DEFAULT '',
+        moodle_section_id TEXT DEFAULT '',
         lesson_id TEXT DEFAULT '', resource_type TEXT DEFAULT 'lesson_note', resource_subtype TEXT DEFAULT '',
         title TEXT DEFAULT '', source_uri TEXT DEFAULT '', duration_seconds INTEGER,
         page_count INTEGER, language TEXT DEFAULT 'es', tags_json TEXT, metadata_json TEXT,
         timecreated INTEGER, timemodified INTEGER)""")
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['links']} (
         resource_id TEXT PRIMARY KEY, course_id TEXT DEFAULT '', lesson_id TEXT,
-        axis_id TEXT DEFAULT '', resource_type TEXT DEFAULT '', resource_subtype TEXT DEFAULT '',
+        axis_id TEXT DEFAULT '', moodle_section_id TEXT DEFAULT '',
+        resource_type TEXT DEFAULT '', resource_subtype TEXT DEFAULT '',
         timecreated INTEGER, timemodified INTEGER)""")
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['prompts']} (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, lesson_id TEXT, prompt_type TEXT,
+        id INTEGER PRIMARY KEY AUTOINCREMENT, course_id TEXT DEFAULT '', lesson_id TEXT, prompt_type TEXT,
         prompt_order INTEGER DEFAULT 0, prompt_text TEXT, timecreated INTEGER, timemodified INTEGER,
         UNIQUE(lesson_id, prompt_type, prompt_order))""")
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['sessions']} (
@@ -781,7 +982,8 @@ def _init_sqlite(conn) -> None:
         UNIQUE(course_id, axis_id))""")
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['documents']} (
         id INTEGER PRIMARY KEY AUTOINCREMENT, doc_id TEXT, course_id TEXT DEFAULT '',
-        axis_id TEXT DEFAULT '', lesson_id TEXT DEFAULT '', title TEXT DEFAULT '', doc_layer TEXT DEFAULT 'canonico',
+        axis_id TEXT DEFAULT '', moodle_section_id TEXT DEFAULT '',
+        lesson_id TEXT DEFAULT '', title TEXT DEFAULT '', doc_layer TEXT DEFAULT 'canonico',
         doc_type TEXT DEFAULT '', filename TEXT DEFAULT '', relpath TEXT DEFAULT '',
         attribution_required INTEGER DEFAULT 0, allowed_for_indexing INTEGER DEFAULT 1,
         visible_to_student INTEGER DEFAULT 0, media_type TEXT DEFAULT '',
@@ -792,11 +994,13 @@ def _init_sqlite(conn) -> None:
         uploaded_by TEXT DEFAULT '', notes TEXT, metadata_json TEXT,
         timecreated INTEGER, timemodified INTEGER, UNIQUE(course_id, doc_id))""")
     _execute(conn, f"""CREATE TABLE IF NOT EXISTS {names['transcripts']} (
-        id INTEGER PRIMARY KEY AUTOINCREMENT, lesson_id TEXT, seq INTEGER DEFAULT 0,
+        id INTEGER PRIMARY KEY AUTOINCREMENT, course_id TEXT DEFAULT '', lesson_id TEXT, seq INTEGER DEFAULT 0,
         start_time REAL, end_time REAL, text TEXT, speaker TEXT DEFAULT '',
         timecreated INTEGER, timemodified INTEGER, UNIQUE(lesson_id, seq))""")
 
     _ensure_documents_columns(conn, mysql=False)
+    _ensure_moodle_section_columns(conn, mysql=False)
+    _ensure_phase_a_schema(conn, mysql=False)
 
 
 def _ts() -> int:
@@ -804,125 +1008,21 @@ def _ts() -> int:
 
 
 # ==========================================
-# EJES (axes) - estructura del curso en BD
-# ==========================================
-
-def _normalize_axis(row: Dict[str, Any]) -> Dict[str, Any]:
-    return {
-        "course_id": row.get("course_id", "") or "",
-        "axis_id": row.get("axis_id", "") or "",
-        "axis_number": row.get("axis_number", 0) or 0,
-        "axis_slug": row.get("axis_slug", "") or "",
-        "axis_title": row.get("title", "") or "",
-        "title": row.get("title", "") or "",
-        "pedagogical_role": row.get("pedagogical_role", "") or "",
-        "doc_root": row.get("doc_root", "") or "",
-        "status": row.get("status", "") or "",
-        "axis_order": row.get("axis_order", 0) or 0,
-        "metadata": _json_load(row.get("metadata_json"), {}),
-    }
-
-
-def upsert_axis(
-    *,
-    axis_id: str,
-    course_id: str = "",
-    axis_number: int = 0,
-    axis_slug: str = "",
-    title: str = "",
-    pedagogical_role: str = "",
-    doc_root: str = "",
-    status: str = "",
-    axis_order: int = 0,
-    metadata: Optional[Dict[str, Any]] = None,
-) -> None:
-    init_db()
-    t = _ts()
-    name = table_name("axes")
-    with get_connection() as conn:
-        if using_moodle_db():
-            sql = f"""INSERT INTO {name}
-                (course_id, axis_id, axis_number, axis_slug, title, pedagogical_role, doc_root,
-                 status, axis_order, metadata_json, timecreated, timemodified)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                ON DUPLICATE KEY UPDATE axis_number=VALUES(axis_number), axis_slug=VALUES(axis_slug),
-                title=VALUES(title), pedagogical_role=VALUES(pedagogical_role), doc_root=VALUES(doc_root),
-                status=VALUES(status), axis_order=VALUES(axis_order), metadata_json=VALUES(metadata_json),
-                timemodified=VALUES(timemodified)"""
-        else:
-            sql = f"""INSERT INTO {name}
-                (course_id, axis_id, axis_number, axis_slug, title, pedagogical_role, doc_root,
-                 status, axis_order, metadata_json, timecreated, timemodified)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
-                ON CONFLICT(course_id, axis_id) DO UPDATE SET axis_number=excluded.axis_number,
-                axis_slug=excluded.axis_slug, title=excluded.title,
-                pedagogical_role=excluded.pedagogical_role, doc_root=excluded.doc_root,
-                status=excluded.status, axis_order=excluded.axis_order,
-                metadata_json=excluded.metadata_json, timemodified=excluded.timemodified"""
-        _execute(conn, sql, (
-            course_id, axis_id, int(axis_number or 0), axis_slug, title, pedagogical_role,
-            doc_root, status, int(axis_order or 0), _json_dump(metadata or {}), t, t,
-        ))
-    _log_write("axes", id=axis_id, course_id=course_id)
-
-
-def list_axes(course_id: Optional[str] = None) -> List[Dict[str, Any]]:
-    init_db()
-    sql = f"SELECT * FROM {table_name('axes')}"
-    params: List[Any] = []
-    if course_id:
-        variants = _course_id_variants(course_id)
-        placeholders = ",".join([_q()] * len(variants))
-        sql += f" WHERE course_id IN ({placeholders})"
-        params.extend(variants)
-    sql += " ORDER BY axis_order, axis_number, axis_id"
-    with get_connection() as conn:
-        rows = _fetchall(conn, sql, params)
-    _log_read("axes", len(rows), filter=f"course_id:{course_id}" if course_id else "all")
-    return [_normalize_axis(row) for row in rows]
-
-
-def get_axis(axis_id: str, course_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
-    init_db()
-    sql = f"SELECT * FROM {table_name('axes')} WHERE axis_id={_q()}"
-    params: List[Any] = [axis_id]
-    if course_id:
-        variants = _course_id_variants(course_id)
-        placeholders = ",".join([_q()] * len(variants))
-        sql += f" AND course_id IN ({placeholders})"
-        params.extend(variants)
-    with get_connection() as conn:
-        row = _fetchone(conn, sql, params)
-    _log_read("axes", 1 if row else 0, filter=f"axis_id:{axis_id}")
-    return _normalize_axis(row) if row else None
-
-
-def delete_axis(axis_id: str, course_id: Optional[str] = None) -> bool:
-    init_db()
-    sql = f"DELETE FROM {table_name('axes')} WHERE axis_id={_q()}"
-    params: List[Any] = [axis_id]
-    if course_id:
-        sql += f" AND course_id={_q()}"
-        params.append(str(course_id))
-    with get_connection() as conn:
-        existing = _fetchone(conn, f"SELECT axis_id FROM {table_name('axes')} WHERE axis_id={_q()}", (axis_id,))
-        _execute(conn, sql, params)
-    _log_write("axes", id=axis_id, deleted=True)
-    return bool(existing)
-
-
-# ==========================================
 # DELETES de lecciones / bloques / prompts / recursos
 # ==========================================
 
 def delete_lesson(lesson_id: str) -> bool:
-    """Borra una lección y, en cascada lógica, sus bloques y prompts."""
+    """Borra una lección y, en cascada lógica, todo lo que cuelga de ella:
+    bloques, prompts, transcripción y el vínculo recurso↔lección. Así no
+    quedan lecciones/vínculos fantasma cuando se elimina un video."""
     init_db()
     with get_connection() as conn:
         existing = _fetchone(conn, f"SELECT lesson_id FROM {table_name('lessons')} WHERE lesson_id={_q()}", (lesson_id,))
         _execute(conn, f"DELETE FROM {table_name('lessons')} WHERE lesson_id={_q()}", (lesson_id,))
         _execute(conn, f"DELETE FROM {table_name('lesson_blocks')} WHERE lesson_id={_q()}", (lesson_id,))
         _execute(conn, f"DELETE FROM {table_name('lesson_prompts')} WHERE lesson_id={_q()}", (lesson_id,))
+        _execute(conn, f"DELETE FROM {table_name('transcript_segments')} WHERE lesson_id={_q()}", (lesson_id,))
+        _execute(conn, f"DELETE FROM {table_name('resource_lesson_links')} WHERE lesson_id={_q()}", (lesson_id,))
     _log_write("lessons", id=lesson_id, deleted=True)
     return bool(existing)
 
@@ -934,6 +1034,18 @@ def delete_lesson_block(block_id: str) -> bool:
         _execute(conn, f"DELETE FROM {table_name('lesson_blocks')} WHERE block_id={_q()}", (block_id,))
     _log_write("lesson_blocks", id=block_id, deleted=True)
     return bool(existing)
+
+
+def _lesson_course_id(lesson_id: str) -> str:
+    """course_id de la leccion padre, para denormalizarlo en tablas hijas."""
+    init_db()
+    with get_connection() as conn:
+        row = _fetchone(
+            conn,
+            f"SELECT course_id FROM {table_name('lessons')} WHERE lesson_id={_q()}",
+            (lesson_id,),
+        )
+    return str((row or {}).get("course_id") or "")
 
 
 # ==========================================
@@ -970,16 +1082,18 @@ def replace_transcript(lesson_id: str, segments: List[Dict[str, Any]]) -> int:
     """
     init_db()
     t = _ts()
+    course_id = _lesson_course_id(lesson_id)
     name = table_name("transcript_segments")
     with get_connection() as conn:
         _execute(conn, f"DELETE FROM {name} WHERE lesson_id={_q()}", (lesson_id,))
         for idx, seg in enumerate(segments or []):
-            cols = "(lesson_id, seq, start_time, end_time, text, speaker, timecreated, timemodified)"
-            placeholders = "(%s,%s,%s,%s,%s,%s,%s,%s)" if using_moodle_db() else "(?,?,?,?,?,?,?,?)"
+            cols = "(course_id, lesson_id, seq, start_time, end_time, text, speaker, timecreated, timemodified)"
+            placeholders = "(%s,%s,%s,%s,%s,%s,%s,%s,%s)" if using_moodle_db() else "(?,?,?,?,?,?,?,?,?)"
             _execute(
                 conn,
                 f"INSERT INTO {name} {cols} VALUES {placeholders}",
                 (
+                    course_id,
                     lesson_id,
                     int(seg.get("seq", idx)),
                     seg.get("start_time"),
@@ -1054,12 +1168,14 @@ def replace_lesson_blocks(lesson_id: str, blocks: List[Dict[str, Any]]) -> int:
     array define block_order.
     """
     init_db()
+    course_id = _lesson_course_id(lesson_id)
     with get_connection() as conn:
         _execute(conn, f"DELETE FROM {table_name('lesson_blocks')} WHERE lesson_id={_q()}", (lesson_id,))
     for idx, block in enumerate(blocks or []):
         upsert_lesson_block(
             block_id=block.get("block_id") or f"{lesson_id}-B{idx + 1}",
             lesson_id=lesson_id,
+            course_id=course_id,
             block_order=block.get("block_order", idx),
             start_time=block.get("start_time"),
             end_time=block.get("end_time"),
@@ -1095,12 +1211,13 @@ def set_lesson_prompts(
     suggested_prompts: Optional[List[str]] = None,
 ) -> None:
     """Reemplaza por completo los prompts de una lección."""
+    course_id = _lesson_course_id(lesson_id)
     delete_lesson_prompts(lesson_id)
     if proactive_message:
-        upsert_lesson_prompt(lesson_id, "proactive", proactive_message, 0)
+        upsert_lesson_prompt(lesson_id, "proactive", proactive_message, 0, course_id=course_id)
     for order, text in enumerate(suggested_prompts or []):
         if text:
-            upsert_lesson_prompt(lesson_id, "suggested", text, order)
+            upsert_lesson_prompt(lesson_id, "suggested", text, order, course_id=course_id)
 
 
 def delete_resource(resource_id: str) -> bool:
@@ -1121,6 +1238,7 @@ def _normalize_document(row: Dict[str, Any]) -> Dict[str, Any]:
         "doc_id": row.get("doc_id", "") or "",
         "course_id": row.get("course_id", "") or "",
         "axis_id": row.get("axis_id", "") or "",
+        "moodle_section_id": row.get("moodle_section_id", "") or "",
         "lesson_id": row.get("lesson_id", "") or "",
         "title": row.get("title", "") or "",
         "doc_layer": row.get("doc_layer", "canonico") or "canonico",
@@ -1137,7 +1255,7 @@ def _normalize_document(row: Dict[str, Any]) -> Dict[str, Any]:
         ),
         "scope": row.get("scope", "") or derive_scope(
             row.get("course_id", ""), row.get("axis_id", ""), row.get("lesson_id", ""),
-            bool(row.get("is_global")),
+            bool(row.get("is_global")), row.get("moodle_section_id", ""),
         ),
         "is_global": bool(row.get("is_global")),
         "index_status": row.get("index_status", "") or "pending",
@@ -1157,6 +1275,7 @@ def upsert_document(
     doc_id: str,
     course_id: str = "",
     axis_id: str = "",
+    moodle_section_id: str = "",
     lesson_id: str = "",
     title: str = "",
     doc_layer: str = "canonico",
@@ -1180,6 +1299,7 @@ def upsert_document(
     metadata: Optional[Dict[str, Any]] = None,
 ) -> None:
     init_db()
+    axis_id = ""
     t = _ts()
     name = table_name("documents")
     # Scope explicito + auto-reparacion de coherencia. El scope declarado nunca
@@ -1187,7 +1307,7 @@ def upsert_document(
     # (caso del bug: un INSERT que hereda el DEFAULT 'course' de la columna pese a
     # traer lesson_id). is_global solo es valido con scope='global'.
     scope = (scope or "").strip().lower()
-    derived = derive_scope(course_id, axis_id, lesson_id, is_global)
+    derived = derive_scope(course_id, axis_id, lesson_id, is_global, moodle_section_id)
     if not scope:
         scope = derived
     if scope == "global":
@@ -1199,9 +1319,9 @@ def upsert_document(
         if str(lesson_id or "").strip() and scope != "lesson":
             _log("SCOPE_REPAIR", doc_id=doc_id, declared=scope, repaired="lesson", lesson_id=lesson_id)
             scope = "lesson"
-        elif str(axis_id or "").strip() and not str(lesson_id or "").strip() and scope == "course":
-            _log("SCOPE_REPAIR", doc_id=doc_id, declared=scope, repaired="axis", axis_id=axis_id)
-            scope = "axis"
+        elif str(moodle_section_id or "").strip() and not str(lesson_id or "").strip() and scope == "course":
+            _log("SCOPE_REPAIR", doc_id=doc_id, declared=scope, repaired="section", moodle_section_id=moodle_section_id)
+            scope = "section"
     if index_status not in INDEX_STATUS:
         index_status = "pending"
     # resource_type: si no viene o es invalido, se deriva del formato tecnico.
@@ -1211,12 +1331,13 @@ def upsert_document(
     with get_connection() as conn:
         if using_moodle_db():
             sql = f"""INSERT INTO {name}
-                (doc_id, course_id, axis_id, lesson_id, title, doc_layer, doc_type, filename, relpath,
+                (doc_id, course_id, axis_id, moodle_section_id, lesson_id, title, doc_layer, doc_type, filename, relpath,
                  attribution_required, allowed_for_indexing, visible_to_student, media_type, resource_type,
                  scope, is_global, index_status, chunk_count, ownership, source_uri, status,
                  uploaded_by, notes, metadata_json, timecreated, timemodified)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                ON DUPLICATE KEY UPDATE axis_id=VALUES(axis_id), lesson_id=VALUES(lesson_id), title=VALUES(title),
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                ON DUPLICATE KEY UPDATE axis_id=VALUES(axis_id), moodle_section_id=VALUES(moodle_section_id),
+                lesson_id=VALUES(lesson_id), title=VALUES(title),
                 doc_layer=VALUES(doc_layer), doc_type=VALUES(doc_type), filename=VALUES(filename),
                 relpath=VALUES(relpath), attribution_required=VALUES(attribution_required),
                 allowed_for_indexing=VALUES(allowed_for_indexing), visible_to_student=VALUES(visible_to_student),
@@ -1227,12 +1348,13 @@ def upsert_document(
                 notes=VALUES(notes), metadata_json=VALUES(metadata_json), timemodified=VALUES(timemodified)"""
         else:
             sql = f"""INSERT INTO {name}
-                (doc_id, course_id, axis_id, lesson_id, title, doc_layer, doc_type, filename, relpath,
+                (doc_id, course_id, axis_id, moodle_section_id, lesson_id, title, doc_layer, doc_type, filename, relpath,
                  attribution_required, allowed_for_indexing, visible_to_student, media_type, resource_type,
                  scope, is_global, index_status, chunk_count, ownership, source_uri, status,
                  uploaded_by, notes, metadata_json, timecreated, timemodified)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(course_id, doc_id) DO UPDATE SET axis_id=excluded.axis_id,
+                moodle_section_id=excluded.moodle_section_id,
                 lesson_id=excluded.lesson_id,
                 title=excluded.title, doc_layer=excluded.doc_layer, doc_type=excluded.doc_type,
                 filename=excluded.filename, relpath=excluded.relpath,
@@ -1244,7 +1366,7 @@ def upsert_document(
                 source_uri=excluded.source_uri, status=excluded.status, uploaded_by=excluded.uploaded_by,
                 notes=excluded.notes, metadata_json=excluded.metadata_json, timemodified=excluded.timemodified"""
         _execute(conn, sql, (
-            doc_id, course_id, axis_id, lesson_id, title, doc_layer, doc_type, filename, relpath,
+            doc_id, course_id, axis_id, moodle_section_id, lesson_id, title, doc_layer, doc_type, filename, relpath,
             _bool(attribution_required), _bool(allowed_for_indexing), _bool(visible_to_student),
             media_type, resource_type, scope, _bool(is_global), index_status, int(chunk_count or 0),
             ownership, source_uri, status, uploaded_by, notes, _json_dump(metadata or {}), t, t,
@@ -1362,7 +1484,7 @@ def list_documents(
         clauses.append("visible_to_student=1")
     if clauses:
         sql += " WHERE " + " AND ".join(clauses)
-    sql += " ORDER BY axis_id, doc_id"
+    sql += " ORDER BY moodle_section_id, doc_id"
     with get_connection() as conn:
         rows = _fetchall(conn, sql, params)
     _log_read("documents", len(rows), filter=f"course_id:{course_id}")
@@ -1475,47 +1597,55 @@ def upsert_lesson(
     lesson_id: str,
     course_id: str = "",
     axis_id: str = "",
+    moodle_section_id: str = "",
     title: str = "",
     order: int = 0,
     learning_goal: str = "",
     expected_action: str = "",
-    source_script_file: str = "",
     is_pilot: bool = False,
     learning_goals: Optional[List[str]] = None,
-    expected_actions: Optional[List[str]] = None,
     resources: Optional[List[str]] = None,
     prerequisites: Optional[List[str]] = None,
+    delegated_to_tutor: Optional[List[str]] = None,
+    attribution_constraints: Optional[List[str]] = None,
     notes: str = "",
     metadata: Optional[Dict[str, Any]] = None,
 ) -> None:
     init_db()
+    axis_id = ""
     t = _ts()
     with get_connection() as conn:
         name = table_name("lessons")
         if using_moodle_db():
             sql = f"""INSERT INTO {name}
-                (lesson_id, course_id, axis_id, title, lesson_order, learning_goal, expected_action,
-                 source_script_file, is_pilot, learning_goals_json, expected_actions_json,
-                 resources_json, prerequisites_json, notes, metadata_json, timecreated, timemodified)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                (lesson_id, course_id, axis_id, moodle_section_id, title, lesson_order, learning_goal, expected_action,
+                 is_pilot, learning_goals_json, resources_json, prerequisites_json,
+                 delegated_to_tutor_json, attribution_constraints_json,
+                 notes, metadata_json, timecreated, timemodified)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON DUPLICATE KEY UPDATE course_id=VALUES(course_id), axis_id=VALUES(axis_id),
-                title=VALUES(title), lesson_order=VALUES(lesson_order), learning_goal=VALUES(learning_goal),
-                expected_action=VALUES(expected_action), source_script_file=VALUES(source_script_file),
+                moodle_section_id=VALUES(moodle_section_id), title=VALUES(title),
+                lesson_order=VALUES(lesson_order), learning_goal=VALUES(learning_goal),
+                expected_action=VALUES(expected_action),
                 is_pilot=VALUES(is_pilot), learning_goals_json=VALUES(learning_goals_json),
-                expected_actions_json=VALUES(expected_actions_json), resources_json=VALUES(resources_json),
-                prerequisites_json=VALUES(prerequisites_json), notes=VALUES(notes),
+                resources_json=VALUES(resources_json),
+                prerequisites_json=VALUES(prerequisites_json),
+                delegated_to_tutor_json=VALUES(delegated_to_tutor_json),
+                attribution_constraints_json=VALUES(attribution_constraints_json),
+                notes=VALUES(notes),
                 metadata_json=VALUES(metadata_json), timemodified=VALUES(timemodified)"""
         else:
             sql = f"""INSERT OR REPLACE INTO {name}
-                (lesson_id, course_id, axis_id, title, lesson_order, learning_goal, expected_action,
-                 source_script_file, is_pilot, learning_goals_json, expected_actions_json,
-                 resources_json, prerequisites_json, notes, metadata_json, timecreated, timemodified)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+                (lesson_id, course_id, axis_id, moodle_section_id, title, lesson_order, learning_goal, expected_action,
+                 is_pilot, learning_goals_json, resources_json, prerequisites_json,
+                 delegated_to_tutor_json, attribution_constraints_json,
+                 notes, metadata_json, timecreated, timemodified)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
         _execute(conn, sql, (
-            lesson_id, course_id, axis_id, title, int(order or 0), learning_goal, expected_action,
-            source_script_file, _bool(is_pilot), _json_dump(learning_goals or []),
-            _json_dump(expected_actions or []), _json_dump(resources or []),
-            _json_dump(prerequisites or []), notes, _json_dump(metadata or {}),
+            lesson_id, course_id, axis_id, moodle_section_id, title, int(order or 0), learning_goal, expected_action,
+            _bool(is_pilot), _json_dump(learning_goals or []), _json_dump(resources or []),
+            _json_dump(prerequisites or []), _json_dump(delegated_to_tutor or []),
+            _json_dump(attribution_constraints or []), notes, _json_dump(metadata or {}),
             t, t,
         ))
     _log_write("lessons", id=lesson_id, course_id=course_id, is_pilot=_bool(is_pilot))
@@ -1527,17 +1657,18 @@ def _normalize_lesson(row: Dict[str, Any]) -> Dict[str, Any]:
         "lesson_id": row["lesson_id"],
         "course_id": row.get("course_id", ""),
         "axis_id": row.get("axis_id", ""),
+        "moodle_section_id": row.get("moodle_section_id", "") or "",
         "lesson_title": row.get("title", ""),
         "title": row.get("title", ""),
         "order": row.get("lesson_order", 0),
         "learning_goal": row.get("learning_goal", "") or "",
         "expected_action": row.get("expected_action", "") or "",
-        "source_script_file": row.get("source_script_file", "") or "",
         "is_pilot": bool(row.get("is_pilot")),
         "learning_goals": _json_load(row.get("learning_goals_json"), []),
-        "expected_actions": _json_load(row.get("expected_actions_json"), []),
         "resources": _json_load(row.get("resources_json"), []),
         "prerequisites": _json_load(row.get("prerequisites_json"), []),
+        "delegated_to_tutor": _json_load(row.get("delegated_to_tutor_json"), []),
+        "attribution_constraints": _json_load(row.get("attribution_constraints_json"), []),
         "notes": row.get("notes", "") or "",
         "metadata": _json_load(row.get("metadata_json"), {}),
         "proactive_message": prompts.get("proactive_message", ""),
@@ -1563,6 +1694,7 @@ def get_lesson(lesson_id: str, course_id: Optional[str] = None) -> Optional[Dict
 def list_lessons(
     is_pilot: Optional[bool] = None,
     axis_id: Optional[str] = None,
+    moodle_section_id: Optional[str] = None,
     course_id: Optional[str] = None,
 ) -> List[Dict[str, Any]]:
     init_db()
@@ -1575,6 +1707,9 @@ def list_lessons(
     if axis_id:
         clauses.append(f"axis_id={_q()}")
         params.append(axis_id)
+    if moodle_section_id:
+        clauses.append(f"moodle_section_id={_q()}")
+        params.append(str(moodle_section_id))
     if course_id:
         variants = _course_id_variants(course_id)
         placeholders = ",".join([_q()] * len(variants))
@@ -1582,10 +1717,14 @@ def list_lessons(
         params.extend(variants)
     if clauses:
         sql += " WHERE " + " AND ".join(clauses)
-    sql += " ORDER BY axis_id, lesson_order, lesson_id"
+    sql += " ORDER BY moodle_section_id, axis_id, lesson_order, lesson_id"
     with get_connection() as conn:
         rows = _fetchall(conn, sql, params)
-    _log_read("lessons", len(rows), filter=f"is_pilot:{is_pilot} axis:{axis_id} course:{course_id}")
+    _log_read(
+        "lessons",
+        len(rows),
+        filter=f"is_pilot:{is_pilot} axis:{axis_id} section:{moodle_section_id} course:{course_id}",
+    )
     return [_normalize_lesson(row) for row in rows]
 
 
@@ -1593,6 +1732,7 @@ def upsert_lesson_block(
     *,
     block_id: str,
     lesson_id: str,
+    course_id: Optional[str] = None,
     block_order: int = 0,
     start_time: Optional[float] = None,
     end_time: Optional[float] = None,
@@ -1606,15 +1746,18 @@ def upsert_lesson_block(
 ) -> None:
     init_db()
     t = _ts()
+    if course_id is None:
+        course_id = _lesson_course_id(lesson_id)
     name = table_name("lesson_blocks")
     with get_connection() as conn:
         if using_moodle_db():
             sql = f"""INSERT INTO {name}
-                (block_id, lesson_id, block_order, start_time, end_time, block_title, summary,
+                (block_id, course_id, lesson_id, block_order, start_time, end_time, block_title, summary,
                  interaction_mode, tutor_focus, concepts_json, preguntas_probables_json,
                  metadata_json, timecreated, timemodified)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
-                ON DUPLICATE KEY UPDATE lesson_id=VALUES(lesson_id), block_order=VALUES(block_order),
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                ON DUPLICATE KEY UPDATE course_id=VALUES(course_id), lesson_id=VALUES(lesson_id),
+                block_order=VALUES(block_order),
                 start_time=VALUES(start_time), end_time=VALUES(end_time), block_title=VALUES(block_title),
                 summary=VALUES(summary), interaction_mode=VALUES(interaction_mode),
                 tutor_focus=VALUES(tutor_focus), concepts_json=VALUES(concepts_json),
@@ -1622,12 +1765,12 @@ def upsert_lesson_block(
                 metadata_json=VALUES(metadata_json), timemodified=VALUES(timemodified)"""
         else:
             sql = f"""INSERT OR REPLACE INTO {name}
-                (block_id, lesson_id, block_order, start_time, end_time, block_title, summary,
+                (block_id, course_id, lesson_id, block_order, start_time, end_time, block_title, summary,
                  interaction_mode, tutor_focus, concepts_json, preguntas_probables_json,
                  metadata_json, timecreated, timemodified)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
         _execute(conn, sql, (
-            block_id, lesson_id, int(block_order or 0), start_time, end_time, block_title,
+            block_id, course_id, lesson_id, int(block_order or 0), start_time, end_time, block_title,
             summary, interaction_mode, tutor_focus, _json_dump(concepts or []),
             _json_dump(preguntas_probables or []), _json_dump(metadata or {}), t, t,
         ))
@@ -1637,6 +1780,7 @@ def upsert_lesson_block(
 def _normalize_block(row: Dict[str, Any]) -> Dict[str, Any]:
     return {
         "block_id": row.get("block_id", ""),
+        "course_id": row.get("course_id", "") or "",
         "lesson_id": row.get("lesson_id", ""),
         "block_order": row.get("block_order", 0),
         "start_time": row.get("start_time"),
@@ -1674,21 +1818,30 @@ def find_lesson_block_at_timestamp(lesson_id: str, timestamp: Optional[float]) -
     return None
 
 
-def upsert_lesson_prompt(lesson_id: str, prompt_type: str, prompt_text: str, prompt_order: int = 0) -> None:
+def upsert_lesson_prompt(
+    lesson_id: str,
+    prompt_type: str,
+    prompt_text: str,
+    prompt_order: int = 0,
+    course_id: Optional[str] = None,
+) -> None:
     init_db()
     t = _ts()
+    if course_id is None:
+        course_id = _lesson_course_id(lesson_id)
     name = table_name("lesson_prompts")
     with get_connection() as conn:
         if using_moodle_db():
             sql = f"""INSERT INTO {name}
-                (lesson_id, prompt_type, prompt_order, prompt_text, timecreated, timemodified)
-                VALUES (%s,%s,%s,%s,%s,%s)
-                ON DUPLICATE KEY UPDATE prompt_text=VALUES(prompt_text), timemodified=VALUES(timemodified)"""
+                (course_id, lesson_id, prompt_type, prompt_order, prompt_text, timecreated, timemodified)
+                VALUES (%s,%s,%s,%s,%s,%s,%s)
+                ON DUPLICATE KEY UPDATE course_id=VALUES(course_id),
+                prompt_text=VALUES(prompt_text), timemodified=VALUES(timemodified)"""
         else:
             sql = f"""INSERT OR REPLACE INTO {name}
-                (lesson_id, prompt_type, prompt_order, prompt_text, timecreated, timemodified)
-                VALUES (?,?,?,?,?,?)"""
-        _execute(conn, sql, (lesson_id, prompt_type, int(prompt_order), prompt_text, t, t))
+                (course_id, lesson_id, prompt_type, prompt_order, prompt_text, timecreated, timemodified)
+                VALUES (?,?,?,?,?,?,?)"""
+        _execute(conn, sql, (course_id, lesson_id, prompt_type, int(prompt_order), prompt_text, t, t))
     _log_write("lesson_prompts", lesson_id=lesson_id, prompt_type=prompt_type, prompt_order=prompt_order)
 
 
@@ -1717,6 +1870,7 @@ def upsert_resource(
     resource_id: str,
     course_id: str = "",
     axis_id: str = "",
+    moodle_section_id: str = "",
     lesson_id: str = "",
     resource_type: str = "lesson_note",
     resource_subtype: str = "",
@@ -1729,29 +1883,30 @@ def upsert_resource(
     metadata: Optional[Dict[str, Any]] = None,
 ) -> None:
     init_db()
+    axis_id = ""
     t = _ts()
     name = table_name("course_resources")
     with get_connection() as conn:
         if using_moodle_db():
             sql = f"""INSERT INTO {name}
-                (resource_id, course_id, axis_id, lesson_id, resource_type, resource_subtype,
+                (resource_id, course_id, axis_id, moodle_section_id, lesson_id, resource_type, resource_subtype,
                  title, source_uri, duration_seconds, page_count, language, tags_json,
                  metadata_json, timecreated, timemodified)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON DUPLICATE KEY UPDATE course_id=VALUES(course_id), axis_id=VALUES(axis_id),
-                lesson_id=VALUES(lesson_id), resource_type=VALUES(resource_type),
+                moodle_section_id=VALUES(moodle_section_id), lesson_id=VALUES(lesson_id), resource_type=VALUES(resource_type),
                 resource_subtype=VALUES(resource_subtype), title=VALUES(title),
                 source_uri=VALUES(source_uri), duration_seconds=VALUES(duration_seconds),
                 page_count=VALUES(page_count), language=VALUES(language), tags_json=VALUES(tags_json),
                 metadata_json=VALUES(metadata_json), timemodified=VALUES(timemodified)"""
         else:
             sql = f"""INSERT OR REPLACE INTO {name}
-                (resource_id, course_id, axis_id, lesson_id, resource_type, resource_subtype,
+                (resource_id, course_id, axis_id, moodle_section_id, lesson_id, resource_type, resource_subtype,
                  title, source_uri, duration_seconds, page_count, language, tags_json,
                  metadata_json, timecreated, timemodified)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)"""
         _execute(conn, sql, (
-            resource_id, course_id, axis_id, lesson_id, resource_type or "lesson_note",
+            resource_id, course_id, axis_id, moodle_section_id, lesson_id, resource_type or "lesson_note",
             resource_subtype, title, source_uri, duration_seconds, page_count, language,
             _json_dump(tags or []), _json_dump(metadata or {}), t, t,
         ))
@@ -1773,6 +1928,7 @@ def get_resource(resource_id: str) -> Optional[Resource]:
         type=ResourceType(rtype),
         title=row.get("title", "") or "",
         axis_id=row.get("axis_id", "") or "",
+        moodle_section_id=row.get("moodle_section_id", "") or "",
         lesson_id=row.get("lesson_id", "") or "",
         source_uri=row.get("source_uri", "") or "",
         duration_seconds=row.get("duration_seconds"),
@@ -1789,31 +1945,37 @@ def upsert_resource_link(
     lesson_id: str,
     course_id: str = "",
     axis_id: str = "",
+    moodle_section_id: str = "",
     resource_type: str = "",
     resource_subtype: str = "",
 ) -> Dict[str, Any]:
     init_db()
+    axis_id = ""
     t = _ts()
     name = table_name("resource_lesson_links")
     with get_connection() as conn:
         if using_moodle_db():
             sql = f"""INSERT INTO {name}
-                (resource_id, course_id, lesson_id, axis_id, resource_type, resource_subtype, timecreated, timemodified)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                (resource_id, course_id, lesson_id, axis_id, moodle_section_id, resource_type, resource_subtype, timecreated, timemodified)
+                VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
                 ON DUPLICATE KEY UPDATE course_id=VALUES(course_id), lesson_id=VALUES(lesson_id),
-                axis_id=VALUES(axis_id), resource_type=VALUES(resource_type),
+                axis_id=VALUES(axis_id), moodle_section_id=VALUES(moodle_section_id), resource_type=VALUES(resource_type),
                 resource_subtype=VALUES(resource_subtype), timemodified=VALUES(timemodified)"""
         else:
             sql = f"""INSERT OR REPLACE INTO {name}
-                (resource_id, course_id, lesson_id, axis_id, resource_type, resource_subtype, timecreated, timemodified)
-                VALUES (?,?,?,?,?,?,?,?)"""
-        _execute(conn, sql, (resource_id, course_id, lesson_id, axis_id, resource_type, resource_subtype, t, t))
+                (resource_id, course_id, lesson_id, axis_id, moodle_section_id, resource_type, resource_subtype, timecreated, timemodified)
+                VALUES (?,?,?,?,?,?,?,?,?)"""
+        _execute(conn, sql, (
+            resource_id, course_id, lesson_id, axis_id, moodle_section_id,
+            resource_type, resource_subtype, t, t,
+        ))
     _log_write("resource_lesson_links", id=resource_id, course_id=course_id, lesson_id=lesson_id)
     return get_resource_link(resource_id) or {
         "resource_id": resource_id,
         "course_id": course_id,
         "lesson_id": lesson_id,
         "axis_id": axis_id,
+        "moodle_section_id": moodle_section_id,
         "resource_type": resource_type,
         "resource_subtype": resource_subtype,
     }

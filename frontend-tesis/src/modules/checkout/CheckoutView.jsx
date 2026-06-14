@@ -4,12 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PayPalScriptProvider, PayPalButtons } from "@paypal/react-paypal-js";
 import {
   getPublicCourse,
-  initiatePaymentIntent,
   getMyCourses,
   getUserProfile,
   checkGuestEnrollmentByEmail
 } from '../../shared/services/courseService';
-import { showNotification } from '../../shared/components/ui/Notification';
+import { showNotification } from '../../shared/utils/notify';
 import Notification from '../../shared/components/ui/Notification';
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
@@ -20,6 +19,7 @@ export default function CheckoutView() {
   const navigate = useNavigate();
   const [course, setCourse] = useState(null);
   const [loading, setLoading] = useState(true);
+  // eslint-disable-next-line no-unused-vars -- TODO: flujo Payphone definido pero aún sin cablear al JSX
   const [processing, setProcessing] = useState(false);
   const [status, setStatus] = useState('idle'); // idle, processing, success, error
   const [isEnrolled, setIsEnrolled] = useState(false);
@@ -112,19 +112,6 @@ export default function CheckoutView() {
       lastname: (savedData.lastname || formDataRef.current.lastname || '').trim(),
       email: (savedData.email || formDataRef.current.email || '').trim()
     };
-  };
-
-  const canRenderPayphoneButton = () => {
-    if (loading || isEnrolled) return false;
-    if (token) return true;
-
-    return (
-      formData.firstname.trim() &&
-      formData.lastname.trim() &&
-      emailRegex.test(formData.email) &&
-      !guestEnrollmentCheck.isEnrolled &&
-      !guestEnrollmentCheck.checking
-    );
   };
 
   const registerLocalIntent = async (clientTransactionId) => {
@@ -232,38 +219,6 @@ export default function CheckoutView() {
     return () => clearTimeout(timeout);
   }, [formData.email, formData.firstname, formData.lastname, id, token]);
 
-  const handleSuccessFlow = async (gateway, transactionId) => {
-    setProcessing(true);
-    setStatus('processing');
-    try {
-      const response = await initiatePaymentIntent(token, id, gateway, !token ? formData : null);
-
-      if (response.success) {
-        setStatus('success');
-        setTimeout(() => {
-          if (!token) {
-            navigate('/login', { state: { message: '¡Pago exitoso! Revisa tu correo para tus credenciales.' } });
-          } else {
-            navigate('/dashboard');
-          }
-        }, 4000);
-      }
-    } catch (error) {
-      setStatus('error');
-      showNotification('error', 'Error al procesar la matrícula.');
-    } finally {
-      setProcessing(false);
-    }
-  };
-
-  const isPayphoneBlocked = !token && (
-    !formData.firstname.trim() ||
-    !formData.lastname.trim() ||
-    !emailRegex.test(formData.email) ||
-    guestEnrollmentCheck.isEnrolled ||
-    guestEnrollmentCheck.checking
-  );
-
   const handlePayphoneRedirect = async () => {
     if (!isGuestEmailApproved) {
       if (guestEnrollmentCheck.checking) {
@@ -294,10 +249,8 @@ export default function CheckoutView() {
           email: effectiveProfile.email,
           firstname: effectiveProfile.firstname,
           lastname: effectiveProfile.lastname,
-          course_name: course?.fullname || 'Curso KENTH',
-          amount: (course?.offer_price > 0 && course?.offer_price < course?.price)
-            ? course.offer_price
-            : (course?.price || 49.99)
+          course_name: course?.fullname || 'Curso KENTH'
+          // El precio NO se envía: lo resuelve el backend desde la BD (anti-manipulación).
         })
       });
 

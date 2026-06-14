@@ -34,7 +34,7 @@ try:
 except ImportError:
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
-from api.routes import chat, documents, chat_sessions, axes, moodle, authoring, course_documents, lesson_resources
+from api.routes import chat, documents, chat_sessions, moodle, authoring, course_documents, lesson_resources, sections
 from services.db_service import init_db
 
 # Inicializar base de datos
@@ -89,7 +89,7 @@ async def log_requests(request: Request, call_next):
 app.include_router(chat.router)
 app.include_router(documents.router)
 app.include_router(chat_sessions.router)
-app.include_router(axes.router)
+app.include_router(sections.router)
 app.include_router(moodle.router)
 app.include_router(authoring.router)
 app.include_router(course_documents.router)

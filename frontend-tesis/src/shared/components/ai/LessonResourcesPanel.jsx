@@ -6,7 +6,7 @@ import {
   suggestResourceCaption,
   fetchMediaUrl,
 } from '../../services/ragService';
-import { showNotification } from '../ui/Notification';
+import { showNotification } from '../../utils/notify';
 
 const MEDIA_META = {
   image: { icon: '🖼️', label: 'Imagen' },
@@ -111,7 +111,7 @@ export default function LessonResourcesPanel({ courseId, lessonId }) {
     try {
       const data = await listLessonResources(courseId, lessonId, true);
       setResources(data.resources || []);
-      setInherited(data.inherited_axis_resources || []);
+      setInherited(data.inherited_section_resources || []);
     } catch (e) {
       showNotification(e.message || 'No se pudieron cargar los recursos', 'error');
     } finally {

@@ -10,10 +10,12 @@ import {
   autoTranscribe,
   getTranscriptStatus,
   importLesson,
-} from '../../services/axesService';
-import { showNotification } from '../ui/Notification';
+} from '../../services/sectionsService';
+import { showNotification } from '../../utils/notify';
+import { MODOS_PEDAGOGICOS } from '../../types/lesson';
 import { useResourceVideoBridge } from '../../hooks/useResourceTimestamp';
-import BlockTimeline, { fmtTime } from './BlockTimeline';
+import BlockTimeline from './BlockTimeline';
+import { fmtTime } from '../../utils/time';
 import AssignLessonDialog from './AssignLessonDialog';
 import LessonResourcesPanel from './LessonResourcesPanel';
 
@@ -31,16 +33,25 @@ const EMPTY_BLOCK = {
   preguntas_probables: [],
 };
 
-const INTERACTION_MODES = [
-  'navegacion_de_recurso',
-  'criterio_operativo',
-  'practica',
-  'teoria',
-  'troubleshooting',
-];
+// Vocabulario único: viene del schema compartido (types/lesson.ts) y debe
+// ser idéntico al enum InteractionMode del backend.
+const INTERACTION_MODES = MODOS_PEDAGOGICOS;
 
 const linesToArr = (s) => (s || '').split('\n').map((x) => x.trim()).filter(Boolean);
 const arrToLines = (a) => (Array.isArray(a) ? a.join('\n') : (a || ''));
+
+const Icon = ({ children }) => (
+  <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    {children}
+  </svg>
+);
+const PlayIcon = () => <Icon><path d="M8 5v14l11-7-11-7z" fill="currentColor" stroke="none" /></Icon>;
+const PauseIcon = () => <Icon><path d="M9 5v14" /><path d="M15 5v14" /></Icon>;
+const VolumeIcon = () => <Icon><path d="M11 5 6 9H3v6h3l5 4V5z" /><path d="M16 9.5a4 4 0 0 1 0 5" /><path d="M19 7a8 8 0 0 1 0 10" /></Icon>;
+const MutedIcon = () => <Icon><path d="M11 5 6 9H3v6h3l5 4V5z" /><path d="m16 9 5 6" /><path d="m21 9-5 6" /></Icon>;
+const BackIcon = () => <Icon><path d="M11 7 6 12l5 5" /><path d="M18 7l-5 5 5 5" /></Icon>;
+const ForwardIcon = () => <Icon><path d="m6 7 5 5-5 5" /><path d="m13 7 5 5-5 5" /></Icon>;
+const RefreshIcon = () => <Icon><path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 4v6h-6" /></Icon>;
 
 const TABS = [
   { id: 'bloques', label: 'Bloques' },
@@ -55,14 +66,14 @@ const TABS = [
  * Editor full-screen del tutor sobre el video H5P. Reemplaza al antiguo
  * LinkLessonModal: ademas de elegir la leccion enlazada, edita los bloques
  * (timeline visual sobre el video), metadatos y prompts. Todo se guarda en
- * BD via /authoring (axesService).
+ * BD via /authoring (sectionsService).
  *
  * Props:
  *   - resource: modulo Moodle abierto { id, modname, name }.
  *   - courseId: id (firmado) del curso.
  *   - onClose(refresh: boolean)
  */
-export default function LessonVideoEditor({ resource, courseId, onClose }) {
+export default function LessonVideoEditor({ resource, courseId, sectionContext = null, onClose }) {
   const token = localStorage.getItem('moodle_token') || '';
   const isH5P = resource?.modname === 'hvp' || resource?.modname === 'h5pactivity';
 
@@ -100,6 +111,9 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
     seek,
     play,
     pause,
+    muted,
+    setMuted,
+    hideNativeControls,
     requestMeta,
     requestThumbnail,
   } = useResourceVideoBridge({ enabled: true, resourceId: resource?.id ?? null, iframeName: IFRAME_NAME });
@@ -113,10 +127,19 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
     (async () => {
       try {
         setLoading(true);
-        const link = await getResourceLink(resource.id);
+        const link = await getResourceLink(resource.id, courseId);
         if (!alive) return;
-        setCurrentLink(link);
-        setSelectedLessonId(link?.lesson_id || '');
+        const fallbackLink = sectionContext?.lesson_id
+          ? {
+              resource_id: resource.id,
+              lesson_id: sectionContext.lesson_id,
+              course_id: courseId,
+              moodle_section_id: sectionContext.moodle_section_id || '',
+            }
+          : null;
+        const activeLink = link || fallbackLink;
+        setCurrentLink(activeLink);
+        setSelectedLessonId(activeLink?.lesson_id || '');
         setTab('bloques');
       } catch (e) {
         if (alive) showNotification('error', e.message);
@@ -125,7 +148,7 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
       }
     })();
     return () => { alive = false; };
-  }, [resource?.id, courseId]);
+  }, [resource?.id, courseId, sectionContext?.lesson_id, sectionContext?.moodle_section_id]);
 
   // ---- Carga del detalle de la leccion seleccionada ----
   const loadLessonDetail = useCallback(async (lId) => {
@@ -137,6 +160,8 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
         _learning_goals: arrToLines(data.learning_goals),
         _prerequisites: (data.prerequisites || []).join(', '),
         _suggested: arrToLines(data.suggested_prompts),
+        _delegated: arrToLines(data.delegated_to_tutor),
+        _attribution: arrToLines(data.attribution_constraints),
         blocks: (data.blocks || []).map((b) => ({ ...EMPTY_BLOCK, ...b })),
       });
       setSelectedBlockIdx((data.blocks || []).length ? 0 : -1);
@@ -211,7 +236,6 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
     mark('transcript');
     if (pauseOnType) pause();
   };
-  const setSegTime = (idx, key, val) => { setTranscript((p) => p.map((s, i) => (i === idx ? { ...s, [key]: val } : s))); mark('transcript'); };
   // Edición del inicio como timecode HH:MM:SS.mmm (4 campos). Conserva la
   // precisión real (milisegundos) que ya trae la transcripción de Whisper.
   const setSegStartPart = (idx, part, raw) => {
@@ -311,6 +335,13 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
   }, [iframeLoading, duration]);
   const videoReady = !iframeLoading && (Boolean(duration) || revealFallback);
 
+  useEffect(() => {
+    if (!isH5P || !videoReady) return undefined;
+    hideNativeControls();
+    const iv = setInterval(() => hideNativeControls(), 1500);
+    return () => clearInterval(iv);
+  }, [isH5P, videoReady, hideNativeControls]);
+
   // ---- Mutaciones locales de bloques ----
   const setBlockField = (idx, k, v) => {
     setLesson((p) => {
@@ -363,16 +394,17 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
         if (dirty.lesson) {
           await upsertLesson(courseId, lesson.lesson_id, {
             lesson_id: lesson.lesson_id,
-            axis_id: lesson.axis_id || '',
+            axis_id: '',
+            moodle_section_id: lesson.moodle_section_id || currentLink?.moodle_section_id || sectionContext?.moodle_section_id || '',
             title: lesson.lesson_title || lesson.title || '',
             order: Number(lesson.order) || 0,
             learning_goal: lesson.learning_goal || '',
             expected_action: lesson.expected_action || '',
             learning_goals: linesToArr(lesson._learning_goals),
-            expected_actions: lesson.expected_actions || [],
-            source_script_file: lesson.source_script_file || '',
             resources: lesson.resources || [],
             prerequisites: (lesson._prerequisites || '').split(',').map((x) => x.trim()).filter(Boolean),
+            delegated_to_tutor: linesToArr(lesson._delegated),
+            attribution_constraints: linesToArr(lesson._attribution),
             notes: lesson.notes || '',
           });
           await setLessonPrompts(courseId, lesson.lesson_id, {
@@ -415,7 +447,7 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
     } finally {
       setSaving(false);
     }
-  }, [isDirty, dirty, lesson, transcript, courseId]);
+  }, [isDirty, dirty, lesson, transcript, courseId, currentLink?.moodle_section_id, sectionContext?.moodle_section_id]);
 
   const handleCloseRequest = () => {
     if (isDirty) setShowUnsaved(true);
@@ -448,6 +480,8 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
 
   const inputCls = 'w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-3 py-2 text-sm text-kenth-text focus:border-kenth-brightred focus:outline-none';
   const labelCls = 'text-[10px] uppercase tracking-widest text-kenth-subtext font-bold';
+  const transportBtnCls = 'inline-flex h-9 min-w-9 items-center justify-center gap-1.5 rounded-lg border border-kenth-border bg-kenth-surface/10 px-2.5 text-xs font-bold text-kenth-text transition hover:border-kenth-brightred/60 hover:bg-kenth-brightred/10 focus:outline-none focus:ring-2 focus:ring-kenth-brightred/40';
+  const transportGhostCls = 'inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-kenth-border bg-kenth-surface/5 px-3 text-[10px] font-black uppercase tracking-widest text-kenth-subtext transition hover:border-kenth-brightred/60 hover:bg-kenth-surface/10 hover:text-kenth-text focus:outline-none focus:ring-2 focus:ring-kenth-brightred/40';
 
   const videoSrc = useMemo(() => (
     resource?.id
@@ -465,7 +499,7 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
             {resource?.name}
             {currentLink?.lesson_id && (
               <span className="ml-2 text-[10px] not-italic font-bold text-emerald-300 align-middle">
-                · {currentLink.axis_id ? `${currentLink.axis_id} · ` : ''}{currentLink.lesson_id}
+                · {currentLink.lesson_id}
               </span>
             )}
           </h3>
@@ -501,7 +535,6 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
             {isH5P ? (
               <div className="relative w-full max-w-[820px] rounded-xl overflow-hidden bg-black">
                 <div style={{ paddingTop: '56.25%' }} />
-                <div style={{ height: '36px' }} />
                 {!videoReady && (
                   <div className="absolute inset-0 z-10 flex items-center justify-center bg-kenth-bg text-indigo-400 text-xs uppercase tracking-widest">
                     Cargando video…
@@ -512,7 +545,7 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
                   onLoad={() => setIframeLoading(false)}
                   src={videoSrc}
                   className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
-                  style={{ height: 'calc(100% + 50px)' }}
+                  style={{ height: 'calc(100% + 56px)' }}
                   allow="autoplay *; encrypted-media *"
                   scrolling="no"
                   title="Editor H5P"
@@ -530,11 +563,27 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
           {isH5P && (
             <div className="px-4 pb-4 pt-2 border-t border-kenth-border bg-kenth-card/40">
               <div className="flex items-center gap-2 mb-3">
-                <button onClick={() => play()} className="px-3 py-1.5 rounded-lg bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs hover:border-kenth-brightred/50" title="Reproducir">▶</button>
-                <button onClick={() => pause()} className="px-3 py-1.5 rounded-lg bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs hover:border-kenth-brightred/50" title="Pausar">⏸</button>
-                <button onClick={() => seek(Math.max(0, currentTime - 5))} className="px-3 py-1.5 rounded-lg bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs hover:border-kenth-brightred/50">-5s</button>
-                <button onClick={() => seek(currentTime + 5)} className="px-3 py-1.5 rounded-lg bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs hover:border-kenth-brightred/50">+5s</button>
-                <button onClick={() => requestMeta()} className="px-3 py-1.5 rounded-lg bg-kenth-surface/10 border border-kenth-border text-kenth-subtext text-[10px] uppercase tracking-widest hover:border-kenth-brightred/50 ml-auto" title="Releer metadatos del video">Releer video</button>
+                <button onClick={() => play()} className={transportBtnCls} title="Reproducir" aria-label="Reproducir">
+                  <PlayIcon />
+                </button>
+                <button onClick={() => pause()} className={transportBtnCls} title="Pausar" aria-label="Pausar">
+                  <PauseIcon />
+                </button>
+                <button onClick={() => setMuted(!muted)} className={`${transportBtnCls} ${muted ? 'border-kenth-brightred/70 bg-kenth-brightred/15 text-kenth-brightred' : ''}`} title={muted ? 'Desmutear' : 'Mutear'} aria-label={muted ? 'Desmutear' : 'Mutear'}>
+                  {muted ? <MutedIcon /> : <VolumeIcon />}
+                </button>
+                <button onClick={() => seek(Math.max(0, currentTime - 5))} className={transportGhostCls} title="Retroceder 5 segundos" aria-label="Retroceder 5 segundos">
+                  <BackIcon />
+                  <span>-5s</span>
+                </button>
+                <button onClick={() => seek(currentTime + 5)} className={transportGhostCls} title="Avanzar 5 segundos" aria-label="Avanzar 5 segundos">
+                  <span>+5s</span>
+                  <ForwardIcon />
+                </button>
+                <button onClick={() => { hideNativeControls(); requestMeta(); }} className={`${transportGhostCls} ml-auto`} title="Releer metadatos del video" aria-label="Releer video">
+                  <RefreshIcon />
+                  <span>Releer video</span>
+                </button>
               </div>
               <BlockTimeline
                 blocks={lesson?.blocks || []}
@@ -688,7 +737,7 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
                         <input className={inputCls} value={lesson.expected_action || ''} onChange={(e) => setField('expected_action', e.target.value)} />
                       </div>
                       <div>
-                        <label className={labelCls}>Metas (una por línea)</label>
+                        <label className={labelCls}>Criterios de logro (una por línea)</label>
                         <textarea rows={2} className={inputCls} value={lesson._learning_goals} onChange={(e) => setField('_learning_goals', e.target.value)} />
                       </div>
 
@@ -702,6 +751,36 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
                       <div>
                         <label className={labelCls}>Preguntas sugeridas (una por línea)</label>
                         <textarea rows={3} className={inputCls} value={lesson._suggested} onChange={(e) => setField('_suggested', e.target.value)} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Delegado al Tutor (un ítem por línea)</label>
+                        <textarea
+                          rows={3}
+                          className={inputCls}
+                          placeholder={'Resolver dudas de routing del DAW\nRepasar el criterio de gain staging'}
+                          value={lesson._delegated}
+                          onChange={(e) => setField('_delegated', e.target.value)}
+                        />
+                        <p className="text-[10px] text-kenth-subtext mt-1">Qué le encargas cubrir al tutor en esta lección.</p>
+                      </div>
+                      <div>
+                        <label className={labelCls}>Restricciones y Atribuciones (un ítem por línea)</label>
+                        <textarea
+                          rows={3}
+                          className={inputCls}
+                          placeholder={'Cita siempre el minuto del video al referir la demo\nNo recomendar plugins de pago'}
+                          value={lesson._attribution}
+                          onChange={(e) => setField('_attribution', e.target.value)}
+                        />
+                        <p className="text-[10px] text-kenth-subtext mt-1">Reglas obligatorias de comportamiento: el tutor las cumple en todas sus respuestas.</p>
+                      </div>
+
+                      <div className="h-px bg-kenth-border my-2" />
+
+                      <div>
+                        <label className={labelCls}>Notas internas</label>
+                        <textarea rows={2} className={inputCls} value={lesson.notes || ''} onChange={(e) => setField('notes', e.target.value)} />
+                        <p className="text-[10px] text-kenth-subtext mt-1">Solo visible para ti: el tutor nunca recibe este campo.</p>
                       </div>
                     </div>
                   )
@@ -902,6 +981,7 @@ export default function LessonVideoEditor({ resource, courseId, onClose }) {
         <AssignLessonDialog
           resource={resource}
           courseId={courseId}
+          sectionContext={sectionContext}
           onClose={async (lessonId) => {
             setShowAssign(false);
             if (lessonId) {

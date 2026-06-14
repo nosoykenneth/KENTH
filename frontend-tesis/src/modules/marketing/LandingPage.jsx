@@ -170,7 +170,7 @@ function LandingCoursesSection() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-6 max-w-7xl w-full">
-        {courses.map((curso, idx) => {
+        {courses.map((curso) => {
           const hasOffer = curso.commercial?.offer_price > 0 && curso.commercial?.offer_price < curso.commercial?.price;
           const finalPrice = hasOffer ? curso.commercial.offer_price : curso.commercial?.price;
 

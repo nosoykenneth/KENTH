@@ -160,7 +160,7 @@ export default function MoodleRenderer({ modulo }) {
         </div>
       );
 
-    case 'url':
+    case 'url': {
       const urlItem = modulo.contents?.[0];
       return (
         <div className="bg-[#1e1e20] p-10 rounded-3xl border-2 border-dashed border-sky-500/30 flex flex-col items-center text-center gap-6 animate-kenth-pop">
@@ -182,6 +182,7 @@ export default function MoodleRenderer({ modulo }) {
           </a>
         </div>
       );
+    }
 
     case 'folder':
       return (
@@ -266,7 +267,7 @@ export default function MoodleRenderer({ modulo }) {
         </div>
       );
 
-    case 'resource':
+    case 'resource': {
       const fileRes = modulo.contents?.[0];
       return (
         <div className="bg-kenth-card max-w-2xl mx-auto p-12 rounded-[3rem] border border-kenth-border flex flex-col items-center text-center shadow-[0_40px_80px_rgba(0,0,0,0.2)] animate-kenth-pop relative overflow-hidden">
@@ -290,6 +291,7 @@ export default function MoodleRenderer({ modulo }) {
            </a>
         </div>
       );
+    }
 
     default:
       return (

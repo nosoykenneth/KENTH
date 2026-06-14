@@ -32,12 +32,18 @@ class ResourceType(str, Enum):
 
 
 class InteractionMode(str, Enum):
-    """Modo del tutor segun lo que el alumno esta haciendo."""
+    """Modo del tutor segun lo que el alumno esta haciendo.
+
+    Vocabulario unico compartido con el editor de leccion
+    (INTERACTION_MODES en LessonVideoEditor.jsx): ambos listados
+    deben ser identicos.
+    """
     TEORIA = "teoria"
     PRACTICA = "practica"
     TROUBLESHOOTING = "troubleshooting"
     REVISION = "revision"
     NAVEGACION_DE_RECURSO = "navegacion_de_recurso"
+    CRITERIO_OPERATIVO = "criterio_operativo"
 
 
 # Alias semantico: el tutor opera en uno de estos modos.
@@ -55,6 +61,7 @@ class Resource(BaseModel):
     type: ResourceType
     title: str = ""
     axis_id: str = ""
+    moodle_section_id: str = ""
     lesson_id: str = ""
     source_uri: str = ""           # ruta local, URL externa, o id Moodle
     duration_seconds: Optional[int] = None   # solo videos
@@ -65,16 +72,18 @@ class Resource(BaseModel):
 
 
 class Lesson(BaseModel):
-    """Leccion: agrupa recursos bajo un eje y un objetivo pedagogico."""
+    """Leccion: agrupa recursos bajo una sección Moodle y un objetivo pedagogico."""
     lesson_id: str
-    axis_id: str
+    axis_id: str = ""
+    moodle_section_id: str = ""
     title: str = ""
     order: int = 0
     learning_goals: List[str] = Field(default_factory=list)
-    expected_actions: List[str] = Field(default_factory=list)
     resources: List[str] = Field(default_factory=list)   # resource_ids
     prerequisites: List[str] = Field(default_factory=list)
-    notes: str = ""
+    delegated_to_tutor: List[str] = Field(default_factory=list)
+    attribution_constraints: List[str] = Field(default_factory=list)
+    notes: str = ""   # interno del profesor: nunca se inyecta al tutor
 
 
 # ==========================================
@@ -89,7 +98,7 @@ class ActivityContext(BaseModel):
     No contiene contenido pesado: solo coordenadas para que el tutor
     pueda decidir como responder y, despues, recuperar el chunk pertinente.
     """
-    current_axis: str = ""
+    moodle_section_id: str = ""
     current_lesson_id: str = ""
     current_resource_id: str = ""
     current_resource_type: Optional[ResourceType] = None
@@ -101,15 +110,18 @@ class ActivityContext(BaseModel):
     current_timestamp: Optional[float] = None    # segundos, si es video
     current_page: Optional[int] = None           # pagina, si es PDF
     current_section: str = ""                    # encabezado o seccion
+    current_section_name: str = ""
+    current_section_order: Optional[int] = None
     learning_goal: str = ""
     expected_action: str = ""
     interaction_mode: InteractionMode = InteractionMode.TEORIA
 
     def is_empty(self) -> bool:
         return not any([
-            self.current_axis, self.current_lesson_id,
+            self.current_lesson_id,
             self.current_resource_id, self.current_section,
-            self.learning_goal
+            self.moodle_section_id, self.current_section_name,
+            self.current_section_order is not None, self.learning_goal
         ])
 
 

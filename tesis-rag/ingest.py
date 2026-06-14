@@ -391,23 +391,70 @@ def _default_resource_type_safe(media_type: str, doc_type: str = "") -> str:
                 "file": "downloadable"}.get(m, "other")
 
 
-def _scope_chunk(course_id: str, axis_id: str, lesson_id: str, is_global: bool, declared: str = "") -> str:
+def _scope_chunk(
+    course_id: str,
+    axis_id: str,
+    lesson_id: str,
+    is_global: bool,
+    declared: str = "",
+    moodle_section_id: str = "",
+) -> str:
     """Scope del chunk para Chroma. Usa el declarado en metadata si es valido;
     si no, lo deriva con la misma regla que la BD (single source: db_service)."""
     declared = (declared or "").strip().lower()
-    if declared in ("global", "course", "axis", "lesson"):
+    if declared in ("global", "course", "section", "axis", "lesson"):
         return declared
     try:
         from services.db_service import derive_scope
-        return derive_scope(course_id, axis_id, lesson_id, is_global)
+        return derive_scope(course_id, axis_id, lesson_id, is_global, moodle_section_id)
     except Exception:
-        if is_global or (not course_id and not axis_id and not lesson_id):
+        if is_global or (not course_id and not axis_id and not lesson_id and not moodle_section_id):
             return "global"
         if lesson_id:
             return "lesson"
+        if moodle_section_id:
+            return "section"
         if axis_id:
             return "axis"
         return "course"
+
+
+_SECTIONS_CACHE = {}
+
+
+def _course_sections_ordered(course_id: str):
+    """Secciones del curso en orden Moodle (cacheadas por proceso de ingest)."""
+    cid = str(course_id or "").strip()
+    if not cid:
+        return []
+    if cid in _SECTIONS_CACHE:
+        return _SECTIONS_CACHE[cid]
+    try:
+        from services import section_service
+        sections = section_service._list_sections_from_db(cid)
+    except Exception as exc:
+        print(f"[ingest] no se pudieron leer secciones del curso {cid}: {exc}")
+        sections = []
+    _SECTIONS_CACHE[cid] = sections
+    return sections
+
+
+def _section_id_for_axis(course_id: str, axis_value: str) -> str:
+    """Mapea el axis legacy ('Eje 2', 'eje_2', '2') a moodle_section_id por POSICION.
+
+    Regla del curso: la primera seccion es Bienvenida (no pedagogica) y la
+    seccion pedagogica N es la (N+2)-esima en el orden de Moodle. Permite que el
+    corpus viejo tageado por eje salga del re-ingest ya alineado a secciones,
+    sin editar los archivos fuente.
+    """
+    match = re.search(r"(\d+)", str(axis_value or ""))
+    if not match:
+        return ""
+    idx = int(match.group(1)) + 1  # saltar Bienvenida (indice 0)
+    sections = _course_sections_ordered(course_id)
+    if 0 <= idx < len(sections):
+        return str(sections[idx].get("moodle_section_id") or "")
+    return ""
 
 
 def _stem(filename: str) -> str:
@@ -514,13 +561,18 @@ def _metadata_base(filepath: str, doc_type: str, chunk_index: int, chunk_id: str
 
     course_id = doc_meta.get("course_id") or _inferir_course_id(filepath)
     lesson_id = doc_meta.get("lesson_id", "") or ""
+    moodle_section_id = str(doc_meta.get("moodle_section_id", "") or "").strip()
     axis_id = doc_meta.get("axis_id", axis) or ""
+    # Corpus legacy tageado por eje: derivar la seccion Moodle equivalente para
+    # que el retrieval por seccion (affinity/gate) funcione tras re-ingest.
+    if not moodle_section_id and axis_id:
+        moodle_section_id = _section_id_for_axis(course_id, axis_id)
     # Fase 1: la visibilidad y el alcance viajan al chunk para que el retrieval
     # y el servido de media puedan filtrar sin volver a la BD.
     is_global = _as_bool(doc_meta.get("is_global"), course_id == "")
     visible_to_student = _as_bool(doc_meta.get("visible_to_student"), True)
     allowed_for_indexing = _as_bool(doc_meta.get("allowed_for_indexing"), True)
-    scope = _scope_chunk(course_id, axis_id, lesson_id, is_global, doc_meta.get("scope", ""))
+    scope = _scope_chunk(course_id, axis_id, lesson_id, is_global, doc_meta.get("scope", ""), moodle_section_id)
     # Fase 2: media_type (formato) + resource_type (uso pedagogico) viajan al chunk.
     media_type = doc_meta.get("media_type") or resource_media_type(os.path.splitext(filepath)[1])
     resource_type = (doc_meta.get("resource_type") or "").strip().lower()
@@ -541,6 +593,7 @@ def _metadata_base(filepath: str, doc_type: str, chunk_index: int, chunk_id: str
         "course_id": course_id,
         "module_id": doc_meta.get("module_id", ""),
         "lesson_id": lesson_id,
+        "moodle_section_id": moodle_section_id,
         "axis_id": axis_id,
         "axis_number": doc_meta.get("axis_number", ""),
         "axis_title": doc_meta.get("axis_title", ""),
@@ -1197,6 +1250,7 @@ def reindex_course_documents(course_id: str):
             course_id=course, lesson_id=doc.get("lesson_id", ""), doc_id=doc_id,
             title=doc.get("title", ""), description=description, concepts=meta.get("concepts") or [],
             axis_id=doc.get("axis_id", ""), media_type=media_type,
+            moodle_section_id=doc.get("moodle_section_id", ""),
             media_path=doc.get("relpath", ""), doc_type=doc.get("doc_type", ""),
             visible_to_student=doc.get("visible_to_student", False),
             allowed_for_indexing=True, scope=doc.get("scope", ""), is_global=doc.get("is_global", False),
@@ -1222,7 +1276,13 @@ def reindex_course_documents(course_id: str):
         segments = db_service.list_transcript(lid)
         if not segments:
             continue
-        tr = index_lesson_transcript(course, lid, segments, axis_id=lesson.get("axis_id", ""))
+        tr = index_lesson_transcript(
+            course,
+            lid,
+            segments,
+            axis_id="",
+            moodle_section_id=lesson.get("moodle_section_id", ""),
+        )
         if tr.get("success") and tr.get("chunks"):
             transcripts_indexed += 1
 
@@ -1246,7 +1306,7 @@ def reindex_course_documents(course_id: str):
     }
 
 
-def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource_id=""):
+def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource_id="", moodle_section_id=""):
     """Indexa (RAG) la transcripción de una lección como conocimiento canónico.
 
     Agrupa los segmentos en chunks (~700 chars) conservando el tiempo de inicio/fin
@@ -1297,6 +1357,7 @@ def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource
         metadatas.append({
             "course_id": course,
             "axis_id": str(axis_id or ""),
+            "moodle_section_id": str(moodle_section_id or ""),
             "lesson_id": lid,
             "resource_id": str(resource_id or ""),
             "start_time": float(ch["start"] or 0),
@@ -1304,10 +1365,12 @@ def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource
             "doc_layer": "canonico",
             "doc_type": "video_transcript",
             "source": source_tag,
+            "chunk_index": i,
+            "chunk_id": f"{source_tag}:{i}",
             "title": lid,
             # La transcripcion es conocimiento del curso (scope lección): el tutor
             # la usa y la puede citar; no es un archivo descargable.
-            "scope": _scope_chunk(course, str(axis_id or ""), lid, False, "lesson" if lid else ""),
+            "scope": _scope_chunk(course, str(axis_id or ""), lid, False, "lesson" if lid else "", moodle_section_id),
             "is_global": False,
             "visible_to_student": True,
             "allowed_for_indexing": True,
@@ -1326,6 +1389,7 @@ def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource
 
 def index_resource_description(course_id, lesson_id, doc_id, title, description,
                                concepts=None, axis_id="", media_type="file",
+                               moodle_section_id="",
                                media_path="", doc_type="", visible_to_student=True,
                                allowed_for_indexing=True, scope="", is_global=False,
                                resource_type=""):
@@ -1362,6 +1426,7 @@ def index_resource_description(course_id, lesson_id, doc_id, title, description,
     metadata = {
         "course_id": str(course_id or ""),
         "axis_id": str(axis_id or ""),
+        "moodle_section_id": str(moodle_section_id or ""),
         "lesson_id": str(lesson_id or ""),
         "doc_layer": "canonico",
         "doc_type": doc_type or media_type or "resource",
@@ -1371,7 +1436,7 @@ def index_resource_description(course_id, lesson_id, doc_id, title, description,
         "media_path": (media_path or "").replace("\\", "/"),
         # Fase 1: visibilidad + alcance viajan al chunk.
         "scope": _scope_chunk(str(course_id or ""), str(axis_id or ""), str(lesson_id or ""),
-                              _as_bool(is_global, False), scope),
+                              _as_bool(is_global, False), scope, moodle_section_id),
         "is_global": _as_bool(is_global, False),
         "visible_to_student": _as_bool(visible_to_student, True),
         "allowed_for_indexing": _as_bool(allowed_for_indexing, True),

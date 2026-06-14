@@ -105,7 +105,7 @@ export const getCourseDocuments = async (courseId, scope = '') => {
   return data.documents || [];
 };
 
-// Jerarquía real desde la BD: { course:[], axes:{axis_id:{axis_resources:[],lessons:{}}}, global_docs:[] }
+// Jerarquía real desde la BD: { course:[], sections:{moodle_section_id:{section_resources:[],lessons:{}}}, global_docs:[] }
 export const getStructuredDocuments = async (courseId) => {
   const response = await fetch(`${AUTHORING_DOCS_URL}/structured`, {
     headers: authHeaders(courseId),
@@ -157,7 +157,8 @@ export const uploadCourseDocument = async (courseId, payload) => {
   const formData = new FormData();
   formData.append('file', payload.file);
   formData.append('title', payload.title || payload.file?.name || '');
-  formData.append('axis_id', payload.axis_id || '');
+  formData.append('axis_id', '');
+  formData.append('moodle_section_id', payload.moodle_section_id || payload.section_id || '');
   formData.append('doc_layer', payload.doc_layer || 'canonico');
   formData.append('attribution_required', payload.attribution_required ? 'true' : 'false');
   formData.append('ownership', payload.ownership || 'kenth_academy');
@@ -223,14 +224,14 @@ export const reindexCourseDocuments = async (courseId) => {
 const AUTHORING_LESSONS_URL = '/api/ai/authoring/lessons';
 const LESSONS_URL = '/api/ai/lessons';
 
-// includeAxis=true añade data.inherited_axis_resources (recursos del eje, solo lectura).
-export const listLessonResources = async (courseId, lessonId, includeAxis = false) => {
-  const qs = includeAxis ? '?include_axis=true' : '';
+// includeSection=true añade data.inherited_section_resources (recursos de la sección, solo lectura).
+export const listLessonResources = async (courseId, lessonId, includeSection = false) => {
+  const qs = includeSection ? '?include_section=true' : '';
   const response = await fetch(`${AUTHORING_LESSONS_URL}/${encodeURIComponent(lessonId)}/resources${qs}`, {
     headers: authHeaders(courseId),
   });
   const data = await readAuthoringResponse(response, 'Error al obtener los recursos de la lección');
-  if (includeAxis) return data; // { resources, inherited_axis_resources, axis_id }
+  if (includeSection) return data; // { resources, inherited_section_resources, moodle_section_id }
   return data.resources || [];
 };
 
@@ -266,34 +267,34 @@ export const deleteLessonResource = async (courseId, lessonId, docId) => {
 };
 
 // ============================================================
-// RECURSOS DE EJE (scope='axis', pertenecen a todo el eje)
+// RECURSOS DE SECCION (scope='section', pertenecen a toda la seccion Moodle)
 // ============================================================
 
-const AUTHORING_AXES_URL = '/api/ai/authoring/axes';
+const AUTHORING_SECTIONS_URL = '/api/ai/authoring/sections';
 
-export const listAxisResources = async (courseId, axisId) => {
-  const response = await fetch(`${AUTHORING_AXES_URL}/${encodeURIComponent(axisId)}/resources`, {
+export const listSectionResources = async (courseId, sectionId) => {
+  const response = await fetch(`${AUTHORING_SECTIONS_URL}/${encodeURIComponent(sectionId)}/resources`, {
     headers: authHeaders(courseId),
   });
-  const data = await readAuthoringResponse(response, 'Error al obtener los recursos del eje');
+  const data = await readAuthoringResponse(response, 'Error al obtener los recursos de la sección');
   return data.resources || [];
 };
 
-export const uploadAxisResource = async (courseId, axisId, payload) => {
-  const response = await fetch(`${AUTHORING_AXES_URL}/${encodeURIComponent(axisId)}/resources`, {
+export const uploadSectionResource = async (courseId, sectionId, payload) => {
+  const response = await fetch(`${AUTHORING_SECTIONS_URL}/${encodeURIComponent(sectionId)}/resources`, {
     method: 'POST',
     headers: authHeaders(courseId),
     body: appendResourceForm(payload),
   });
-  return readAuthoringResponse(response, 'Error al subir el recurso del eje');
+  return readAuthoringResponse(response, 'Error al subir el recurso de la sección');
 };
 
-export const deleteAxisResource = async (courseId, axisId, docId) => {
+export const deleteSectionResource = async (courseId, sectionId, docId) => {
   const response = await fetch(
-    `${AUTHORING_AXES_URL}/${encodeURIComponent(axisId)}/resources/${encodeURIComponent(docId)}`,
+    `${AUTHORING_SECTIONS_URL}/${encodeURIComponent(sectionId)}/resources/${encodeURIComponent(docId)}`,
     { method: 'DELETE', headers: authHeaders(courseId) },
   );
-  return readAuthoringResponse(response, 'Error al eliminar el recurso del eje');
+  return readAuthoringResponse(response, 'Error al eliminar el recurso de la sección');
 };
 
 // Borrador de descripción de una imagen de recurso (reusa el endpoint de visión).

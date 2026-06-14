@@ -190,7 +190,9 @@ def chat_endpoint(
     activity_context_block = render_context_block(envelope)
     runtime_context_trace = {
         "has_activity_context": not envelope.activity_context.is_empty(),
-        "current_axis": envelope.activity_context.current_axis,
+        "moodle_section_id": envelope.activity_context.moodle_section_id,
+        "current_section_name": envelope.activity_context.current_section_name,
+        "current_section_order": envelope.activity_context.current_section_order,
         "current_lesson_id": envelope.activity_context.current_lesson_id,
         "current_resource_id": envelope.activity_context.current_resource_id,
         "current_timestamp": envelope.activity_context.current_timestamp,
@@ -208,7 +210,9 @@ def chat_endpoint(
         "pregunta": consulta.pregunta,
         "course_id": scoped_course_id,
         "current_lesson_id": envelope.activity_context.current_lesson_id,
-        "current_axis_id": envelope.activity_context.current_axis,
+        "moodle_section_id": envelope.activity_context.moodle_section_id,
+        "current_section_name": envelope.activity_context.current_section_name,
+        "current_section_order": envelope.activity_context.current_section_order,
         "contexto_leccion": contexto,
         "imagen": consulta.imagen,
         "ruta": ruta_forzada,

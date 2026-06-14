@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { showNotification } from '../../shared/components/ui/Notification';
+import { showNotification } from '../../shared/utils/notify';
 import PageContainer from '../../shared/components/layout/PageContainer';
 import AvatarCropper from '../../shared/components/ui/AvatarCropper';
 
@@ -223,7 +223,7 @@ export default function ProfileSettingsView() {
       } else {
         showNotification('error', res.error || 'Hubo un error al guardar');
       }
-    } catch (err) {
+    } catch {
       showNotification('error', 'Error de conexión con el servidor');
     } finally {
       setSaving(false);

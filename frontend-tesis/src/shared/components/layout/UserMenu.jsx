@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 export default function UserMenu({ isCompact = false }) {
-  const navigate = useNavigate();
   const [menuUsuarioAbierto, setMenuUsuarioAbierto] = useState(false);
   const [userName, setUserName] = useState(() => localStorage.getItem('moodle_userfullname') || 'Usuario');
   const [userAvatar, setUserAvatar] = useState(() => {

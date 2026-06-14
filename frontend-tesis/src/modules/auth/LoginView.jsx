@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import logoImg from '../../assets/logo-main.png';
 import Logo from '../../shared/components/ui/Logo';
 
 // IMPORTAMOS TUS FUNCIONES REALES

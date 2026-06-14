@@ -21,7 +21,6 @@ export default function TutorAssistCard({
   badge = null,
 }) {
   const [pregunta, setPregunta] = useState('');
-  const [respuesta, setRespuesta] = useState('');
   const [cargando, setCargando] = useState(false);
   const [historial, setHistorial] = useState(() => (
     proactiveMessage
@@ -87,7 +86,7 @@ export default function TutorAssistCard({
         activityContext
       );
       setHistorial(prev => [...prev, { role: 'assistant', content: data.respuesta }]);
-    } catch (error) {
+    } catch {
       setHistorial(prev => [...prev, { role: 'assistant', content: "Lo siento, no pude conectar con el servidor." }]);
     } finally {
       setCargando(false);

@@ -19,7 +19,6 @@ from fastapi.responses import FileResponse
 import ingest
 from api.dependencies import require_teacher, TeacherContext
 from services import db_service
-from services.axis_service import _canonical_axis_id
 from api.routes.course_documents import _slug, _write_with_metadata
 
 router = APIRouter(tags=["lesson-resources"])
@@ -35,6 +34,7 @@ def _resource_to_public(d: dict) -> dict:
         "course_id": d.get("course_id"),
         "lesson_id": d.get("lesson_id"),
         "axis_id": d.get("axis_id"),
+        "moodle_section_id": d.get("moodle_section_id"),
         "doc_type": d.get("doc_type"),
         "media_type": media_type,
         "resource_type": d.get("resource_type"),
@@ -65,6 +65,7 @@ async def _store_resource(
     course_id: str,
     axis_id: str,
     lesson_id: str,
+    moodle_section_id: str = "",
     file: UploadFile,
     title: str,
     description: str,
@@ -84,7 +85,7 @@ async def _store_resource(
     try:
         scope, is_global = db_service.validate_scope(
             scope=scope, course_id=course_id, axis_id=axis_id,
-            lesson_id=lesson_id, is_global=False,
+            moodle_section_id=moodle_section_id, lesson_id=lesson_id, is_global=False,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -115,7 +116,7 @@ async def _store_resource(
         )
 
     doc_title = (title or os.path.splitext(filename)[0]).strip()
-    seed = f"{lesson_id}_{doc_title}" if scope == "lesson" else f"{axis_id}_{doc_title}"
+    seed = f"{lesson_id}_{doc_title}" if scope == "lesson" else f"{moodle_section_id}_{doc_title}"
     doc_id = _slug(seed)[:80]
     concepts_list = [c.strip() for c in (concepts or "").split(",") if c.strip()]
 
@@ -129,8 +130,9 @@ async def _store_resource(
         "allowed_for_indexing": bool(index_to_tutor),
         "visible_to_student": bool(visible),
         "doc_layer": "canonico",
-        "axis": axis_id,
-        "axis_id": axis_id,
+        "axis": "",
+        "axis_id": "",
+        "moodle_section_id": moodle_section_id,
         "course_id": course_id,
         "lesson_id": lesson_id,
         "scope": scope,
@@ -170,7 +172,8 @@ async def _store_resource(
             r = ingest.index_resource_description(
                 course_id=course_id, lesson_id=lesson_id, doc_id=doc_id,
                 title=doc_title, description=description, concepts=concepts_list,
-                axis_id=axis_id, media_type=media_type, media_path=relpath, doc_type=ext.lstrip("."),
+                axis_id="", moodle_section_id=moodle_section_id,
+                media_type=media_type, media_path=relpath, doc_type=ext.lstrip("."),
                 visible_to_student=bool(visible), allowed_for_indexing=True,
                 scope=scope, is_global=False, resource_type=eff_resource_type,
             )
@@ -199,7 +202,8 @@ async def _store_resource(
     db_service.upsert_document(
         doc_id=doc_id,
         course_id=course_id,
-        axis_id=axis_id,
+        axis_id="",
+        moodle_section_id=moodle_section_id,
         lesson_id=lesson_id,
         title=doc_title,
         doc_layer="canonico",
@@ -239,9 +243,9 @@ async def upload_lesson_resource(
     lesson = db_service.get_lesson(lesson_id, ctx.course_id)
     if not lesson:
         raise HTTPException(status_code=404, detail="La lección no existe en este curso.")
-    axis_id = _canonical_axis_id(lesson.get("axis_id") or "") if lesson.get("axis_id") else ""
     return await _store_resource(
-        scope="lesson", course_id=ctx.course_id, axis_id=axis_id, lesson_id=lesson_id,
+        scope="lesson", course_id=ctx.course_id, axis_id="",
+        moodle_section_id=lesson.get("moodle_section_id", ""), lesson_id=lesson_id,
         file=file, title=title, description=description, concepts=concepts,
         index_to_tutor=index_to_tutor, visible_to_student=visible_to_student,
         resource_type=resource_type, uploaded_by=ctx.user_id,
@@ -251,33 +255,33 @@ async def upload_lesson_resource(
 @router.get("/authoring/lessons/{lesson_id}/resources")
 def list_lesson_resources(
     lesson_id: str,
-    include_axis: bool = False,
+    include_section: bool = False,
     ctx: TeacherContext = Depends(require_teacher),
 ):
-    """Recursos de la lección. Con include_axis=true, añade los recursos HEREDADOS
-    del eje (scope='axis') como lista separada y de SOLO LECTURA (no son de la lección)."""
+    """Recursos de la lección. Con include_section=true, añade los recursos HEREDADOS
+    de la sección (scope='section') como lista separada y de SOLO LECTURA (no son de la lección)."""
     docs = db_service.list_documents(course_id=ctx.course_id, lesson_id=lesson_id)
     out = {"resources": [_resource_to_public(d) for d in docs]}
-    if include_axis:
+    if include_section:
         lesson = db_service.get_lesson(lesson_id, ctx.course_id)
-        axis_id = _canonical_axis_id(lesson.get("axis_id") or "") if (lesson and lesson.get("axis_id")) else ""
+        section_id = (lesson or {}).get("moodle_section_id") or ""
         inherited = []
-        if axis_id:
+        if section_id:
             for d in db_service.list_documents(course_id=ctx.course_id):
-                if d.get("scope") == "axis" and d.get("axis_id") == axis_id:
+                if d.get("scope") in {"section", "axis"} and (d.get("moodle_section_id") or d.get("axis_id")) == section_id:
                     inherited.append(_resource_to_public(d))
-        out["inherited_axis_resources"] = inherited
-        out["axis_id"] = axis_id
+        out["inherited_section_resources"] = inherited
+        out["moodle_section_id"] = section_id
     return out
 
 
 # ============================================================
-# DOCENTE — RECURSOS DE EJE (scope='axis', sin lesson_id)
+# DOCENTE - RECURSOS DE SECCION (scope='section', sin lesson_id)
 # ============================================================
 
-@router.post("/authoring/axes/{axis_id}/resources")
-async def upload_axis_resource(
-    axis_id: str,
+@router.post("/authoring/sections/{section_id}/resources")
+async def upload_section_resource(
+    section_id: str,
     file: UploadFile = File(...),
     title: str = Form(""),
     description: str = Form(""),
@@ -287,34 +291,29 @@ async def upload_axis_resource(
     resource_type: str = Form(""),
     ctx: TeacherContext = Depends(require_teacher),
 ):
-    """Sube un recurso que pertenece a TODO el eje (no a una lección).
-    No se duplica en lecciones; aparece como recurso propio del eje."""
-    canonical_axis = _canonical_axis_id(axis_id)
-    if not db_service.get_axis(canonical_axis, ctx.course_id):
-        raise HTTPException(status_code=404, detail="El eje no existe en este curso.")
     return await _store_resource(
-        scope="axis", course_id=ctx.course_id, axis_id=canonical_axis, lesson_id="",
+        scope="section", course_id=ctx.course_id, axis_id="",
+        moodle_section_id=section_id, lesson_id="",
         file=file, title=title, description=description, concepts=concepts,
         index_to_tutor=index_to_tutor, visible_to_student=visible_to_student,
         resource_type=resource_type, uploaded_by=ctx.user_id,
     )
 
 
-@router.get("/authoring/axes/{axis_id}/resources")
-def list_axis_resources(axis_id: str, ctx: TeacherContext = Depends(require_teacher)):
-    canonical_axis = _canonical_axis_id(axis_id)
+@router.get("/authoring/sections/{section_id}/resources")
+def list_section_resources(section_id: str, ctx: TeacherContext = Depends(require_teacher)):
     docs = [
         d for d in db_service.list_documents(course_id=ctx.course_id)
-        if d.get("scope") == "axis" and d.get("axis_id") == canonical_axis
+        if d.get("scope") == "section" and d.get("moodle_section_id") == section_id
     ]
-    return {"axis_id": canonical_axis, "resources": [_resource_to_public(d) for d in docs]}
+    return {"moodle_section_id": section_id, "resources": [_resource_to_public(d) for d in docs]}
 
 
-@router.delete("/authoring/axes/{axis_id}/resources/{doc_id}")
-def delete_axis_resource(axis_id: str, doc_id: str, ctx: TeacherContext = Depends(require_teacher)):
+@router.delete("/authoring/sections/{section_id}/resources/{doc_id}")
+def delete_section_resource(section_id: str, doc_id: str, ctx: TeacherContext = Depends(require_teacher)):
     doc = db_service.get_document(doc_id, ctx.course_id)
-    if not doc or doc.get("scope") != "axis":
-        raise HTTPException(status_code=404, detail="Recurso de eje no encontrado.")
+    if not doc or doc.get("scope") != "section" or doc.get("moodle_section_id") != section_id:
+        raise HTTPException(status_code=404, detail="Recurso de seccion no encontrado.")
     relpath = doc.get("relpath", "")
     if relpath:
         filepath = os.path.join(ingest.BASE_DIR, relpath)

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { getCommercialCatalog, updateCommercialData } from '../../shared/services/courseService';
-import { showNotification } from '../../shared/components/ui/Notification';
+import { showNotification } from '../../shared/utils/notify';
 import PageContainer from '../../shared/components/layout/PageContainer';
 
 export default function AdminCommercialView() {
@@ -19,7 +18,7 @@ export default function AdminCommercialView() {
       setLoading(true);
       const data = await getCommercialCatalog(token);
       setCourses(data);
-    } catch (error) {
+    } catch {
       showNotification('error', 'No tienes permisos de administrador o hubo un error.');
     } finally {
       setLoading(false);
@@ -46,7 +45,7 @@ export default function AdminCommercialView() {
     try {
       await updateCommercialData(token, courseId, course.commercial);
       showNotification('success', `Ajustes de "${course.shortname}" guardados.`);
-    } catch (error) {
+    } catch {
       showNotification('error', 'Error al guardar los cambios.');
     } finally {
       setSaving(null);
@@ -72,7 +71,7 @@ export default function AdminCommercialView() {
         </div>
       ) : (
         <div className="grid grid-cols-1 gap-6">
-          {courses.map((course, index) => (
+          {courses.map((course) => (
             <div key={course.id} className="bg-kenth-card border border-kenth-border rounded-[2.5rem] p-6 md:p-8 flex flex-col lg:flex-row items-center gap-8 hover:border-kenth-brightred/30 transition-all group shadow-xl">
               <div className="flex-1 w-full lg:w-auto">
                 <span className="text-[10px] font-black text-kenth-subtext uppercase tracking-widest block mb-1">ID: {course.id}</span>

@@ -219,66 +219,6 @@ export const updateCourseSettings = async (token, courseId, settingsData) => {
 };
 
 // ==========================================
-// 8. INICIAR INTENCIÓN DE PAGO (GUEST SUPPORTED)
-// ==========================================
-export const initiatePaymentIntent = async (token, courseId, gateway, userInfo = null) => {
-  // Ahora permitimos el inicio sin token para el flujo de invitados
-  
-  // Simulamos una latencia de red de pasarela
-  await new Promise(resolve => setTimeout(resolve, 1500));
-
-  console.log(`Iniciando pago para el curso ${courseId} vía ${gateway}...`);
-  
-  // Si es invitado, logueamos los datos que se enviarán como metadata
-  if (userInfo) {
-    console.log("Metadata de Invitado:", userInfo);
-  }
-
-  // Mock de respuesta exitosa de la pasarela
-  return {
-    success: true,
-    transactionId: `SANDBOX_${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-    checkoutUrl: gateway === 'paypal' ? 'https://www.sandbox.paypal.com' : 'https://payphone.sandbox.com'
-  };
-};
-
-// ==========================================
-// 10. GENERAR LINK DE PAGO PAYPHONE (VÍA PROXY PHP PARA EVITAR CORS)
-// ==========================================
-export const generatePayPhoneLink = async (formData, courseName, courseId) => {
-  const url = "/api/lms/proyecto_curso/api_persistente/api_payphone_proxy.php";
-
-  try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        courseName: courseName,
-        courseId: courseId,
-        email: formData?.email,
-        firstname: formData?.firstname,
-        lastname: formData?.lastname
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-        // Volcado completo para ver qué rayos está enviando PayPhone
-        const errorMsg = JSON.stringify(data);
-        throw new Error(errorMsg);
-    }
-
-    return data.url || data.paymentUrl || data.payPhoneUri;
-  } catch (error) {
-    console.error("Error en generatePayPhoneLink:", error);
-    throw error;
-  }
-};
-
-// ==========================================
 // 11. OBTENER CATÁLOGO COMERCIAL COMPLETO (PÚBLICO/ADMIN)
 // ==========================================
 export const getCommercialCatalog = async (token = null) => {

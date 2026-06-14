@@ -1,0 +1,148 @@
+{
+  "lesson_id": "REEMPLAZAR_CON_CMID_REAL",
+  "course_id": "REEMPLAZAR_CON_COURSE_ID",
+  "moodle_section_id": "REEMPLAZAR_CON_SECTION_ID",
+  "lesson_title": "1 — Mezclar es decidir: el ciclo de trabajo",
+  "order": 1,
+  "prerequisites": [],
+  "learning_goal": "Al terminar, el alumno ejecuta el ciclo de decisión completo (escuchar → diagnosticar → decidir → actuar → verificar) sobre una mezcla real, formulando un diagnóstico preciso y verificando su corrección con A/B a nivel igualado.",
+  "learning_goals": [
+    "Formula diagnósticos precisos y accionables en lugar de impresiones vagas ('la guitarra enmascara la voz en la zona de presencia' vs 'la voz no se entiende')",
+    "Ejecuta una sola acción por ciclo y puede justificar por qué la eligió",
+    "Verifica toda decisión comparando antes y después al mismo volumen percibido, y explica por qué el A/B sin nivelar engaña al oído"
+  ],
+  "expected_action": "El alumno toma una mezcla propia (o la sesión de práctica de Recursos), identifica UN solo problema, lo nombra con precisión, ejecuta una sola acción correctiva, verifica con A/B nivelado y reporta su diagnóstico completo al Tutor antes de pasar a la Lección 0.2.",
+  "delegated_to_tutor": [
+    "Traducción de cualquier paso de la demo al DAW del alumno (bypass de plugins, ganancia de compensación, comparación A/B en FL Studio, Pro Tools, Logic, Ableton, Cubase, Reaper)",
+    "Teoría profunda del sesgo de sonoridad: por qué el cerebro prefiere lo más fuerte y su base psicoacústica",
+    "Cómo construir hábitos de escucha crítica y rutinas de sesión (duración, descansos, fatiga auditiva)",
+    "Revisión del diagnóstico que el alumno reporta como tarea: evaluar si es preciso y accionable, y devolverle contrapreguntas si es vago",
+    "Ejemplos adicionales de diagnósticos bien y mal formulados en otros instrumentos y géneros"
+  ],
+  "attribution_constraints": [
+    "No recomendar compras de hardware ni plugins de pago; ante preguntas de equipamiento, responder con criterios, nunca con modelos ni marcas",
+    "No presentar ninguna receta fija de parámetros como solución universal; toda sugerencia debe pasar por el ciclo de decisión de esta lección",
+    "Si el alumno pide procesar sin diagnóstico previo ('¿cuánto comprimo la voz?'), exigir primero el diagnóstico: ¿qué escuchaste y qué problema nombraste?",
+    "No adelantar contenido de lecciones futuras en profundidad (EQ, compresión, espacio); mencionar que se verá y anclar la respuesta al ciclo de decisión"
+  ],
+  "proactive_message": "En esta lección Kenneth corrige UN problema de una mezcla real usando el ciclo de decisión. Si usas otro DAW, pídeme la traducción exacta de cualquier paso (bypass, ganancia de compensación, A/B). Y cuando hagas tu tarea, tráeme tu diagnóstico: lo reviso contigo antes de que toques nada.",
+  "suggested_prompts": [
+    "¿Cómo hago el A/B con nivel igualado en mi DAW? (dime cuál usas)",
+    "¿Qué diferencia hay entre un diagnóstico vago y uno preciso? Dame ejemplos",
+    "¿Por qué lo más fuerte suena mejor aunque no lo sea?",
+    "Revisa mi diagnóstico: te cuento qué escuché en mi mezcla",
+    "¿Qué hago si detecto varios problemas a la vez en mi mezcla?"
+  ],
+  "notes": "Lección piloto del test de plataforma. La demo usa la sesión 'KENTH_S0_Practica_v1' (mezcla con guitarra enmascarando voz). Animación del ciclo: storyboard ANIM-001. Al regrabar, mantener timestamps de bloques con margen ±5s o actualizar el JSON.",
+  "blocks": [
+    {
+      "block_id": "S0-L01-B1",
+      "block_order": 1,
+      "start_time": 0,
+      "end_time": 70,
+      "block_title": "La mentira de las recetas",
+      "summary": "Apertura a cámara. Kenneth desmonta la cultura de recetas (valores fijos de EQ y compresión copiados de internet) y planta la tesis del curso: mezclar es tomar decisiones verificables, no aplicar procesos. Intención: generar rechazo activo a la receta antes de ofrecer el sistema que la reemplaza.",
+      "interaction_mode": "teoria",
+      "tutor_focus": "Sostener la tesis sin suavizarla: si el alumno defiende una receta que le funcionó, no descalificarla sino reencuadrarla (funcionó porque coincidió con un diagnóstico correcto, no porque el número sea mágico). No adelantar el ciclo todavía si la pregunta llega en este bloque.",
+      "concepts": ["recetas vs criterio", "decisión verificable", "contexto de la señal", "tesis del curso"],
+      "preguntas_probables": [
+        "¿Entonces los tutoriales de YouTube no sirven?",
+        "A mí cortar 300 Hz al bombo siempre me funciona, ¿está mal?",
+        "¿Por qué las recetas funcionan en unos temas y en otros no?"
+      ]
+    },
+    {
+      "block_id": "S0-L01-B2",
+      "block_order": 2,
+      "start_time": 70,
+      "end_time": 185,
+      "block_title": "El ciclo de decisión (animación)",
+      "summary": "Animación de los cinco pasos: escuchar → diagnosticar → decidir → actuar → verificar. Se define cada paso con su criterio de calidad: el diagnóstico debe nombrar el problema con precisión accionable, la decisión es UNA acción justificable, la verificación es A/B nivelado. Intención: instalar el modelo mental que gobierna las 50+ lecciones del curso; es la imagen a la que el Tutor regresa siempre.",
+      "interaction_mode": "teoria",
+      "tutor_focus": "Este es el framework central del curso: reusarlo en TODAS las respuestas de esta lección y citarlo por sus cinco pasos. Si el alumno confunde diagnóstico con decisión (muy común: 'el problema es que falta compresión' es una acción disfrazada de diagnóstico), corregirlo explícitamente con ese ejemplo.",
+      "concepts": ["ciclo de decisión", "escuchar", "diagnóstico preciso", "decisión única justificable", "actuar", "verificación A/B", "diagnóstico vs acción"],
+      "preguntas_probables": [
+        "¿Cuál es la diferencia entre diagnosticar y decidir?",
+        "¿Por qué una sola acción por ciclo y no varias a la vez?",
+        "¿'Falta compresión' es un diagnóstico válido?"
+      ]
+    },
+    {
+      "block_id": "S0-L01-B3",
+      "block_order": 3,
+      "start_time": 185,
+      "end_time": 400,
+      "block_title": "Demo: un problema, una decisión",
+      "summary": "Screencast en el DAW de Kenneth sobre la sesión de práctica. Ejecuta el ciclo completo en vivo: escucha el coro sin tocar nada, diagnostica (las guitarras enmascaran la inteligibilidad de la voz en la zona de presencia), decide UNA acción (atenuar 1.5 dB las guitarras en esa zona), actúa, y deja la verificación planteada para el bloque siguiente. Intención: procedimiento imitable; es el modelo exacto de la tarea del alumno.",
+      "interaction_mode": "practica",
+      "tutor_focus": "Máxima demanda de traducción por-DAW: responder con la ruta exacta en el DAW del alumno para cada paso de la demo. Si el alumno pregunta por los valores usados (1.5 dB, zona de presencia), recordarle que el número salió del diagnóstico de ESTA mezcla y no es transferible; lo transferible es el ciclo.",
+      "concepts": ["aplicación del ciclo", "enmascaramiento", "zona de presencia", "inteligibilidad de la voz", "una acción por ciclo", "escucha sin tocar"],
+      "preguntas_probables": [
+        "¿Cómo hago eso mismo en mi DAW?",
+        "¿Por qué bajaste la guitarra en vez de subir la voz?",
+        "¿Esos 1.5 dB sirven para mi tema también?",
+        "¿Cómo sé en qué zona del espectro está el problema si todavía no vimos EQ?"
+      ]
+    },
+    {
+      "block_id": "S0-L01-B4",
+      "block_order": 4,
+      "start_time": 400,
+      "end_time": 470,
+      "block_title": "Verificar: A/B con nivel igualado",
+      "summary": "El paso que separa mezclar de adivinar. Kenneth demuestra el sesgo de sonoridad: la versión procesada quedó más baja, y al compararla sin compensar suena 'peor' aunque sea mejor. Compensa la ganancia de salida, repite el A/B con nivel percibido igual, y la mejora se vuelve evidente. Intención: que el alumno no vuelva a confiar en un A/B sin nivelar nunca más.",
+      "interaction_mode": "criterio_operativo",
+      "tutor_focus": "Reforzar el criterio operativo como innegociable: toda comparación del curso, de aquí a mastering, se hace a nivel igualado. Verificar comprensión con contrapregunta ('si tu versión procesada quedó 1 dB arriba, ¿qué va a preferir tu cerebro y por qué?'). Para la base psicoacústica profunda, expandir con la teoría delegada.",
+      "concepts": ["A/B nivelado", "sesgo de sonoridad", "ganancia de compensación", "verificación", "nivel percibido"],
+      "preguntas_probables": [
+        "¿Sirve para todos los géneros?",
+        "¿Cómo igualo el nivel exactamente, de oído o con medidor?",
+        "¿Por qué el cerebro prefiere lo más fuerte?"
+      ]
+    },
+    {
+      "block_id": "S0-L01-B5",
+      "block_order": 5,
+      "start_time": 470,
+      "end_time": 525,
+      "block_title": "La regla y tu tarea",
+      "summary": "Cierre a cámara. La regla de la lección: ninguna acción sin diagnóstico, ninguna decisión sin verificación. Anuncio de la tarea (un problema, un ciclo completo, reportar el diagnóstico al Tutor) y delegación explícita al Tutor para traducciones de DAW. Puente a la Lección 0.2.",
+      "interaction_mode": "revision",
+      "tutor_focus": "Modo acompañamiento de tarea: pedir al alumno su diagnóstico, evaluarlo contra el criterio de precisión accionable (¿nombra elemento, conflicto y zona?), devolver contrapreguntas si es vago, y validar el ciclo completo antes de animarlo a pasar a 0.2. Si el alumno quiere avanzar sin hacer la tarea, animarlo a hacerla sin bloquearlo.",
+      "concepts": ["regla de la lección", "tarea", "reporte de diagnóstico", "cierre del ciclo"],
+      "preguntas_probables": [
+        "¿Puedo usar mi propia canción o la de práctica?",
+        "Mi diagnóstico es 'la mezcla suena turbia', ¿así está bien?",
+        "¿Qué sigue en la próxima lección?"
+      ]
+    }
+  ],
+  "transcript": [
+    { "start_time": 0, "end_time": 14, "text": "Bienvenido a KENTH Academy. Esta es la primera lección del curso y quiero empezar desmontando una idea, porque si no la desmontamos ahora, va a sabotear todo lo que hagamos después." },
+    { "start_time": 14, "end_time": 32, "text": "Internet está lleno de recetas. Córtale trescientos hercios al bombo. Comprime la voz cuatro a uno. Ponle tal reverb al snare. Y seguro alguna vez aplicaste una de esas recetas y funcionó. Y otra vez aplicaste la misma receta y destruyó tu mezcla." },
+    { "start_time": 32, "end_time": 50, "text": "¿Por qué? Porque la receta se escribió para otra canción. Para otro bombo, grabado con otro micrófono, en otra sala, peleando contra otro bajo. Tu señal no es esa señal. El número que salvó aquella mezcla no sabe nada de la tuya." },
+    { "start_time": 50, "end_time": 70, "text": "Así que esta es la tesis de todo el curso: mezclar no es aplicar procesos. Mezclar es tomar decisiones que puedes verificar. Y en esta lección te voy a instalar el sistema con el que vas a tomar cada una de esas decisiones, de aquí hasta el máster final." },
+    { "start_time": 70, "end_time": 88, "text": "El sistema es un ciclo de cinco pasos. Escuchar. Diagnosticar. Decidir. Actuar. Verificar. Cinco pasos que vas a ejecutar miles de veces, hasta que sean un reflejo. Vamos a verlos uno por uno." },
+    { "start_time": 88, "end_time": 106, "text": "Primero, escuchar. Y escuchar significa con las manos quietas. Sin tocar un fader, sin abrir un plugin. Le das play a la mezcla y dejas que el problema venga a ti. Si empiezas a mover cosas mientras escuchas, ya no estás escuchando: estás reaccionando." },
+    { "start_time": 106, "end_time": 128, "text": "Segundo, diagnosticar. Y aquí está el paso que separa al que mezcla del que adivina. Diagnosticar es nombrar el problema con precisión. Fíjate la diferencia: decir 'la voz no se entiende' no es un diagnóstico, es una queja. Decir 'las guitarras enmascaran a la voz en la zona de presencia durante el coro', eso sí es un diagnóstico. Nombra al culpable, nombra a la víctima y nombra el lugar del crimen." },
+    { "start_time": 128, "end_time": 148, "text": "Tercero, decidir. Una decisión es una sola acción que puedes justificar. Una sola. Si el diagnóstico fue preciso, la decisión casi se escribe sola. Y ojo con esto, porque es el error más común: 'falta compresión' no es un diagnóstico. Es una acción disfrazada. Es empezar por el final." },
+    { "start_time": 148, "end_time": 162, "text": "Cuarto, actuar. Ejecutar el proceso. Y te va a sorprender, pero este es el paso más corto y el menos importante de los cinco. Mover la perilla toma dos segundos. Saber qué perilla y por qué, eso es todo lo demás." },
+    { "start_time": 162, "end_time": 185, "text": "Y quinto, verificar. Comparar el antes y el después al mismo volumen percibido. Quédate con esta frase: si no verificaste, no mezclaste. Adivinaste. En un rato te muestro por qué la verificación tiene trampa y cómo se hace bien. Pero primero, vamos a ejecutar el ciclo completo en una mezcla de verdad." },
+    { "start_time": 185, "end_time": 203, "text": "Estamos en mi DAW, con la sesión de práctica que tienes en los recursos de esta lección. Una banda real, una mezcla en progreso. Paso uno: escuchar. Manos quietas. Le doy play al coro." },
+    { "start_time": 203, "end_time": 222, "text": "Bien. Escúchalo otra vez y fíjate en la voz. En la estrofa se entiende perfecto. Pero cuando entra el coro, con las dos guitarras, la voz sigue ahí, el nivel no cambió, y sin embargo cuesta entender lo que dice." },
+    { "start_time": 222, "end_time": 245, "text": "Paso dos: diagnóstico. No me sirve 'la voz se pierde'. Vamos a nombrarlo bien: las guitarras del coro ocupan la misma zona del espectro donde vive la inteligibilidad de la voz, la zona de presencia, y al sonar las tres cosas a la vez, las guitarras la enmascaran. Culpable, víctima y lugar del crimen." },
+    { "start_time": 245, "end_time": 268, "text": "Paso tres: decidir. Tengo varias opciones y elijo una. Podría subir la voz, pero la voz ya está bien de nivel en la estrofa, y si la subo para el coro la desbalanceo en todo lo demás. El problema no es que falte voz: es que sobra guitarra en esa zona. Decisión: atenuar las guitarras donde pisan a la voz. Una acción, justificada." },
+    { "start_time": 268, "end_time": 290, "text": "Paso cuatro: actuar. Voy al bus de guitarras y le quito un dB y medio en esa zona de presencia, con un movimiento suave, nada quirúrgico. No te preocupes ahora por la herramienta ni por el valor exacto: la ecualización tiene su propia sección más adelante, y este número salió del diagnóstico de esta mezcla, no de una tabla. Lo que importa hoy es el ciclo." },
+    { "start_time": 290, "end_time": 310, "text": "Listo, hecho. Suena el coro de nuevo con el cambio activo. La voz respira. ¿Terminamos? No. Falta el paso que casi todo el mundo se salta. Y te voy a mostrar por qué saltárselo te miente en la cara." },
+    { "start_time": 310, "end_time": 330, "text": "Mira esto. Apago el cambio. Lo prendo. Apago, prendo. Y si tienes buen oído me vas a decir: oye, con el cambio apagado suena más grande, más lleno. ¿Empeoré la mezcla?" },
+    { "start_time": 330, "end_time": 352, "text": "No. Lo que pasa es esto: al atenuar las guitarras, la versión procesada quedó un poco más baja en nivel general. Y tu cerebro tiene un sesgo instalado de fábrica: lo más fuerte suena mejor. Siempre. Aunque sea peor. Un solo dB de diferencia alcanza para que prefieras la versión equivocada." },
+    { "start_time": 352, "end_time": 376, "text": "Por eso la verificación se hace con nivel igualado. Compenso: le devuelvo a la salida ese pequeño nivel que se perdió, de modo que el antes y el después suenen igual de fuerte. Ahora sí: apago, prendo. Mismo volumen percibido. Y ahora la diferencia es solo lo que importa: con el cambio, la voz se entiende; sin el cambio, se entierra." },
+    { "start_time": 376, "end_time": 400, "text": "Eso es verificar. Antes y después, al mismo volumen, y que gane el que es mejor, no el que es más fuerte. Esta comparación nivelada la vas a hacer en cada decisión del curso, desde este dB y medio de hoy hasta el limitador del máster. Sin excepciones." },
+    { "start_time": 400, "end_time": 420, "text": "Y aquí va la pregunta incómoda: ¿cuántas decisiones de tus mezclas anteriores tomaste comparando sin nivelar? ¿Cuántas veces elegiste la opción más fuerte creyendo que elegías la mejor? No te culpes: nadie te lo había mostrado. Pero a partir de hoy, ya no tienes excusa." },
+    { "start_time": 420, "end_time": 444, "text": "El procedimiento exacto para nivelar depende de tu DAW y de tus plugins: a veces es una perilla de salida, a veces una ganancia de compensación, a veces lo mides. En mi pantalla acabas de ver cómo lo hago yo. Si usas otro programa, pregúntale al Tutor de la plataforma: te traduce este paso, y cualquier otro de la demo, a tu DAW exacto. Para eso está." },
+    { "start_time": 444, "end_time": 470, "text": "Recapitulemos el ciclo completo que acabas de ver: escuché sin tocar nada. Diagnostiqué con nombre y apellido: guitarras enmascarando la voz en la zona de presencia del coro. Decidí una sola acción justificada. Actué. Y verifiqué a nivel igualado. Cinco pasos. Una decisión real. Cero recetas." },
+    { "start_time": 470, "end_time": 492, "text": "La regla de esta lección, y tatúatela: ninguna acción sin diagnóstico, ninguna decisión sin verificación. Si te descubres moviendo una perilla sin poder decir en voz alta qué problema estás resolviendo, detente. Eso es adivinar con buena producción." },
+    { "start_time": 492, "end_time": 512, "text": "Tu tarea antes de la próxima lección: toma una mezcla tuya, o la sesión de práctica si no tienes una. Encuentra un problema. Uno solo. Nómbralo con precisión: culpable, víctima y lugar. Ejecuta una sola acción. Verifica nivelado. Y llévale tu diagnóstico al Tutor: él lo revisa contigo y te dice si es preciso o si todavía es una queja." },
+    { "start_time": 512, "end_time": 525, "text": "En la próxima lección vamos a romper algo más incómodo todavía: tu oído. Te voy a demostrar que miente, cuándo miente y cómo trabajar con un instrumento de medición que se equivoca. Nos vemos ahí." }
+  ]
+}

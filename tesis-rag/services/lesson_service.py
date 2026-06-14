@@ -49,40 +49,6 @@ def _load_json(path: str) -> Optional[dict]:
         return json.load(f)
 
 
-def _axis_dir(axis_slug_or_number: str) -> Optional[str]:
-    """Resuelve la carpeta del eje a partir de un slug ("eje_0") o número ("0", "Eje 0")."""
-    if not axis_slug_or_number:
-        return None
-    raw = str(axis_slug_or_number).strip()
-    candidates = []
-    if raw.startswith("eje_"):
-        candidates.append(raw)
-    if raw.lower().startswith("eje "):
-        candidates.append(f"eje_{raw.split()[-1]}")
-    if raw.isdigit():
-        candidates.append(f"eje_{raw}")
-    candidates.append(raw)
-    for slug in candidates:
-        path = os.path.join(_AXES_DIR, slug)
-        if os.path.isdir(path):
-            return path
-    return None
-
-
-def _canonical_axis_id(axis_id: str) -> str:
-    """Normaliza 'eje_2' / '2' / 'Eje 2' a la forma canónica 'Eje 2' (la que vive en BD)."""
-    if not axis_id:
-        return ""
-    raw = str(axis_id).strip()
-    if raw.lower().startswith("eje_"):
-        return f"Eje {raw.split('_', 1)[1]}"
-    if raw.lower().startswith("eje "):
-        return f"Eje {raw.split()[-1]}"
-    if raw.isdigit():
-        return f"Eje {raw}"
-    return raw
-
-
 # ==========================================
 # MANIFEST GLOBAL DEL CURSO
 # ==========================================
@@ -111,85 +77,16 @@ def load_course_manifest() -> dict:
 
 
 # ==========================================
-# MANIFEST POR EJE
-# ==========================================
-
-def _axis_manifest_from_db(db_axis: dict, course_id: Optional[str] = None) -> dict:
-    """Construye un manifest de eje (shape compatible con el JSON) desde la fila de BD."""
-    canonical = db_axis.get("axis_id", "")
-    lessons = [row.get("lesson_id", "") for row in db_service.list_lessons(axis_id=canonical, course_id=course_id)]
-    meta = db_axis.get("metadata", {}) or {}
-    return {
-        "axis_id": canonical,
-        "axis_number": db_axis.get("axis_number", 0),
-        "axis_slug": db_axis.get("axis_slug", ""),
-        "axis_title": db_axis.get("axis_title") or db_axis.get("title", ""),
-        "pedagogical_role": db_axis.get("pedagogical_role", ""),
-        "doc_root": db_axis.get("doc_root", ""),
-        "primary_resources": meta.get("primary_resources", []),
-        "derived_resources": meta.get("derived_resources", []),
-        "lessons": lessons,
-        "status": db_axis.get("status", ""),
-    }
-
-
-def load_axis_manifest(axis_id: str, course_id: Optional[str] = None) -> Optional[dict]:
-    """Manifiesto del eje (axis_id puede ser 'Eje 0', 'eje_0' o '0').
-
-    Resolución: BD (local_tesisai_axes) primero. El fallback al JSON
-    course_runtime/axes/eje_N/manifest.json **solo aplica en modo legacy/mono-curso**:
-    si el llamador pidió un course_id explícito y la BD no lo conoce, se devuelve
-    None (estricto multi-curso — no fugar contenido de otro curso).
-    """
-    db_axis = db_service.get_axis(_canonical_axis_id(axis_id), course_id)
-    if db_axis:
-        return _axis_manifest_from_db(db_axis, course_id)
-    if course_id:
-        return None
-    folder = _axis_dir(axis_id)
-    if not folder:
-        return None
-    return _load_json(os.path.join(folder, "manifest.json"))
-
-
-def list_axes(course_id: Optional[str] = None) -> List[dict]:
-    """Lista todos los ejes (orden por axis_number).
-
-    DB-first. El escaneo de carpetas `course_runtime/axes/eje_N/manifest.json`
-    **solo aplica en modo legacy/mono-curso** (sin course_id). Si el llamador
-    pidió un course_id específico y la BD no devuelve ejes para ese curso, se
-    devuelve [] — no se filtra contenido global del JSON para aislar cursos.
-    """
-    db_axes = db_service.list_axes(course_id)
-    if db_axes:
-        out = [_axis_manifest_from_db(a, course_id) for a in db_axes]
-        out.sort(key=lambda a: a.get("axis_number", 99))
-        return out
-    if course_id:
-        return []
-    if not os.path.isdir(_AXES_DIR):
-        return []
-    axes: List[dict] = []
-    for entry in sorted(os.listdir(_AXES_DIR)):
-        manifest_path = os.path.join(_AXES_DIR, entry, "manifest.json")
-        data = _load_json(manifest_path)
-        if data:
-            axes.append(data)
-    axes.sort(key=lambda a: a.get("axis_number", 99))
-    return axes
-
-
-# ==========================================
 # LECCIONES
 # ==========================================
 
 def load_lesson(lesson_id: str, course_id: Optional[str] = None) -> Optional[dict]:
     """Devuelve la lección como dict plano.
 
-    Mantiene el mismo shape que las antiguas lecciones piloto:
-    lesson_id, axis_id, lesson_title, resource_id, resource_type,
-    learning_goal, expected_action, blocks, learning_goals,
-    expected_actions, resources, prerequisites.
+    Shape: lesson_id, axis_id, lesson_title, resource_id, resource_type,
+    learning_goal, learning_goals (criterios de logro), expected_action,
+    prerequisites, delegated_to_tutor, attribution_constraints, prompts,
+    blocks, notes (interno del profe, no se inyecta).
 
     Resolución:
       1. Intenta DB (`db_service.get_lesson`) — Moodle si está disponible.
@@ -206,17 +103,18 @@ def load_lesson(lesson_id: str, course_id: Optional[str] = None) -> Optional[dic
         return {
             "lesson_id": row.get("lesson_id", ""),
             "axis_id": row.get("axis_id", ""),
+            "moodle_section_id": row.get("moodle_section_id", ""),
             "lesson_title": row.get("title", ""),
             "order": row.get("order", 0),
             "resource_id": resource_id,
             "resource_type": resource.type.value if resource else "",
-            "source_script_file": row.get("source_script_file", ""),
             "learning_goal": row.get("learning_goal", ""),
             "expected_action": row.get("expected_action", ""),
             "learning_goals": row.get("learning_goals", []),
-            "expected_actions": row.get("expected_actions", []),
             "resources": resources,
             "prerequisites": row.get("prerequisites", []),
+            "delegated_to_tutor": row.get("delegated_to_tutor", []),
+            "attribution_constraints": row.get("attribution_constraints", []),
             "suggested_prompts": row.get("suggested_prompts", []),
             "proactive_message": row.get("proactive_message", ""),
             "blocks": db_service.list_lesson_blocks(lesson_id),
@@ -236,7 +134,7 @@ def _find_lesson_in_axes(lesson_id: str) -> Optional[dict]:
         lesson_path = os.path.join(_AXES_DIR, entry, "lessons", f"{lesson_id}.json")
         if os.path.exists(lesson_path):
             logger.info(
-                "axis_service.fallback_json",
+                "lesson_service.fallback_json",
                 extra={"entity": "lesson", "lesson_id": lesson_id, "path": lesson_path},
             )
             return _load_json(lesson_path)
@@ -247,53 +145,13 @@ def _lesson_summary(lesson: dict) -> dict:
     return {
         "lesson_id": lesson.get("lesson_id", ""),
         "axis_id": lesson.get("axis_id", ""),
+        "moodle_section_id": lesson.get("moodle_section_id", ""),
         "lesson_title": lesson.get("lesson_title", ""),
         "order": lesson.get("order", 0),
         "learning_goal": lesson.get("learning_goal", ""),
         "expected_action": lesson.get("expected_action", ""),
         "has_blocks": bool(lesson.get("blocks")),
     }
-
-
-def list_lessons_of_axis(axis_id: str, course_id: Optional[str] = None) -> List[dict]:
-    """Lista las lecciones de un eje en formato resumido.
-
-    DB-first: deriva las lecciones de la BD por axis_id (así una lección creada
-    por el panel del profesor aparece sin tocar JSON). Fallback: lecciones del
-    manifest JSON del eje.
-    """
-    canonical = _canonical_axis_id(axis_id)
-    db_rows = db_service.list_lessons(axis_id=canonical, course_id=course_id)
-    if db_rows:
-        out = []
-        for row in db_rows:
-            summary = _lesson_summary(row)
-            summary["has_blocks"] = bool(db_service.list_lesson_blocks(row.get("lesson_id", "")))
-            out.append(summary)
-        out.sort(key=lambda l: l.get("order", 99))
-        return out
-    if course_id:
-        return []
-
-    manifest = load_axis_manifest(axis_id, course_id)
-    if not manifest:
-        return []
-    out = []
-    for lesson_id in manifest.get("lessons", []):
-        lesson = load_lesson(lesson_id, course_id)
-        if not lesson:
-            continue
-        out.append(_lesson_summary(lesson))
-    out.sort(key=lambda l: l.get("order", 99))
-    return out
-
-
-def list_all_lessons(course_id: Optional[str] = None) -> List[dict]:
-    """Lista resumida de todas las lecciones del curso (todos los ejes)."""
-    out: List[dict] = []
-    for axis in list_axes(course_id):
-        out.extend(list_lessons_of_axis(axis.get("axis_id", ""), course_id))
-    return out
 
 
 def is_known_lesson(lesson_id: str, course_id: Optional[str] = None) -> bool:
@@ -313,18 +171,6 @@ def load_resource(resource_id: str) -> Optional[dict]:
         return None
     path = os.path.join(_RESOURCES_DIR, f"{resource_id}.json")
     return _load_json(path)
-
-
-def list_resources_of_axis(axis_id: str, course_id: Optional[str] = None) -> List[dict]:
-    """Lista los recursos declarados en el manifest del eje."""
-    manifest = load_axis_manifest(axis_id, course_id) or {}
-    ids = (manifest.get("primary_resources", []) or []) + (manifest.get("derived_resources", []) or [])
-    out: List[dict] = []
-    for rid in ids:
-        data = load_resource(rid)
-        if data:
-            out.append(data)
-    return out
 
 
 # ==========================================

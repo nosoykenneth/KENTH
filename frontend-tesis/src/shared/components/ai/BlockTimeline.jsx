@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { fmtTime } from '../../utils/time';
 
 /**
  * BlockTimeline
@@ -57,17 +58,6 @@ const DEFAULT_COLOR = 'bg-kenth-brightred/40 border-kenth-brightred/70';
 // Resuelve el color tolerando mayusculas/espacios; cualquier modo no listado -> rojo.
 const colorForMode = (mode) => MODE_COLORS[(mode || '').trim().toLowerCase()] || DEFAULT_COLOR;
 
-export function fmtTime(s) {
-  if (!Number.isFinite(s) || s < 0) return '0:00';
-  const total = Math.floor(s);
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const sec = total % 60;
-  const mm = h > 0 ? String(m).padStart(2, '0') : String(m);
-  const ss = String(sec).padStart(2, '0');
-  return h > 0 ? `${h}:${mm}:${ss}` : `${mm}:${ss}`;
-}
-
 export default function BlockTimeline({
   blocks = [],
   duration = 0,
@@ -80,7 +70,10 @@ export default function BlockTimeline({
   transcript = [],
 }) {
   const trackRef = useRef(null);
+  const scrubRef = useRef(null);
   const [drag, setDrag] = useState(null); // { idx, edge: 'start'|'end' }
+  const [scrubbing, setScrubbing] = useState(false);
+  const [scrubPreviewTime, setScrubPreviewTime] = useState(null);
   const dragOriginRef = useRef(null); // snapshot de tiempos al iniciar el arrastre
   const dragStateRef = useRef({ startX: 0, moved: false }); // para distinguir clic de arrastre
 
@@ -96,6 +89,7 @@ export default function BlockTimeline({
   const lastThumbTimeRef = useRef(-1);
 
   const hasDuration = Number.isFinite(duration) && duration > 0;
+  const displayTime = scrubPreviewTime ?? currentTime;
 
   const pct = useCallback((t) => {
     if (!hasDuration) return 0;
@@ -109,6 +103,60 @@ export default function BlockTimeline({
     const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
     return ratio * duration;
   }, [duration, hasDuration]);
+
+  const scrubTimeFromClientX = useCallback((clientX) => {
+    const el = scrubRef.current;
+    if (!el || !hasDuration) return 0;
+    const rect = el.getBoundingClientRect();
+    const ratio = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    return ratio * duration;
+  }, [duration, hasDuration]);
+
+  const seekFromScrubX = useCallback((clientX) => {
+    if (!hasDuration) return;
+    const nextTime = scrubTimeFromClientX(clientX);
+    setScrubPreviewTime(nextTime);
+    onSeek?.(nextTime);
+  }, [hasDuration, onSeek, scrubTimeFromClientX]);
+
+  const beginScrub = (e) => {
+    if (!hasDuration) return;
+    e.preventDefault();
+    setScrubbing(true);
+    seekFromScrubX(e.clientX);
+  };
+
+  useEffect(() => {
+    if (!scrubbing) return undefined;
+    const onMove = (e) => {
+      e.preventDefault();
+      seekFromScrubX(e.clientX);
+    };
+    const onUp = () => setScrubbing(false);
+    window.addEventListener('pointermove', onMove);
+    window.addEventListener('pointerup', onUp);
+    window.addEventListener('pointercancel', onUp);
+    return () => {
+      window.removeEventListener('pointermove', onMove);
+      window.removeEventListener('pointerup', onUp);
+      window.removeEventListener('pointercancel', onUp);
+    };
+  }, [scrubbing, seekFromScrubX]);
+
+  // Si el tiempo real del video alcanzó el preview de scrub, ocúltalo durante el
+  // render (en vez de setState dentro de un efecto, que encadena renders).
+  if (
+    scrubPreviewTime != null &&
+    Math.abs((Number(currentTime) || 0) - scrubPreviewTime) < 0.5
+  ) {
+    setScrubPreviewTime(null);
+  }
+
+  useEffect(() => {
+    if (scrubPreviewTime == null) return undefined;
+    const timeout = setTimeout(() => setScrubPreviewTime(null), 900);
+    return () => clearTimeout(timeout);
+  }, [scrubPreviewTime]);
 
   // ---- Drag de bordes: borde compartido. Al arrastrar, solo el bloque vecino
   // inmediato se achica/crece (su borde lejano queda fijo); el resto no se mueve.
@@ -203,7 +251,7 @@ export default function BlockTimeline({
     const rect = el.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const time = timeFromClientX(e.clientX);
-    setHover({ x, time });
+    setHover({ x, time, width: rect.width });
 
     if (!requestThumbnail) return;
     if (thumbTimerRef.current) return; // throttle
@@ -235,16 +283,64 @@ export default function BlockTimeline({
           Línea de tiempo · {blocks.length} bloque{blocks.length === 1 ? '' : 's'}
         </span>
         <span className="text-[10px] font-mono text-kenth-subtext">
-          {fmtTime(currentTime)} {hasDuration ? `/ ${fmtTime(duration)}` : ''}
+          {fmtTime(displayTime)} {hasDuration ? `/ ${fmtTime(duration)}` : ''}
         </span>
       </div>
 
       <div className="relative">
+        {/* Carril independiente de navegacion: no edita bloques, solo mueve el video. */}
+        <div className="mb-2">
+          <div
+            ref={scrubRef}
+            onPointerDown={beginScrub}
+            className={`relative h-11 rounded-lg border border-kenth-border bg-kenth-bg/70 overflow-hidden touch-none ${hasDuration ? 'cursor-ew-resize' : 'opacity-50 cursor-not-allowed'}`}
+            title="Arrastra o haz clic para mover la marca de tiempo"
+          >
+            {hasDuration ? (
+              <>
+                <div className="absolute left-0 right-0 top-5 h-1 rounded-full bg-kenth-surface/40" />
+                <div
+                  className="absolute left-0 top-5 h-1 rounded-full bg-kenth-brightred"
+                  style={{ width: `${pct(displayTime)}%` }}
+                />
+                {Array.from({ length: 6 }).map((_, i) => {
+                  const ratio = i / 5;
+                  const time = ratio * duration;
+                  return (
+                    <div
+                      key={i}
+                      className="absolute top-0 h-full -translate-x-1/2 pointer-events-none"
+                      style={{ left: `${ratio * 100}%` }}
+                    >
+                      <div className="mx-auto h-3 w-px bg-white/35" />
+                      <div className="mt-4 h-3 w-px bg-white/20" />
+                      <span className="absolute top-1 left-2 text-[9px] font-mono text-kenth-subtext whitespace-nowrap">
+                        {fmtTime(time)}
+                      </span>
+                    </div>
+                  );
+                })}
+                <div
+                  className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 z-20 pointer-events-none"
+                  style={{ left: `${pct(displayTime)}%` }}
+                >
+                  <div className={`h-8 w-0.5 ${scrubbing ? 'bg-kenth-brightred' : 'bg-white'} shadow-[0_0_8px_rgba(255,255,255,0.65)]`} />
+                  <div className={`absolute -top-1 left-1/2 -translate-x-1/2 h-3.5 w-3.5 rounded-full border-2 border-kenth-bg ${scrubbing ? 'bg-kenth-brightred' : 'bg-white'}`} />
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-[10px] text-kenth-subtext uppercase tracking-widest">
+                Esperando metadatos del video...
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Tooltip de miniatura en hover */}
         {hover && (
           <div
             className="absolute -top-2 -translate-y-full -translate-x-1/2 z-30 pointer-events-none"
-            style={{ left: `${Math.min(Math.max(hover.x, 60), (trackRef.current?.clientWidth || 0) - 60)}px` }}
+            style={{ left: `${Math.min(Math.max(hover.x, 60), (hover.width || 0) - 60)}px` }}
           >
             <div className="rounded-lg overflow-hidden border border-kenth-border bg-black shadow-xl">
               {thumb ? (
@@ -312,7 +408,7 @@ export default function BlockTimeline({
           {hasDuration && (
             <div
               className="absolute top-0 h-full w-0.5 bg-white shadow-[0_0_6px_rgba(255,255,255,0.8)] z-20 pointer-events-none"
-              style={{ left: `${pct(currentTime)}%` }}
+              style={{ left: `${pct(displayTime)}%` }}
             >
               <div className="absolute -top-1 -translate-x-1/2 w-2.5 h-2.5 rounded-full bg-white" />
             </div>
@@ -326,7 +422,7 @@ export default function BlockTimeline({
           let activeSeg = -1;
           for (let i = 0; i < transcript.length; i += 1) {
             const s = transcript[i];
-            if (Number(s.start_time) <= currentTime && currentTime < Number(s.end_time)) { activeSeg = i; break; }
+            if (Number(s.start_time) <= displayTime && displayTime < Number(s.end_time)) { activeSeg = i; break; }
           }
           const captionIdx = hoverSeg >= 0 ? hoverSeg : activeSeg;
           const caption = captionIdx >= 0 ? (transcript[captionIdx]?.text || '') : '';
@@ -362,7 +458,7 @@ export default function BlockTimeline({
                 })}
                 <div
                   className="absolute top-0 h-full w-0.5 bg-white/80 z-10 pointer-events-none"
-                  style={{ left: `${pct(currentTime)}%` }}
+                  style={{ left: `${pct(displayTime)}%` }}
                 />
               </div>
             </div>

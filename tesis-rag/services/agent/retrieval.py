@@ -47,6 +47,20 @@ def _course_scope_values(state: dict = None):
     return {raw} if raw else set()
 
 
+def _course_where(state: dict = None):
+    """Filtro Chroma para acotar la busqueda al curso actual + conocimiento global.
+
+    Mueve el aislamiento por curso a la CONSULTA (antes solo se filtraba en
+    Python tras una busqueda ciega global). Asi el presupuesto de k se gasta en
+    el curso y no en toda la base. Defensivo: el llamador cae a sin-filtro si la
+    version de Chroma rechaza el where.
+    """
+    course = next(iter(_course_scope_values(state)), "")
+    if not course:
+        return None
+    return {"$or": [{"course_id": course}, {"scope": "global"}]}
+
+
 def _metadata_bool(meta: dict, key: str, default: bool = False):
     if key not in (meta or {}):
         return default
@@ -63,7 +77,7 @@ def _metadata_bool(meta: dict, key: str, default: bool = False):
 def _scope_value(meta: dict):
     meta = meta or {}
     scope = str(meta.get("scope") or "").strip().lower()
-    if scope in {"global", "course", "axis", "lesson"}:
+    if scope in {"global", "course", "section", "axis", "lesson"}:
         return scope
     if _metadata_bool(meta, "is_global", False):
         return "global"
@@ -94,47 +108,33 @@ def _current_lesson_id(state: dict = None):
     ).strip()
 
 
-def _current_axis_id(state: dict = None):
+def _current_section_id(state: dict = None):
     state = state or {}
     envelope = state.get("tutor_envelope")
     ctx = getattr(envelope, "activity_context", None) if envelope else None
-    if ctx and getattr(ctx, "current_axis", ""):
-        return str(getattr(ctx, "current_axis", "")).strip()
+    if ctx and getattr(ctx, "moodle_section_id", ""):
+        return str(getattr(ctx, "moodle_section_id", "")).strip()
 
     active_lesson = getattr(envelope, "active_lesson", None) if envelope else None
-    if isinstance(active_lesson, dict) and active_lesson.get("axis_id"):
-        return str(active_lesson.get("axis_id") or "").strip()
+    if isinstance(active_lesson, dict) and active_lesson.get("moodle_section_id"):
+        return str(active_lesson.get("moodle_section_id") or "").strip()
 
     activity_context = state.get("activity_context")
-    if isinstance(activity_context, dict) and activity_context.get("current_axis"):
-        return str(activity_context.get("current_axis") or "").strip()
+    if isinstance(activity_context, dict) and activity_context.get("moodle_section_id"):
+        return str(activity_context.get("moodle_section_id") or "").strip()
 
     return str(
-        state.get("current_axis_id")
-        or state.get("current_axis")
+        state.get("moodle_section_id")
+        or state.get("current_section_id")
         or ""
     ).strip()
 
 
-def _axis_matches(left, right):
-    left_text = str(left or "").strip()
-    right_text = str(right or "").strip()
-    if not left_text or not right_text:
-        return False
-    if left_text.lower() == right_text.lower():
-        return True
-    left_num = _axis_number_from_value(left_text)
-    right_num = _axis_number_from_value(right_text)
-    return left_num is not None and left_num == right_num
-
-
-def _meta_axis_id(meta: dict):
+def _meta_section_id(meta: dict):
     return str(
-        (meta or {}).get("axis_id")
-        or (meta or {}).get("axis")
-        or (meta or {}).get("eje")
-        or (meta or {}).get("module")
-        or (meta or {}).get("modulo")
+        (meta or {}).get("moodle_section_id")
+        or (meta or {}).get("section_id")
+        or (meta or {}).get("current_section_id")
         or ""
     ).strip()
 
@@ -167,15 +167,15 @@ def _scope_affinity(meta: dict, state: dict = None):
     meta = meta or {}
     scope = _scope_value(meta)
     current_lesson = _current_lesson_id(state)
-    current_axis = _current_axis_id(state)
+    current_section = _current_section_id(state)
     current_course = next(iter(_course_scope_values(state)), "")
     meta_lesson = str(meta.get("lesson_id") or "").strip()
-    meta_axis = _meta_axis_id(meta)
+    meta_section = _meta_section_id(meta)
     meta_course = str(meta.get("course_id") or "").strip()
 
     if scope == "lesson" and current_lesson and meta_lesson == current_lesson:
         return 0.80
-    if scope == "axis" and current_axis and _axis_matches(meta_axis, current_axis):
+    if scope == "section" and current_section and meta_section == current_section:
         return 0.45
     if scope == "course" and current_course and meta_course == current_course:
         return 0.20
@@ -191,16 +191,16 @@ def _context_relation(meta: dict, state: dict = None):
         return "global"
 
     current_lesson = _current_lesson_id(state)
-    current_axis = _current_axis_id(state)
+    current_section = _current_section_id(state)
     meta_lesson = str(meta.get("lesson_id") or "").strip()
-    meta_axis = _meta_axis_id(meta)
+    meta_section = _meta_section_id(meta)
 
-    if current_axis and meta_axis and not _axis_matches(meta_axis, current_axis):
-        return "other_axis"
+    if current_section and meta_section and meta_section != current_section:
+        return "other_section"
     if current_lesson and meta_lesson == current_lesson:
         return "same_lesson"
-    if current_axis and meta_axis and _axis_matches(meta_axis, current_axis):
-        return "same_axis"
+    if current_section and meta_section and meta_section == current_section:
+        return "same_section"
     if _course_scope_values(state) and str(meta.get("course_id") or "").strip() in _course_scope_values(state):
         return "same_course"
     return "unknown"
@@ -265,6 +265,7 @@ def _resumen_metadata_debug(meta: dict):
         "doc_type": meta.get("doc_type"),
         "scope": meta.get("scope"),
         "course_id": meta.get("course_id"),
+        "moodle_section_id": meta.get("moodle_section_id"),
         "axis_id": meta.get("axis_id"),
         "lesson_id": meta.get("lesson_id"),
         "axis": meta.get("axis") or meta.get("eje") or meta.get("module") or meta.get("modulo"),
@@ -322,24 +323,44 @@ def _axis_label(axis_number):
     return f"Eje {axis_number}" if axis_number is not None else ""
 
 
+def _section_number_from_order(order):
+    """Número pedagógico de la sección a partir de su ORDEN en Moodle.
+
+    La primera sección del curso es la Bienvenida (no pedagógica). Las demás se
+    numeran 0,1,2… por posición. order es 1-based incluyendo la Bienvenida:
+    order=1 (Bienvenida) → None; order=2 → 0; order=3 → 1; …
+    """
+    try:
+        o = int(order)
+    except (TypeError, ValueError):
+        return None
+    return o - 2 if o >= 2 else None
+
+
 def _current_axis_number(state: dict):
+    """Número pedagógico de la sección del alumno (0,1,2…), por POSICIÓN.
+
+    El número sigue el ORDEN de la sección en Moodle (no su nombre): si el profe
+    reordena, el número cambia solo. La metadata viaja con la sección porque va
+    atada al moodle_section_id estable, no a este número.
+    """
     if not state:
         return None
 
     envelope = state.get("tutor_envelope")
     ctx = getattr(envelope, "activity_context", None) if envelope else None
-    if ctx:
-        number = _axis_number_from_value(getattr(ctx, "current_axis", ""))
+    if ctx is not None:
+        number = _section_number_from_order(getattr(ctx, "current_section_order", None))
         if number is not None:
             return number
 
     activity_context = state.get("activity_context")
     if isinstance(activity_context, dict):
-        number = _axis_number_from_value(activity_context.get("current_axis"))
+        number = _section_number_from_order(activity_context.get("current_section_order"))
         if number is not None:
             return number
 
-    return _axis_number_from_value(state.get("course_module", ""))
+    return _section_number_from_order(state.get("current_section_order"))
 
 
 def _question_axis_number(pregunta: str):
@@ -675,11 +696,11 @@ def _limitar_evidencia_generica(evidencias: list):
     top_score = float(top.get("final_score") or top.get("score") or 0)
     specific_count = sum(
         1 for item in evidencias
-        if item.get("context_relation") in {"same_lesson", "same_axis"}
+        if item.get("context_relation") in {"same_lesson", "same_section", "same_axis"}
         and float(item.get("final_score") or item.get("score") or 0) >= MIN_RELEVANCE_SCORE
     )
 
-    if top_relation not in {"same_lesson", "same_axis"} and specific_count < 2:
+    if top_relation not in {"same_lesson", "same_section", "same_axis"} and specific_count < 2:
         return evidencias
 
     max_generic = 1
@@ -708,7 +729,9 @@ def _preparar_evidencias_contextuales(evidencias: list, pregunta: str, state: di
         meta = item["document"].metadata or {}
         if not _matches_course_scope(meta, state):
             continue
-        clave = meta.get("chunk_id") or f"{meta.get('source')}::{meta.get('chunk_index')}"
+        # start_time/page desempatan chunks que comparten source sin chunk_index
+        # (caso de las transcripciones DB-driven, que antes colapsaban a 1).
+        clave = meta.get("chunk_id") or f"{meta.get('source')}::{meta.get('chunk_index')}::{meta.get('start_time')}::{meta.get('page')}"
         if clave in vistos:
             continue
         vistos.add(clave)
@@ -728,23 +751,59 @@ def _preparar_evidencias_contextuales(evidencias: list, pregunta: str, state: di
     return unicas
 
 
+def _buscar_transcripcion_leccion(pregunta: str, state: dict = None, k: int = 4, min_score: float = 0.10):
+    """Capa B: recupera la transcripcion de la LECCION ACTUAL, hard-scoped por
+    lesson_id, para garantizar que la leccion donde esta el alumno sea fuente
+    primaria — sin depender de que la busqueda global la haga emerger.
+    """
+    lesson = _current_lesson_id(state)
+    if not lesson:
+        return []
+    where = {"$and": [{"lesson_id": lesson}, {"doc_type": "video_transcript"}]}
+    try:
+        db = _get_vector_store()
+        resultados = db.similarity_search_with_relevance_scores(pregunta, k=k, filter=where)
+    except Exception as e:
+        print(f"[RETRIEVAL] transcripcion de leccion {lesson} no recuperada ({e})")
+        return []
+    out = []
+    for doc, score in resultados:
+        s = float(score or 0)
+        if s < min_score:
+            continue
+        out.append({"document": doc, "score": s})
+    if out:
+        print(f"[RETRIEVAL] transcripcion leccion {lesson}: {len(out)} chunks garantizados")
+    return out
+
+
 def _buscar_evidencia(pregunta: str, modo_lookup: bool = False, state: dict = None):
     """Recupera documentos con score y filtra evidencia debil."""
     print(
         "[RETRIEVAL CONTEXT]",
         {
             "course_id": next(iter(_course_scope_values(state)), ""),
-            "current_axis_id": _current_axis_id(state),
+            "moodle_section_id": _current_section_id(state),
             "current_lesson_id": _current_lesson_id(state),
             "modo_lookup": modo_lookup,
         }
     )
+    k = 24 if modo_lookup else max(RETRIEVAL_K, 16)
+    where = _course_where(state)
     try:
         db = _get_vector_store()
-        resultados = db.similarity_search_with_relevance_scores(
-            pregunta,
-            k=24 if modo_lookup else max(RETRIEVAL_K, 16)
-        )
+        try:
+            resultados = (
+                db.similarity_search_with_relevance_scores(pregunta, k=k, filter=where)
+                if where else
+                db.similarity_search_with_relevance_scores(pregunta, k=k)
+            )
+        except Exception as filt_err:
+            # Fallback defensivo: si esta version de Chroma rechaza el filtro por
+            # curso, caemos a la busqueda sin filtro (el post-filtro
+            # _matches_course_scope sigue garantizando el aislamiento por curso).
+            print(f"[RETRIEVAL] filtro por curso no aplicado ({filt_err}); fallback sin filtro")
+            resultados = db.similarity_search_with_relevance_scores(pregunta, k=k)
     except Exception as e:
         print(f"[AGENTE RAG]: Error recuperando evidencia con score: {e}")
         return []
@@ -764,6 +823,10 @@ def _buscar_evidencia(pregunta: str, modo_lookup: bool = False, state: dict = No
 
     if not modo_lookup:
         evidencias.extend(_buscar_evidencia_lexica_lookup(pregunta, state)[:6])
+        # Capa B garantizada: la transcripcion de la leccion actual va al FRENTE
+        # del pool (el dedup conserva la primera aparicion, y el scope_affinity
+        # de leccion +0.80 la prioriza en el ranking final).
+        evidencias = _buscar_transcripcion_leccion(pregunta, state) + evidencias
 
     unicas = _preparar_evidencias_contextuales(evidencias, pregunta, state, modo_lookup=modo_lookup)
     _debug_resultados_retrieval(unicas, "semantic+lexical merged")
@@ -813,7 +876,15 @@ def _buscar_evidencia_lexica_lookup(pregunta: str, state: dict = None):
 
     try:
         db = _get_vector_store()
-        data = db._collection.get(include=["documents", "metadatas"])
+        where = _course_where(state)
+        try:
+            data = (
+                db._collection.get(include=["documents", "metadatas"], where=where)
+                if where else
+                db._collection.get(include=["documents", "metadatas"])
+            )
+        except Exception:
+            data = db._collection.get(include=["documents", "metadatas"])
     except Exception as e:
         print(f"[LOOKUP DEBUG] No se pudo escanear Chroma lexicalmente: {e}")
         return []
@@ -1030,7 +1101,7 @@ def _construir_contexto_evidencia(evidencias: list):
                 "(por ejemplo: 'te dejo la plantilla para descargar').\n"
             )
 
-        if fuente.get("context_relation") == "other_axis":
+        if fuente.get("context_relation") in {"other_section", "other_axis"}:
             texto_crudo += (
                 "NOTA DE CONTEXTO: Esta evidencia pertenece a otro eje distinto del eje actual. "
                 "Si la usas, indica brevemente el salto de contexto antes de responder.\n"

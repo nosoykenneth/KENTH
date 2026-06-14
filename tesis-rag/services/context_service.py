@@ -34,7 +34,7 @@ from models.context import (
     TutorContextEnvelope,
 )
 from services import db_service
-from services.axis_service import (
+from services.lesson_service import (
     is_known_lesson,
     load_lesson as load_axis_lesson,
     load_resource as load_axis_resource,
@@ -62,7 +62,7 @@ _MANIFEST_FILE = os.path.join(_RUNTIME_DIR, "manifest.json")
 def load_lesson(lesson_id: str) -> Optional[Lesson]:
     """Devuelve la lección tipada como Pydantic Lesson.
 
-    Resolución: DB → JSON en axes/eje_N/lessons (vía axis_service).
+    Resolución: DB → JSON en axes/eje_N/lessons (vía lesson_service).
     """
     if not lesson_id:
         return None
@@ -71,12 +71,14 @@ def load_lesson(lesson_id: str) -> Optional[Lesson]:
         return Lesson(
             lesson_id=row["lesson_id"],
             axis_id=row.get("axis_id", ""),
+            moodle_section_id=row.get("moodle_section_id", ""),
             title=row.get("title", ""),
             order=row.get("order", 0),
             learning_goals=row.get("learning_goals", []),
-            expected_actions=row.get("expected_actions", []),
             resources=row.get("resources", []),
             prerequisites=row.get("prerequisites", []),
+            delegated_to_tutor=row.get("delegated_to_tutor", []),
+            attribution_constraints=row.get("attribution_constraints", []),
             notes=row.get("notes", ""),
         )
     data = load_axis_lesson(lesson_id)
@@ -85,12 +87,14 @@ def load_lesson(lesson_id: str) -> Optional[Lesson]:
     return Lesson(
         lesson_id=data.get("lesson_id", ""),
         axis_id=data.get("axis_id", ""),
+        moodle_section_id=data.get("moodle_section_id", ""),
         title=data.get("lesson_title") or data.get("title", ""),
         order=data.get("order", 0),
         learning_goals=data.get("learning_goals", []),
-        expected_actions=data.get("expected_actions", []),
         resources=data.get("resources", []),
         prerequisites=data.get("prerequisites", []),
+        delegated_to_tutor=data.get("delegated_to_tutor", []),
+        attribution_constraints=data.get("attribution_constraints", []),
         notes=data.get("notes", ""),
     )
 
@@ -151,17 +155,18 @@ def hydrate_activity_context(raw: Optional[dict]) -> ActivityContext:
 
     ctx = ActivityContext(**raw)
 
-    if ctx.current_lesson_id and not ctx.current_axis:
+    if ctx.current_lesson_id and not ctx.moodle_section_id:
         lesson = load_lesson(ctx.current_lesson_id)
         if lesson:
-            ctx.current_axis = lesson.axis_id
+            if not ctx.moodle_section_id:
+                ctx.moodle_section_id = lesson.moodle_section_id
 
     if ctx.current_resource_id and ctx.current_resource_type is None:
         resource = load_resource(ctx.current_resource_id)
         if resource:
             ctx.current_resource_type = resource.type
-            if not ctx.current_axis:
-                ctx.current_axis = resource.axis_id
+            if not ctx.moodle_section_id:
+                ctx.moodle_section_id = resource.moodle_section_id
 
     # Si la lección tiene bloques de video, enriquecemos el ctx
     # desde el bloque activo según el timestamp.
@@ -170,8 +175,8 @@ def hydrate_activity_context(raw: Optional[dict]) -> ActivityContext:
         lesson_data = resolved.get("lesson")
         block_data = resolved.get("block")
         if lesson_data:
-            if not ctx.current_axis:
-                ctx.current_axis = lesson_data.get("axis_id", "")
+            if not ctx.moodle_section_id:
+                ctx.moodle_section_id = lesson_data.get("moodle_section_id", "")
             if not ctx.current_resource_id:
                 ctx.current_resource_id = lesson_data.get("resource_id", "")
             if ctx.current_resource_type is None and lesson_data.get("resource_type"):
@@ -187,15 +192,22 @@ def hydrate_activity_context(raw: Optional[dict]) -> ActivityContext:
             if not ctx.current_section:
                 ctx.current_section = block_data.get("block_title", "")
             mode_raw = block_data.get("interaction_mode", "")
-            try:
-                ctx.interaction_mode = InteractionMode(mode_raw)
-            except ValueError:
-                # interaction_mode del bloque puede ser un valor pedagogico
-                # ad-hoc (ej. "criterio_operativo", "corregir_criterio")
-                # que no esta en el enum. En ese caso conservamos el modo
-                # previo y dejamos el detalle textual en current_section
-                # via render_context_block (campo tutor_focus).
-                pass
+            if mode_raw:
+                try:
+                    ctx.interaction_mode = InteractionMode(mode_raw)
+                except ValueError:
+                    # Vocabulario roto: el bloque trae un modo que no existe en
+                    # InteractionMode. Es un error de datos (el editor y el enum
+                    # deben compartir vocabulario) y se reporta fuerte, nunca se
+                    # conserva el modo previo en silencio.
+                    logger.error(
+                        "interaction_mode desconocido '%s' en bloque %s de la leccion %s; "
+                        "valores validos: %s",
+                        mode_raw,
+                        block_data.get("block_id", ""),
+                        ctx.current_lesson_id,
+                        [m.value for m in InteractionMode],
+                    )
 
     return ctx
 
@@ -336,6 +348,8 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
         lineas.append("--- BLOQUE ACTIVO DEL VIDEO (PUNTO DE PARTIDA) ---")
         if lesson_data:
             lineas.append(f"Lección: {lesson_data.get('lesson_id', '')} - {lesson_data.get('lesson_title', '')}")
+            if lesson_data.get("moodle_section_id"):
+                lineas.append(f"Seccion Moodle de la leccion: {lesson_data.get('moodle_section_id', '')}")
             if lesson_data.get("axis_id"):
                 lineas.append(f"Eje de la leccion: {lesson_data.get('axis_id', '')}")
         lineas.append(f"Bloque: {block.get('block_id', '')} - {block.get('block_title', '')}")
@@ -368,12 +382,30 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
             lineas.append(
                 f"Leccion activa: {lesson_data.get('lesson_id', '')} - {lesson_data.get('lesson_title', '')}"
             )
+        if lesson_data.get("moodle_section_id"):
+            lineas.append(f"Moodle_section_id de la leccion activa: {lesson_data.get('moodle_section_id', '')}")
         if lesson_data.get("axis_id"):
             lineas.append(f"Axis_id de la leccion activa: {lesson_data.get('axis_id', '')}")
         if lesson_data.get("learning_goal"):
             lineas.append(f"Objetivo de la leccion: {lesson_data.get('learning_goal', '')}")
+        criterios = lesson_data.get("learning_goals") or []
+        if criterios:
+            lineas.append("Criterios de logro de la leccion:")
+            for criterio in criterios:
+                lineas.append(f"  - {criterio}")
+        prerequisitos = lesson_data.get("prerequisites") or []
+        if prerequisitos:
+            lineas.append(
+                "Prerrequisitos de la leccion (si el alumno muestra lagunas, "
+                "puedes remitirlo a estas lecciones previas): " + ", ".join(prerequisitos)
+            )
         if lesson_data.get("expected_action"):
             lineas.append(f"Accion esperada de la leccion: {lesson_data.get('expected_action', '')}")
+        delegado = lesson_data.get("delegated_to_tutor") or []
+        if delegado:
+            lineas.append("Delegado al tutor en esta leccion (el profesor te encarga cubrir esto):")
+            for item in delegado:
+                lineas.append(f"  - {item}")
         if lesson_data.get("proactive_message"):
             lineas.append(f"Mensaje proactivo de la leccion: {lesson_data.get('proactive_message', '')}")
         suggested = lesson_data.get("suggested_prompts") or []
@@ -381,12 +413,22 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
             lineas.append("Prompts sugeridos de la leccion:")
             for prompt in suggested[:5]:
                 lineas.append(f"  - {prompt}")
-        metadata = lesson_data.get("metadata") or {}
-        constraints = metadata.get("tutor_constraints") or metadata.get("constraints") or metadata.get("restricciones_tutor")
-        if constraints:
-            lineas.append(f"Restricciones del tutor para esta leccion: {constraints}")
-    if ctx.current_axis:
-        lineas.append(f"Eje actual: {ctx.current_axis}")
+        atribuciones = lesson_data.get("attribution_constraints") or []
+        if atribuciones:
+            lineas.append(
+                "RESTRICCIONES Y ATRIBUCIONES (OBLIGATORIAS): cumple estas reglas "
+                "en TODAS tus respuestas de esta leccion. No son contexto informativo, "
+                "son normas de comportamiento:"
+            )
+            for regla in atribuciones:
+                lineas.append(f"  - {regla}")
+    if ctx.current_section_name:
+        lineas.append(f"Seccion actual: {ctx.current_section_name}")
+    if ctx.current_section_order is not None:
+        if ctx.current_section_order >= 2:
+            lineas.append(f"Numero de seccion (por orden, base 0): {ctx.current_section_order - 2}")
+        elif ctx.current_section_order == 1:
+            lineas.append("Es la seccion de bienvenida (no cuenta como seccion pedagogica).")
     if ctx.current_lesson_id:
         lineas.append(f"Leccion: {ctx.current_lesson_id}")
     if ctx.current_resource_id:

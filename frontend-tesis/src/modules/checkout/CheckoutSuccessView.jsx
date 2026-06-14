@@ -41,8 +41,8 @@ export default function CheckoutSuccessView() {
       }
 
       try {
-        const BACKEND_BASE = "http://localhost/proyecto_curso/api_persistente";
-        const SYNC_URL = `${BACKEND_BASE}/api_webhook_pagos.php`;
+        // Vía el gateway (/api/lms): Vite en dev, nginx en prod. Sin URLs hardcodeadas a localhost.
+        const SYNC_URL = '/api/lms/proyecto_curso/api_persistente/api_webhook_pagos.php';
 
         const response = await fetch(SYNC_URL, {
           method: 'POST',

@@ -126,21 +126,23 @@ export function defaultInteractionMode(resourceType, resourceSubtype = '') {
  *
  * @param {object} input
  * @param {string|number} [input.courseId]
- * @param {string} [input.axis]
+ * @param {string|number} [input.moodleSectionId]
  * @param {string|number} [input.lessonId]
  * @param {string|number} [input.resourceId]
  * @param {string} [input.resourceType]   uno de RESOURCE_TYPES
  * @param {number} [input.timestamp]      segundos (videos)
  * @param {number} [input.page]           pagina (PDFs)
  * @param {string} [input.section]
+ * @param {string} [input.sectionName]
+ * @param {number} [input.sectionOrder]
  * @param {string} [input.learningGoal]
  * @param {string} [input.expectedAction]
  * @param {string} [input.interactionMode] uno de INTERACTION_MODES
  */
 export function buildActivityContext(input = {}) {
   const {
-    axis = '',
     courseId = '',
+    moodleSectionId = '',
     lessonId = '',
     resourceId = '',
     resourceType = null,
@@ -148,6 +150,8 @@ export function buildActivityContext(input = {}) {
     timestamp = null,
     page = null,
     section = '',
+    sectionName = '',
+    sectionOrder = null,
     learningGoal = '',
     expectedAction = '',
     interactionMode = null,
@@ -155,7 +159,7 @@ export function buildActivityContext(input = {}) {
 
   const ctx = {
     course_id: courseId ? String(courseId) : '',
-    current_axis: axis ? String(axis) : '',
+    moodle_section_id: moodleSectionId ? String(moodleSectionId) : '',
     current_lesson_id: lessonId ? String(lessonId) : '',
     current_resource_id: resourceId ? String(resourceId) : '',
     current_resource_type: resourceType || null,
@@ -163,6 +167,8 @@ export function buildActivityContext(input = {}) {
     current_timestamp: typeof timestamp === 'number' ? timestamp : null,
     current_page: typeof page === 'number' ? page : null,
     current_section: section || '',
+    current_section_name: sectionName || section || '',
+    current_section_order: typeof sectionOrder === 'number' ? sectionOrder : null,
     learning_goal: learningGoal || '',
     expected_action: expectedAction || '',
     interaction_mode:
@@ -170,11 +176,12 @@ export function buildActivityContext(input = {}) {
   };
 
   const tieneAlgo =
-    ctx.current_axis ||
+    ctx.moodle_section_id ||
     ctx.course_id ||
     ctx.current_lesson_id ||
     ctx.current_resource_id ||
     ctx.current_section ||
+    ctx.current_section_name ||
     ctx.learning_goal;
 
   return tieneAlgo ? ctx : null;
@@ -201,11 +208,16 @@ export function activityContextFromMoodleModule(mod, seccion = null, extra = {})
 
   return buildActivityContext({
     courseId: extra.courseId || '',
-    lessonId: mod.id,
+    moodleSectionId: extra.moodleSectionId || extra.moodle_section_id || seccion?.id || '',
+    lessonId: extra.lessonId || extra.lesson_id || mod.id,
     resourceId: mod.id,
     resourceType,
     resourceSubtype,
     section: seccion?.name || '',
+    sectionName: extra.sectionName || seccion?.name || '',
+    sectionOrder: typeof extra.sectionOrder === 'number'
+      ? extra.sectionOrder
+      : (typeof seccion?.section === 'number' ? seccion.section : null),
     learningGoal: mod.description || '',
     interactionMode:
       extra.interactionMode || defaultInteractionMode(resourceType, resourceSubtype),

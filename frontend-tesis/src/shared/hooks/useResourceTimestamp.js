@@ -23,7 +23,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  *      answered) ademas del segundo actual.
  *   3. Backend: cuando el payload incluya `current_timestamp`, el
  *      resolver de bloque ya sabe devolver el bloque activo del video
- *      por timestamp (ver `/axes/lessons/{id}/block?t=...`).
+ *      por timestamp (ver `/sections/lessons/{id}/block?t=...`).
  *
  * Forma de los mensajes que ya quedan soportados:
  *   { type: 'kenth:resource_time', seconds: <number> }
@@ -37,6 +37,14 @@ import { useCallback, useEffect, useRef, useState } from 'react';
  */
 export function useResourceTimestamp({ enabled = true, resourceId = null } = {}) {
   const [currentTimestamp, setCurrentTimestamp] = useState(null);
+
+  // Reset al cambiar de recurso DURANTE el render (patrón recomendado de React),
+  // en vez de un useEffect con setState que dispara renders en cascada.
+  const [prevResourceId, setPrevResourceId] = useState(resourceId);
+  if (resourceId !== prevResourceId) {
+    setPrevResourceId(resourceId);
+    setCurrentTimestamp(null);
+  }
 
   useEffect(() => {
     if (!enabled) return undefined;
@@ -65,12 +73,6 @@ export function useResourceTimestamp({ enabled = true, resourceId = null } = {})
     window.addEventListener('message', onMessage);
     return () => window.removeEventListener('message', onMessage);
   }, [enabled, resourceId]);
-
-  // Reset cuando cambia el recurso (evita arrastrar el ultimo timestamp
-  // de un video anterior al abrir otro).
-  useEffect(() => {
-    setCurrentTimestamp(null);
-  }, [resourceId]);
 
   return {
     currentTimestamp,
@@ -108,10 +110,15 @@ export function useResourceVideoBridge({
 } = {}) {
   const [currentTimestamp, setCurrentTimestamp] = useState(null);
   const [meta, setMeta] = useState(null);
+  const [muted, setMutedState] = useState(false);
   const thumbResolversRef = useRef([]);
 
   const getWin = useCallback(() => {
-    try { return window.frames?.[iframeName] || null; } catch { return null; }
+    try {
+      return window.frames?.[iframeName]
+        || document.querySelector(`iframe[name="${iframeName}"]`)?.contentWindow
+        || null;
+    } catch { return null; }
   }, [iframeName]);
 
   const post = useCallback((payload) => {
@@ -126,9 +133,94 @@ export function useResourceVideoBridge({
     } catch { return false; }
   }, [getWin, resourceId]);
 
-  const seek = useCallback((seconds) => post({ type: 'kenth:cmd', action: 'seek', seconds }), [post]);
-  const play = useCallback(() => post({ type: 'kenth:cmd', action: 'play' }), [post]);
-  const pause = useCallback(() => post({ type: 'kenth:cmd', action: 'pause' }), [post]);
+  const getMediaElements = useCallback(() => {
+    const findMedia = (root) => {
+      if (!root?.querySelector) return [];
+      const direct = Array.from(root.querySelectorAll('video, audio') || []);
+      const nodes = Array.from(root.querySelectorAll('*') || []);
+      const nested = [];
+      for (const node of nodes) {
+        if (node.shadowRoot) nested.push(...findMedia(node.shadowRoot));
+      }
+      return [...direct, ...nested];
+    };
+    const walk = (win, depth = 0) => {
+      if (!win || depth > 4) return [];
+      try {
+        const doc = win.document;
+        const media = findMedia(doc);
+        const frames = Array.from(doc?.querySelectorAll?.('iframe') || []);
+        for (const frame of frames) {
+          media.push(...walk(frame.contentWindow, depth + 1));
+        }
+        return media;
+      } catch {
+        return [];
+      }
+    };
+    return walk(getWin());
+  }, [getWin]);
+
+  const withMedia = useCallback((fn) => {
+    const media = getMediaElements();
+    if (!media.length) return false;
+    try {
+      media.forEach(fn);
+      return true;
+    } catch {
+      return false;
+    }
+  }, [getMediaElements]);
+
+  const hideNativeControls = useCallback(() => {
+    post({ type: 'kenth:cmd', action: 'hideControls' });
+    return withMedia((media) => {
+      media.controls = false;
+      media.removeAttribute('controls');
+      media.setAttribute('controlsList', 'nodownload nofullscreen noremoteplayback');
+    });
+  }, [post, withMedia]);
+
+  const seek = useCallback((seconds) => {
+    const next = Number(seconds);
+    const ok = post({ type: 'kenth:cmd', action: 'seek', seconds: next });
+    if (Number.isFinite(next)) {
+      setCurrentTimestamp(Math.max(0, next));
+      withMedia((media) => { media.currentTime = Math.max(0, next); });
+    }
+    return ok;
+  }, [post, withMedia]);
+
+  const play = useCallback(() => {
+    const ok = post({ type: 'kenth:cmd', action: 'play' });
+    withMedia((media) => {
+      const result = media.play?.();
+      if (result?.catch) result.catch(() => {});
+    });
+    return ok;
+  }, [post, withMedia]);
+
+  const pause = useCallback(() => {
+    const ok = post({ type: 'kenth:cmd', action: 'pause' });
+    withMedia((media) => { media.pause?.(); });
+    return ok;
+  }, [post, withMedia]);
+
+  const setMuted = useCallback((nextMuted) => {
+    const next = Boolean(nextMuted);
+    setMutedState(next);
+    const ok = post({ type: 'kenth:cmd', action: 'setMuted', muted: next });
+    const applyMuted = (media) => {
+      media.muted = next;
+      media.defaultMuted = next;
+      if (!next && media.volume === 0) media.volume = 0.8;
+      if (next) media.setAttribute('muted', '');
+      else media.removeAttribute('muted');
+    };
+    const directOk = withMedia(applyMuted);
+    return ok || directOk;
+  }, [post, withMedia]);
+  const toggleMute = useCallback(() => setMuted(!muted), [muted, setMuted]);
   const requestMeta = useCallback(() => post({ type: 'kenth:cmd', action: 'meta' }), [post]);
   const requestThumbnail = useCallback((time) => new Promise((resolve) => {
     thumbResolversRef.current.push({ time, resolve });
@@ -161,6 +253,7 @@ export function useResourceVideoBridge({
         // Fracción (no floor): el resaltado de subtítulos necesita seguir el
         // audio con precisión; el bridge ya emite ~4 veces/seg con decimales.
         if (Number.isFinite(seconds)) setCurrentTimestamp(Math.max(0, seconds));
+        if (typeof data.muted === 'boolean') setMutedState(data.muted);
       } else if (data.type === 'kenth:resource_meta') {
         setMeta({
           duration: Number.isFinite(data.duration) ? data.duration : null,
@@ -169,6 +262,7 @@ export function useResourceVideoBridge({
           src: data.src || '',
           ready: !!data.ready,
         });
+        if (typeof data.muted === 'boolean') setMutedState(data.muted);
       } else if (data.type === 'kenth:resource_thumbnail') {
         const resolvers = thumbResolversRef.current;
         if (resolvers.length) {
@@ -184,12 +278,22 @@ export function useResourceVideoBridge({
     return () => window.removeEventListener('message', onMessage);
   }, [enabled, resourceId]);
 
-  // Reset al cambiar de recurso.
-  useEffect(() => {
+  // Reset de estado al cambiar de recurso DURANTE el render (evita setState en
+  // cascada dentro de un efecto). La limpieza de promesas pendientes va en el
+  // cleanup de un efecto aparte, porque es un side-effect (no setState).
+  const [prevResourceId, setPrevResourceId] = useState(resourceId);
+  if (resourceId !== prevResourceId) {
+    setPrevResourceId(resourceId);
     setCurrentTimestamp(null);
     setMeta(null);
-    thumbResolversRef.current.forEach((r) => r.resolve(''));
-    thumbResolversRef.current = [];
+    setMutedState(false);
+  }
+
+  useEffect(() => {
+    return () => {
+      thumbResolversRef.current.forEach((r) => r.resolve(''));
+      thumbResolversRef.current = [];
+    };
   }, [resourceId]);
 
   return {
@@ -199,6 +303,10 @@ export function useResourceVideoBridge({
     seek,
     play,
     pause,
+    muted,
+    setMuted,
+    toggleMute,
+    hideNativeControls,
     requestMeta,
     requestThumbnail,
   };

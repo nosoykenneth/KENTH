@@ -6,7 +6,7 @@ en el curso indicado en la cabecera `X-Course-Id` (se valida contra los roles re
 de Moodle). Las escrituras se hacen scoped al curso canónico (id numérico Moodle).
 
 Reusa la capa de persistencia de `services.db_service` (DB Moodle, fallback SQLite)
-y la resolución DB-first de `services.axis_service`.
+y la resolución DB-first de `services.lesson_service`.
 """
 
 from typing import List, Optional
@@ -16,7 +16,7 @@ from pydantic import BaseModel
 
 from api.dependencies import require_teacher, TeacherContext
 from services import db_service, transcription_service
-from services.axis_service import _canonical_axis_id, load_axis_manifest, load_lesson
+from services.lesson_service import load_lesson
 
 
 router = APIRouter(prefix="/authoring", tags=["authoring"])
@@ -28,7 +28,10 @@ def _index_transcript_safe(course_id: str, lesson_id: str, segments) -> None:
         import ingest  # import perezoso (carga embeddings)
         lesson = db_service.get_lesson(lesson_id, course_id) or {}
         ingest.index_lesson_transcript(
-            course_id, lesson_id, segments, axis_id=lesson.get("axis_id", ""),
+            course_id,
+            lesson_id,
+            segments,
+            moodle_section_id=lesson.get("moodle_section_id", ""),
         )
     except Exception as exc:  # pragma: no cover
         print(f"[transcript-index] fallo indexando {lesson_id}: {exc}")
@@ -38,31 +41,19 @@ def _index_transcript_safe(course_id: str, lesson_id: str, segments) -> None:
 # MODELOS
 # ==========================================
 
-class AxisPayload(BaseModel):
-    axis_id: str
-    axis_number: int = 0
-    axis_slug: str = ""
-    title: str = ""
-    pedagogical_role: str = ""
-    doc_root: str = ""
-    status: str = ""
-    axis_order: int = 0
-    primary_resources: List[str] = []
-    derived_resources: List[str] = []
-
-
 class LessonPayload(BaseModel):
     lesson_id: str
-    axis_id: str
+    axis_id: str = ""
+    moodle_section_id: Optional[str] = None
     title: str = ""
     order: int = 0
     learning_goal: str = ""
     expected_action: str = ""
     learning_goals: List[str] = []
-    expected_actions: List[str] = []
-    source_script_file: str = ""
     resources: List[str] = []
     prerequisites: List[str] = []
+    delegated_to_tutor: List[str] = []
+    attribution_constraints: List[str] = []
     notes: str = ""
 
 
@@ -110,16 +101,17 @@ class LessonImportPayload(BaseModel):
     la validación dura ocurre en el endpoint."""
     lesson_id: str = ""
     axis_id: str = ""
+    moodle_section_id: Optional[str] = None
     lesson_title: str = ""
     title: str = ""
     order: int = 0
     learning_goal: str = ""
     expected_action: str = ""
     learning_goals: List[str] = []
-    expected_actions: List[str] = []
-    source_script_file: str = ""
     resources: List[str] = []
     prerequisites: List[str] = []
+    delegated_to_tutor: List[str] = []
+    attribution_constraints: List[str] = []
     proactive_message: str = ""
     suggested_prompts: List[str] = []
     notes: str = ""
@@ -130,6 +122,7 @@ class LessonImportPayload(BaseModel):
 class ResourcePayload(BaseModel):
     resource_id: str
     axis_id: str = ""
+    moodle_section_id: Optional[str] = None
     lesson_id: str = ""
     type: str = "lesson_note"
     title: str = ""
@@ -146,65 +139,35 @@ class ReorderPayload(BaseModel):
 
 
 # ==========================================
-# EJES
-# ==========================================
-
-@router.put("/axes/{axis_id}")
-def upsert_axis(axis_id: str, payload: AxisPayload, ctx: TeacherContext = Depends(require_teacher)):
-    canonical = _canonical_axis_id(payload.axis_id or axis_id)
-    db_service.upsert_axis(
-        axis_id=canonical,
-        course_id=ctx.course_id,
-        axis_number=payload.axis_number,
-        axis_slug=payload.axis_slug or canonical.lower().replace(" ", "_"),
-        title=payload.title,
-        pedagogical_role=payload.pedagogical_role,
-        doc_root=payload.doc_root,
-        status=payload.status,
-        axis_order=payload.axis_order or payload.axis_number,
-        metadata={
-            "primary_resources": payload.primary_resources,
-            "derived_resources": payload.derived_resources,
-        },
-    )
-    return load_axis_manifest(canonical, ctx.course_id)
-
-
-@router.delete("/axes/{axis_id}")
-def delete_axis(axis_id: str, ctx: TeacherContext = Depends(require_teacher)):
-    canonical = _canonical_axis_id(axis_id)
-    lessons = db_service.list_lessons(axis_id=canonical, course_id=ctx.course_id)
-    if lessons:
-        raise HTTPException(
-            status_code=409,
-            detail=f"El eje '{canonical}' tiene {len(lessons)} lección(es). Bórralas o muévelas antes de eliminar el eje.",
-        )
-    deleted = db_service.delete_axis(canonical, ctx.course_id)
-    return {"deleted": deleted, "axis_id": canonical}
-
-
-# ==========================================
 # LECCIONES
 # ==========================================
 
 @router.put("/lessons/{lesson_id}")
 def upsert_lesson(lesson_id: str, payload: LessonPayload, ctx: TeacherContext = Depends(require_teacher)):
-    canonical_axis = _canonical_axis_id(payload.axis_id)
+    existing = db_service.get_lesson(payload.lesson_id or lesson_id, ctx.course_id) or {}
+    section_id = str(payload.moodle_section_id or "").strip()
+    if not section_id:
+        section_id = str(existing.get("moodle_section_id") or "").strip()
+    if not section_id:
+        raise HTTPException(status_code=400, detail="moodle_section_id es requerido para guardar lecciones.")
+    # metadata se preserva (merge), nunca se pisa: solo se actualiza edited_by.
+    metadata = {**(existing.get("metadata") or {}), "edited_by": ctx.user_id}
     db_service.upsert_lesson(
         lesson_id=payload.lesson_id or lesson_id,
         course_id=ctx.course_id,
-        axis_id=canonical_axis,
+        axis_id="",
+        moodle_section_id=section_id,
         title=payload.title,
         order=payload.order,
         learning_goal=payload.learning_goal,
         expected_action=payload.expected_action,
         learning_goals=payload.learning_goals,
-        expected_actions=payload.expected_actions,
-        source_script_file=payload.source_script_file,
         resources=payload.resources,
         prerequisites=payload.prerequisites,
+        delegated_to_tutor=payload.delegated_to_tutor,
+        attribution_constraints=payload.attribution_constraints,
         notes=payload.notes,
-        metadata={"edited_by": ctx.user_id},
+        metadata=metadata,
     )
     return load_lesson(payload.lesson_id or lesson_id, ctx.course_id)
 
@@ -269,14 +232,14 @@ def import_lesson(
         if not existing:
             raise HTTPException(status_code=404, detail="Lección destino no encontrada.")
         lesson_id = target_lesson_id
-        axis_id = existing.get("axis_id") or _canonical_axis_id(payload.axis_id)
+        moodle_section_id = existing.get("moodle_section_id") or payload.moodle_section_id or ""
     else:
         if not (payload.lesson_id or "").strip():
             raise HTTPException(status_code=422, detail="El JSON no trae 'lesson_id'.")
-        if not (payload.axis_id or "").strip():
-            raise HTTPException(status_code=422, detail="El JSON no trae 'axis_id'.")
         lesson_id = payload.lesson_id.strip()
-        axis_id = _canonical_axis_id(payload.axis_id)
+        moodle_section_id = payload.moodle_section_id or ""
+    if not str(moodle_section_id or "").strip():
+        raise HTTPException(status_code=422, detail="La lección importada requiere 'moodle_section_id'.")
 
     title = (payload.lesson_title or payload.title or "").strip()
     if not title:
@@ -302,21 +265,25 @@ def import_lesson(
             "preguntas_probables": b.preguntas_probables,
         })
 
+    existing_meta = {}
+    if target_lesson_id:
+        existing_meta = (db_service.get_lesson(target_lesson_id, ctx.course_id) or {}).get("metadata") or {}
     db_service.upsert_lesson(
         lesson_id=lesson_id,
         course_id=ctx.course_id,
-        axis_id=axis_id,
+        axis_id="",
+        moodle_section_id=moodle_section_id,
         title=title,
         order=payload.order,
         learning_goal=payload.learning_goal,
         expected_action=payload.expected_action,
         learning_goals=payload.learning_goals,
-        expected_actions=payload.expected_actions,
-        source_script_file=payload.source_script_file,
         resources=payload.resources,
         prerequisites=payload.prerequisites,
+        delegated_to_tutor=payload.delegated_to_tutor,
+        attribution_constraints=payload.attribution_constraints,
         notes=payload.notes,
-        metadata={"edited_by": ctx.user_id, "imported": True},
+        metadata={**existing_meta, "edited_by": ctx.user_id, "imported": True},
     )
     db_service.replace_lesson_blocks(lesson_id, blocks)
     db_service.set_lesson_prompts(
@@ -379,7 +346,7 @@ def auto_transcribe(lesson_id: str, payload: AutoTranscribePayload, ctx: Teacher
     lesson = db_service.get_lesson(lesson_id, ctx.course_id) or {}
     job = transcription_service.start_transcription(
         lesson_id, video["path"], payload.language,
-        course_id=ctx.course_id, axis_id=lesson.get("axis_id", ""),
+        course_id=ctx.course_id, moodle_section_id=lesson.get("moodle_section_id", ""),
     )
     return {"lesson_id": lesson_id, "job": job, "video": {"filename": video.get("filename")}}
 
@@ -406,16 +373,17 @@ def reorder_lessons(payload: ReorderPayload, ctx: TeacherContext = Depends(requi
         db_service.upsert_lesson(
             lesson_id=lesson_id,
             course_id=row.get("course_id") or ctx.course_id,
-            axis_id=row.get("axis_id", ""),
+            axis_id="",
+            moodle_section_id=row.get("moodle_section_id", ""),
             title=row.get("title", ""),
             order=int(order),
             learning_goal=row.get("learning_goal", ""),
             expected_action=row.get("expected_action", ""),
             learning_goals=row.get("learning_goals", []),
-            expected_actions=row.get("expected_actions", []),
-            source_script_file=row.get("source_script_file", ""),
             resources=row.get("resources", []),
             prerequisites=row.get("prerequisites", []),
+            delegated_to_tutor=row.get("delegated_to_tutor", []),
+            attribution_constraints=row.get("attribution_constraints", []),
             notes=row.get("notes", ""),
             metadata=row.get("metadata", {}),
         )
@@ -432,7 +400,8 @@ def upsert_resource(resource_id: str, payload: ResourcePayload, ctx: TeacherCont
     db_service.upsert_resource(
         resource_id=payload.resource_id or resource_id,
         course_id=ctx.course_id,
-        axis_id=_canonical_axis_id(payload.axis_id) if payload.axis_id else "",
+        axis_id="",
+        moodle_section_id=payload.moodle_section_id or "",
         lesson_id=payload.lesson_id,
         resource_type=payload.type,
         title=payload.title,

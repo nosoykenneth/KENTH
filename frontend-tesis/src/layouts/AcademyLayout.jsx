@@ -64,7 +64,7 @@ export default function AcademyLayout() {
     localStorage.setItem('sidebar_expandida', JSON.stringify(sidebarExpandida));
   }, [sidebarExpandida]);
   
-  const [userRole, setUserRole] = useState(() => localStorage.getItem('moodle_rol') || 'student');
+  const [userRole] = useState(() => localStorage.getItem('moodle_rol') || 'student');
   
   useEffect(() => {
     const contentArea = document.getElementById('main-content-area');

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
-import { listAxes } from '../../shared/services/axesService';
-import { showNotification } from '../../shared/components/ui/Notification';
+import { listSections } from '../../shared/services/sectionsService';
+import { showNotification } from '../../shared/utils/notify';
 import PageContainer from '../../shared/components/layout/PageContainer';
 import KnowledgeHub from './KnowledgeHub';
 import StructureManager from './StructureManager';
@@ -25,12 +25,12 @@ const TABS = [
 export default function CourseAuthoringView() {
   const { courseId } = useParams(); // id firmado del curso (X-Course-Id)
   const [tab, setTab] = useState('estructura');
-  const [axes, setAxes] = useState([]);
+  const [sections, setSections] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const loadAxes = useCallback(async () => {
+  const loadSections = useCallback(async () => {
     try {
-      setAxes(await listAxes(courseId));
+      setSections(await listSections(courseId));
     } catch (e) {
       showNotification('error', e.message);
     } finally {
@@ -38,7 +38,7 @@ export default function CourseAuthoringView() {
     }
   }, [courseId]);
 
-  useEffect(() => { loadAxes(); }, [loadAxes]);
+  useEffect(() => { loadSections(); }, [loadSections]);
 
   return (
     <PageContainer>
@@ -46,7 +46,7 @@ export default function CourseAuthoringView() {
         <p className="text-[10px] uppercase font-black tracking-widest text-kenth-brightred">Autoría del curso</p>
         <h1 className="text-2xl font-black uppercase italic text-kenth-text tracking-tight">Gestión del tutor</h1>
         <p className="text-xs text-kenth-subtext mt-1">
-          Administra el temario (ejes y lecciones) y el conocimiento (RAG) del curso.
+          Administra secciones Moodle, lecciones y conocimiento (RAG) del curso.
         </p>
       </div>
 
@@ -69,7 +69,7 @@ export default function CourseAuthoringView() {
       ) : tab === 'estructura' ? (
         <StructureManager courseId={courseId} />
       ) : (
-        <KnowledgeHub courseId={courseId} axes={axes} />
+        <KnowledgeHub courseId={courseId} sections={sections} />
       )}
     </PageContainer>
   );

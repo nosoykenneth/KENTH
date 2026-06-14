@@ -6,14 +6,21 @@ import PageContainer from '../../shared/components/layout/PageContainer';
 import TutorAssistCard from '../../shared/components/ai/TutorAssistCard';
 import TutorView from './TutorView';
 import {
-  buildActivityContext,
   activityContextFromMoodleModule,
-  INTERACTION_MODES,
+  isH5PModule,
 } from '../../shared/services/activityContext';
 import LessonVideoEditor from '../../shared/components/ai/LessonVideoEditor';
-import AssignLessonDialog from '../../shared/components/ai/AssignLessonDialog';
 import StudentLessonResources from '../../shared/components/ai/StudentLessonResources';
-import { listResourceLinks, getLesson } from '../../shared/services/axesService';
+import {
+  listResourceLinks,
+  getLesson,
+  listAllLessons,
+  upsertLesson,
+  upsertResourceLink,
+  deleteResourceLink,
+  deleteLesson,
+} from '../../shared/services/sectionsService';
+import { resolveLessonForResource as resolveLessonForModule } from '../../shared/services/lessonAutoAssignment';
 import useResourceTimestamp from '../../shared/hooks/useResourceTimestamp';
 
 const FloatingAssistantIcon = () => (
@@ -94,9 +101,8 @@ export default function CourseContentView() {
   // Vinculacion recurso <-> leccion piloto del tutor contextual.
   // resourceLinks: { [resource_id]: link } cargado en bulk por curso.
   const [resourceLinks, setResourceLinks] = useState({});
+  const [lessons, setLessons] = useState([]);
   const [linkModalRecurso, setLinkModalRecurso] = useState(null);
-  // Diálogo de asignación de lección (crea el vínculo fijo al crear el recurso).
-  const [assignRecurso, setAssignRecurso] = useState(null);
   // Detalle de la leccion piloto enlazada al visorActivo (si la tiene).
   // Se usa para que el TutorAssistCard reciba learning_goal/expected_action
   // del manifest piloto en lugar del description de Moodle.
@@ -116,6 +122,68 @@ export default function CourseContentView() {
   // null cuando se trata de una edicion (no autoabrir).
   const idsCreacionRef = useRef(null);
   const tutorUnmountTimerRef = useRef(null);
+
+  const resolveLessonForResource = (resource, sectionsOverride = secciones, lessonsOverride = lessons) => (
+    resolveLessonForModule({
+      resource,
+      secciones: sectionsOverride,
+      lessons: lessonsOverride,
+      resourceLinks,
+    })
+  );
+
+  const getSectionContextForResource = (resource, sectionsOverride = secciones, lessonsOverride = lessons) => {
+    const resolved = resolveLessonForResource(resource, sectionsOverride, lessonsOverride);
+    if (!resolved) return null;
+    return {
+      moodle_section_id: resolved.moodle_section_id,
+      current_section_name: resolved.current_section_name,
+      current_section_order: resolved.current_section_order,
+      lesson_id: resolved.lesson_id,
+      lesson_order: resolved.lesson_order,
+      section: resolved.section,
+    };
+  };
+
+  const ensureLessonForResource = async (resource, sectionsOverride = secciones) => {
+    // Solo los recursos interactivos (video H5P) se vuelven lecciones del tutor.
+    // Un PDF, una URL o un foro no deben crear lecciones ni vinculos fantasma.
+    if (!isH5PModule(resource)) return null;
+    const resolved = resolveLessonForResource(resource, sectionsOverride, lessons);
+    if (!resolved?.lesson_id || !resolved.moodle_section_id) return null;
+
+    const baseCtx = activityContextFromMoodleModule(resource, resolved.section, {
+      courseId: id,
+      moodleSectionId: resolved.moodle_section_id,
+      sectionName: resolved.current_section_name,
+      sectionOrder: resolved.current_section_order,
+      lessonId: resolved.lesson_id,
+    });
+
+    if (!resolved.existing_lesson) {
+      const created = await upsertLesson(id, resolved.lesson_id, {
+        lesson_id: resolved.lesson_id,
+        moodle_section_id: resolved.moodle_section_id,
+        title: resolved.lesson_title || resource?.name || `Leccion ${resolved.lesson_order}`,
+        order: resolved.lesson_order,
+      });
+      setLessons((prev) => {
+        const next = prev.filter((lesson) => String(lesson.lesson_id) !== String(created.lesson_id));
+        next.push(created);
+        return next;
+      });
+    }
+
+    const link = await upsertResourceLink(resource.id, {
+      lesson_id: resolved.lesson_id,
+      course_id: id,
+      moodle_section_id: resolved.moodle_section_id,
+      resource_type: baseCtx?.current_resource_type || '',
+      resource_subtype: baseCtx?.resource_subtype || '',
+    });
+    setResourceLinks((prev) => ({ ...prev, [String(resource.id)]: link }));
+    return { ...resolved, link };
+  };
 
   const abrirTutor = () => {
     if (tutorUnmountTimerRef.current) {
@@ -143,6 +211,11 @@ export default function CourseContentView() {
 
   const abrirVisorRecurso = (mod) => {
     if (!mod?.url) return;
+    if (esProfesor) {
+      ensureLessonForResource(mod).catch((e) => {
+        console.warn('[LESSON_AUTO] No se pudo sincronizar la leccion posicional', e);
+      });
+    }
     setTutorAbierto(false);
     setTutorMontado(false);
     setVisorActivo(mod);
@@ -157,16 +230,23 @@ export default function CourseContentView() {
   const cargarLinks = async () => {
     if (!id) return;
     try {
-      const links = await listResourceLinks(id);
+      const [links, allLessons] = await Promise.all([
+        listResourceLinks(id),
+        listAllLessons(id),
+      ]);
       const map = {};
       links.forEach((l) => { map[String(l.resource_id)] = l; });
       setResourceLinks(map);
+      setLessons(allLessons || []);
     } catch (e) {
-      console.warn('[LINKS] No se pudieron cargar los vinculos', e);
+      console.warn('[LINKS] No se pudieron cargar los vinculos/lecciones', e);
     }
   };
 
-  useEffect(() => { cargarLinks(); /* eslint-disable-next-line */ }, [id]);
+  useEffect(() => {
+    cargarLinks();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   // Al abrir un recurso en el visor: si tiene leccion piloto enlazada,
   // cargamos su manifest una vez para alimentar al tutor con datos
@@ -205,14 +285,15 @@ export default function CourseContentView() {
 
   useEffect(() => {
     if (!visorActivo) { setLinkedLessonDetail(null); return; }
-    const link = resourceLinks[String(visorActivo.id)];
-    if (!link?.lesson_id) { setLinkedLessonDetail(null); return; }
+    const resolved = resolveLessonForResource(visorActivo);
+    const lessonId = resolved?.lesson_id || resourceLinks[String(visorActivo.id)]?.lesson_id || '';
+    if (!lessonId) { setLinkedLessonDetail(null); return; }
     let alive = true;
-    getLesson(link.lesson_id, id)
+    getLesson(lessonId, id)
       .then((d) => { if (alive) setLinkedLessonDetail(d); })
       .catch(() => { if (alive) setLinkedLessonDetail(null); });
     return () => { alive = false; };
-  }, [visorActivo, resourceLinks, id]);
+  }, [visorActivo, resourceLinks, lessons, secciones, id]);
 
   const [editandoSeccionId, setEditandoSeccionId] = useState(null);
   const [nuevoNombreSeccion, setNuevoNombreSeccion] = useState('');
@@ -256,7 +337,7 @@ export default function CourseContentView() {
 
         // Si veniamos de una creacion (no edicion), refrescamos a mano
         // para poder detectar el nuevo recurso por diff y abrir el modal
-        // de "Enlazar leccion" justo despues.
+        // del editor del tutor justo despues, con leccion posicional ya resuelta.
         if (idsAntes) {
           const token = localStorage.getItem('moodle_token');
           try {
@@ -269,7 +350,14 @@ export default function CourseContentView() {
               }
               if (nuevoMod) break;
             }
-            if (nuevoMod) setAssignRecurso(nuevoMod);
+            if (nuevoMod && isH5PModule(nuevoMod)) {
+              try {
+                await ensureLessonForResource(nuevoMod, datos);
+              } catch (syncErr) {
+                console.warn('[LESSON_AUTO] No se pudo crear el vinculo inicial del recurso', syncErr);
+              }
+              setLinkModalRecurso(nuevoMod);
+            }
           } catch (err) {
             console.error('Error refrescando tras creacion Moodle', err);
             fetchContenido();
@@ -325,6 +413,25 @@ export default function CourseContentView() {
 
     try {
       await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=${action}&cmid=${cmid}`);
+      if (action === 'delete') {
+        // El recurso Moodle ya no existe: borramos su leccion + vinculo en
+        // nuestra BD para que el tutor no quede con lecciones fantasma.
+        const link = resourceLinks[String(cmid)];
+        try {
+          await deleteResourceLink(cmid);
+          if (link?.lesson_id) await deleteLesson(id, link.lesson_id);
+        } catch (cleanupErr) {
+          console.warn('[LESSON_AUTO] No se pudo limpiar la leccion del recurso borrado', cleanupErr);
+        }
+        setResourceLinks((prev) => {
+          const next = { ...prev };
+          delete next[String(cmid)];
+          return next;
+        });
+        if (link?.lesson_id) {
+          setLessons((prev) => prev.filter((l) => String(l.lesson_id) !== String(link.lesson_id)));
+        }
+      }
       if (action === 'duplicate') fetchContenido();
     } catch (e) {
       console.error('Error en background', e);
@@ -403,6 +510,22 @@ export default function CourseContentView() {
       const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=delete_section&sectionid=${sectionId}`);
       const data = await response.json();
       if (data.success) {
+        // La sección Moodle ya no existe: limpiamos las lecciones del tutor que
+        // vivían en ella para que no queden fantasmas en la estructura.
+        const huerfanas = lessons.filter((l) => String(l.moodle_section_id) === String(sectionId));
+        for (const l of huerfanas) {
+          try { await deleteLesson(id, l.lesson_id); }
+          catch (cleanupErr) { console.warn('[LESSON_AUTO] No se pudo limpiar la leccion de la seccion borrada', cleanupErr); }
+        }
+        if (huerfanas.length) {
+          const idsBorradas = new Set(huerfanas.map((l) => String(l.lesson_id)));
+          setLessons((prev) => prev.filter((l) => !idsBorradas.has(String(l.lesson_id))));
+          setResourceLinks((prev) => {
+            const next = {};
+            Object.entries(prev).forEach(([rid, lk]) => { if (!idsBorradas.has(String(lk.lesson_id))) next[rid] = lk; });
+            return next;
+          });
+        }
         fetchContenido();
       } else {
         alert("Error al borrar sección: " + data.error);
@@ -748,20 +871,6 @@ export default function CourseContentView() {
                 ) : (
                   <>
                     {seccion.summary && <div className="text-kenth-subtext text-sm mb-4 relative z-10" dangerouslySetInnerHTML={{ __html: seccion.summary }}></div>}
-                    <div className="mb-6 max-w-md">
-                      <TutorAssistCard
-                        variant="module"
-                        titulo={`Tutor: ${seccion.name || `Tema ${seccion.section}`}`}
-                        contexto={`Módulo: ${seccion.name}. Resumen: ${seccion.summary}`}
-                        activityContext={buildActivityContext({
-                          courseId: id,
-                          lessonId: `course-${id}-section-${seccion.id}`,
-                          section: seccion.name || `Tema ${seccion.section}`,
-                          learningGoal: seccion.summary || '',
-                          interactionMode: INTERACTION_MODES.TEORIA,
-                        })}
-                      />
-                    </div>
                   </>
                 )}
 
@@ -779,7 +888,9 @@ export default function CourseContentView() {
                   )}
 
                   {seccion.modules && seccion.modules.length > 0 ? (
-                    seccion.modules.map((mod, modIdx) => (
+                    seccion.modules.map((mod, modIdx) => {
+                      const autoLesson = resolveLessonForResource(mod);
+                      return (
                       <React.Fragment key={mod.id}>
                         <div
                           draggable={esProfesor}
@@ -816,12 +927,12 @@ export default function CourseContentView() {
                               </span>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <span className="text-[10px] text-kenth-subtext uppercase tracking-widest font-bold">{mod.modplural}</span>
-                                {resourceLinks[String(mod.id)] && (
+                                {autoLesson && (
                                   <span
                                     className="text-[9px] uppercase tracking-widest font-black px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-300 border border-emerald-500/30"
-                                    title={`Tutor contextual activo para ${resourceLinks[String(mod.id)].lesson_id}`}
+                                    title={`Tutor contextual activo`}
                                   >
-                                    Leccion enlazada · {resourceLinks[String(mod.id)].lesson_id}
+                                    Lección {autoLesson.lesson_order}
                                   </span>
                                 )}
                               </div>
@@ -847,13 +958,21 @@ export default function CourseContentView() {
                                     Editar ajustes
                                   </button>
                                   <button
-                                    onClick={() => { setMenuActivo(null); if (resourceLinks[String(mod.id)]) setLinkModalRecurso(mod); else setAssignRecurso(mod); }}
+                                    onClick={async () => {
+                                      setMenuActivo(null);
+                                      try {
+                                        await ensureLessonForResource(mod);
+                                      } catch (e) {
+                                        console.warn('[LESSON_AUTO] No se pudo sincronizar antes de editar', e);
+                                      }
+                                      setLinkModalRecurso(mod);
+                                    }}
                                     className="w-full text-left px-4 py-2.5 text-sm text-kenth-subtext hover:bg-kenth-surface/10 hover:text-kenth-text flex items-center gap-3 transition"
                                   >
                                     <svg className="w-4 h-4 text-kenth-brightred" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 015.656 5.656l-3 3a4 4 0 01-5.656-5.656m-1.656-1.656a4 4 0 00-5.656 5.656l3 3a4 4 0 005.656-5.656" />
                                     </svg>
-                                    {resourceLinks[String(mod.id)] ? 'Cambiar leccion' : 'Enlazar leccion'}
+                                    Editar tutor IA
                                   </button>
                                   <button onClick={() => ejecutarAccion(mod.visible !== 0 ? 'hide' : 'show', mod.id, secIdx)} className="w-full text-left px-4 py-2.5 text-sm text-kenth-subtext hover:bg-kenth-surface/10 hover:text-kenth-text flex items-center gap-3 transition">
                                     <svg className="w-4 h-4 text-kenth-subtext/60" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d={mod.visible !== 0 ? "M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.878 9.878L3 3m6.878 6.879L21 21" : "M15 12a3 3 0 11-6 0 3 3 0 016 0z M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268-2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542 7-4.477 0-8.268-2.943-9.542 7-4.477 0-8.268-2.943-9.542-7z"} /></svg>
@@ -885,7 +1004,8 @@ export default function CourseContentView() {
                           </div>
                         )}
                       </React.Fragment>
-                    ))
+                      );
+                    })
                   ) : (
                     <div
                       onDragOver={esProfesor ? (e) => { e.preventDefault(); setDropIndicator({ id: `empty-${seccion.id}`, position: 'top' }); } : undefined}
@@ -1153,9 +1273,11 @@ export default function CourseContentView() {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                {resourceLinks[String(visorActivo.id)]?.lesson_id && (
-                  <StudentLessonResources courseId={id} lessonId={resourceLinks[String(visorActivo.id)].lesson_id} />
-                )}
+                {(() => {
+                  const activeLesson = resolveLessonForResource(visorActivo);
+                  const lessonId = activeLesson?.lesson_id || resourceLinks[String(visorActivo.id)]?.lesson_id || '';
+                  return lessonId ? <StudentLessonResources courseId={id} lessonId={lessonId} /> : null;
+                })()}
                 <button
                   onClick={cerrarVisorRecurso}
                   className="group relative overflow-hidden bg-kenth-surface/10 hover:bg-kenth-brightred text-kenth-subtext hover:text-white px-6 py-2.5 rounded-2xl transition-all duration-300 font-black text-[10px] tracking-widest uppercase flex items-center gap-3 border border-kenth-border hover:border-kenth-brightred hover:shadow-[0_0_20px_rgba(225,29,72,0.4)]"
@@ -1170,7 +1292,11 @@ export default function CourseContentView() {
             
             {(() => {
               // Lógica de contexto y tutor (IIFE para mantener variables locales limpias)
-              const seccion = secciones.find(s => s.modules?.some(m => m.id === visorActivo.id)) || null;
+              const seccionIdx = secciones.findIndex(s => s.modules?.some(m => m.id === visorActivo.id));
+              const seccion = seccionIdx >= 0 ? secciones[seccionIdx] : null;
+              const autoLesson = resolveLessonForResource(visorActivo);
+              const link = resourceLinks[String(visorActivo.id)];
+              const activeLessonId = autoLesson?.lesson_id || link?.lesson_id || '';
               const baseCtx = activityContextFromMoodleModule(
                 visorActivo,
                 seccion,
@@ -1178,23 +1304,24 @@ export default function CourseContentView() {
                   timestamp: typeof currentTimestamp === 'number' ? currentTimestamp : null,
                   page: null,
                   courseId: id,
+                  moodleSectionId: seccion?.id || '',
+                  sectionName: seccion?.name || '',
+                  sectionOrder: seccionIdx >= 0 ? seccionIdx + 1 : null,
+                  lessonId: activeLessonId,
                   overrides: {
                     expectedAction: visorActivo.description ? 'Revisar y comprender el recurso abierto' : 'Explorar el recurso',
                   },
                 }
               );
 
-              const link = resourceLinks[String(visorActivo.id)];
-              const ctx = link
-                ? {
-                    ...baseCtx,
-                    current_axis: link.axis_id || baseCtx?.current_axis || '',
-                    current_lesson_id: link.lesson_id,
-                    resource_subtype: link.resource_subtype || baseCtx?.resource_subtype || '',
-                    learning_goal: linkedLessonDetail?.learning_goal || baseCtx?.learning_goal || '',
-                    expected_action: linkedLessonDetail?.expected_action || baseCtx?.expected_action || '',
-                  }
-                : baseCtx;
+              const ctx = {
+                ...baseCtx,
+                moodle_section_id: autoLesson?.moodle_section_id || link?.moodle_section_id || linkedLessonDetail?.moodle_section_id || baseCtx?.moodle_section_id || '',
+                current_lesson_id: activeLessonId || baseCtx?.current_lesson_id || '',
+                resource_subtype: link?.resource_subtype || baseCtx?.resource_subtype || '',
+                learning_goal: linkedLessonDetail?.learning_goal || baseCtx?.learning_goal || '',
+                expected_action: linkedLessonDetail?.expected_action || baseCtx?.expected_action || '',
+              };
 
               const proactiveMessage = linkedLessonDetail?.proactive_message || '';
               const ts = typeof currentTimestamp === 'number' ? currentTimestamp : null;
@@ -1213,12 +1340,12 @@ export default function CourseContentView() {
                 ? currentBlock.preguntas_probables
                 : (linkedLessonDetail?.suggested_prompts || null);
 
-              const badge = link
+              const badge = activeLessonId
                 ? {
                     label: currentBlock ? `Bloque activo · ${currentBlock.block_id}` : 'Tutor contextual activo',
                     detail: currentBlock
-                      ? `${link.lesson_id} · ${currentBlock.block_title || currentBlock.block_id}`
-                      : `${link.axis_id ? link.axis_id + ' · ' : ''}${link.lesson_id}${linkedLessonDetail?.lesson_title ? ' — ' + linkedLessonDetail.lesson_title : ''}`,
+                      ? `${activeLessonId} · ${currentBlock.block_title || currentBlock.block_id}`
+                      : `${activeLessonId}${linkedLessonDetail?.lesson_title ? ' — ' + linkedLessonDetail.lesson_title : ''}`,
                   }
                 : null;
 
@@ -1230,7 +1357,7 @@ export default function CourseContentView() {
                   {!tutorAbierto && (
                     <button
                       onClick={abrirTutor}
-                      title={link ? `Abrir tutor - ${link.lesson_id}` : 'Abrir tutor'}
+                      title={activeLessonId ? `Abrir tutor - ${activeLessonId}` : 'Abrir tutor'}
                       aria-label="Abrir tutor"
                       className="absolute top-[20%] right-0 z-40 group flex h-12 w-12 items-center justify-center rounded-l-2xl border border-r-0 border-white/10 bg-kenth-brightred text-white shadow-[-10px_10px_30px_rgba(195,7,63,0.3)] transition-all duration-300 translate-x-1 hover:translate-x-0 hover:bg-kenth-red focus:outline-none focus:ring-2 focus:ring-white/40"
                     >
@@ -1238,7 +1365,7 @@ export default function CourseContentView() {
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.8L3 20l1.2-3.6A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
-                        {link && (
+                        {activeLessonId && (
                           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-kenth-brightred animate-pulse"></span>
                         )}
                       </span>
@@ -1250,26 +1377,6 @@ export default function CourseContentView() {
                       <MoodleRenderer modulo={visorActivo} />
                     </div>
 
-                    {/* FAB del tutor: visible solo cuando el panel está cerrado */}
-                    {false && !tutorMontado && (
-                      <button
-                        onClick={() => setTutorAbierto(true)}
-                        title={link ? `Abrir tutor · ${link.lesson_id}` : 'Abrir tutor'}
-                        className="absolute top-[20%] right-0 z-40 group flex items-center gap-3 bg-kenth-brightred text-white pl-4 pr-3 py-3 rounded-l-2xl shadow-[-10px_10px_30px_rgba(195,7,63,0.3)] hover:pr-6 transition-all border border-white/10 border-r-0 translate-x-1 hover:translate-x-0"
-                      >
-                        <span className="relative flex items-center justify-center">
-                          <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.8L3 20l1.2-3.6A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                          </svg>
-                          {link && (
-                            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-kenth-brightred animate-pulse"></span>
-                          )}
-                        </span>
-                        <span className="text-[10px] font-black uppercase tracking-widest">
-                          {link ? `Tutor · ${link.lesson_id}` : 'Tutor'}
-                        </span>
-                      </button>
-                    )}
                   </div>
 
                   {/* Drawer lateral del tutor */}
@@ -1279,7 +1386,7 @@ export default function CourseContentView() {
                       <div className="flex items-center gap-2 min-w-0">
                         <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0"></span>
                         <p className="text-[10px] font-black uppercase tracking-widest text-kenth-text truncate">
-                          {link ? `Tutor · ${link.lesson_id}` : 'Tutor de la lección'}
+                          {activeLessonId ? `Tutor · ${activeLessonId}` : 'Tutor de la leccion'}
                         </p>
                       </div>
                       <button
@@ -1296,7 +1403,7 @@ export default function CourseContentView() {
                     <div className="kenth-tutor-content-reveal flex-1 overflow-y-auto p-4">
                       <TutorAssistCard
                         variant="lesson"
-                        titulo={link ? `Ayuda · ${link.lesson_id}` : 'Ayuda con esta lección'}
+                        titulo={activeLessonId ? `Ayuda · ${activeLessonId}` : 'Ayuda con esta leccion'}
                         contexto={`Lección actual: ${visorActivo.name}. Tipo: ${visorActivo.modname}. Descripción: ${visorActivo.description}`}
                         activityContext={ctx}
                         proactiveMessage={proactiveMessage}
@@ -1317,23 +1424,10 @@ export default function CourseContentView() {
         <LessonVideoEditor
           resource={linkModalRecurso}
           courseId={id}
+          sectionContext={getSectionContextForResource(linkModalRecurso)}
           onClose={(refresh) => {
             setLinkModalRecurso(null);
             if (refresh) cargarLinks();
-          }}
-        />
-      )}
-      {assignRecurso && (
-        <AssignLessonDialog
-          resource={assignRecurso}
-          courseId={id}
-          onClose={(lessonId) => {
-            const mod = assignRecurso;
-            setAssignRecurso(null);
-            if (lessonId) {
-              cargarLinks();
-              setLinkModalRecurso(mod); // abrir el editor con el vínculo ya creado
-            }
           }}
         />
       )}

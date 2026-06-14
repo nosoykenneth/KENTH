@@ -21,7 +21,6 @@ from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 import ingest
 from api.dependencies import require_teacher, TeacherContext
 from services import db_service
-from services.axis_service import _canonical_axis_id
 
 router = APIRouter(prefix="/authoring/documents", tags=["authoring-documents"])
 
@@ -80,6 +79,7 @@ def _doc_to_public(d: dict) -> dict:
         "title": d.get("title"),
         "course_id": d.get("course_id"),
         "axis_id": d.get("axis_id"),
+        "moodle_section_id": d.get("moodle_section_id"),
         "lesson_id": d.get("lesson_id"),
         "doc_layer": d.get("doc_layer"),
         "doc_type": d.get("doc_type"),
@@ -120,26 +120,28 @@ def structured_course_documents(ctx: TeacherContext = Depends(require_teacher)):
 
     Devuelve la jerarquía REAL (autoritativa desde la BD, no desde Chroma):
       - course: recursos scope='course' (todo el curso, sin eje).
-      - axes[axis_id]: { axis_resources: scope='axis', lessons: { lesson_id: [scope='lesson'] } }.
+      - sections[moodle_section_id]: { section_resources: scope='section', lessons: { lesson_id: [scope='lesson'] } }.
       - global_docs: scope='global' (compartidos por todos los cursos).
-    Un recurso de lección NUNCA aparece en axis_resources; se agrupa bajo lessons.
+    Un recurso de lección NUNCA aparece en section_resources; se agrupa bajo lessons.
     """
     docs = db_service.list_documents(course_id=ctx.course_id)
-    course_docs, axes = [], {}
+    course_docs, sections = [], {}
     for d in docs:
         pub = _doc_to_public(d)
         sc = pub.get("scope") or "course"
         if sc == "course":
             course_docs.append(pub)
-        elif sc == "axis":
-            ax = axes.setdefault(pub.get("axis_id") or "(sin eje)", {"axis_resources": [], "lessons": {}})
-            ax["axis_resources"].append(pub)
+        elif sc in {"section", "axis"}:
+            section_id = pub.get("moodle_section_id") or pub.get("axis_id") or "(sin seccion)"
+            sx = sections.setdefault(section_id, {"section_resources": [], "lessons": {}})
+            sx["section_resources"].append(pub)
         elif sc == "lesson":
-            ax = axes.setdefault(pub.get("axis_id") or "(sin eje)", {"axis_resources": [], "lessons": {}})
+            section_id = pub.get("moodle_section_id") or pub.get("axis_id") or "(sin seccion)"
+            ax = sections.setdefault(section_id, {"section_resources": [], "lessons": {}})
             ax["lessons"].setdefault(pub.get("lesson_id") or "(sin lección)", []).append(pub)
         # global no entra aquí (es cross-curso); se pide aparte con scope='global'.
     global_docs = [_doc_to_public(d) for d in db_service.list_documents(scope="global")]
-    return {"course_id": ctx.course_id, "course": course_docs, "axes": axes, "global_docs": global_docs}
+    return {"course_id": ctx.course_id, "course": course_docs, "sections": sections, "global_docs": global_docs}
 
 
 def _classify_source(src: str, meta: dict):
@@ -193,16 +195,16 @@ def _resolver_archivo_source(source: str, course: str):
 
 @router.get("/knowledge/summary")
 def knowledge_summary(ctx: TeacherContext = Depends(require_teacher)):
-    """Resumen de lo INDEXADO (Chroma) del curso: por eje, con la LISTA de fuentes
+    """Resumen de lo INDEXADO (Chroma) del curso: por seccion, con la LISTA de fuentes
     (teoría base, transcripciones, docs subidos) y conteos. Más el bloque global."""
     course = str(ctx.course_id or "")
     out = {
         "course_id": course,
         "total": 0,
         "global": {"teoria": 0, "transcripcion": 0, "docs": 0, "total": 0},
-        "by_axis": {},
+        "by_section": {},
     }
-    # agrupador: by_axis[axis]["_sources"][source] = {kind,label,doc_id,chunks}
+    # agrupador: by_section[section]["_sources"][source] = {kind,label,doc_id,chunks}
     try:
         col = ingest.get_vector_store()._collection
         got = col.get(include=["metadatas"])
@@ -217,8 +219,8 @@ def knowledge_summary(ctx: TeacherContext = Depends(require_teacher)):
                 g[bucket] += 1
                 g["total"] += 1
             elif cid == course:
-                axis = str(m.get("axis_id") or m.get("axis") or "(sin eje)")
-                a = out["by_axis"].setdefault(axis, {"teoria": 0, "transcripcion": 0, "docs": 0, "total": 0, "_sources": {}})
+                section = str(m.get("moodle_section_id") or m.get("axis_id") or m.get("axis") or "(sin seccion)")
+                a = out["by_section"].setdefault(section, {"teoria": 0, "transcripcion": 0, "docs": 0, "total": 0, "_sources": {}})
                 a[bucket] += 1
                 a["total"] += 1
                 out["total"] += 1
@@ -226,7 +228,7 @@ def knowledge_summary(ctx: TeacherContext = Depends(require_teacher)):
                 srow = a["_sources"].setdefault(key, {"kind": kind, "label": label, "doc_id": doc_id, "source": src, "chunks": 0})
                 srow["chunks"] += 1
         # aplanar _sources -> items[]
-        for axis, a in out["by_axis"].items():
+        for section, a in out["by_section"].items():
             items = sorted(a.pop("_sources", {}).values(), key=lambda r: (r["kind"], -r["chunks"]))
             a["items"] = items
     except Exception as exc:  # pragma: no cover
@@ -358,6 +360,7 @@ async def upload_course_document(
     file: UploadFile = File(...),
     title: str = Form(""),
     axis_id: str = Form(""),
+    moodle_section_id: str = Form(""),
     doc_layer: str = Form("canonico"),
     attribution_required: bool = Form(False),
     ownership: str = Form("kenth_academy"),
@@ -384,17 +387,21 @@ async def upload_course_document(
 
     is_global = scope == "global"
     effective_course = "" if is_global else ctx.course_id
-    canonical_axis = "" if is_global else (_canonical_axis_id(axis_id) if axis_id else "")
+    canonical_axis = ""
+    effective_section = "" if is_global else str(moodle_section_id or "")
     doc_title = (title or os.path.splitext(filename)[0]).strip()
     doc_id = _slug(doc_title)[:80]
 
     # Scope explicito y coherente: 'global' exige is_global=1; documento de curso
     # con eje => 'axis'; sin eje => 'course'. Rechaza combinaciones invalidas.
-    requested_scope = "global" if is_global else ("axis" if canonical_axis else "course")
+    requested_scope = "global" if is_global else ("section" if effective_section else "course")
     try:
         doc_scope, is_global = db_service.validate_scope(
             scope=requested_scope, course_id=effective_course,
-            axis_id=canonical_axis, lesson_id="", is_global=is_global,
+            axis_id=canonical_axis,
+            moodle_section_id=effective_section,
+            lesson_id="",
+            is_global=is_global,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc))
@@ -421,6 +428,7 @@ async def upload_course_document(
         "doc_layer": doc_layer,
         "axis": canonical_axis,
         "axis_id": canonical_axis,
+        "moodle_section_id": effective_section,
         "course_id": effective_course,
         "scope": doc_scope,
         "is_global": bool(is_global),
@@ -460,6 +468,7 @@ async def upload_course_document(
         doc_id=doc_id,
         course_id=effective_course,
         axis_id=canonical_axis,
+        moodle_section_id=effective_section,
         title=doc_title,
         doc_layer=doc_layer,
         doc_type=ext.lstrip("."),

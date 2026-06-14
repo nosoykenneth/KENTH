@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  listAxes,
+  listSections,
   listAllLessons,
   listResourceLinks,
   upsertLesson,
   upsertResourceLink,
   importLesson,
-} from '../../services/axesService';
-import { showNotification } from '../ui/Notification';
+} from '../../services/sectionsService';
+import { showNotification } from '../../utils/notify';
 
 /**
  * AssignLessonDialog
@@ -35,17 +35,18 @@ const lessonNumber = (lessonId) => {
   return m ? parseInt(m[1], 10) : 0;
 };
 
-export default function AssignLessonDialog({ resource, courseId, onClose }) {
+export default function AssignLessonDialog({ resource, courseId, sectionContext = null, onClose }) {
   const isH5P = resource?.modname === 'hvp' || resource?.modname === 'h5pactivity';
   const linkPayloadBase = useMemo(() => ({
     course_id: String(courseId || ''),
+    moodle_section_id: sectionContext?.moodle_section_id || '',
     resource_type: isH5P ? 'web_page' : (resource?.modname || ''),
     resource_subtype: isH5P ? 'h5p_video' : '',
-  }), [courseId, isH5P, resource?.modname]);
+  }), [courseId, isH5P, resource?.modname, sectionContext?.moodle_section_id]);
 
   const [mode, setMode] = useState('existente');
-  const [axes, setAxes] = useState([]);
-  const [axisId, setAxisId] = useState('');
+  const [sections, setSections] = useState([]);
+  const [selectedSectionId, setSelectedSectionId] = useState(sectionContext?.moodle_section_id || '');
   const [lessons, setLessons] = useState([]);
   const [linkedIds, setLinkedIds] = useState(new Set());
   const [loading, setLoading] = useState(true);
@@ -65,14 +66,14 @@ export default function AssignLessonDialog({ resource, courseId, onClose }) {
     (async () => {
       try {
         setLoading(true);
-        const [ax, all] = await Promise.all([
-          listAxes(courseId),
+        const [sx, all] = await Promise.all([
+          listSections(courseId),
           listAllLessons(courseId),
         ]);
         if (!alive) return;
-        setAxes(ax);
+        setSections(sx);
         setLessons(all);
-        if (ax.length) setAxisId(ax[0].axis_id);
+        setSelectedSectionId(sectionContext?.moodle_section_id || sx[0]?.moodle_section_id || '');
         // Vínculos best-effort (solo para filtrar lecciones con video).
         try {
           const links = await listResourceLinks(courseId);
@@ -85,18 +86,21 @@ export default function AssignLessonDialog({ resource, courseId, onClose }) {
       }
     })();
     return () => { alive = false; };
-  }, [courseId]);
+  }, [courseId, sectionContext?.moodle_section_id]);
 
-  const axis = axes.find((a) => a.axis_id === axisId) || null;
-  const lessonsOfAxis = lessons.filter((l) => l.axis_id === axisId);
-  const freeLessons = lessonsOfAxis.filter((l) => !linkedIds.has(l.lesson_id));
+  const lessonsOfSection = lessons.filter((l) => String(l.moodle_section_id || '') === String(selectedSectionId || ''));
+  const freeLessons = lessonsOfSection.filter((l) => !linkedIds.has(l.lesson_id));
+  const sectionOptions = sections.map((s, idx) => ({
+    id: s.moodle_section_id,
+    label: `Tema ${idx + 1} - ${s.section_name}`,
+  }));
 
   const nextLessonId = useMemo(() => {
-    const max = lessonsOfAxis.reduce((mx, l) => Math.max(mx, lessonNumber(l.lesson_id)), 0);
+    const max = lessonsOfSection.reduce((mx, l) => Math.max(mx, lessonNumber(l.lesson_id)), 0);
     const num = String(max + 1).padStart(2, '0');
-    const n = axis?.axis_number || (axisId.match(/\d+/)?.[0]) || lessonsOfAxis.length + 1;
-    return `E${n}-L${num}`;
-  }, [lessonsOfAxis, axis, axisId]);
+    const n = Math.max(1, sections.findIndex((s) => String(s.moodle_section_id) === String(selectedSectionId)) + 1);
+    return `S${n}-L${num}`;
+  }, [lessonsOfSection, sections, selectedSectionId]);
 
   const onJsonChange = (text) => {
     setJsonText(text);
@@ -132,14 +136,15 @@ export default function AssignLessonDialog({ resource, courseId, onClose }) {
   };
 
   const confirmNueva = async () => {
-    if (!axisId) return;
+    if (!selectedSectionId) return;
     setSaving(true);
     try {
       await upsertLesson(courseId, nextLessonId, {
         lesson_id: nextLessonId,
-        axis_id: axisId,
+        axis_id: '',
+        moodle_section_id: selectedSectionId,
         title: newTitle.trim() || 'Nueva lección',
-        order: lessonsOfAxis.length + 1,
+        order: lessonsOfSection.length + 1,
       });
       await linkAndClose(nextLessonId);
     } catch (e) { showNotification('error', e.message); }
@@ -150,7 +155,10 @@ export default function AssignLessonDialog({ resource, courseId, onClose }) {
     if (!parsed) { setParseError('Pega o sube un JSON válido primero.'); return; }
     setSaving(true);
     try {
-      const created = await importLesson(courseId, parsed); // crea la lección
+      const created = await importLesson(courseId, {
+        ...parsed,
+        moodle_section_id: parsed.moodle_section_id || selectedSectionId || '',
+      }); // crea la lección
       const lessonId = created?.lesson_id || parsed.lesson_id;
       if (!lessonId) throw new Error('El backend no devolvió lesson_id.');
       await linkAndClose(lessonId);
@@ -166,7 +174,7 @@ export default function AssignLessonDialog({ resource, courseId, onClose }) {
 
   const confirmDisabled = saving
     || (mode === 'existente' && !selectedLessonId)
-    || (mode === 'nueva' && !axisId)
+    || (mode === 'nueva' && !selectedSectionId)
     || (mode === 'importar' && !parsed);
 
   const inputCls = 'w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-3 py-2 text-sm text-kenth-text focus:border-kenth-brightred focus:outline-none';
@@ -198,9 +206,9 @@ export default function AssignLessonDialog({ resource, courseId, onClose }) {
             {/* Selector de eje (existente / nueva) */}
             {mode !== 'importar' && (
               <div className="mb-3">
-                <label className={labelCls}>Eje</label>
-                <select className={inputCls} value={axisId} onChange={(e) => setAxisId(e.target.value)}>
-                  {axes.map((a) => <option key={a.axis_id} value={a.axis_id}>{a.axis_id} — {a.axis_title || a.title}</option>)}
+                <label className={labelCls}>Sección Moodle</label>
+                <select className={inputCls} value={selectedSectionId} onChange={(e) => setSelectedSectionId(e.target.value)}>
+                  {sectionOptions.map((a) => <option key={a.id} value={a.id}>{a.id} — {a.label}</option>)}
                 </select>
               </div>
             )}
@@ -258,7 +266,8 @@ export default function AssignLessonDialog({ resource, courseId, onClose }) {
                   <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-3 text-[11px] text-emerald-100">
                     <p className="font-bold text-emerald-300 mb-1">Vista previa</p>
                     <div><span className="text-kenth-subtext">Lección:</span> {parsed.lesson_id || '—'} · {parsed.lesson_title || parsed.title || '—'}</div>
-                    <div><span className="text-kenth-subtext">Eje:</span> {parsed.axis_id || '—'}</div>
+                    <div><span className="text-kenth-subtext">Sección Moodle:</span> {parsed.moodle_section_id || selectedSectionId || '—'}</div>
+                    <div><span className="text-kenth-subtext">SecciÃ³n Moodle:</span> {parsed.moodle_section_id || sectionContext?.moodle_section_id || 'â€”'}</div>
                     <div><span className="text-kenth-subtext">Bloques:</span> {(parsed.blocks || []).length}</div>
                     <div><span className="text-kenth-subtext">Prompts sugeridos:</span> {(parsed.suggested_prompts || []).length}</div>
                     {parsed.learning_goal && <div className="mt-1 line-clamp-2"><span className="text-kenth-subtext">Objetivo:</span> {parsed.learning_goal}</div>}

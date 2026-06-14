@@ -113,7 +113,7 @@ def _fuente_contextual_suficiente(fuente: dict):
     if not isinstance(fuente, dict):
         return False
     relation = fuente.get("context_relation")
-    if relation not in {"same_lesson", "same_axis"}:
+    if relation not in {"same_lesson", "same_section", "same_axis"}:
         return False
     return bool(
         _fuente_titulo(fuente)
@@ -140,7 +140,8 @@ def _regla_resource_type(fuente: dict):
         f"- Fuente {fuente.get('index')}: {titulo}",
         f"  scope={fuente.get('scope') or ''}; relation={fuente.get('context_relation') or ''}; "
         f"resource_type={resource_type or ''}; media_type={media_type or ''}; "
-        f"lesson_id={fuente.get('lesson_id') or ''}; axis_id={fuente.get('axis_id') or ''}.",
+        f"lesson_id={fuente.get('lesson_id') or ''}; moodle_section_id={fuente.get('moodle_section_id') or ''}; "
+        f"axis_id={fuente.get('axis_id') or ''}.",
     ]
     if descripcion:
         lineas.append(f"  descripcion usable: {descripcion}")
@@ -182,7 +183,7 @@ def _bloque_uso_evidencia(fuentes: list, state: EstadoAgente):
 
     contextual_sufficient = any(_fuente_contextual_suficiente(f) for f in top)
     downloadable = any(_fuente_es_recurso_descargable(f) for f in top)
-    context_jump = any(f.get("context_relation") == "other_axis" for f in top)
+    context_jump = any(f.get("context_relation") in {"other_section", "other_axis"} for f in top)
     weak_generic = not contextual_sufficient and all(
         f.get("context_relation") in {"global", "unknown", ""} for f in top
     )
@@ -190,26 +191,26 @@ def _bloque_uso_evidencia(fuentes: list, state: EstadoAgente):
     lineas = [
         "--- POLITICA DE USO DE EVIDENCIA CONTEXTUAL ---",
         f"Curso actual: {state.get('course_id') or ''}.",
-        f"Eje actual: {state.get('current_axis_id') or ''}.",
+        f"Seccion/Tema actual: {state.get('current_section_name') or state.get('moodle_section_id') or ''}.",
         f"Leccion actual: {state.get('current_lesson_id') or ''}.",
         "Usa esta politica para decidir el tono de certeza y el tipo de respuesta.",
     ]
 
     if contextual_sufficient:
         lineas.append(
-            "Hay evidencia contextual suficiente de la leccion/eje actual. "
+            "Hay evidencia contextual suficiente de la leccion/seccion actual. "
             "NO abras con 'no hay suficiente contexto/evidencia'. Responde directamente con lo que si se sabe; "
             "si falta un detalle, cierra con una pregunta especifica."
         )
     elif weak_generic:
         lineas.append(
-            "La evidencia es generica o debil. Si no alcanza, di que no ves ese recurso/concepto en la leccion o eje actual "
+            "La evidencia es generica o debil. Si no alcanza, di que no ves ese recurso/concepto en la leccion o seccion actual "
             "y pide el nombre exacto o una coordenada concreta."
         )
 
     if context_jump:
         lineas.append(
-            "Si usas una fuente marcada other_axis, indica brevemente el salto: pertenece mas a otro eje que al eje actual, "
+            "Si usas una fuente marcada other_section/other_axis, indica brevemente el salto: pertenece mas a otra seccion/tema que a la seccion actual, "
             "y responde como anticipo corto sin hacerlo pasar como parte de la leccion actual."
         )
 
@@ -239,9 +240,9 @@ def _respuesta_recurso_contextual_desde_metadata(pregunta: str, fuentes: list, s
     visible = fuente.get("visible_to_student") is True or _bool_fuente(fuente.get("visible_to_student"))
     lesson_id = fuente.get("lesson_id") or state.get("current_lesson_id") or "esta leccion"
 
-    if relation == "other_axis":
-        axis = fuente.get("axis_id") or "otro eje"
-        current_axis = state.get("current_axis_id") or "el eje actual"
+    if relation in {"other_section", "other_axis"}:
+        axis = fuente.get("current_section_name") or fuente.get("moodle_section_id") or fuente.get("axis_id") or "otra seccion"
+        current_axis = state.get("current_section_name") or state.get("moodle_section_id") or state.get("current_axis_id") or "la seccion actual"
         return (
             f"Eso pertenece mas a {axis}; ahora estas en {current_axis}. "
             f"Con esa salvedad: {titulo} se debe leer segun su descripcion disponible: {descripcion or 'material recuperado del curso'}."
@@ -308,7 +309,7 @@ def _reparar_incertidumbre_recurso_contextual(respuesta: str, pregunta: str, fue
 
 def _respuesta_sin_evidencia_contextual(state: EstadoAgente):
     lesson = state.get("current_lesson_id") or ""
-    axis = state.get("current_axis_id") or ""
+    axis = state.get("current_section_name") or state.get("current_axis_id") or ""
     if lesson or axis:
         scope = f" en {lesson}" if lesson else ""
         if axis:
@@ -529,11 +530,15 @@ def nodo_rag(state: EstadoAgente):
         if usar_historial_prompt else ""
     )
     contexto_leccion = state.get("contexto_leccion", "").strip()
+    # Dedupe (B4): si ya existe el bloque de contexto estructurado del backend
+    # (activity_context_block, mas rico y exacto), no inyectamos ademas el string
+    # de contexto del frontend — evita la doble inyeccion del mismo contexto.
+    # Fuera de leccion (sin bloque estructurado) se mantiene como fallback.
     contexto_actual = (
         "--- CONTEXTO ACTUAL DE LA LECCION (NO ES EVIDENCIA RAG) ---\n"
         f"{contexto_leccion}\n"
         "------------------------\n"
-        if contexto_leccion else ""
+        if contexto_leccion and not state.get("activity_context_block") else ""
     )
     # Capa 2/3 del tutor contextual: bloque pre-renderizado por
     # services.context_service. No contamina retrieval, solo orienta.
@@ -582,40 +587,24 @@ def nodo_rag(state: EstadoAgente):
         "------------------------\n"
         if conceptos_comparacion else ""
     )
-    regla_sin_localizacion = (
-        "--- LOCALIZACION OFICIAL ---\n"
-        "La capa oficial de localizacion (Ejes 0-7) no tiene recursos ni ubicaciones aprobadas por defecto. "
-        "Los nombres Fuente/archivo solo indican evidencia recuperada, NO clase, pagina, minuto ni recurso recomendado. "
-        "No presentes ubicaciones oficiales si la evidencia no trae pagina, minuto, URL o recurso validado.\n"
-        "------------------------\n"
-    )
-
     current_axis = _current_axis_number(state)
     requested_axis = _question_axis_number(pregunta)
     future_axis_question = _is_future_axis_question(state, pregunta)
-    regla_curricular = (
-        "--- POLITICA CURRICULAR Y FUENTES ---\n"
-        "Todo lo que uses para responder debe venir de una de estas categorias: "
-        "A) EVIDENCIA DEL CURSO recuperada por RAG; "
-        "B) CONTEXTO RUNTIME inyectado en este turno; "
-        "C) reglas del sistema/prompt/routing.\n"
-        "Jerarquia pedagogica: bloque activo = punto de partida; leccion actual = contexto inmediato; "
-        "ejes previos = soporte permitido; eje actual completo = expansion natural.\n"
-        "El contexto runtime orienta donde esta el alumno, pero no convierte por si solo una afirmacion tecnica "
-        "en evidencia documental del curso.\n"
-        "Puedes salir del bloque activo cuando la pregunta lo necesite, siempre anclando la respuesta al punto actual "
-        "y usando evidencia RAG o contexto runtime explicito.\n"
-    )
+    # La politica de fuentes/grounding/ubicaciones vive ahora en RAG_SYSTEM_PROMPT
+    # (Domain Pack, reglas 12-13). Aqui solo va lo DINAMICO de este turno: en que
+    # seccion esta el alumno y el gate de no-adelantar secciones posteriores.
+    regla_curricular = ""
     if current_axis is not None:
-        regla_curricular += f"Eje actual del alumno: Eje {current_axis}.\n"
+        regla_curricular += f"Seccion actual del alumno: Seccion {current_axis} (numerada por orden).\n"
     if future_axis_question:
         regla_curricular += (
-            f"La pregunta apunta a Eje {requested_axis}, que es posterior al eje actual. "
+            f"La pregunta apunta a Seccion {requested_axis}, que es posterior a la seccion actual. "
             "Responde solo como anticipo controlado: una orientacion breve, sin clase exhaustiva, "
-            "y di explicitamente que se vera mas adelante. No desarrolles procedimientos completos de ese eje. "
+            "y di explicitamente que se vera mas adelante. No desarrolles procedimientos completos de esa seccion. "
             "Maximo 4 frases. No menciones ids internos de bloque/leccion ni digas 'leccion piloto'.\n"
         )
-    regla_curricular += "------------------------\n"
+    if regla_curricular:
+        regla_curricular = "--- UBICACION CURRICULAR (este turno) ---\n" + regla_curricular + "------------------------\n"
 
     if evidence_level == "alto":
         regla_evidence_gate = ""
@@ -667,7 +656,6 @@ def nodo_rag(state: EstadoAgente):
         f"{regla_referencia_resuelta}"
         f"{regla_definicion_directa}"
         f"{regla_comparacion}"
-        f"{regla_sin_localizacion}"
         f"{restriccion_terminos}"
     )
 

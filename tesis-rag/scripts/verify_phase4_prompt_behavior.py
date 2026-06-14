@@ -166,7 +166,7 @@ def case_f_runtime_state_injection():
             "expected_action": "Comparar solo versus mezcla.",
             "proactive_message": "Recuerda escuchar antes de cortar.",
             "suggested_prompts": ["Cuando corto en solo?", "Cuando corto en mezcla?"],
-            "metadata": {"tutor_constraints": "No dar recetas fijas de dB."},
+            "attribution_constraints": ["No dar recetas fijas de dB."],
         },
         active_block={
             "block_id": "B1",
@@ -182,7 +182,7 @@ def case_f_runtime_state_injection():
     check("inyecta titulo leccion", "Filtros HPF/LPF" in rendered, rendered)
     check("inyecta proactive_message", "Recuerda escuchar antes de cortar" in rendered, rendered)
     check("inyecta suggested_prompts", "Cuando corto en solo?" in rendered, rendered)
-    check("inyecta tutor_constraints", "No dar recetas fijas de dB" in rendered, rendered)
+    check("inyecta attribution_constraints", "No dar recetas fijas de dB" in rendered, rendered)
     check("inyecta tutor_focus del bloque", "Distinguir limpieza" in rendered, rendered)
 
 

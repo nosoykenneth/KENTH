@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { getCourseSettings, updateCourseSettings, getMyCourses, getCategories } from '../../shared/services/courseService';
-import { showNotification } from '../../shared/components/ui/Notification';
+import { showNotification } from '../../shared/utils/notify';
 import PageContainer from '../../shared/components/layout/PageContainer';
 
 export default function CourseSettingsView() {
@@ -53,7 +53,7 @@ export default function CourseSettingsView() {
           pos_y: data.pos_y || 50,
           categoryname: cursoActual?.categoryname || 'CURSO'
         });
-      } catch (err) {
+      } catch {
         showNotification('error', 'No se pudieron cargar los ajustes.');
       } finally {
         setLoading(false);

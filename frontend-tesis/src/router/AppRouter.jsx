@@ -25,7 +25,6 @@ import CourseContentView from '../modules/academy/CourseContentView';
 import ProfileSettingsView from '../modules/academy/ProfileSettingsView';
 import CourseSettingsView from '../modules/academy/CourseSettingsView';
 import CourseAuthoringView from '../modules/academy/CourseAuthoringView';
-import AxesDebugView from '../modules/academy/AxesDebugView';
 
 // Admin
 import AdminCommercialView from '../modules/admin/AdminCommercialView';
@@ -63,9 +62,9 @@ const AppRouter = () => {
             <Route path="course/:courseId" element={<CourseContentView />} />
             <Route path="profile" element={<ProfileSettingsView />} />
             <Route path="tutor" element={<Navigate to="/dashboard" replace />} />
-            <Route path="debug-tutor" element={<AxesDebugView />} />
-            {/* Legacy alias: /dashboard/pilot redirige a la nueva ruta. */}
-            <Route path="pilot" element={<Navigate to="/dashboard/debug-tutor" replace />} />
+            {/* Alias legacy: vistas de depuracion del tutor retiradas. */}
+            <Route path="debug-tutor" element={<Navigate to="/dashboard" replace />} />
+            <Route path="pilot" element={<Navigate to="/dashboard" replace />} />
             <Route path="admin/catalog" element={<AdminCommercialView />} />
             <Route path="admin/knowledge" element={<AdminKnowledgeView />} />
             <Route path="settings/:courseId" element={<CourseSettingsView />} />

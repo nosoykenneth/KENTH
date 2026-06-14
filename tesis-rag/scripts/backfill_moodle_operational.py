@@ -174,10 +174,10 @@ def migrate_runtime_files(course_id: str = COURSE_ID, only_missing: bool = True)
             learning_goal=data.get("learning_goal", ""),
             expected_action=data.get("expected_action", ""),
             learning_goals=data.get("learning_goals", []),
-            expected_actions=data.get("expected_actions", []),
-            source_script_file=data.get("source_script_file", ""),
             resources=resources,
             prerequisites=data.get("prerequisites", []),
+            delegated_to_tutor=data.get("delegated_to_tutor", []),
+            attribution_constraints=data.get("attribution_constraints", []),
             notes=data.get("notes", ""),
             metadata={"seed_file": str(path.relative_to(ROOT))},
         )
