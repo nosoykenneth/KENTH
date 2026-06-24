@@ -3,7 +3,7 @@
 Objetivo: trasladar la instalacion actual de Moodle 5.0.4 que vive en
 `C:\Moodle\server` (XAMPP) al stack Docker Compose del servidor, preservando:
 
-- Curso "Mezcla y Masterización" (ID 2).
+- Curso "Mezcla y Masterizacion" (ID 2).
 - Usuarios, enrolamientos, calificaciones, intentos H5P.
 - Plugin custom `local_tesisai` (tablas `mdl_local_tesisai_*`).
 - Suite PHP `proyecto_curso/api_persistente/` (login, profile, commercial, etc.).
@@ -20,7 +20,7 @@ Ejecutar desde PowerShell en `C:\Moodle\server`.
 ```powershell
 # 1. Backup de la base de datos
 & "C:\Moodle\server\mariadb\bin\mysqldump.exe" `
-    -h 127.0.0.1 -P 3307 -u root -p123 `
+    -h 127.0.0.1 -P 3307 -u root -p `
     --default-character-set=utf8mb4 `
     --single-transaction --routines --triggers --events `
     moodle > moodle_dump.sql
@@ -168,3 +168,4 @@ Anadir a cron del servidor (Linux):
 
 Retener 14 dias (alineado con la retencion de Loki). Cambiar el path segun
 politicas del servidor del tutor.
+

@@ -1,8 +1,6 @@
 # ============================================================================
 #  .gitignore raiz de TIC KENTH.
-#  Evita versionar artefactos regenerables y SECRETOS. Los .pyc estaban
-#  trackeados historicamente (hazard conocido: git stash se atascaba con ellos);
-#  se sacaron del indice y desde aqui se ignoran.
+#  Evita versionar artefactos regenerables y SECRETOS.
 # ============================================================================
 
 # ---- Python ----
@@ -19,12 +17,48 @@ env/
 
 # ---- Secretos / variables de entorno (los *.example SI se versionan) ----
 .env
-.env.local
+.env.*
+!.env.example
+!.env.server.example
+!**/.env.example
+!**/.env.server.example
+frontend-tesis/.env
+tesis-rag/.env
+
+# ---- Material sensible / backups / dumps ----
+*.pem
+*.key
+*.crt
+*.p12
+*.sql
+*.dump
+*.bak
+*.log
+*.sqlite3
+*.sqlite3-journal
+bd_vectorial/
+tesis-rag/bd_vectorial/
+tesis-rag/bd_vectorial_backup*/
+tesis-rag/bd_chat/
+tesis-rag/tmp*/
+tesis-rag/pytest-cache-files-*/
 
 # ---- Node / build del frontend ----
 node_modules/
 dist/
+build/
 .vite/
 
-# ---- Logs ----
-*.log
+# ---- Configuracion local de asistentes ----
+.claude/settings.local.json
+
+# ---- Artefactos locales de diagnostico ----
+test_get.php
+moodle_error.html
+tesis-rag/evaluation/reports/
+tesis-rag/scripts/*report.txt
+tesis-rag/scripts/*results.jsonl
+tesis-rag/test*.txt
+
+tesis-rag/scratch/
+
