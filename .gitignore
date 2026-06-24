@@ -1,0 +1,30 @@
+# ============================================================================
+#  .gitignore raiz de TIC KENTH.
+#  Evita versionar artefactos regenerables y SECRETOS. Los .pyc estaban
+#  trackeados historicamente (hazard conocido: git stash se atascaba con ellos);
+#  se sacaron del indice y desde aqui se ignoran.
+# ============================================================================
+
+# ---- Python ----
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# ---- Entornos virtuales ----
+.venv/
+venv/
+env/
+
+# ---- Secretos / variables de entorno (los *.example SI se versionan) ----
+.env
+.env.local
+
+# ---- Node / build del frontend ----
+node_modules/
+dist/
+.vite/
+
+# ---- Logs ----
+*.log
