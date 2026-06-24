@@ -28,7 +28,56 @@ warn() { printf '\033[1;33m[!] %s\033[0m\n' "$*"; }
 ok()   { printf '\033[1;32m[ok] %s\033[0m\n' "$*"; }
 
 # ---------------------------------------------------------------------------
-say "1/6  Comprobando GPU NVIDIA (RTX 5070 Ti = Blackwell, sm_120)"
+#  Firewall (ufw). El servidor tiene IP publica fija: solo SSH + HTTP/HTTPS deben
+#  entrar desde internet. El gateway nginx (:80/:443) es la UNICA puerta publica.
+#  Los servicios NATIVOS del host (Ollama:11434, MariaDB, Moodle:8081) solo deben
+#  ser alcanzables por los CONTENEDORES (subred docker), nunca desde fuera.
+#
+#  OJO 1: SSH se permite ANTES de habilitar ufw para no cerrarte la sesion.
+#  OJO 2: Docker publica sus puertos SALTANDOSE ufw; por eso los puertos sensibles
+#         del compose (Grafana) van atados a 127.0.0.1 (ver docker-compose.server.yml).
+#  Opt-out:  KENTH_SKIP_FIREWALL=1 bash scripts/setup-server.sh
+configure_firewall() {
+  if [ "${KENTH_SKIP_FIREWALL:-0}" = "1" ]; then
+    warn "KENTH_SKIP_FIREWALL=1 -> me salto la configuracion de ufw."
+    return 0
+  fi
+  if ! command -v ufw >/dev/null 2>&1; then
+    sudo apt-get update -y && sudo apt-get install -y ufw
+  fi
+
+  # 1) Politica por defecto: nada entra, todo sale.
+  sudo ufw default deny incoming
+  sudo ufw default allow outgoing
+
+  # 2) SSH PRIMERO (evita auto-bloqueo al habilitar ufw).
+  sudo ufw allow OpenSSH 2>/dev/null || sudo ufw allow 22/tcp
+
+  # 3) Unica entrada publica: el gateway (HTTP y, con TLS, HTTPS).
+  sudo ufw allow 80/tcp
+  sudo ufw allow 443/tcp
+
+  # 4) Permitir que los CONTENEDORES (subred bridge de Docker) alcancen los
+  #    servicios NATIVOS del host. Sin esto, ufw rompe fastapi -> Ollama/MariaDB/Moodle.
+  #    Estas reglas se anaden ANTES de los deny, asi que ganan para la subred docker.
+  for p in 11434 3306 3307 8081; do
+    sudo ufw allow from 172.16.0.0/12 to any port "$p" proto tcp
+  done
+
+  # 5) Denegacion EXPLICITA desde el exterior (defensa en profundidad + auditable;
+  #    la policy default ya los cierra). 8000=backend, 11434=Ollama, 3306/3307=MariaDB,
+  #    8081=Moodle, 3000=Grafana.
+  for p in 8000 11434 3306 3307 8081 3000; do
+    sudo ufw deny "$p"/tcp || true
+  done
+
+  sudo ufw --force enable
+  ok "ufw activo. Exterior: solo SSH/80/443. Cerrados: 8000/11434/3306/3307/8081/3000."
+  sudo ufw status numbered || true
+}
+
+# ---------------------------------------------------------------------------
+say "1/7  Comprobando GPU NVIDIA (RTX 5070 Ti = Blackwell, sm_120)"
 if command -v nvidia-smi >/dev/null 2>&1; then
   nvidia-smi --query-gpu=name,driver_version,memory.total --format=csv,noheader || true
   ok "nvidia-smi responde."
@@ -40,7 +89,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-say "2/6  Instalando / verificando Ollama (nativo)"
+say "2/7  Instalando / verificando Ollama (nativo)"
 if ! command -v ollama >/dev/null 2>&1; then
   curl -fsSL https://ollama.com/install.sh | sh
 else
@@ -62,7 +111,7 @@ sleep 2
 ok "Ollama escuchando: $(curl -s http://localhost:11434/api/version || echo 'NO responde aun')"
 
 # ---------------------------------------------------------------------------
-say "3/6  Descargando modelos (esto puede tardar varios minutos)"
+say "3/7  Descargando modelos (esto puede tardar varios minutos)"
 ollama pull "$TEXT_MODEL"
 ollama pull "$VISION_MODEL"
 ollama pull "$EMBED_MODEL"
@@ -70,7 +119,7 @@ warn "Opcional (mas fuerte, ~9GB): ollama pull $ALT_TEXT_MODEL   # para el LLM-j
 ollama list
 
 # ---------------------------------------------------------------------------
-say "4/6  Verificando que el modelo usa GPU"
+say "4/7  Verificando que el modelo usa GPU"
 ollama run "$TEXT_MODEL" "responde solo: ok" >/dev/null 2>&1 || true
 if ollama ps 2>/dev/null | grep -qiE "GPU|100%/0%"; then
   ok "Ollama esta usando GPU."
@@ -80,7 +129,7 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-say "5/6  Instalando Docker Engine + compose plugin"
+say "5/7  Instalando Docker Engine + compose plugin"
 if ! command -v docker >/dev/null 2>&1; then
   curl -fsSL https://get.docker.com | sh
   sudo usermod -aG docker "$USER" || true
@@ -91,7 +140,11 @@ fi
 docker compose version >/dev/null 2>&1 && ok "compose plugin OK" || warn "Falta 'docker compose' plugin."
 
 # ---------------------------------------------------------------------------
-say "6/6  Levantando el APP TIER (fastapi + frontend + gateway + observabilidad)"
+say "6/7  Firewall (ufw): solo SSH y 80/443 al exterior; el resto cerrado"
+configure_firewall
+
+# ---------------------------------------------------------------------------
+say "7/7  Levantando el APP TIER (fastapi + frontend + gateway + observabilidad)"
 if [ ! -f .env ]; then
   warn "No existe .env. Crealo antes de levantar:  cp .env.server.example .env && nano .env"
   warn "Saltando 'up'. Cuando el .env este listo, corre:"

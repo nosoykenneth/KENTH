@@ -122,7 +122,11 @@ services:
       GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASS}
       GF_USERS_ALLOW_SIGN_UP: "false"
     ports:
-      - "3000:3000"
+      # SOLO loopback del host: Grafana NO debe ser alcanzable desde la IP publica.
+      # Docker publica puertos saltandose ufw, por eso el bind a 127.0.0.1 es la
+      # defensa real (no basta el firewall). Acceso remoto = tunel SSH:
+      #   ssh -L 3000:127.0.0.1:3000 usuario@SERVIDOR  -> http://localhost:3000
+      - "127.0.0.1:3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
       - ./logging/grafana/provisioning:/etc/grafana/provisioning:ro
