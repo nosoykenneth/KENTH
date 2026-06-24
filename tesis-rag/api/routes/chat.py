@@ -249,6 +249,8 @@ def chat_endpoint(
     evaluation_category = resultado.get("evaluation_category", "")
     requires_course_evidence = resultado.get("requires_course_evidence", True)
     warnings = resultado.get("warnings", [])
+    blocked_by = resultado.get("blocked_by", "")
+    applied_policies = resultado.get("applied_policies", []) or []
     retrieved_chunks = resultado.get("retrieved_chunks", [])
     model_used = resultado.get("model_used", "")
     prompt_id = resultado.get("prompt_id", "")
@@ -279,6 +281,8 @@ def chat_endpoint(
         "prompt_id": prompt_id,
         "latencia_total_ms": latency_ms_total,
         "warnings": warnings,
+        "blocked_by": blocked_by,
+        "applied_policies": applied_policies,
         "runtime_context": runtime_context_trace,
         "source_policy": {
             "A_INDEXED_RAG": bool(retrieved_chunks),
@@ -313,6 +317,8 @@ def chat_endpoint(
         "evidence_level": evidence_level,
         "ruta": ruta,
         "warnings": warnings,
+        "blocked_by": blocked_by,
+        "applied_policies": applied_policies,
         "runtime_context": runtime_context_trace,
         "source_policy": trace_data["source_policy"],
         "trace_id": trace_id,

@@ -104,7 +104,14 @@
       "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\(JSON.stringify\\({...p.dependencies,...p.devDependencies},null,0\\)\\)\")",
       "Bash(node -e \"console.log\\('version', require\\('eslint-plugin-react/package.json'\\).version\\)\")",
       "Bash(npm install *)",
-      "Bash(grep -vE \"^$|^>|building|^Run|setState|Effects are|external|\\\\* Update|\\\\* Subscribe|Calling setState|React refs|Refs should|Accessing a ref|^\\\\s+[0-9]+ \\\\||^\\\\s+\\\\|\")"
+      "Bash(grep -vE \"^$|^>|building|^Run|setState|Effects are|external|\\\\* Update|\\\\* Subscribe|Calling setState|React refs|Refs should|Accessing a ref|^\\\\s+[0-9]+ \\\\||^\\\\s+\\\\|\")",
+      "Edit(/.claude/skills/pedagogical-rag-tutor/**)",
+      "Bash(python \".claude/skills/pedagogical-rag-tutor/scripts/scan_metadata_usage.py\" --root tesis-rag)",
+      "Bash(python -m pytest tests/test_tutor_pedagogical_fixes.py -q)",
+      "Bash(php -l \"C:/Moodle/server/moodle/proyecto_curso/api_persistente/api_request_password_reset.php\")",
+      "Bash(php -l \"C:/Moodle/server/moodle/proyecto_curso/api_persistente/api_confirm_password_reset.php\")",
+      "Bash(\"C:/Moodle/server/php/php.exe\" -l \"C:/Moodle/server/moodle/proyecto_curso/api_persistente/api_request_password_reset.php\")",
+      "Bash(\"C:/Moodle/server/php/php.exe\" -l \"C:/Moodle/server/moodle/proyecto_curso/api_persistente/api_confirm_password_reset.php\")"
     ],
     "additionalDirectories": [
       "C:\\Users\\Kenneth\\.claude\\projects\\D--ESPE-MIC-ACTIVITIES-PROYECTO\\memory"

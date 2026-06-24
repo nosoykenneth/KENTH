@@ -1,0 +1,5 @@
+# Artefactos de corridas de evaluacion. Se versionan SOLO los ejemplos de referencia.
+*
+!.gitignore
+!example_results.json
+!example_results_real.json

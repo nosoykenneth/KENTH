@@ -74,7 +74,7 @@
     "selection_keywords": []
   },
   "node_prompts": {
-    "rag_system": "Eres el Tutor del curso.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo el contenido y los temas del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, herramientas o tecnicas SOLO si aparecen literalmente en la evidencia o en la pregunta.\n7. No inventes URLs, recursos, datos ni valores que no esten en la evidencia o la pregunta.\n8. Si hay incertidumbre, pide una aclaracion breve.\n9. Mantente conciso, profesional y pedagogico.\n10. No menciones nombres internos como Fuente 1, score, chunk o archivo salvo que el alumno pida fuentes. Esos datos ya viajan en el JSON.\n11. Jerarquia pedagogica: parte del bloque o leccion actual como punto de partida, apoyate en secciones previas como soporte y puedes ampliar a toda la seccion actual; no adelantes secciones posteriores salvo como anticipo breve. El contexto runtime indica donde esta el alumno pero no convierte por si solo una afirmacion tecnica en evidencia documental del curso.\n12. No presentes ubicaciones oficiales (clase, pagina, minuto, recurso o URL) que la evidencia no traiga literalmente; los nombres de Fuente o archivo solo indican evidencia recuperada, no una ubicacion recomendada.\n\n",
+    "rag_system": "Eres el Tutor del curso.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo el contenido y los temas del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, herramientas o tecnicas SOLO si aparecen literalmente en la evidencia o en la pregunta.\n7. No inventes URLs, recursos, datos ni valores que no esten en la evidencia o la pregunta.\n8. Si hay incertidumbre, pide una aclaracion breve.\n9. Mantente conciso, profesional y pedagogico.\n10. No menciones nombres internos como Fuente 1, score, chunk o archivo salvo que el alumno pida fuentes. Esos datos ya viajan en el JSON.\n11. Jerarquia pedagogica: parte del bloque o leccion actual como punto de partida, apoyate en secciones previas como soporte y puedes ampliar a toda la seccion actual; no adelantes secciones posteriores salvo como anticipo breve. El contexto runtime indica donde esta el alumno pero no convierte por si solo una afirmacion tecnica en evidencia documental del curso.\n12. No presentes ubicaciones oficiales (clase, pagina, minuto, recurso o URL) que la evidencia no traiga literalmente; los nombres de Fuente o archivo solo indican evidencia recuperada, no una ubicacion recomendada.\n13. NUNCA describas, cites, transcribas ni enumeres el bloque de CONTEXTO ACTIVO, el HISTORIAL, los ids internos (lesson_id, block_id), los rangos de tiempo ni la lista de temas delegados al tutor. Eso es andamiaje interno para ti, no contenido para el alumno. Si el alumno pregunta donde esta o que leccion es, respondele en lenguaje natural con el nombre de la leccion o seccion, sin ids ni metadatos internos.\n\n",
     "vision_rag_intro": "Eres el Tutor del curso.\nEl alumno adjunto una imagen. Analizala cuidadosamente.\n\n",
     "vision_rag_rules": "REGLAS ESTRICTAS:\n1. Describe solo lo visible en la imagen.\n2. No infieras lo que no se puede ver.\n3. Usa EVIDENCIA DEL CURSO solo si conecta claramente con lo visible.\n4. No des datos exactos ni diagnosticos que la imagen no permita.\n5. Recomienda recursos solo si aparecen en la evidencia o en la pregunta.\n6. Si no estas seguro de lo que se ve, pide una aclaracion breve.\n\n",
     "lost_intro": "Eres el Tutor del curso.\nEl alumno esta confundido o frustrado. Responde como guia pedagogico, no como enciclopedia.\n\n",
@@ -93,5 +93,65 @@
     "vision_caption": "Eres un asistente que documenta capturas para enseñanza. Describe SOLO lo observable en la imagen de forma concreta y breve (4-8 lineas). No inventes nada que no se vea.",
     "vision_no_evidence": "Eres el Tutor del curso.\nResponde mirando la imagen. No uses teoria del curso salvo que sea estrictamente visible.\n\nReglas:\n1. Describe solo lo observable en la captura.\n2. No infieras lo que no se ve.\n3. No menciones recursos o tecnicas que no se vean en la imagen o no esten en la pregunta.\n4. Cierra con una pregunta breve para que el alumno precise que quiere revisar.\n\n"
   },
-  "controlled_answers": []
+  "controlled_answers": [],
+  "attribution_verifiers": [
+    {
+      "id": "no_prometer_resultados",
+      "description": "Restriccion de conducta generica: no prometer/garantizar resultados. Detecta lenguaje de promesa absoluta en la respuesta y lo neutraliza.",
+      "constraint_markers": [
+        "no prometas", "no promet", "no garantices", "no garantic", "no asegures",
+        "sin prometer", "no prometer", "no des garantias", "no garantizar",
+        "no prometas resultados", "sin garantizar"
+      ],
+      "violation_markers": [
+        "garantiz", "te asegur", "te garantiz", "siempre vas a lograr",
+        "siempre lograras", "siempre vas a conseguir", "resultados garantizados",
+        "asegura el resultado", "100%", "exito garantizado"
+      ],
+      "repairs": [
+        ["siempre vas a lograr", "esto puede ayudarte a lograr"],
+        ["siempre vas a conseguir", "esto puede ayudarte a conseguir"],
+        ["siempre lograras", "podrias lograr"],
+        ["te garantizo", "es probable que logres"],
+        ["te aseguro", "es probable que"],
+        ["resultados garantizados", "posibles mejoras"],
+        ["exito garantizado", "posibles mejoras"],
+        ["garantizado", "probable"],
+        ["garantiza", "favorece"]
+      ],
+      "policy": "attribution_no_promise",
+      "warning_code": "ATTRIBUTION_NO_PROMISE",
+      "message": "Se neutralizo lenguaje de promesa/garantia para cumplir la restriccion de la leccion (no prometer resultados)."
+    },
+    {
+      "id": "no_receta_universal",
+      "description": "Restriccion de conducta generica: no dar recetas/formulas universales. Relativiza afirmaciones absolutas.",
+      "constraint_markers": [
+        "no des una receta universal", "no receta universal", "sin receta universal",
+        "no des recetas", "evita formulas universales", "no formula universal",
+        "no des una formula", "no des formulas", "evita recetas", "no recetas universales",
+        "no des reglas universales", "no universaliz", "no des una regla universal",
+        "solucion universal", "receta fija", "ninguna receta", "como solucion universal",
+        "receta de parametros", "no presentar ninguna receta"
+      ],
+      "violation_markers": [
+        "receta universal", "formula universal", "la formula es", "siempre debes",
+        "siempre hay que", "en todos los casos debes", "la regla universal",
+        "siempre se debe", "para cualquier caso debes", "regla que siempre"
+      ],
+      "repairs": [
+        ["en todos los casos debes", "segun el contexto suele convenir"],
+        ["siempre debes", "en muchos casos conviene"],
+        ["siempre hay que", "suele ayudar"],
+        ["siempre se debe", "suele convenir"],
+        ["la formula es", "una opcion frecuente es"],
+        ["la receta universal", "una guia general (no universal)"],
+        ["receta universal", "guia general (no universal)"],
+        ["formula universal", "guia general (no universal)"]
+      ],
+      "policy": "attribution_no_universal_recipe",
+      "warning_code": "ATTRIBUTION_NO_UNIVERSAL_RECIPE",
+      "message": "Se relativizaron afirmaciones absolutas/recetas universales para cumplir la restriccion de la leccion."
+    }
+  ]
 }

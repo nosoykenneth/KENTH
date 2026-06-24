@@ -22,6 +22,10 @@ class EstadoAgente(TypedDict, total=False):
     evaluation_category: str
     requires_course_evidence: bool
     warnings: list
+    # Observabilidad de compuertas: por que se bloqueo/recorto (blocked_by) y que
+    # politicas de metadata se aplicaron (applied_policies, p. ej. delegacion).
+    blocked_by: str
+    applied_policies: list
     retrieved_chunks: list
     trace_id: str
     model_used: str

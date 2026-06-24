@@ -46,6 +46,19 @@ class DomainPack:
         return dict(self._data.get("persona") or {})
 
     @property
+    def description(self) -> str:
+        return str(self._data.get("description") or "")
+
+    def domain_label(self, default: str = "") -> str:
+        """Etiqueta corta del dominio del curso (p. ej. 'mezcla y masterizacion').
+
+        Fuente de verdad para textos que antes cableaban el nombre del curso en el
+        codigo del agente (clasificador, etc.). Cae al default si el pack no la
+        define, para que un curso sin pack degrade sin romper.
+        """
+        return str(self.persona.get("domain_label") or default)
+
+    @property
     def node_prompts(self) -> Dict[str, Any]:
         return dict(self._data.get("node_prompts") or {})
 
@@ -95,6 +108,20 @@ class DomainPack:
     # ---- controlled answers (FAQ extraido del codigo a datos) ----
     def controlled_answers(self) -> List[dict]:
         return list(self._data.get("controlled_answers") or [])
+
+    # ---- attribution verifiers (FIX G: verificacion post-gen de
+    # attribution_constraints como datos, no codigo) ----
+    def attribution_verifiers(self) -> List[dict]:
+        """Detectores deterministas de cumplimiento de restricciones de conducta.
+
+        Cada detector mapea el texto libre de una `attribution_constraint` del
+        profesor (via `constraint_markers`) a un patron de violacion en la salida
+        (`violation_markers`) y una reparacion suave (`repairs`). Son reglas de
+        conducta agnosticas al curso (no prometer resultados, no recetas
+        universales); por eso viven tambien en `_default.json`. Lista vacia => la
+        verificacion post-gen no impone nada deterministicamente (igual que antes
+        del FIX G) y todo queda para la capa LLM opcional."""
+        return list(self._data.get("attribution_verifiers") or [])
 
 
 def _load_pack_file(name: str) -> Optional[Tuple[dict, str]]:

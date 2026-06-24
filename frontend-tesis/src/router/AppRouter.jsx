@@ -14,6 +14,8 @@ import PricingView from '../modules/catalog/PricingView';
 
 // Auth
 import LoginView from '../modules/auth/LoginView';
+import ForgotPasswordView from '../modules/auth/ForgotPasswordView';
+import ResetPasswordView from '../modules/auth/ResetPasswordView';
 
 // Checkout
 import CheckoutView from '../modules/checkout/CheckoutView';
@@ -44,7 +46,12 @@ const AppRouter = () => {
 
           <Route element={<PublicRoute />}>
             <Route path="/login" element={<LoginView />} />
+            <Route path="/forgot-password" element={<ForgotPasswordView />} />
           </Route>
+
+          {/* Restablecer contraseña: accesible aunque el usuario llegue desde el correo
+              (no se envuelve en PublicRoute para que también funcione si hay sesión activa). */}
+          <Route path="/reset-password" element={<ResetPasswordView />} />
 
           <Route path="/checkout/:courseId" element={<CheckoutView />} />
           <Route path="/checkout-success" element={<CheckoutSuccessView />} />

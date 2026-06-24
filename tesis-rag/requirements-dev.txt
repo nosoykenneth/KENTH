@@ -1,0 +1,7 @@
+# Dependencias SOLO de desarrollo / pruebas. NO van al runtime del contenedor
+# (Dockerfile usa requirements.txt). Instalar dentro del venv:
+#   .venv/Scripts/python -m pip install -r requirements-dev.txt   (Windows)
+#   .venv/bin/python      -m pip install -r requirements-dev.txt   (Linux/Mac)
+#
+# pytest 9.0.3 = misma version con la que se generaron los .pyc de la suite.
+pytest==9.0.3

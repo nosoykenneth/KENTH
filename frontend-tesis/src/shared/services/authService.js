@@ -1,6 +1,8 @@
 const API_BASE_URL = '/api/lms/webservice/rest/server.php';
 const LOGIN_URL = '/api/lms/proyecto_curso/api_persistente/tesis_login.php';
 const ONBOARDING_URL = '/api/lms/proyecto_curso/api_persistente/api_onboarding_process.php';
+const PASSWORD_RESET_REQUEST_URL = '/api/lms/proyecto_curso/api_persistente/api_request_password_reset.php';
+const PASSWORD_RESET_CONFIRM_URL = '/api/lms/proyecto_curso/api_persistente/api_confirm_password_reset.php';
 const SERVICE_NAME = 'api_tesis';
 
 /**
@@ -65,6 +67,77 @@ export const completeOnboarding = async (token, userData) => {
 
   if (!data.success) {
     throw new Error(data.error || 'Error al completar onboarding');
+  }
+
+  return data;
+};
+
+/**
+ * Solicita un enlace de restablecimiento de contraseña.
+ * El backend SIEMPRE responde de forma genérica (no revela si la cuenta existe).
+ * @param {string} identifier - Correo o nombre de usuario.
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+export const requestPasswordReset = async (identifier) => {
+  const params = new URLSearchParams({ identifier });
+
+  const response = await fetch(PASSWORD_RESET_REQUEST_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error(data.error || 'No se pudo procesar la solicitud.');
+  }
+
+  return data;
+};
+
+/**
+ * Verifica que un token de restablecimiento siga siendo válido (sin cambiar nada).
+ * @param {string} token
+ * @returns {Promise<{success: boolean, valid: boolean, email_masked: string}>}
+ */
+export const validateResetToken = async (token) => {
+  const params = new URLSearchParams({ token, action: 'validate' });
+
+  const response = await fetch(PASSWORD_RESET_CONFIRM_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error(data.error || 'El enlace no es válido o ya expiró.');
+  }
+
+  return data;
+};
+
+/**
+ * Confirma el restablecimiento estableciendo la nueva contraseña.
+ * @param {string} token
+ * @param {string} password
+ * @returns {Promise<{success: boolean, message: string}>}
+ */
+export const confirmPasswordReset = async (token, password) => {
+  const params = new URLSearchParams({ token, password, action: 'reset' });
+
+  const response = await fetch(PASSWORD_RESET_CONFIRM_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: params.toString()
+  });
+
+  const data = await response.json();
+
+  if (!data.success) {
+    throw new Error(data.error || 'No se pudo actualizar la contraseña.');
   }
 
   return data;

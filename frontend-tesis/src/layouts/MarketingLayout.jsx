@@ -6,7 +6,8 @@ import Navbar from '../shared/components/layout/Navbar';
 export default function MarketingLayout() {
   const location = useLocation();
   const outlet = useOutlet();
-  const isLoginPage = location.pathname === '/login';
+  // Pantallas de autenticación a pantalla completa: ocultan navbar y footer.
+  const isLoginPage = ['/login', '/forgot-password', '/reset-password'].includes(location.pathname);
 
   return (
     <div className="flex flex-col min-h-screen">

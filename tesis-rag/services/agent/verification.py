@@ -1,7 +1,7 @@
 import re
 import os
 
-from services.agent.routing import _normalizar_texto
+from services.agent.routing import _normalizar_texto, _warning
 from services.domain import get_domain_pack
 
 # Fase 0: las respuestas conceptuales controladas (antes hardcodeadas aqui) viven
@@ -185,3 +185,132 @@ def _respuesta_conceptual_controlada(pregunta: str):
         if grupos and all(any(term in padded for term in grupo) for grupo in grupos):
             return rule.get("answer", "")
     return ""
+
+
+# ==========================================================================
+# FIX G — Verificacion POST-generacion de attribution_constraints (regla 10)
+# ==========================================================================
+# Las `attribution_constraints` de la leccion entran al prompt como normas
+# obligatorias (context_service), pero hasta aqui nadie comprobaba que la salida
+# las cumpliera => cumplimiento no observable. Enfoque elegido (hibrido):
+#   1) Capa DETERMINISTA siempre activa: reglas/patrones que viven como DATOS en
+#      el Domain Pack (`attribution_verifiers`), no en el codigo. Mapean el texto
+#      libre de la restriccion a un patron de violacion en la respuesta y una
+#      reparacion suave. Rapida, sin LLM, 100% testeable.
+#   2) Capa LLM-juez OPCIONAL (flag ATTR_LLM_JUDGE=1): para restricciones que
+#      ninguna regla cubre (p. ej. "atribuye al criterio del autor"). Apagada por
+#      defecto => comportamiento determinista y suite estable.
+# Accion ante incumplimiento: OBSERVAR (applied_policies + warnings) + REPARAR
+# SUAVE el fragmento infractor cuando es localizable. Nunca re-genera.
+
+# Negaciones que invalidan un "match" de violacion: si el marcador viene negado
+# ("no garantizo", "sin prometer"...) la respuesta en realidad CUMPLE.
+_NEGADORES_ATRIBUCION = (" no ", " nunca ", " sin ", " jamas ", " tampoco ", " ni ")
+
+
+def _violacion_negada(texto_norm: str, inicio: int, ventana: int = 18) -> bool:
+    """True si el marcador en `inicio` viene precedido por una negacion cercana."""
+    fragmento = " " + texto_norm[max(0, inicio - ventana):inicio] + " "
+    return any(neg in fragmento for neg in _NEGADORES_ATRIBUCION)
+
+
+def _constraint_casa_detector(constraint_norm: str, detector: dict) -> bool:
+    return any(m in constraint_norm for m in (detector.get("constraint_markers") or []))
+
+
+def _detectar_violacion_atribucion(respuesta_norm: str, detector: dict) -> str:
+    """Primer marcador de violacion presente (no negado), o "" si no hay."""
+    for marcador in detector.get("violation_markers") or []:
+        if not marcador:
+            continue
+        idx = respuesta_norm.find(marcador)
+        while idx != -1:
+            if not _violacion_negada(respuesta_norm, idx):
+                return marcador
+            idx = respuesta_norm.find(marcador, idx + 1)
+    return ""
+
+
+def _reparar_atribucion_suave(respuesta: str, detector: dict) -> str:
+    """Sustituye los fragmentos infractores localizables por equivalentes suaves.
+
+    Opera sobre el texto CRUDO (case-insensitive). Si la violacion se detecto por
+    una variante no listada en `repairs`, no se toca el texto: igual se registra
+    la politica/warning (cumplimiento observable aunque la reparacion no aplique).
+    """
+    reparada = respuesta
+    for par in detector.get("repairs") or []:
+        if not isinstance(par, (list, tuple)) or len(par) != 2:
+            continue
+        patron, reemplazo = par
+        reparada = re.sub(re.escape(patron), reemplazo, reparada, flags=re.IGNORECASE)
+    return reparada
+
+
+def verificar_attribution_constraints(respuesta, constraints, *, course_id=None, judge=None):
+    """Impone las attribution_constraints en la salida (FIX G).
+
+    Devuelve `(respuesta_ajustada, applied_policies, warnings)`. No muta estado;
+    el nodo del grafo decide como anexar las politicas/warnings a su retorno.
+    """
+    constraints = [c for c in (constraints or []) if isinstance(c, str) and c.strip()]
+    if not constraints or not respuesta:
+        return respuesta, [], []
+
+    pack = get_domain_pack(course_id) if course_id else _PACK
+    detectores = pack.attribution_verifiers()
+    applied_policies: list = []
+    warnings: list = []
+
+    constraints_norm = [(c, _normalizar_texto(c)) for c in constraints]
+    cubiertas: set = set()  # indices de restricciones que cubre la capa determinista
+
+    for det in detectores:
+        casa_idx = [i for i, (_, cn) in enumerate(constraints_norm) if _constraint_casa_detector(cn, det)]
+        if not casa_idx:
+            continue
+        cubiertas.update(casa_idx)
+        marcador = _detectar_violacion_atribucion(_normalizar_texto(respuesta), det)
+        if not marcador:
+            continue
+        respuesta = _reparar_atribucion_suave(respuesta, det)
+        policy = det.get("policy") or det.get("id") or "attribution_violation"
+        if policy not in applied_policies:
+            applied_policies.append(policy)
+        warnings.append(_warning(
+            det.get("warning_code") or "ATTRIBUTION_VIOLATED",
+            det.get("message") or "Restriccion de conducta de la leccion incumplida; salida ajustada.",
+        ))
+
+    # Restricciones que ninguna regla determinista cubre (semanticas).
+    no_cubiertas = [c for i, (c, _) in enumerate(constraints_norm) if i not in cubiertas]
+    if no_cubiertas:
+        usar_juez = judge is not None and os.getenv("ATTR_LLM_JUDGE", "0") == "1"
+        if usar_juez:
+            try:
+                veredicto = judge(respuesta, no_cubiertas) or {}
+            except Exception as e:  # el juez nunca debe tumbar la respuesta
+                print(f"[VERIFICADOR ATRIBUCION]: juez LLM fallo, se omite: {e}")
+                veredicto = {}
+            violaciones = [v for v in (veredicto.get("violaciones") or []) if v]
+            corregida = veredicto.get("respuesta_corregida")
+            if violaciones:
+                if "attribution_llm_violation" not in applied_policies:
+                    applied_policies.append("attribution_llm_violation")
+                for v in violaciones:
+                    warnings.append(_warning("ATTRIBUTION_LLM_VIOLATION", f"Juez semantico marco incumplimiento: {v}"))
+                if isinstance(corregida, str) and corregida.strip():
+                    respuesta = corregida.strip()  # reparacion suave del juez
+        else:
+            # Gap OBSERVABLE: hay restricciones solo verificables semanticamente y
+            # la capa LLM esta apagada. No se finge cumplimiento; se declara.
+            warnings.append(_warning(
+                "ATTRIBUTION_UNVERIFIED_SEMANTIC",
+                f"{len(no_cubiertas)} restriccion(es) de la leccion solo son verificables "
+                "semanticamente; capa LLM (ATTR_LLM_JUDGE) desactivada.",
+            ))
+
+    if applied_policies or warnings:
+        print(f"[VERIFICADOR ATRIBUCION]: policies={applied_policies} "
+              f"warnings={[w['code'] for w in warnings]}")
+    return respuesta, applied_policies, warnings

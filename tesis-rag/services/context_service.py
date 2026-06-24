@@ -342,6 +342,12 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
 
     lineas: List[str] = []
 
+    # Para de-duplicar objetivo/accion: el mismo dato viaja en lesson_data y se
+    # hidrata tambien en ctx (hydrate_activity_context). Registramos lo que ya se
+    # inyecto desde la leccion para no repetirlo con otra etiqueta (regla 12).
+    objetivo_leccion_inyectado = ""
+    accion_leccion_inyectada = ""
+
     block = envelope.active_block
     lesson_data = envelope.active_lesson
     if block:
@@ -387,7 +393,8 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
         if lesson_data.get("axis_id"):
             lineas.append(f"Axis_id de la leccion activa: {lesson_data.get('axis_id', '')}")
         if lesson_data.get("learning_goal"):
-            lineas.append(f"Objetivo de la leccion: {lesson_data.get('learning_goal', '')}")
+            objetivo_leccion_inyectado = lesson_data.get("learning_goal", "")
+            lineas.append(f"Objetivo de la leccion: {objetivo_leccion_inyectado}")
         criterios = lesson_data.get("learning_goals") or []
         if criterios:
             lineas.append("Criterios de logro de la leccion:")
@@ -400,7 +407,8 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
                 "puedes remitirlo a estas lecciones previas): " + ", ".join(prerequisitos)
             )
         if lesson_data.get("expected_action"):
-            lineas.append(f"Accion esperada de la leccion: {lesson_data.get('expected_action', '')}")
+            accion_leccion_inyectada = lesson_data.get("expected_action", "")
+            lineas.append(f"Accion esperada de la leccion: {accion_leccion_inyectada}")
         delegado = lesson_data.get("delegated_to_tutor") or []
         if delegado:
             lineas.append("Delegado al tutor en esta leccion (el profesor te encarga cubrir esto):")
@@ -445,9 +453,11 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
         lineas.append(f"Pagina PDF: {ctx.current_page}")
     if ctx.current_section:
         lineas.append(f"Seccion: {ctx.current_section}")
-    if ctx.learning_goal:
+    # Solo inyectamos el objetivo/accion de ctx si AÑADEN algo distinto a lo ya
+    # inyectado desde la leccion (evita la doble inyeccion del mismo dato).
+    if ctx.learning_goal and ctx.learning_goal.strip().casefold() != objetivo_leccion_inyectado.strip().casefold():
         lineas.append(f"Objetivo de aprendizaje: {ctx.learning_goal}")
-    if ctx.expected_action:
+    if ctx.expected_action and ctx.expected_action.strip().casefold() != accion_leccion_inyectada.strip().casefold():
         lineas.append(f"Accion esperada: {ctx.expected_action}")
     lineas.append(f"Modo de interaccion: {envelope.interaction_mode.value}")
 

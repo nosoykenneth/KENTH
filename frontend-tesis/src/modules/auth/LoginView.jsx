@@ -124,7 +124,7 @@ export default function LoginView() {
             <div className="space-y-2">
               <div className="flex justify-between items-center ml-2">
                 <label className="text-xs font-black uppercase tracking-widest text-kenth-subtext">Contraseña</label>
-                <a href="#" className="text-xs text-kenth-subtext hover:text-kenth-brightred transition-colors">¿Olvidaste tu clave?</a>
+                <Link to="/forgot-password" className="text-xs text-kenth-subtext hover:text-kenth-brightred transition-colors">¿Olvidaste tu clave?</Link>
               </div>
               <input 
                 type="password" 

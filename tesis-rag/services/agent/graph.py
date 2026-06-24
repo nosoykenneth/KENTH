@@ -3,6 +3,8 @@ from langchain_ollama import ChatOllama
 from langchain_core.messages import HumanMessage
 from langchain_community.tools import DuckDuckGoSearchRun
 import concurrent.futures
+import json
+import re
 
 from models.schemas import EstadoAgente
 from config import TEXT_MODEL, VISION_MODEL
@@ -10,10 +12,13 @@ from services.domain import get_domain_pack
 from services.agent.prompts import _campos_pedagogicos, _prompt_por_intent
 from services.agent.routing import (
     _conceptos_relevantes_pregunta,
+    _envelope_leccion_bloque,
     _es_pregunta_ambigua,
     _es_pregunta_lookup,
+    _es_pregunta_sobre_bloque_actual,
     _formatear_historial,
     _normalizar_texto,
+    _pregunta_delegada_a_tutor,
     _respuesta_aclaracion_ambigua,
     _warning,
     configure_routing,
@@ -51,6 +56,7 @@ from services.agent.verification import (
     _recortar_relleno_sin_evidencia,
     _respuesta_conceptual_controlada,
     _verificar_respuesta,
+    verificar_attribution_constraints,
 )
 
 # ==========================================
@@ -97,6 +103,50 @@ def _fuente_titulo(fuente: dict):
         or fuente.get("resource_title")
         or fuente.get("filename")
         or "recurso"
+    )
+
+
+def _juez_atribucion_llm(respuesta: str, constraints: list) -> dict:
+    """Capa semantica OPCIONAL del verificador de atribucion (FIX G).
+
+    Solo se invoca cuando ATTR_LLM_JUDGE=1 (lo decide verification.py). Juzga las
+    restricciones que las reglas deterministas no cubren y, si hay incumplimiento,
+    devuelve una version suavizada. Devuelve
+    {'violaciones': [str], 'respuesta_corregida': str|None}.
+    """
+    reglas = "\n".join(f"- {c}" for c in constraints)
+    prompt = (
+        "Eres un verificador de cumplimiento, no un tutor. Recibes REGLAS obligatorias "
+        "de una leccion y una RESPUESTA ya redactada. Indica que reglas se incumplen y, "
+        "si alguna se incumple, reescribe la respuesta para cumplirlas SIN cambiar su "
+        "contenido util ni agregar informacion nueva.\n"
+        f"REGLAS:\n{reglas}\n\nRESPUESTA:\n{respuesta}\n\n"
+        "Contesta SOLO un JSON valido con esta forma exacta:\n"
+        '{"violaciones": ["regla incumplida"], "respuesta_corregida": "texto o null"}'
+    )
+    raw = llm_logico.invoke(prompt).content
+    match = re.search(r"\{.*\}", raw, re.DOTALL)
+    if not match:
+        return {}
+    try:
+        return json.loads(match.group(0))
+    except Exception:
+        return {}
+
+
+def _imponer_attribution_constraints(state: EstadoAgente, respuesta: str):
+    """Aplica el verificador post-gen sobre la leccion activa (FIX G).
+
+    Devuelve (respuesta_ajustada, attr_policies, attr_warnings). En modo general
+    (sin leccion activa) o sin restricciones, es un no-op transparente.
+    """
+    lesson_activa, _ = _envelope_leccion_bloque(state)
+    constraints = (lesson_activa or {}).get("attribution_constraints")
+    return verificar_attribution_constraints(
+        respuesta,
+        constraints,
+        course_id=state.get("course_id"),
+        judge=_juez_atribucion_llm,
     )
 
 
@@ -321,6 +371,107 @@ def _respuesta_sin_evidencia_contextual(state: EstadoAgente):
     return _respuesta_sin_evidencia(state)
 
 
+def _responder_tema_delegado_sin_evidencia(state, pregunta, item_delegado, intent_efectivo):
+    """Respuesta a un tema que la leccion delego al tutor pero sin evidencia RAG.
+
+    Finding D: la delegacion (`delegated_to_tutor`) debe vencer tanto el bloqueo
+    de routing como la compuerta de "sin evidencia". Se responde como ADAPTACION
+    OPERATIVA del tutor (orientacion practica), distinguida del contenido oficial
+    del curso, NO como "no tengo evidencia" (concepts.md §5: ausencia de evidencia
+    != fuera de dominio). Aun pasa por las attribution_constraints de la leccion
+    (FIX G) y queda trazable via evidence_level/applied_policies/warnings.
+    """
+    activity_context_block = state.get("activity_context_block", "")
+    contexto_actividad = f"{activity_context_block}\n" if activity_context_block else ""
+    regla_delegacion = (
+        "--- TEMA DELEGADO AL TUTOR POR LA LECCION ---\n"
+        f"El profesor delego explicitamente a tu criterio: \"{item_delegado}\".\n"
+        "Respondelo como ADAPTACION OPERATIVA del tutor (orientacion practica util), aunque NO "
+        "haya evidencia documental del curso sobre esto. Distinguelo del contenido oficial: aclara "
+        "en una frase que es una orientacion del tutor, no material citado del curso. Se concreto; "
+        "NO respondas que no tienes evidencia ni pidas una aclaracion trivial.\n"
+        "------------------------\n"
+    )
+    instrucciones = (
+        RAG_SYSTEM_PROMPT
+        + f"{_prompt_por_intent(intent_efectivo)}"
+        + contexto_actividad
+        + regla_delegacion
+    )
+    respuesta = llm_logico.invoke(instrucciones + "\nPregunta del alumno: " + pregunta).content
+    respuesta, attr_policies, attr_warnings = _imponer_attribution_constraints(state, respuesta)
+    return {
+        "respuesta_final": respuesta,
+        "evidencias": [],
+        "evidence_level": "delegado",
+        "applied_policies": (
+            list(state.get("applied_policies") or [])
+            + ["lesson_delegation_no_evidence"]
+            + attr_policies
+        ),
+        **_campos_pedagogicos(
+            state,
+            intent=intent_efectivo,
+            answer_type="delegated_adaptation",
+            requires_course_evidence=False,
+            warnings=[
+                _warning(
+                    "DELEGATED_NO_EVIDENCE",
+                    "Tema delegado por la leccion; respondido como adaptacion operativa del tutor sin evidencia documental.",
+                )
+            ] + attr_warnings,
+            retrieved_chunks=[],
+            model_used=TEXT_MODEL,
+        ),
+    }
+
+
+def _responder_resumen_bloque_actual(state: EstadoAgente, pregunta: str, lesson: dict, block: dict):
+    """Resume el bloque ACTUAL desde su metadata (Capa 2), sin retrieval cruzado.
+
+    Evita que el RAG narre 'transcripcion del bloque 3/4/5' al preguntar 'de que
+    trata este bloque'. Usa summary + concepts del bloque; no expone tutor_focus
+    (guia interna), ids, numeros de bloque ni la palabra transcripcion.
+    """
+    titulo = (block.get("block_title") or "este bloque").strip()
+    summary = (block.get("summary") or "").strip()
+    concepts = [c for c in (block.get("concepts") or []) if c]
+
+    datos = []
+    if summary:
+        datos.append(f"Resumen del bloque: {summary}")
+    if concepts:
+        datos.append("Conceptos del bloque: " + ", ".join(concepts))
+    datos_txt = "\n".join(datos) if datos else "Sin resumen detallado disponible."
+
+    prompt = (
+        RAG_SYSTEM_PROMPT
+        + "El alumno pregunta de que trata el bloque que esta viendo ahora. "
+          "Resume de forma BREVE, clara y en segunda persona SOLO este bloque, a partir de "
+          "los datos de abajo. NO menciones otros bloques, numeros de bloque, la palabra "
+          "transcripcion, ids internos ni rangos de tiempo.\n"
+        + f"--- BLOQUE ACTUAL: {titulo} ---\n{datos_txt}\n------------------------\n"
+        + f"Pregunta del alumno: {pregunta}"
+    )
+    respuesta = llm_logico.invoke(prompt).content
+    respuesta, attr_policies, attr_warnings = _imponer_attribution_constraints(state, respuesta)
+    return {
+        "respuesta_final": respuesta,
+        "evidencias": [],
+        "evidence_level": "metadata",
+        "applied_policies": list(state.get("applied_policies") or []) + ["active_block_summary"] + attr_policies,
+        **_campos_pedagogicos(
+            state,
+            intent="aclaracion_concepto",
+            answer_type="block_summary",
+            requires_course_evidence=False,
+            retrieved_chunks=[],
+            warnings=attr_warnings,
+            model_used=TEXT_MODEL,
+        ),
+    }
+
+
 def nodo_rag(state: EstadoAgente):
 
     pregunta = state["pregunta"].strip()
@@ -396,6 +547,15 @@ def nodo_rag(state: EstadoAgente):
                 )
             }
 
+    # Pregunta por el CONTENIDO del bloque actual ('de que trata este bloque'):
+    # se responde desde el resumen del bloque (Capa 2), sin retrieval cruzado que
+    # termine narrando 'transcripcion del bloque 3/4/5'.
+    if _es_pregunta_sobre_bloque_actual(pregunta):
+        _lesson_b, _block_b = _envelope_leccion_bloque(state)
+        if _block_b and (_block_b.get("summary") or _block_b.get("concepts")):
+            print("[AGENTE RAG]: Pregunta sobre el bloque actual -> resumen anclado a Capa 2.")
+            return _responder_resumen_bloque_actual(state, pregunta, _lesson_b, _block_b)
+
     query_retrieval, necesita_aclaracion, aclaracion = _preparar_retrieval(state)
     es_query_seguimiento = ". Pregunta de seguimiento:" in query_retrieval
     referente_ambiguo_resuelto = bool(_es_pregunta_ambigua(pregunta) and query_retrieval and es_query_seguimiento)
@@ -459,7 +619,20 @@ def nodo_rag(state: EstadoAgente):
 
     evidencias = _buscar_evidencia(query_retrieval, state=state)
 
+    # La leccion activa puede delegar al tutor temas sin evidencia RAG (p. ej.
+    # traducir un paso a otra herramienta). La delegacion se evalua ANTES de la
+    # compuerta de "sin evidencia" y del bloqueo por "termino no soportado":
+    # ausencia de evidencia != fuera de dominio (concepts.md §5). Si se evaluara
+    # despues, una pregunta delegada que no recupera nada caeria en la respuesta
+    # generica "no veo una fuente relevante" pese a que la leccion AUTORIZO al
+    # tutor a responderla (Finding D).
+    lesson_activa, bloque_activo = _envelope_leccion_bloque(state)
+    item_delegado = _pregunta_delegada_a_tutor(pregunta, lesson_activa)
+
     if not evidencias:
+        if item_delegado:
+            print(f"[AGENTE RAG]: Sin evidencia RAG, pero la leccion delego el tema al tutor ('{item_delegado}'). Respuesta como adaptacion operativa.")
+            return _responder_tema_delegado_sin_evidencia(state, pregunta, item_delegado, intent_efectivo)
         print("[AGENTE RAG]: Evidencia insuficiente. Respuesta segura sin invencion.")
         return {
             "respuesta_final": _respuesta_sin_evidencia_contextual(state),
@@ -478,12 +651,13 @@ def nodo_rag(state: EstadoAgente):
         }
 
     terminos_no_soportados = _terminos_especificos_no_soportados(pregunta, evidencias)
-    if terminos_no_soportados and not state.get("imagen"):
+    if terminos_no_soportados and not state.get("imagen") and not item_delegado:
         print(f"[AGENTE RAG]: Terminos especificos sin respaldo: {terminos_no_soportados}")
         return {
             "respuesta_final": _respuesta_fuera_de_material(terminos_no_soportados),
             "evidencias": [],
             "evidence_level": "bajo",
+            "blocked_by": f"unsupported_terms:{','.join(terminos_no_soportados)}",
             **_campos_pedagogicos(
                 state,
                 intent="fuera_dominio",
@@ -563,11 +737,25 @@ def nodo_rag(state: EstadoAgente):
         "------------------------\n"
         if referencia_resuelta else ""
     )
-    restriccion_terminos = (
-        "Terminos de la pregunta sin respaldo directo en evidencia: "
-        f"{', '.join(terminos_no_soportados)}. No los expliques; limitate a describir lo observable o pide aclaracion.\n"
-        if terminos_no_soportados else ""
-    )
+    if item_delegado:
+        # Tema delegado: se responde como adaptacion operativa del tutor,
+        # distinguida del contenido oficial; no se suprime el termino.
+        regla_delegacion = (
+            "--- TEMA DELEGADO AL TUTOR POR LA LECCION ---\n"
+            f"El profesor delego explicitamente a tu criterio: \"{item_delegado}\".\n"
+            "Respondelo aunque no haya evidencia documental directa, como ADAPTACION OPERATIVA del tutor. "
+            "Distinguelo del contenido oficial del curso (acláralo: es una orientacion practica del tutor, "
+            "no material citado del curso). No lo bloquees ni pidas una aclaracion trivial.\n"
+            "------------------------\n"
+        )
+        restriccion_terminos = ""
+    else:
+        regla_delegacion = ""
+        restriccion_terminos = (
+            "Terminos de la pregunta sin respaldo directo en evidencia: "
+            f"{', '.join(terminos_no_soportados)}. No los expliques; limitate a describir lo observable o pide aclaracion.\n"
+            if terminos_no_soportados else ""
+        )
     concepto_directo = _concepto_definicion_directa(pregunta)
     regla_definicion_directa = (
         "--- DEFINICION DIRECTA ---\n"
@@ -656,6 +844,7 @@ def nodo_rag(state: EstadoAgente):
         f"{regla_referencia_resuelta}"
         f"{regla_definicion_directa}"
         f"{regla_comparacion}"
+        f"{regla_delegacion}"
         f"{restriccion_terminos}"
     )
 
@@ -670,6 +859,9 @@ def nodo_rag(state: EstadoAgente):
     if future_axis_question:
         respuesta = _limitar_anticipo_eje_posterior(respuesta, requested_axis)
 
+    # FIX G: imponer las attribution_constraints de la leccion sobre la salida.
+    respuesta, attr_policies, attr_warnings = _imponer_attribution_constraints(state, respuesta)
+
     print("[AGENTE RAG]: Respuesta generada y verificada.")
     policy_warnings = []
     if evidence_policy_flags.get("context_jump_rule"):
@@ -682,6 +874,9 @@ def nodo_rag(state: EstadoAgente):
         "respuesta_final": respuesta,
         "evidencias": fuentes,
         "evidence_level": evidence_level,
+        # Conserva las politicas del supervisor (delegacion/override) y anexa las
+        # de atribucion impuestas en la salida (FIX E + FIX G).
+        "applied_policies": list(state.get("applied_policies") or []) + attr_policies,
         **_campos_pedagogicos(
             state,
             intent=intent_efectivo,
@@ -694,6 +889,7 @@ def nodo_rag(state: EstadoAgente):
                 + ([] if evidence_level == "alto" else [
                     _warning("LOW_EVIDENCE", "La evidencia recuperada tiene relevancia moderada.")
                 ])
+                + attr_warnings
             ),
             model_used=TEXT_MODEL
         )
@@ -734,18 +930,26 @@ def nodo_perdido(state: EstadoAgente):
     )
 
     respuesta = llm_logico.invoke(prompt).content
+
+    # FIX G: las attribution_constraints tambien rigen el modo guia dentro de leccion.
+    respuesta, attr_policies, attr_warnings = _imponer_attribution_constraints(state, respuesta)
+
     return {
         "respuesta_final": respuesta,
         "evidencias": fuentes,
         "evidence_level": evidence_level,
+        "applied_policies": list(state.get("applied_policies") or []) + attr_policies,
         **_campos_pedagogicos(
             state,
             intent="estudiante_perdido",
             answer_type="rag_answer" if fuentes else "needs_more_context",
             retrieved_chunks=_chunks_desde_evidencias(evidencias),
-            warnings=[] if fuentes else [
-                _warning("LOW_EVIDENCE", "Modo guia activo sin evidencia suficiente para recomendar recurso concreto.")
-            ],
+            warnings=(
+                ([] if fuentes else [
+                    _warning("LOW_EVIDENCE", "Modo guia activo sin evidencia suficiente para recomendar recurso concreto.")
+                ])
+                + attr_warnings
+            ),
             model_used=TEXT_MODEL
         )
     }
@@ -818,6 +1022,8 @@ def nodo_guardia(state: EstadoAgente):
         "respuesta_final": GUARD_REPLY,
         "evidencias": [],
         "evidence_level": "bajo",
+        # Conserva el motivo que fijo el supervisor; si no llego, deja uno generico.
+        "blocked_by": state.get("blocked_by") or "out_of_domain",
         **_campos_pedagogicos(
             state,
             intent="fuera_dominio",
@@ -861,6 +1067,62 @@ def nodo_saludo(state: EstadoAgente):
     }
 
 
+def nodo_orientacion(state: EstadoAgente):
+    """Responde preguntas de ubicacion ('en que leccion estoy') desde el envelope.
+
+    Determinista, sin LLM y sin exponer ids internos, rangos de tiempo ni el
+    bloque de CONTEXTO ACTIVO. Evita que el RAG narre el andamiaje (Finding H2):
+    un meta-pregunta no debe convertirse en una transcripcion del contexto.
+    """
+    print("[ORIENTACION]: Respondiendo ubicacion del alumno desde el contexto activo...")
+    lesson_activa, bloque_activo = _envelope_leccion_bloque(state)
+    titulo = ""
+    if lesson_activa:
+        titulo = (lesson_activa.get("lesson_title") or lesson_activa.get("title") or "").strip()
+    seccion = (state.get("current_section_name") or "").strip()
+    titulo_bloque = ""
+    if bloque_activo:
+        titulo_bloque = (bloque_activo.get("block_title") or "").strip()
+
+    # Construye la ubicacion con lo que haya disponible, en lenguaje natural y
+    # SIN ids internos (lesson_id/block_id), recurso ni timestamp.
+    partes = []
+    if titulo:
+        partes.append(f"la leccion «{titulo}»")
+    if seccion:
+        partes.append(f"la seccion «{seccion}»")
+    if titulo_bloque:
+        partes.append(f"el bloque «{titulo_bloque}»")
+    elif bloque_activo:
+        # Hay bloque activo pero sin titulo: no inventamos id, lo decimos generico.
+        partes.append("el bloque que estas viendo ahora")
+
+    if partes:
+        respuesta = (
+            "Estas en " + ", ".join(partes) + ". "
+            "¿Quieres que te oriente sobre el curso o seguimos con el tema de la leccion?"
+        )
+    else:
+        respuesta = (
+            "Estas dentro del curso, pero ahora mismo no tengo identificada una leccion activa concreta. "
+            "¿Sobre que tema o leccion quieres que te ayude?"
+        )
+
+    return {
+        "respuesta_final": respuesta,
+        "evidencias": [],
+        "evidence_level": "bajo",
+        **_campos_pedagogicos(
+            state,
+            intent="orientacion",
+            answer_type="orientation",
+            requires_course_evidence=False,
+            retrieved_chunks=[],
+            model_used="none",
+        ),
+    }
+
+
 # ==========================================
 # 3. CONSTRUCCION DEL GRAFO
 # ==========================================
@@ -874,6 +1136,7 @@ flujo.add_node("agente_web", nodo_web)
 flujo.add_node("guardia", nodo_guardia)
 flujo.add_node("saludo", nodo_saludo)
 flujo.add_node("perdido", nodo_perdido)
+flujo.add_node("orientacion", nodo_orientacion)
 
 flujo.set_entry_point("supervisor")
 
@@ -892,7 +1155,8 @@ flujo.add_conditional_edges(
         "internet": "agente_web",
         "bloqueo": "guardia",
         "saludo": "saludo",
-        "perdido": "perdido"
+        "perdido": "perdido",
+        "ubicacion": "orientacion"
     }
 )
 
@@ -901,5 +1165,6 @@ flujo.add_edge("agente_web", END)
 flujo.add_edge("guardia", END)
 flujo.add_edge("saludo", END)
 flujo.add_edge("perdido", END)
+flujo.add_edge("orientacion", END)
 
 super_agente = flujo.compile()

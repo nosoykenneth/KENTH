@@ -1,20 +1,39 @@
-fastapi
-uvicorn
-langgraph
-langchain-ollama
-langchain-core
-langchain-community
-duckduckgo-search
-ddgs
-requests
-pypdf
-chromadb
-langchain-chroma
-langchain-text-splitters
-pydantic
-python-multipart
-PyMySQL
-httpx
+# Dependencias del backend RAG (FastAPI + LangGraph).
+# PINEADAS desde el venv de desarrollo (Python 3.14) el 2026-06-16 para que el
+# build del servidor resuelva EXACTAMENTE las mismas versiones (evita el clasico
+# "en mi lap si, en el server no"). Estas versiones tienen wheels para Python 3.11
+# (la imagen del Dockerfile). Snapshot transitivo completo: requirements.lock.txt.
+
+# --- API ---
+fastapi==0.136.1
+uvicorn==0.46.0
+python-multipart==0.0.27
+
+# --- LangChain / LangGraph ---
+langgraph==1.1.10
+langchain-core==1.3.3
+langchain-community==0.4.1
+langchain-ollama==1.1.0
+langchain-chroma==1.1.0
+langchain-text-splitters==1.1.2
+
+# --- Vector store ---
+chromadb==1.5.9
+
+# --- Busqueda web (ruta agente_web, solo si el usuario la fuerza) ---
+duckduckgo-search==8.1.1
+ddgs==9.14.2
+
+# --- Documentos / ingest ---
+pypdf==6.10.2
+pdfplumber==0.11.9
+
+# --- Transcripcion (arrastra ctranslate2 / onnxruntime / tokenizers) ---
+faster-whisper==1.2.1
+
+# --- Persistencia Moodle / HTTP / utilidades ---
+PyMySQL==1.1.3
+requests==2.33.1
+httpx==0.28.1
+pydantic==2.13.3
 python-json-logger
-faster-whisper
-pdfplumber
