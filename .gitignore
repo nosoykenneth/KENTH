@@ -31,6 +31,7 @@ tesis-rag/.env
 *.crt
 *.p12
 *.sql
+!tesis-rag/migrations/moodle/*.sql
 *.dump
 *.bak
 *.log
@@ -42,6 +43,7 @@ tesis-rag/bd_vectorial_backup*/
 tesis-rag/bd_chat/
 tesis-rag/tmp*/
 tesis-rag/pytest-cache-files-*/
+runtime/
 
 # ---- Node / build del frontend ----
 node_modules/
@@ -59,6 +61,4 @@ tesis-rag/evaluation/reports/
 tesis-rag/scripts/*report.txt
 tesis-rag/scripts/*results.jsonl
 tesis-rag/test*.txt
-
 tesis-rag/scratch/
-

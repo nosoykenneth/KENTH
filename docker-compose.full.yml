@@ -1,0 +1,170 @@
+name: tic-kenth-full
+
+# ============================================================================
+#  Despliegue FULL DOCKER para servidor.
+#  Ollama queda nativo en el host para usar GPU sin acoplar el runtime NVIDIA al compose.
+#  Uso:
+#    docker compose -f docker-compose.full.yml --env-file .env up -d --build
+# ============================================================================
+
+networks:
+  internal:
+    driver: bridge
+
+volumes:
+  loki_data:
+  grafana_data:
+  frontend_build:
+
+services:
+  mariadb:
+    image: mariadb:11.4
+    container_name: tic-mariadb
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MOODLE_DB_NAME}
+      MARIADB_USER: ${MOODLE_DB_USER}
+      MARIADB_PASSWORD: ${MOODLE_DB_PASSWORD}
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    volumes:
+      - ./runtime/mariadb:/var/lib/mysql
+    networks: [internal]
+    healthcheck:
+      test: ["CMD-SHELL", "mariadb-admin ping -h 127.0.0.1 -uroot -p$$MARIADB_ROOT_PASSWORD --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+    restart: unless-stopped
+
+  moodle:
+    image: bitnami/moodle:5
+    container_name: tic-moodle
+    depends_on:
+      mariadb:
+        condition: service_healthy
+    environment:
+      MOODLE_DATABASE_TYPE: mariadb
+      MOODLE_DATABASE_HOST: mariadb
+      MOODLE_DATABASE_PORT_NUMBER: 3306
+      MOODLE_DATABASE_NAME: ${MOODLE_DB_NAME}
+      MOODLE_DATABASE_USER: ${MOODLE_DB_USER}
+      MOODLE_DATABASE_PASSWORD: ${MOODLE_DB_PASSWORD}
+      MOODLE_USERNAME: ${MOODLE_ADMIN_USER}
+      MOODLE_PASSWORD: ${MOODLE_ADMIN_PASSWORD}
+      MOODLE_EMAIL: ${MOODLE_ADMIN_EMAIL}
+      MOODLE_SITE_NAME: ${MOODLE_SITE_NAME}
+      MOODLE_HOST: ${PUBLIC_HOST}
+      MOODLE_REVERSEPROXY: "yes"
+      MOODLE_SSLPROXY: "no"
+    volumes:
+      - ./runtime/moodle:/bitnami/moodle
+      - ./runtime/moodledata:/bitnami/moodledata
+      # Si el plugin local_tesisai existe fuera del repo, copiarlo o montar una ruta real:
+      # - ./moodle/local/tesisai:/bitnami/moodle/local/tesisai:ro
+      # Si existe proyecto_curso/api_persistente, montarlo/copiarlo igual:
+      # - ./moodle/proyecto_curso:/bitnami/moodle/proyecto_curso:ro
+    networks: [internal]
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend-tesis
+      dockerfile: Dockerfile
+    image: tic-kenth/frontend:latest
+    container_name: tic-frontend
+    volumes:
+      - frontend_build:/shared
+    networks: [internal]
+    restart: unless-stopped
+
+  fastapi:
+    build:
+      context: ./tesis-rag
+      dockerfile: Dockerfile
+    image: tic-kenth/fastapi:latest
+    container_name: tic-fastapi
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      moodle:
+        condition: service_started
+    environment:
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL}
+      KENTH_TEXT_MODEL: ${KENTH_TEXT_MODEL}
+      KENTH_VISION_MODEL: ${KENTH_VISION_MODEL}
+      KENTH_EMBED_MODEL: ${KENTH_EMBED_MODEL}
+      CHROMA_DIR: ${CHROMA_DIR}
+      MOODLE_BASE_URL: ${MOODLE_BASE_URL}
+      MOODLE_DBTYPE: mariadb
+      MOODLE_DBHOST: ${MOODLE_DB_HOST}
+      MOODLE_DBPORT: ${MOODLE_DB_PORT}
+      MOODLE_DBNAME: ${MOODLE_DB_NAME}
+      MOODLE_DBUSER: ${MOODLE_DB_USER}
+      MOODLE_DBPASS: ${MOODLE_DB_PASSWORD}
+      MOODLE_DB_PREFIX: ${MOODLE_DB_PREFIX}
+      MOODLE_WS_BASE: ${MOODLE_WS_BASE}
+      MOODLE_WS_TOKEN: ${MOODLE_WS_TOKEN}
+      KENTH_COURSE_ID_SECRET: ${KENTH_COURSE_ID_SECRET}
+      TESISAI_ALLOW_SQLITE_FALLBACK: ${TESISAI_ALLOW_SQLITE_FALLBACK}
+    volumes:
+      - ./runtime/chroma:/app/bd_vectorial
+      - ./runtime/fastapi-chat:/app/bd_chat
+    networks: [internal]
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+
+  gateway:
+    image: nginx:alpine
+    container_name: tic-gateway
+    depends_on:
+      - fastapi
+      - frontend
+      - moodle
+    ports:
+      - "80:80"
+      # - "443:443"   # habilitar con TLS y certificados montados
+    volumes:
+      - ./nginx/nginx.full.conf:/etc/nginx/nginx.conf:ro
+      - frontend_build:/usr/share/nginx/html:ro
+      # - ./nginx/certs:/etc/letsencrypt:ro
+    networks: [internal]
+    restart: unless-stopped
+
+  loki:
+    image: grafana/loki:2.9.0
+    container_name: tic-loki
+    command: -config.file=/etc/loki/loki-config.yaml
+    volumes:
+      - ./logging/loki-config.yaml:/etc/loki/loki-config.yaml:ro
+      - loki_data:/loki
+    networks: [internal]
+    restart: unless-stopped
+
+  promtail:
+    image: grafana/promtail:2.9.0
+    container_name: tic-promtail
+    depends_on: [loki]
+    command: -config.file=/etc/promtail/promtail-config.yaml
+    volumes:
+      - ./logging/promtail-config.yaml:/etc/promtail/promtail-config.yaml:ro
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks: [internal]
+    restart: unless-stopped
+
+  grafana:
+    image: grafana/grafana:10.4.0
+    container_name: tic-grafana
+    depends_on: [loki]
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./logging/grafana/provisioning:/etc/grafana/provisioning:ro
+    networks: [internal]
+    restart: unless-stopped
