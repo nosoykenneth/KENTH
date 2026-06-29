@@ -28,7 +28,7 @@ const persistCropState = (cropState) => {
 
 const toMoodleProxyUrl = (url) => {
   if (!url || url.startsWith('data:image')) return url;
-  return url.replace(/^https?:\/\/localhost\//, '/api/lms/');
+  return url.replace(/^https?:\/\/[^/]+\//i, '/api/lms/');
 };
 
 const prepareMoodleImageUrl = (url, token) => {

@@ -21,7 +21,7 @@ export default function MoodleRenderer({ modulo }) {
           if (contentObj?.content) {
             setHtmlContent(contentObj.content);
           } else if (contentObj?.fileurl) {
-            const res = await fetch(`${contentObj.fileurl.replace('http://localhost/', '/api/lms/')}&token=${miToken}`);
+            const res = await fetch(`${contentObj.fileurl.replace(/^https?:\/\/[^/]+\//i, '/api/lms/')}&token=${miToken}`);
             const text = await res.text();
             setHtmlContent(text);
           }
@@ -201,7 +201,7 @@ export default function MoodleRenderer({ modulo }) {
               {modulo.contents?.map((file, idx) => (
                  <a 
                    key={idx} 
-                   href={`${file.fileurl.replace('http://localhost/', '/api/lms/')}&token=${miToken}`} 
+                   href={`${file.fileurl.replace(/^https?:\/\/[^/]+\//i, '/api/lms/')}&token=${miToken}`} 
                    download={file.filename}
                    className="group p-6 bg-kenth-surface/10 border border-kenth-border hover:border-amber-500/50 rounded-3xl flex flex-col gap-4 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_20px_40px_rgba(245,158,11,0.15)] relative overflow-hidden"
                  >
@@ -279,7 +279,7 @@ export default function MoodleRenderer({ modulo }) {
            <p className="text-kenth-subtext text-lg mb-10 font-medium italic opacity-70 px-6">{fileRes?.filename || 'Documento de Referencia'}</p>
            
            <a 
-              href={fileRes ? `${fileRes.fileurl.replace('http://localhost/', '/api/lms/')}&token=${miToken}` : '#'} 
+              href={fileRes ? `${fileRes.fileurl.replace(/^https?:\/\/[^/]+\//i, '/api/lms/')}&token=${miToken}` : '#'} 
               download 
               className="group relative overflow-hidden bg-teal-600 hover:bg-teal-500 text-white py-5 px-16 rounded-[2rem] font-black tracking-[0.2em] uppercase transition-all shadow-[0_20px_40px_rgba(13,148,136,0.3)] hover:-translate-y-2 hover:shadow-[0_30px_60px_rgba(13,148,136,0.4)]"
             >

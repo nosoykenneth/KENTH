@@ -32,6 +32,11 @@ tesis-rag/.env
 *.p12
 *.sql
 !tesis-rag/migrations/moodle/*.sql
+# Artefactos de migracion al servidor (dump BD, moodledata, secretos de pago) -> NUNCA a git
+_migration/
+*.tar
+*.tgz
+*.gz
 *.dump
 *.bak
 *.log
