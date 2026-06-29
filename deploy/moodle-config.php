@@ -23,9 +23,21 @@ $CFG->dboptions = array (
 $forwardedhost = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? '';
 $forwardedproto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? (getenv('PUBLIC_SCHEME') ?: 'http');
 $forwardedprefix = rtrim($_SERVER['HTTP_X_FORWARDED_PREFIX'] ?? '', '/');
+$directhost = $_SERVER['HTTP_HOST'] ?? '';
+
+$cleanhost = function ($host) {
+  $host = trim($host);
+  return preg_match('/^[A-Za-z0-9._:-]+$/', $host) ? $host : '';
+};
+
+$forwardedhost = $cleanhost($forwardedhost);
+$directhost = $cleanhost($directhost);
 
 if ($forwardedhost !== '') {
   $CFG->wwwroot = $forwardedproto . '://' . $forwardedhost . $forwardedprefix;
+} else if ($directhost !== '') {
+  $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : (getenv('PUBLIC_SCHEME') ?: 'http');
+  $CFG->wwwroot = $scheme . '://' . $directhost;
 } else {
   $CFG->wwwroot = getenv('MOODLE_WWWROOT') ?: 'http://localhost:8090';
 }
