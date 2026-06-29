@@ -146,9 +146,21 @@ services:
       MOODLE_WS_TOKEN: ${MOODLE_WS_TOKEN}
       KENTH_COURSE_ID_SECRET: ${KENTH_COURSE_ID_SECRET}
       TESISAI_ALLOW_SQLITE_FALLBACK: ${TESISAI_ALLOW_SQLITE_FALLBACK}
+      # Ruta del moodledata DENTRO de este contenedor (igual que el volumen ro de abajo).
+      # Necesario para que la transcripcion automatica localice el .mp4 del H5P por
+      # contenthash; sin esto find_hvp_video_path no halla el archivo -> 422.
+      MOODLE_DATAROOT: /var/moodledata
+      # Cache del modelo faster-whisper (huggingface) en un volumen persistente,
+      # para no re-descargar ~480MB en cada recreacion del contenedor.
+      HF_HOME: /app/hf-cache
     volumes:
       - ./runtime/chroma:/app/bd_vectorial
       - ./runtime/fastapi-chat:/app/bd_chat
+      # moodledata de Moodle (mismo host dir que el contenedor moodle), solo lectura:
+      # FastAPI lee los videos subidos para transcribirlos con faster-whisper.
+      - ./runtime/moodledata:/var/moodledata:ro
+      # Cache persistente del modelo Whisper (se descarga una sola vez).
+      - ./runtime/whisper-cache:/app/hf-cache
     networks: [internal]
     extra_hosts:
       - "host.docker.internal:host-gateway"
