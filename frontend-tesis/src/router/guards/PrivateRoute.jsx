@@ -1,14 +1,16 @@
 import React from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
+import { hasMoodleSession } from '../../shared/utils/moodleToken';
 
 const PrivateRoute = ({ onboardingOnly = false }) => {
   const location = useLocation();
 
-  const token = localStorage.getItem('moodle_token');
+  // Fuente unica de verdad: un valor invalido (p. ej. "null") cuenta como SIN sesion.
+  const autenticado = hasMoodleSession();
   const requiresOnboarding = localStorage.getItem('moodle_requires_onboarding') === '1';
 
-  // Sin token => login
-  if (!token) {
+  // Sin sesion valida => login
+  if (!autenticado) {
     return <Navigate to="/login" replace />;
   }
 

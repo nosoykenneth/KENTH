@@ -56,7 +56,13 @@ export default function MoodleRenderer({ modulo }) {
     <div className="w-full min-h-[260px] flex items-center justify-center bg-kenth-bg p-8 text-center">
       <div className="max-w-md rounded-2xl border border-kenth-border bg-kenth-card p-8 text-kenth-text shadow-xl">
         <h3 className="text-lg font-black uppercase tracking-wide">Sesion expirada</h3>
-        <p className="mt-3 text-sm text-kenth-subtext">Vuelve a iniciar sesion para abrir este recurso.</p>
+        <p className="mt-3 text-sm text-kenth-subtext">Tu sesion ya no es valida. Vuelve a iniciar sesion para abrir este recurso.</p>
+        <a
+          href="/login"
+          className="mt-6 inline-flex items-center gap-2 rounded-xl bg-kenth-brightred px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-lg"
+        >
+          Iniciar sesion
+        </a>
       </div>
     </div>
   );

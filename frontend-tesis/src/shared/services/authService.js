@@ -27,9 +27,17 @@ export const login = async (username, password) => {
   if (!data.success) {
     throw new Error(data.error || "Error de autenticación");
   }
-  
+
+  // El backend garantiza un token no vacío cuando success=true; si por cualquier
+  // motivo llega vacío/null, fallamos aquí en vez de propagar un token inválido
+  // que luego rompería la sesión silenciosamente.
+  const token = typeof data.token === 'string' ? data.token.trim() : '';
+  if (!token || token === 'null' || token === 'undefined') {
+    throw new Error('Autenticación incompleta: el servidor no devolvió un token de sesión.');
+  }
+
   return {
-    token: data.token,
+    token,
     requiresOnboarding: data.requiresOnboarding,
     fullname: data.fullname,
     userid: data.userid

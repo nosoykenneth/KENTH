@@ -4,6 +4,7 @@ import Logo from '../../shared/components/ui/Logo';
 
 // IMPORTAMOS TUS FUNCIONES REALES
 import { login, getSiteInfo, helperDetermineRole } from '../../shared/services/authService';
+import { persistMoodleToken } from '../../shared/utils/moodleToken';
 
 export default function LoginView() {
   const [username, setUsername] = useState('');
@@ -23,8 +24,13 @@ export default function LoginView() {
       // 1. Usamos TU función de login (que ya pasa por el interceptor de onboarding)
       const { token, requiresOnboarding, userid, fullname } = await login(username, password);
       
-      // 2. Guardamos el token y estado de onboarding
-      localStorage.setItem('moodle_token', token);
+      // 2. Guardamos el token (validado) y estado de onboarding.
+      //    persistMoodleToken rechaza valores invalidos, asi nunca queda un
+      //    "null"/"undefined" en storage que finja una sesion inexistente.
+      const savedToken = persistMoodleToken(token);
+      if (!savedToken) {
+        throw new Error('El servidor no entregó un token de sesión válido. Vuelve a intentarlo.');
+      }
       localStorage.setItem('moodle_requires_onboarding', requiresOnboarding ? '1' : '0');
 
       // 3. Usamos TU función para obtener la info del sitio y del usuario
