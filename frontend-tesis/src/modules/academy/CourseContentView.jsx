@@ -21,6 +21,7 @@ import {
   deleteLesson,
 } from '../../shared/services/sectionsService';
 import { resolveLessonForResource as resolveLessonForModule } from '../../shared/services/lessonAutoAssignment';
+import { getMoodleToken, hasMoodleSession } from '../../shared/utils/moodleToken';
 import useResourceTimestamp from '../../shared/hooks/useResourceTimestamp';
 
 const FloatingAssistantIcon = () => (
@@ -308,7 +309,7 @@ export default function CourseContentView() {
 
   useEffect(() => {
     const verificarPermisos = async () => {
-      const token = localStorage.getItem('moodle_token');
+      const token = getMoodleToken();
       if (!token || !id) return;
       try {
         const respuesta = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_role.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(id)}`);
@@ -339,7 +340,7 @@ export default function CourseContentView() {
         // para poder detectar el nuevo recurso por diff y abrir el modal
         // del editor del tutor justo despues, con leccion posicional ya resuelta.
         if (idsAntes) {
-          const token = localStorage.getItem('moodle_token');
+          const token = getMoodleToken();
           try {
             const datos = await getCourseContents(token, id);
             setSecciones(datos);
@@ -376,7 +377,7 @@ export default function CourseContentView() {
   }, [id]);
 
   const fetchContenido = async () => {
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     const userid = localStorage.getItem('moodle_userid');
     
     try {
@@ -399,7 +400,7 @@ export default function CourseContentView() {
   useEffect(() => { if (id) fetchContenido(); }, [id]);
 
   const ejecutarAccion = async (action, cmid, secIdx) => {
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     setMenuActivo(null);
 
     const nuevasSecciones = [...secciones];
@@ -457,7 +458,7 @@ export default function CourseContentView() {
     setSecciones(nuevasSecciones);
     setEditandoSeccionId(null);
 
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     try {
       const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=rename_section&sectionid=${sectionId}&name=${encodeURIComponent(nuevoNombreSeccion)}`);
       const resData = await response.json();
@@ -472,7 +473,7 @@ export default function CourseContentView() {
   };
 
   const añadirSeccion = async (location) => {
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     try {
       const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=add_section&courseid=${encodeURIComponent(id)}&location=${location}`);
       const data = await response.json();
@@ -487,7 +488,7 @@ export default function CourseContentView() {
   };
 
   const moverSeccion = async (sectionId, newPos) => {
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     setSeccionEnMovimientoId(sectionId);
     try {
       const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=move_section&sectionid=${sectionId}&newpos=${newPos}`);
@@ -505,7 +506,7 @@ export default function CourseContentView() {
   const borrarSeccion = async (sectionId) => {
     if (!window.confirm("¿Estás seguro de eliminar esta sección y todo su contenido? Esta acción no se puede deshacer.")) return;
     
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     try {
       const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=delete_section&sectionid=${sectionId}`);
       const data = await response.json();
@@ -541,7 +542,7 @@ export default function CourseContentView() {
     setSecciones(nuevasSecciones);
     setEditandoSummaryId(null);
 
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     try {
       await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_actions.php?token=${token}&action=update_section_summary&sectionid=${sectionId}&summary=${encodeURIComponent(nuevoSummarySeccion)}`);
     } catch (e) {
@@ -553,7 +554,7 @@ export default function CourseContentView() {
   const fetchParticipantes = async () => {
     if (!id || id === '0') return;
     setCargandoParticipantes(true);
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     try {
       const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_enrolments.php?token=${token}&action=list&courseid=${encodeURIComponent(id)}`);
       const data = await response.json();
@@ -569,7 +570,7 @@ export default function CourseContentView() {
 
   const matricularUsuario = async () => {
     if (!busquedaParticipante.trim()) return;
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     try {
       const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_enrolments.php?token=${token}&action=enrol&courseid=${encodeURIComponent(id)}&email=${encodeURIComponent(busquedaParticipante)}`);
       const data = await response.json();
@@ -584,7 +585,7 @@ export default function CourseContentView() {
 
   const desmatricularUsuario = async (userId) => {
     if (!window.confirm("¿Seguro que quieres desmatricular a este usuario?")) return;
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     try {
       const response = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_enrolments.php?token=${token}&action=unenrol&courseid=${encodeURIComponent(id)}&userid=${userId}`);
       const data = await response.json();
@@ -650,7 +651,7 @@ export default function CourseContentView() {
     setDropIndicator(null);
     setDraggedMod(null);
 
-    const token = localStorage.getItem('moodle_token');
+    const token = getMoodleToken();
     const targetSectionId = nuevasSecciones[targetSeccionIdx].id;
     const paramBefore = beforeCmId ? `&beforecmid=${beforeCmId}` : '';
 
@@ -1106,31 +1107,49 @@ export default function CourseContentView() {
               </button>
             </div>
             <div className="flex-1 w-full bg-kenth-bg relative overflow-hidden">
-              {studioCargando && (
-                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-kenth-bg text-indigo-400 gap-4 animate-in fade-in duration-300">
-                  <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span className="font-bold tracking-widest uppercase text-xs animate-pulse">Iniciando entorno Moodle Studio...</span>
+              {!hasMoodleSession() ? (
+                // Sin sesion valida no cargamos el Studio con un token vacio/"null"
+                // (eso producia el "Acceso denegado" de Moodle). Damos via de recuperacion.
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-kenth-bg p-8 text-center">
+                  <h3 className="text-lg font-black uppercase tracking-wide text-kenth-text">Sesion expirada</h3>
+                  <p className="mt-3 max-w-md text-sm text-kenth-subtext">Tu sesion ya no es valida. Vuelve a iniciar sesion para seguir editando.</p>
+                  <a
+                    href="/login"
+                    className="mt-6 inline-flex items-center gap-2 rounded-xl bg-kenth-brightred px-6 py-3 text-xs font-black uppercase tracking-[0.2em] text-white transition hover:-translate-y-0.5 hover:shadow-lg"
+                  >
+                    Iniciar sesion
+                  </a>
                 </div>
-              )}
-              <iframe
-                name="moodle_studio_iframe"
-                onLoad={() => setStudioCargando(false)}
-                src={
-                  (() => {
-                    if (!id || id === '0') return 'about:blank'; // Evitar course=0 crítico
+              ) : (
+                <>
+                  {studioCargando && (
+                    <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-kenth-bg text-indigo-400 gap-4 animate-in fade-in duration-300">
+                      <svg className="animate-spin h-12 w-12" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      <span className="font-bold tracking-widest uppercase text-xs animate-pulse">Iniciando entorno Moodle Studio...</span>
+                    </div>
+                  )}
+                  <iframe
+                    name="moodle_studio_iframe"
+                    onLoad={() => setStudioCargando(false)}
+                    src={
+                      (() => {
+                        if (!id || id === '0') return 'about:blank'; // Evitar course=0 crítico
 
-                    const token = localStorage.getItem('moodle_token');
-                    return herramientaAvanzada === '__edit__'
-                      ? `/api/lms/proyecto_curso/api_persistente/tesis_studio.php?token=${token}&courseid=${encodeURIComponent(id)}&modname=__edit__&cmid=${window.__kenth_edit_cmid || 0}`
-                      : `/api/lms/proyecto_curso/api_persistente/tesis_studio.php?token=${token}&courseid=${encodeURIComponent(id)}&modname=${herramientaAvanzada}&section=${seccionDestinoId}`;
-                  })()
-                }
-                className={`w-full h-full absolute inset-0 border-none transition-opacity duration-700 bg-kenth-bg ${studioCargando ? 'opacity-0' : 'opacity-100'}`}
-                allow="fullscreen *; geolocation *; microphone *; camera *; midi *; encrypted-media *; autoplay *"
-              />
+                        const token = getMoodleToken();
+                        if (!token) return 'about:blank'; // nunca mandar token=null a Moodle
+                        return herramientaAvanzada === '__edit__'
+                          ? `/api/lms/proyecto_curso/api_persistente/tesis_studio.php?token=${token}&courseid=${encodeURIComponent(id)}&modname=__edit__&cmid=${window.__kenth_edit_cmid || 0}`
+                          : `/api/lms/proyecto_curso/api_persistente/tesis_studio.php?token=${token}&courseid=${encodeURIComponent(id)}&modname=${herramientaAvanzada}&section=${seccionDestinoId}`;
+                      })()
+                    }
+                    className={`w-full h-full absolute inset-0 border-none transition-opacity duration-700 bg-kenth-bg ${studioCargando ? 'opacity-0' : 'opacity-100'}`}
+                    allow="fullscreen *; geolocation *; microphone *; camera *; midi *; encrypted-media *; autoplay *"
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>
