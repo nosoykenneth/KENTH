@@ -20,19 +20,23 @@ $CFG->dboptions = array (
   'dbcollation' => 'utf8mb4_unicode_ci',
 );
 
-// wwwroot = origen publico SIN subruta. El SPA reescribe ese origen -> /api/lms.
-$CFG->wwwroot   = getenv('MOODLE_WWWROOT') ?: 'http://localhost:8090';
+$forwardedhost = $_SERVER['HTTP_X_FORWARDED_HOST'] ?? '';
+$forwardedproto = $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? (getenv('PUBLIC_SCHEME') ?: 'http');
+$forwardedprefix = rtrim($_SERVER['HTTP_X_FORWARDED_PREFIX'] ?? '', '/');
+
+if ($forwardedhost !== '') {
+  $CFG->wwwroot = $forwardedproto . '://' . $forwardedhost . $forwardedprefix;
+} else {
+  $CFG->wwwroot = getenv('MOODLE_WWWROOT') ?: 'http://localhost:8090';
+}
+
 $CFG->dataroot  = '/var/moodledata';
 $CFG->admin     = 'admin';
 
 $CFG->directorypermissions = 02777;
 
-// Moodle se accede DIRECTO en su propio wwwroot (:8091); NO hay proxy delante de
-// ese puerto. reverseproxy=true rompe todo render de pagina (reverseproxyabused)
-// cuando Host==wwwroot. El gateway solo proxya /api/lms a moodle:8080 (WS/pluginfile,
-// que no exigen wwwroot), asi que false es lo correcto para esta topologia.
-$CFG->reverseproxy = false;
-$CFG->sslproxy     = (getenv('PUBLIC_SCHEME') === 'https');
+$CFG->reverseproxy = ($forwardedhost !== '') || filter_var(getenv('MOODLE_REVERSEPROXY'), FILTER_VALIDATE_BOOLEAN);
+$CFG->sslproxy     = ($forwardedproto === 'https') || (getenv('PUBLIC_SCHEME') === 'https');
 
 require_once(__DIR__ . '/lib/setup.php');
 
