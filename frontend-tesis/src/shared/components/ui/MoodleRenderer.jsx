@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import { buildMoodleViewUrl, getMoodleToken } from '../../utils/moodleToken';
 
 export default function MoodleRenderer({ modulo }) {
-  const miToken = localStorage.getItem('moodle_token');
+  const miToken = getMoodleToken();
+  const moodleViewSrc = buildMoodleViewUrl({ token: miToken, cmid: modulo?.id, modname: modulo?.modname });
   const [htmlContent, setHtmlContent] = useState('');
   const [cargando, setCargando] = useState(false);
   const [enIntento, setEnIntento] = useState(false);
@@ -49,6 +51,15 @@ export default function MoodleRenderer({ modulo }) {
     const fallback = setTimeout(() => setIframeCargando(false), 15000);
     return () => { window.removeEventListener('message', onMsg); clearTimeout(fallback); };
   }, [modulo.id, modulo.modname]);
+
+  const missingSessionView = (
+    <div className="w-full min-h-[260px] flex items-center justify-center bg-kenth-bg p-8 text-center">
+      <div className="max-w-md rounded-2xl border border-kenth-border bg-kenth-card p-8 text-kenth-text shadow-xl">
+        <h3 className="text-lg font-black uppercase tracking-wide">Sesion expirada</h3>
+        <p className="mt-3 text-sm text-kenth-subtext">Vuelve a iniciar sesion para abrir este recurso.</p>
+      </div>
+    </div>
+  );
 
   // RENDERIZADO POR TIPO (SIN IFRAMES NATIVAMENTE)
   switch (modulo.modname) {
@@ -132,6 +143,8 @@ export default function MoodleRenderer({ modulo }) {
                 </span>
                 <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               </button>
+            ) : !moodleViewSrc ? (
+              missingSessionView
             ) : (
               <div className="w-full bg-black/40 rounded-[2.5rem] border border-white/10 overflow-hidden h-[700px] relative animate-in fade-in zoom-in-95 duration-700 shadow-inner ring-1 ring-white/5">
                 {iframeCargando && (
@@ -149,7 +162,7 @@ export default function MoodleRenderer({ modulo }) {
                 <iframe 
                   name="moodle_view_iframe"
                   onLoad={() => setIframeCargando(false)}
-                  src={`/api/lms/proyecto_curso/api_persistente/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
+                  src={moodleViewSrc}
                   className={`w-full h-full absolute inset-0 border-none bg-transparent transition-opacity duration-1000 ${iframeCargando ? 'opacity-0' : 'opacity-100'}`}
                   allow="fullscreen *; microphone *; camera *"
                   title="Evaluación Nivel Dios"
@@ -229,6 +242,7 @@ export default function MoodleRenderer({ modulo }) {
     // ----------------------------------------
     case 'h5pactivity':
     case 'hvp':
+      if (!moodleViewSrc) return missingSessionView;
       return (
         <div className="w-full min-w-0 h-full flex justify-center items-center overflow-hidden p-3 md:p-4 bg-kenth-bg">
           
@@ -255,7 +269,7 @@ export default function MoodleRenderer({ modulo }) {
             )}
             <iframe
               name="moodle_view_iframe"
-              src={`/api/lms/proyecto_curso/api_persistente/tesis_view.php?token=${miToken}&cmid=${modulo.id}&modname=${modulo.modname}`}
+              src={moodleViewSrc}
               className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-700 ${iframeCargando ? 'opacity-0' : 'opacity-100'}`}
               style={{ height: 'calc(100% + 50px)' }}
               allow="fullscreen *; microphone *; camera *"

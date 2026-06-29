@@ -16,6 +16,7 @@ import { MODOS_PEDAGOGICOS } from '../../types/lesson';
 import { useResourceVideoBridge } from '../../hooks/useResourceTimestamp';
 import BlockTimeline from './BlockTimeline';
 import { fmtTime } from '../../utils/time';
+import { buildMoodleViewUrl, getMoodleToken } from '../../utils/moodleToken';
 import AssignLessonDialog from './AssignLessonDialog';
 import LessonResourcesPanel from './LessonResourcesPanel';
 
@@ -74,7 +75,7 @@ const TABS = [
  *   - onClose(refresh: boolean)
  */
 export default function LessonVideoEditor({ resource, courseId, sectionContext = null, onClose }) {
-  const token = localStorage.getItem('moodle_token') || '';
+  const token = getMoodleToken();
   const isH5P = resource?.modname === 'hvp' || resource?.modname === 'h5pactivity';
 
   const [tab, setTab] = useState('bloques');
@@ -483,11 +484,12 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
   const transportBtnCls = 'inline-flex h-9 min-w-9 items-center justify-center gap-1.5 rounded-lg border border-kenth-border bg-kenth-surface/10 px-2.5 text-xs font-bold text-kenth-text transition hover:border-kenth-brightred/60 hover:bg-kenth-brightred/10 focus:outline-none focus:ring-2 focus:ring-kenth-brightred/40';
   const transportGhostCls = 'inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-kenth-border bg-kenth-surface/5 px-3 text-[10px] font-black uppercase tracking-widest text-kenth-subtext transition hover:border-kenth-brightred/60 hover:bg-kenth-surface/10 hover:text-kenth-text focus:outline-none focus:ring-2 focus:ring-kenth-brightred/40';
 
-  const videoSrc = useMemo(() => (
-    resource?.id
-      ? `/api/lms/proyecto_curso/api_persistente/tesis_view.php?token=${token}&cmid=${resource.id}&modname=${resource.modname}&hidefs=1`
-      : ''
-  ), [resource?.id, resource?.modname, token]);
+  const videoSrc = useMemo(() => buildMoodleViewUrl({
+    token,
+    cmid: resource?.id,
+    modname: resource?.modname,
+    extra: { hidefs: 1 },
+  }), [resource?.id, resource?.modname, token]);
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex flex-col">
@@ -532,7 +534,11 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
         {/* IZQUIERDA: video + timeline */}
         <div className="lg:flex-1 min-w-0 flex flex-col bg-kenth-bg border-r border-kenth-border">
           <div className="relative flex-1 min-h-[240px] flex items-center justify-center p-3">
-            {isH5P ? (
+            {isH5P && !videoSrc ? (
+              <div className="text-center text-sm text-kenth-subtext max-w-md">
+                Sesion expirada. Vuelve a iniciar sesion para editar este video.
+              </div>
+            ) : isH5P ? (
               <div className="relative w-full max-w-[820px] rounded-xl overflow-hidden bg-black">
                 <div style={{ paddingTop: '56.25%' }} />
                 {!videoReady && (
