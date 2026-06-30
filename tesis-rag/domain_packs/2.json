@@ -7,12 +7,13 @@
     "domain_label": "mezcla y masterizacion"
   },
   "taxonomy": {
-    "course_axes": [
+    "course_sections": [
       {
-        "id": "eje0_identidad_acustica",
+        "id": "seccion_01_el_sistema_de_decision",
+        "section_number": 1,
         "evaluation_category": "fundamentos_acustica",
         "keywords": [
-          "eje 0",
+          "seccion 1",
           "identidad",
           "frecuencia",
           "amplitud",
@@ -21,10 +22,11 @@
         ]
       },
       {
-        "id": "eje1_estructura_flujo",
+        "id": "seccion_02_leer_la_senal",
+        "section_number": 2,
         "evaluation_category": "estructura_ganancia",
         "keywords": [
-          "eje 1",
+          "seccion 2",
           "gain staging",
           "headroom",
           "flujo de senal",
@@ -33,10 +35,11 @@
         ]
       },
       {
-        "id": "eje2_espacio_fase",
+        "id": "seccion_03_integridad_de_la_senal",
+        "section_number": 3,
         "evaluation_category": "fase_imagen_estereo",
         "keywords": [
-          "eje 2",
+          "seccion 3",
           "polaridad",
           "fase",
           "mono",
@@ -45,10 +48,11 @@
         ]
       },
       {
-        "id": "eje3_identidad_espectral",
+        "id": "seccion_04_identidad_espectral",
+        "section_number": 4,
         "evaluation_category": "ecualizacion",
         "keywords": [
-          "eje 3",
+          "seccion 4",
           "eq",
           "filtro",
           "frecuencia de corte",
@@ -56,10 +60,11 @@
         ]
       },
       {
-        "id": "eje4_control_dinamico",
+        "id": "seccion_05_energia_y_movimiento",
+        "section_number": 5,
         "evaluation_category": "dinamica",
         "keywords": [
-          "eje 4",
+          "seccion 5",
           "compresion",
           "threshold",
           "ratio",
@@ -68,10 +73,11 @@
         ]
       },
       {
-        "id": "eje5_dimension_ambiencia",
+        "id": "seccion_06_dimension_espacial",
+        "section_number": 6,
         "evaluation_category": "espacialidad",
         "keywords": [
-          "eje 5",
+          "seccion 6",
           "reverb",
           "delay",
           "profundidad",
@@ -79,10 +85,11 @@
         ]
       },
       {
-        "id": "eje6_criterio_integracion",
+        "id": "seccion_07_integracion_global",
+        "section_number": 7,
         "evaluation_category": "mezcla_general",
         "keywords": [
-          "eje 6",
+          "seccion 7",
           "mezcla",
           "integracion",
           "criterio",
@@ -90,10 +97,11 @@
         ]
       },
       {
-        "id": "eje7_optimizacion_entrega",
+        "id": "seccion_08_traduccion_y_entrega",
+        "section_number": 8,
         "evaluation_category": "mastering",
         "keywords": [
-          "eje 7",
+          "seccion 8",
           "mastering",
           "lufs",
           "limitador",
@@ -101,8 +109,8 @@
         ]
       }
     ],
-    "strong_axis_terms": {
-      "Eje 0": [
+    "strong_section_terms": {
+      "Seccion 1": [
         "frecuencia",
         "tono",
         "curvas isofonicas",
@@ -110,7 +118,7 @@
         "resonadores",
         "acustica"
       ],
-      "Eje 1": [
+      "Seccion 2": [
         "gain staging",
         "headroom",
         "fader",
@@ -120,7 +128,7 @@
         "bus",
         "envio"
       ],
-      "Eje 2": [
+      "Seccion 3": [
         "polaridad",
         "fase",
         "mono",
@@ -128,7 +136,7 @@
         "correlacion",
         "estereo"
       ],
-      "Eje 3": [
+      "Seccion 4": [
         "frecuencia de corte",
         "filtro",
         "pendiente",
@@ -136,7 +144,7 @@
         "eq",
         "ecualizacion"
       ],
-      "Eje 4": [
+      "Seccion 5": [
         "compresor",
         "compresion",
         "threshold",
@@ -145,21 +153,21 @@
         "release",
         "dinamica"
       ],
-      "Eje 5": [
+      "Seccion 6": [
         "reverb",
         "delay",
         "espacialidad",
         "profundidad",
         "ambiencia"
       ],
-      "Eje 6": [
+      "Seccion 7": [
         "mezcla integradora",
         "criterio de mezcla",
         "jerarquia",
         "contexto",
         "integracion"
       ],
-      "Eje 7": [
+      "Seccion 8": [
         "mastering",
         "lufs",
         "limitador",
@@ -621,7 +629,7 @@
       "modulo",
       "clase",
       "leccion",
-      "eje",
+      "seccion",
       "vu",
       "0 vu",
       "db",

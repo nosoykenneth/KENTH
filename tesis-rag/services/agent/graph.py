@@ -777,7 +777,8 @@ def nodo_rag(state: EstadoAgente):
     # (Domain Pack, reglas 12-13). Aqui solo va lo DINAMICO de este turno: en que
     # seccion esta el alumno y el gate de no-adelantar secciones posteriores.
     # La deteccion por TEXTO de "que seccion pide la pregunta" se elimino (dependia
-    # del eje); el retrieval ya penaliza la evidencia de secciones futuras.
+    # de la taxonomia por eje, deprecada); el retrieval ya penaliza la evidencia
+    # de secciones futuras por section_number.
     regla_curricular = ""
     if current_section is not None:
         regla_curricular += (

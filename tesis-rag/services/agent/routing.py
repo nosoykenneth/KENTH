@@ -1,4 +1,3 @@
-import os
 import unicodedata
 import re
 
@@ -24,9 +23,13 @@ SPECIFIC_UNSUPPORTED_TERMS = _PACK.unsupported_terms()
 LOOKUP_STOPWORDS = _PACK.lookup_stopwords()
 TECHNICAL_CONCEPT_PATTERNS = _PACK.concept_patterns()
 
-COURSE_AXES = _PACK.course_axes()
+# Taxonomia por SECCION del curso (la taxonomia "eje" quedo deprecada; el
+# conocimiento se ancla a la seccion Moodle). Cada entrada lleva section_number
+# (1..N, base Moodle de las secciones pedagogicas) para hablar el mismo numero
+# que el retrieval por seccion.
+COURSE_SECTIONS = _PACK.course_sections()
 
-STRONG_AXIS_TERMS = _PACK.strong_axis_terms()
+STRONG_SECTION_TERMS = _PACK.strong_section_terms()
 
 # Fase 0: el vocabulario de dominio vive en el Domain Pack (datos), no en codigo.
 TECHNICAL_WORD_LIST = _PACK.technical_word_list()
@@ -47,79 +50,66 @@ def _normalizar_texto(texto: str):
     return texto.strip()
 
 
-def _eje_fuerte_pregunta(texto: str):
+def _seccion_fuerte_pregunta(texto: str):
+    """Etiqueta "Seccion N" cuyos terminos fuertes mejor casan, o "" si ninguno."""
     texto_norm = _normalizar_texto(texto)
-    mejor_eje = ""
+    mejor_seccion = ""
     mejor_score = 0
-    for eje, terminos in STRONG_AXIS_TERMS.items():
+    for seccion, terminos in STRONG_SECTION_TERMS.items():
         score = 0
         for termino in terminos:
             termino_norm = _normalizar_texto(termino)
             if termino_norm and termino_norm in texto_norm:
                 score += 2 if " " in termino_norm else 1
         if score > mejor_score:
-            mejor_eje = eje
+            mejor_seccion = seccion
             mejor_score = score
-    return mejor_eje
-
-
-def _axis_id_meta(meta: dict):
-    axis = str(
-        meta.get("axis")
-        or meta.get("eje")
-        or meta.get("axis_id")
-        or meta.get("axis_number")
-        or meta.get("module_id")
-        or ""
-    )
-    if axis.upper().startswith("EJE"):
-        return axis.title()
-    if axis.isdigit():
-        return f"Eje {axis}"
-    source_hint = " ".join([
-        meta.get("filename", ""),
-        meta.get("source", ""),
-    ]).upper()
-    filename = (source_hint or os.path.basename(meta.get("source", "")) or "").upper()
-    match = re.search(r"EJE\s*(\d+)", filename)
-    if not match:
-        match = re.search(r"EJE[_\s-]*(\d+)", filename)
-    if match:
-        return f"Eje {match.group(1)}"
-    return ""
+    return mejor_seccion
 
 
 def _warning(code: str, message: str):
     return {"code": code, "message": message}
 
 
-def _inferir_modulo_categoria(pregunta: str, contexto_leccion: str = ""):
+def _numero_de_etiqueta_seccion(etiqueta: str):
+    """Numero de seccion (int) embebido en una etiqueta tipo "Seccion 4", o None."""
+    match = re.search(r"(\d+)", etiqueta or "")
+    return int(match.group(1)) if match else None
+
+
+def _seccion_por_numero(numero):
+    """Entrada de COURSE_SECTIONS cuyo section_number == numero, o None."""
+    if numero is None:
+        return None
+    for seccion in COURSE_SECTIONS:
+        sn = seccion.get("section_number")
+        try:
+            if sn is not None and int(sn) == numero:
+                return seccion
+        except (TypeError, ValueError):
+            continue
+    return None
+
+
+def _inferir_seccion_categoria(pregunta: str, contexto_leccion: str = ""):
+    """(section_id, evaluation_category) de la seccion que mejor cubre la pregunta.
+
+    Primero por terminos fuertes ("Seccion N" -> esa seccion por section_number);
+    si no, por solapamiento de keywords sobre COURSE_SECTIONS. Devuelve ("", "")
+    si nada casa. Antes esto inferia el "eje"; ahora habla de secciones Moodle.
+    """
     texto = _normalizar_texto(f"{pregunta} {contexto_leccion}")
-    eje_fuerte = _eje_fuerte_pregunta(texto)
-    if eje_fuerte:
-        for eje in COURSE_AXES:
-            if eje_fuerte == "Eje 0" and eje["id"] == "eje0_identidad_acustica":
-                return eje["id"], eje["evaluation_category"]
-            if eje_fuerte == "Eje 1" and eje["id"] == "eje1_estructura_flujo":
-                return eje["id"], eje["evaluation_category"]
-            if eje_fuerte == "Eje 2" and eje["id"] == "eje2_espacio_fase":
-                return eje["id"], eje["evaluation_category"]
-            if eje_fuerte == "Eje 3" and eje["id"] == "eje3_identidad_espectral":
-                return eje["id"], eje["evaluation_category"]
-            if eje_fuerte == "Eje 4" and eje["id"] == "eje4_control_dinamico":
-                return eje["id"], eje["evaluation_category"]
-            if eje_fuerte == "Eje 5" and eje["id"] == "eje5_dimension_ambiencia":
-                return eje["id"], eje["evaluation_category"]
-            if eje_fuerte == "Eje 6" and eje["id"] == "eje6_criterio_integracion":
-                return eje["id"], eje["evaluation_category"]
-            if eje_fuerte == "Eje 7" and eje["id"] == "eje7_optimizacion_entrega":
-                return eje["id"], eje["evaluation_category"]
+    seccion_fuerte = _seccion_fuerte_pregunta(texto)
+    if seccion_fuerte:
+        seccion = _seccion_por_numero(_numero_de_etiqueta_seccion(seccion_fuerte))
+        if seccion:
+            return seccion["id"], seccion["evaluation_category"]
 
     mejor = None
     mejor_score = 0
-    for eje in COURSE_AXES:
+    for seccion in COURSE_SECTIONS:
         score = 0
-        for keyword in eje["keywords"]:
+        for keyword in seccion["keywords"]:
             keyword_norm = _normalizar_texto(keyword)
             if not keyword_norm:
                 continue
@@ -129,7 +119,7 @@ def _inferir_modulo_categoria(pregunta: str, contexto_leccion: str = ""):
             elif keyword_norm in texto:
                 score += 1
         if score > mejor_score:
-            mejor = eje
+            mejor = seccion
             mejor_score = score
 
     if not mejor:
@@ -143,7 +133,7 @@ def _clasificacion_pedagogica(
     tiene_imagen: bool = False,
     ruta_forzada: str = ""
 ):
-    course_module, evaluation_category = _inferir_modulo_categoria(pregunta, contexto_leccion)
+    course_module, evaluation_category = _inferir_seccion_categoria(pregunta, contexto_leccion)
 
     clasificacion = {
         "intent": "aclaracion_concepto",
@@ -272,7 +262,7 @@ def _es_pregunta_ambigua(pregunta: str):
 
     palabras = pregunta_limpia.split()
     referencias = ["eso", "esto", "ahi", "esa", "ese", "donde", "cual", "cuanto"]
-    if _eje_fuerte_pregunta(pregunta) and not any(ref in palabras for ref in referencias):
+    if _seccion_fuerte_pregunta(pregunta) and not any(ref in palabras for ref in referencias):
         return False
 
     indicadores_directos = [
@@ -708,7 +698,7 @@ def _pregunta_tiene_senal_dominio_propia(pregunta: str):
     dentro de una leccion). El dominio se decide sobre la PREGUNTA; el contexto
     solo sirve para resolver referencias y rescatar continuaciones (Finding H1).
     """
-    modulo, _ = _inferir_modulo_categoria(pregunta, "")
+    modulo, _ = _inferir_seccion_categoria(pregunta, "")
     return (
         bool(modulo)
         or _tiene_termino_tecnico_curso(pregunta)

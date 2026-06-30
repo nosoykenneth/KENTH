@@ -68,7 +68,7 @@ CORPUS = [
     "hola",
     "gracias",
     "ok",
-    # Una por eje (terminos fuertes) para ejercitar _eje_fuerte_pregunta / categoria
+    # Una por seccion (terminos fuertes) para ejercitar _seccion_fuerte_pregunta / categoria
     "curvas isofonicas sala acustica resonadores",
     "gain staging headroom fader trim clip gain flujo de senal",
     "polaridad fase mono monocompatibilidad correlacion estereo",
@@ -85,30 +85,33 @@ HISTORIAL_FIJO = [
 ]
 
 # Chunks sinteticos para ejercitar el scoring (_prioridad_evidencia) sin Chroma.
+# Metadata en vocabulario de SECCION (la taxonomia por eje quedo deprecada). Los
+# campos legacy axis/axis_id ya no los lee el retrieval, por eso no aparecen; el
+# scope 'axis' se normalizaba a 'section', aqui ya se declara 'section'.
 SYNTH_CHUNKS = [
     {
         "page_content": "La frecuencia de corte se define como el punto de transicion del filtro. tabla criterio",
         "metadata": {
-            "filename": "E3_guia_canonica.md", "doc_type": "markdown",
-            "axis": "Eje 3", "axis_id": "Eje 3", "layer": "canonico",
-            "topic": "filtros", "lesson_id": "E3-L01", "course_id": "2",
-            "scope": "lesson", "resource_title": "guia canonica eje 3",
+            "filename": "S4_guia_canonica.md", "doc_type": "markdown",
+            "layer": "canonico",
+            "topic": "filtros", "lesson_id": "L04-01", "course_id": "2",
+            "scope": "lesson", "resource_title": "guia canonica seccion 4",
         },
     },
     {
         "page_content": "El compresor controla la dinamica con threshold ratio ataque release. en serie y en paralelo",
         "metadata": {
-            "filename": "E4_glosario.json", "doc_type": "json",
-            "axis": "Eje 4", "axis_id": "Eje 4", "layer": "limpio",
-            "topic": "dinamica", "lesson_id": "E4-L02", "course_id": "2",
-            "scope": "axis", "resource_title": "glosario eje 4",
+            "filename": "S5_glosario.json", "doc_type": "json",
+            "layer": "limpio",
+            "topic": "dinamica", "lesson_id": "L05-02", "course_id": "2",
+            "scope": "section", "resource_title": "glosario seccion 5",
         },
     },
     {
         "page_content": "Conocimiento universal de mezcla y escucha critica.",
         "metadata": {
             "filename": "global_leeme.txt", "doc_type": "texto",
-            "axis": "", "axis_id": "", "layer": "general",
+            "layer": "general",
             "topic": "", "lesson_id": "", "course_id": "",
             "scope": "global", "is_global": True, "resource_title": "",
         },
@@ -116,18 +119,18 @@ SYNTH_CHUNKS = [
     {
         "page_content": "Ruteo de bus auxiliar y envios para reverb. faq ruteo",
         "metadata": {
-            "filename": "E1_faq.json", "doc_type": "json",
-            "axis": "Eje 1", "axis_id": "Eje 1", "layer": "general",
-            "topic": "ruteo", "lesson_id": "E1-L03", "course_id": "2",
-            "scope": "lesson", "resource_title": "faq eje 1",
+            "filename": "S2_faq.json", "doc_type": "json",
+            "layer": "general",
+            "topic": "ruteo", "lesson_id": "L02-03", "course_id": "2",
+            "scope": "lesson", "resource_title": "faq seccion 2",
         },
     },
 ]
 
 SYNTH_STATES = [
-    {"course_id": "2", "current_axis_id": "Eje 3", "current_lesson_id": "E3-L01"},
-    {"course_id": "2", "current_axis_id": "Eje 4", "current_lesson_id": ""},
-    {"course_id": "2", "current_axis_id": "", "current_lesson_id": ""},
+    {"course_id": "2", "current_lesson_id": "L04-01"},
+    {"course_id": "2", "current_lesson_id": ""},
+    {"course_id": "2", "current_lesson_id": ""},
 ]
 
 SYNTH_EVIDENCIAS = [
@@ -152,17 +155,17 @@ def build_snapshot():
 
     # --- Constantes crudas ---
     snap["constants"] = {
-        "routing.COURSE_AXES": routing.COURSE_AXES,
-        "routing.STRONG_AXIS_TERMS": routing.STRONG_AXIS_TERMS,
+        "routing.COURSE_SECTIONS": routing.COURSE_SECTIONS,
+        "routing.STRONG_SECTION_TERMS": routing.STRONG_SECTION_TERMS,
         "routing.TECHNICAL_CONCEPT_PATTERNS": [[c, list(a)] for c, a in routing.TECHNICAL_CONCEPT_PATTERNS],
         "routing.SPECIFIC_UNSUPPORTED_TERMS": list(routing.SPECIFIC_UNSUPPORTED_TERMS),
         "routing.LOOKUP_STOPWORDS": sorted(routing.LOOKUP_STOPWORDS),
         "routing.AMBIGUOUS_MAX_WORDS": routing.AMBIGUOUS_MAX_WORDS,
         "retrieval.SPECIFIC_UNSUPPORTED_TERMS": list(retrieval.SPECIFIC_UNSUPPORTED_TERMS),
-        "retrieval.CURRENT_AXIS_BOOST": _r(retrieval.CURRENT_AXIS_BOOST),
-        "retrieval.PREVIOUS_AXIS_SUPPORT_BOOST": _r(retrieval.PREVIOUS_AXIS_SUPPORT_BOOST),
-        "retrieval.FUTURE_AXIS_DEFAULT_PENALTY": _r(retrieval.FUTURE_AXIS_DEFAULT_PENALTY),
-        "retrieval.FUTURE_AXIS_REQUESTED_BOOST": _r(retrieval.FUTURE_AXIS_REQUESTED_BOOST),
+        "retrieval.CURRENT_SECTION_BOOST": _r(retrieval.CURRENT_SECTION_BOOST),
+        "retrieval.PREVIOUS_SECTION_SUPPORT_BOOST": _r(retrieval.PREVIOUS_SECTION_SUPPORT_BOOST),
+        "retrieval.FUTURE_SECTION_DEFAULT_PENALTY": _r(retrieval.FUTURE_SECTION_DEFAULT_PENALTY),
+        "retrieval.FUTURE_SECTION_REQUESTED_BOOST": _r(retrieval.FUTURE_SECTION_REQUESTED_BOOST),
         "retrieval.MIN_RELEVANCE_SCORE": _r(retrieval.MIN_RELEVANCE_SCORE),
         "retrieval.RETRIEVAL_K": retrieval.RETRIEVAL_K,
         "prompts.PROMPT_COMMON_RULES": prompts.PROMPT_COMMON_RULES,
@@ -200,8 +203,8 @@ def build_snapshot():
     for q in CORPUS:
         snap["por_pregunta"][q] = {
             "normalizar": routing._normalizar_texto(q),
-            "eje_fuerte": routing._eje_fuerte_pregunta(q),
-            "inferir_modulo_categoria": list(routing._inferir_modulo_categoria(q)),
+            "seccion_fuerte": routing._seccion_fuerte_pregunta(q),
+            "inferir_seccion_categoria": list(routing._inferir_seccion_categoria(q)),
             "clasificacion_pedagogica": routing._clasificacion_pedagogica(q),
             "es_estudiante_perdido": routing._es_estudiante_perdido(q),
             "es_pregunta_lookup": routing._es_pregunta_lookup(q),

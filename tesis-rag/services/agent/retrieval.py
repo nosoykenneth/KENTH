@@ -29,10 +29,10 @@ MIN_RELEVANCE_SCORE = 0.35
 # SPECIFIC_UNSUPPORTED_TERMS se importa de routing (Domain Pack), ya no se duplica.
 # Constantes de progresión curricular por SECCIÓN (refuerza la actual, soporta las
 # previas, penaliza suave las futuras para no spoilear). Ya no dependen de "eje".
-CURRENT_AXIS_BOOST = 0.35
-PREVIOUS_AXIS_SUPPORT_BOOST = 0.16
-FUTURE_AXIS_DEFAULT_PENALTY = -0.30
-FUTURE_AXIS_REQUESTED_BOOST = 0.24
+CURRENT_SECTION_BOOST = 0.35
+PREVIOUS_SECTION_SUPPORT_BOOST = 0.16
+FUTURE_SECTION_DEFAULT_PENALTY = -0.30
+FUTURE_SECTION_REQUESTED_BOOST = 0.24
 
 embeddings = OllamaEmbeddings(model=EMBEDDING_MODEL_NAME)
 
@@ -390,10 +390,10 @@ def _curriculum_priority_adjustment(item: dict, pregunta: str, state: dict = Non
         return 0.0
 
     if section_number == current:
-        return CURRENT_AXIS_BOOST
+        return CURRENT_SECTION_BOOST
     if section_number < current:
-        return PREVIOUS_AXIS_SUPPORT_BOOST
-    return FUTURE_AXIS_DEFAULT_PENALTY
+        return PREVIOUS_SECTION_SUPPORT_BOOST
+    return FUTURE_SECTION_DEFAULT_PENALTY
 
 
 def _debug_resultados_retrieval(resultados: list, etiqueta: str):

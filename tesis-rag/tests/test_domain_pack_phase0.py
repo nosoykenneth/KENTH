@@ -61,7 +61,7 @@ def test_course2_pack_is_source_of_truth():
     from services.agent import routing
 
     pack = get_domain_pack("2")
-    assert routing.COURSE_AXES == pack.course_axes()
+    assert routing.COURSE_SECTIONS == pack.course_sections()
     assert routing.SPECIFIC_UNSUPPORTED_TERMS == pack.unsupported_terms()
     assert len(routing.TECHNICAL_CONCEPT_PATTERNS) == len(pack.concept_patterns())
 

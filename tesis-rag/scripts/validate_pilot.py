@@ -269,7 +269,7 @@ def parte_e():
         print(f"  pack_id           : {p.pack_id}")
         print(f"  source_path       : {p.source_path}")
         print(f"  persona           : {p.persona.get('tutor_name')} / {p.persona.get('domain_label')}")
-        print(f"  axes              : {len(p.course_axes())}")
+        print(f"  sections          : {len(p.course_sections())}")
         print(f"  concept_patterns  : {len(p.concept_patterns())}")
         print(f"  controlled_answers: {len(p.controlled_answers())}")
         print(f"  unsupported_terms : {len(p.unsupported_terms())}")
