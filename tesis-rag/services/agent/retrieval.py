@@ -18,9 +18,7 @@ from services.agent.routing import (
     _respuesta_aclaracion_ambigua,
     _tiene_termino_tecnico_curso,
     _tokens_lookup,
-    _eje_fuerte_pregunta,
     _normalizar_texto,
-    _axis_id_meta,
 )
 
 EMBEDDING_MODEL_NAME = "nomic-embed-text"
@@ -29,7 +27,8 @@ VECTOR_STORE_DIR = os.path.join(BASE_DIR, "bd_vectorial")
 RETRIEVAL_K = 8
 MIN_RELEVANCE_SCORE = 0.35
 # SPECIFIC_UNSUPPORTED_TERMS se importa de routing (Domain Pack), ya no se duplica.
-# Las constantes de scoring por eje siguen en codigo (Fase 1, no bloquean dominio nuevo).
+# Constantes de progresión curricular por SECCIÓN (refuerza la actual, soporta las
+# previas, penaliza suave las futuras para no spoilear). Ya no dependen de "eje".
 CURRENT_AXIS_BOOST = 0.35
 PREVIOUS_AXIS_SUPPORT_BOOST = 0.16
 FUTURE_AXIS_DEFAULT_PENALTY = -0.30
@@ -77,14 +76,18 @@ def _metadata_bool(meta: dict, key: str, default: bool = False):
 def _scope_value(meta: dict):
     meta = meta or {}
     scope = str(meta.get("scope") or "").strip().lower()
-    if scope in {"global", "course", "section", "axis", "lesson"}:
+    if scope == "axis":  # legacy: el índice viejo pudo guardar 'axis'
+        scope = "section"
+    if scope in {"global", "course", "section", "lesson", "block"}:
         return scope
     if _metadata_bool(meta, "is_global", False):
         return "global"
+    if str(meta.get("block_id") or "").strip():
+        return "block"
     if str(meta.get("lesson_id") or "").strip():
         return "lesson"
-    if str(meta.get("axis_id") or "").strip():
-        return "axis"
+    if str(meta.get("moodle_section_id") or meta.get("section_id") or "").strip():
+        return "section"
     if str(meta.get("course_id") or "").strip():
         return "course"
     return ""
@@ -130,6 +133,22 @@ def _current_section_id(state: dict = None):
     ).strip()
 
 
+def _current_block_id(state: dict = None):
+    """Bloque de video activo (resuelto por timestamp). Vacío si no hay timestamp:
+    la ausencia de bloque NO degrada el nivel de lección, sólo desactiva el +block."""
+    state = state or {}
+    envelope = state.get("tutor_envelope")
+    active_block = getattr(envelope, "active_block", None) if envelope else None
+    if isinstance(active_block, dict):
+        bid = active_block.get("block_id") or active_block.get("id") or ""
+        if bid:
+            return str(bid).strip()
+    activity_context = state.get("activity_context")
+    if isinstance(activity_context, dict) and activity_context.get("block_id"):
+        return str(activity_context.get("block_id") or "").strip()
+    return str(state.get("block_id") or state.get("current_block_id") or "").strip()
+
+
 def _meta_section_id(meta: dict):
     return str(
         (meta or {}).get("moodle_section_id")
@@ -163,47 +182,56 @@ def _matches_course_scope(meta: dict, state: dict = None):
     return chunk_course in scope
 
 
-def _scope_affinity(meta: dict, state: dict = None):
-    meta = meta or {}
-    scope = _scope_value(meta)
-    current_lesson = _current_lesson_id(state)
-    current_section = _current_section_id(state)
-    current_course = next(iter(_course_scope_values(state)), "")
-    meta_lesson = str(meta.get("lesson_id") or "").strip()
-    meta_section = _meta_section_id(meta)
-    meta_course = str(meta.get("course_id") or "").strip()
+# Afinidad pedagógica por scope (arquitectura secciones/lecciones/bloques).
+# Jerarquía: bloque > lección > sección > global del curso > curso; cruce de
+# sección penaliza (no debe colarse otra sección sin necesidad).
+SCOPE_AFFINITY = {
+    "same_block": 1.00,
+    "same_lesson": 0.85,
+    "same_section": 0.60,
+    "global": 0.25,
+    "same_course": 0.10,
+    "other_section": -0.25,
+    "unknown": 0.0,
+}
 
-    if scope == "lesson" and current_lesson and meta_lesson == current_lesson:
-        return 0.80
-    if scope == "section" and current_section and meta_section == current_section:
-        return 0.45
-    if scope == "course" and current_course and meta_course == current_course:
-        return 0.20
-    if scope == "global" or _metadata_bool(meta, "is_global", False):
-        return -0.10
-    return 0.0
+
+def _meta_block_id(meta: dict):
+    return str((meta or {}).get("block_id") or "").strip()
 
 
 def _context_relation(meta: dict, state: dict = None):
+    """Relación pedagógica del chunk con el contexto actual del alumno.
+
+    Devuelve una de: same_block, same_lesson, same_section, global, same_course,
+    other_section, unknown. NO usa 'eje' (taxonomía deprecada)."""
     meta = meta or {}
-    scope = _scope_value(meta)
-    if scope == "global" or _metadata_bool(meta, "is_global", False):
+    if _metadata_bool(meta, "is_global", False) or _scope_value(meta) == "global":
         return "global"
 
+    current_block = _current_block_id(state)
     current_lesson = _current_lesson_id(state)
     current_section = _current_section_id(state)
+    meta_block = _meta_block_id(meta)
     meta_lesson = str(meta.get("lesson_id") or "").strip()
     meta_section = _meta_section_id(meta)
 
-    if current_section and meta_section and meta_section != current_section:
-        return "other_section"
-    if current_lesson and meta_lesson == current_lesson:
+    if current_block and meta_block and meta_block == current_block:
+        return "same_block"
+    if current_lesson and meta_lesson and meta_lesson == current_lesson:
         return "same_lesson"
     if current_section and meta_section and meta_section == current_section:
         return "same_section"
+    # Distinta sección con sección actual conocida: cruce penalizado.
+    if current_section and meta_section and meta_section != current_section:
+        return "other_section"
     if _course_scope_values(state) and str(meta.get("course_id") or "").strip() in _course_scope_values(state):
         return "same_course"
     return "unknown"
+
+
+def _scope_affinity(meta: dict, state: dict = None):
+    return SCOPE_AFFINITY.get(_context_relation(meta, state), 0.0)
 
 
 def _reescribir_query_contextual(pregunta: str, historial: list, contexto_leccion: str = ""):
@@ -266,11 +294,12 @@ def _resumen_metadata_debug(meta: dict):
         "scope": meta.get("scope"),
         "course_id": meta.get("course_id"),
         "moodle_section_id": meta.get("moodle_section_id"),
-        "axis_id": meta.get("axis_id"),
+        "section_number": meta.get("section_number"),
+        "section_title": meta.get("section_title"),
         "lesson_id": meta.get("lesson_id"),
-        "axis": meta.get("axis") or meta.get("eje") or meta.get("module") or meta.get("modulo"),
-        "layer": meta.get("layer") or meta.get("capa"),
-        "topic": meta.get("topic") or meta.get("tema"),
+        "block_id": meta.get("block_id"),
+        "layer": meta.get("layer"),
+        "topic": meta.get("topic") or meta.get("section_title"),
         "resource_type": meta.get("resource_type"),
         "media_type": meta.get("media_type"),
         "allowed_for_indexing": meta.get("allowed_for_indexing"),
@@ -283,13 +312,12 @@ def _resumen_metadata_debug(meta: dict):
     }
 
 
-def _axis_number_from_value(value):
+def _section_number_from_value(value):
     if value in ("", None):
         return None
     if isinstance(value, (int, float)):
         return int(value)
-    text = str(value)
-    match = re.search(r"(\d+)", text)
+    match = re.search(r"(\d+)", str(value))
     if not match:
         return None
     try:
@@ -298,120 +326,72 @@ def _axis_number_from_value(value):
         return None
 
 
-def _axis_number_from_meta(meta: dict):
-    axis = (
-        meta.get("axis")
-        or meta.get("eje")
-        or meta.get("axis_id")
-        or meta.get("axis_number")
-        or meta.get("module")
-        or meta.get("modulo")
-        or meta.get("module_id")
-    )
-    number = _axis_number_from_value(axis)
-    if number is not None:
-        return number
+def _chunk_section_number(meta: dict):
+    """Número de sección Moodle del chunk (0=Bienvenida, 1..N pedagógicas).
 
-    source = " ".join([
-        str(meta.get("source", "")),
-        str(meta.get("filename", "")),
-    ])
-    return _axis_number_from_value(source)
+    Fuente única: meta['section_number'] (lo propaga el ingest desde el
+    frontmatter / la estructura Moodle). NO se infiere por nombre de eje."""
+    return _section_number_from_value((meta or {}).get("section_number"))
 
 
-def _axis_label(axis_number):
-    return f"Eje {axis_number}" if axis_number is not None else ""
+def _current_section_number(state: dict):
+    """Número de sección Moodle del alumno (mismo eje numérico que el chunk).
 
-
-def _section_number_from_order(order):
-    """Número pedagógico de la sección a partir de su ORDEN en Moodle.
-
-    La primera sección del curso es la Bienvenida (no pedagógica). Las demás se
-    numeran 0,1,2… por posición. order es 1-based incluyendo la Bienvenida:
-    order=1 (Bienvenida) → None; order=2 → 0; order=3 → 1; …
-    """
-    try:
-        o = int(order)
-    except (TypeError, ValueError):
-        return None
-    return o - 2 if o >= 2 else None
-
-
-def _current_axis_number(state: dict):
-    """Número pedagógico de la sección del alumno (0,1,2…), por POSICIÓN.
-
-    El número sigue el ORDEN de la sección en Moodle (no su nombre): si el profe
-    reordena, el número cambia solo. La metadata viaja con la sección porque va
-    atada al moodle_section_id estable, no a este número.
-    """
+    El contexto entrega `current_section_order` (1-based incluyendo Bienvenida en
+    la posición 1). El número Moodle de la sección es order-1 (Bienvenida→0,
+    primera pedagógica→1, …). Si el profe reordena, el número cambia solo porque
+    la metadata viaja atada al moodle_section_id estable."""
     if not state:
         return None
+
+    def _from_order(order):
+        try:
+            return int(order) - 1
+        except (TypeError, ValueError):
+            return None
 
     envelope = state.get("tutor_envelope")
     ctx = getattr(envelope, "activity_context", None) if envelope else None
     if ctx is not None:
-        number = _section_number_from_order(getattr(ctx, "current_section_order", None))
-        if number is not None:
-            return number
+        n = _from_order(getattr(ctx, "current_section_order", None))
+        if n is not None:
+            return n
 
     activity_context = state.get("activity_context")
     if isinstance(activity_context, dict):
-        number = _section_number_from_order(activity_context.get("current_section_order"))
-        if number is not None:
-            return number
+        n = _from_order(activity_context.get("current_section_order"))
+        if n is not None:
+            return n
 
-    return _section_number_from_order(state.get("current_section_order"))
-
-
-def _question_axis_number(pregunta: str):
-    axis = _eje_fuerte_pregunta(pregunta)
-    return _axis_number_from_value(axis)
+    return _from_order(state.get("current_section_order"))
 
 
-def _is_future_axis_question(state: dict, pregunta: str):
-    current = _current_axis_number(state)
-    requested = _question_axis_number(pregunta)
-    return (
-        current is not None
-        and requested is not None
-        and requested > current
-    )
-
-
-def _curriculum_relation(state: dict, axis_number):
-    current = _current_axis_number(state)
-    if current is None or axis_number is None:
+def _curriculum_relation(state: dict, section_number):
+    """Relación curricular del chunk (previous/current/future) por número de sección."""
+    current = _current_section_number(state)
+    if current is None or section_number is None:
         return "unknown"
-    if axis_number < current:
+    if section_number < current:
         return "previous"
-    if axis_number == current:
+    if section_number == current:
         return "current"
     return "future"
 
 
 def _curriculum_priority_adjustment(item: dict, pregunta: str, state: dict = None):
-    current = _current_axis_number(state or {})
+    """Progresión pedagógica: refuerza la sección actual, soporta las previas y
+    penaliza suavemente las futuras (no spoilear). Sin detección por texto de eje."""
+    current = _current_section_number(state or {})
     if current is None:
         return 0.0
 
-    axis_number = _axis_number_from_meta(item["document"].metadata or {})
-    if axis_number is None:
+    section_number = _chunk_section_number(item["document"].metadata or {})
+    if section_number is None:
         return 0.0
 
-    requested = _question_axis_number(pregunta)
-
-    if requested is not None and requested > current:
-        if axis_number == requested:
-            return FUTURE_AXIS_REQUESTED_BOOST
-        if axis_number == current:
-            return 0.14
-        if axis_number < current:
-            return 0.08
-        return -0.18
-
-    if axis_number == current:
+    if section_number == current:
         return CURRENT_AXIS_BOOST
-    if axis_number < current:
+    if section_number < current:
         return PREVIOUS_AXIS_SUPPORT_BOOST
     return FUTURE_AXIS_DEFAULT_PENALTY
 
@@ -513,14 +493,8 @@ def _prioridad_evidencia(item: dict, pregunta: str, state: dict = None):
     token_matches = sum(1 for token in tokens if token in texto)
     prioridad = float(item.get("score") or 0) + min(0.30, token_matches * 0.06)
 
-    # Prioridad por Eje
-    axis_meta = _axis_id_meta(meta)
-    axis_fuerte = _eje_fuerte_pregunta(pregunta)
-    if axis_fuerte and axis_meta == axis_fuerte:
-        prioridad += 0.70
-    elif axis_fuerte and axis_meta:
-        prioridad -= 0.20
-
+    # Prioridad pedagógica por contexto (bloque/lección/sección actual). La vieja
+    # priorización por "eje" quedó eliminada: el contexto del alumno gobierna.
     prioridad += _curriculum_priority_adjustment(item, pregunta, state)
     prioridad += _scope_affinity(meta, state)
 
@@ -605,7 +579,6 @@ def _concepto_definicion_directa(pregunta: str):
 
 
 def _ordenar_para_respuesta_directa(evidencias: list, pregunta: str, state: dict = None):
-    axis_fuerte = _eje_fuerte_pregunta(pregunta)
     pregunta_norm = _normalizar_texto(pregunta)
     if "bus" in pregunta_norm and "auxiliar" in pregunta_norm:
         def prioridad_bus_auxiliar(item):
@@ -639,7 +612,7 @@ def _ordenar_para_respuesta_directa(evidencias: list, pregunta: str, state: dict
             filename = (meta.get("filename") or "").lower()
             cobertura = sum(1 for concepto in conceptos if _concepto_aparece_en_texto(concepto, texto))
             score = _prioridad_evidencia(item, pregunta, state) + (cobertura * 10)
-            if axis_fuerte and _axis_id_meta(meta) == axis_fuerte:
+            if _context_relation(meta, state) in ("same_block", "same_lesson", "same_section"):
                 score += 12
             if "canonico" in filename or "guia_canonica" in filename:
                 score += 4
@@ -668,7 +641,7 @@ def _ordenar_para_respuesta_directa(evidencias: list, pregunta: str, state: dict
         score = _prioridad_evidencia(item, pregunta, state)
         if concepto and concepto in texto:
             score += 10
-        if axis_fuerte and _axis_id_meta(meta) == axis_fuerte:
+        if _context_relation(meta, state) in ("same_block", "same_lesson", "same_section"):
             score += 12
         if "glosario" in filename:
             score += 4
@@ -696,11 +669,11 @@ def _limitar_evidencia_generica(evidencias: list):
     top_score = float(top.get("final_score") or top.get("score") or 0)
     specific_count = sum(
         1 for item in evidencias
-        if item.get("context_relation") in {"same_lesson", "same_section", "same_axis"}
+        if item.get("context_relation") in {"same_block", "same_lesson", "same_section"}
         and float(item.get("final_score") or item.get("score") or 0) >= MIN_RELEVANCE_SCORE
     )
 
-    if top_relation not in {"same_lesson", "same_section", "same_axis"} and specific_count < 2:
+    if top_relation not in {"same_block", "same_lesson", "same_section"} and specific_count < 2:
         return evidencias
 
     max_generic = 1
@@ -741,8 +714,7 @@ def _preparar_evidencias_contextuales(evidencias: list, pregunta: str, state: di
         item["scope_affinity"] = _scope_affinity(meta, state)
         item["final_score"] = _prioridad_lookup(item, pregunta, state) if modo_lookup else _prioridad_evidencia(item, pregunta, state)
         item["context_relation"] = _context_relation(meta, state)
-        axis_number = _axis_number_from_meta(meta)
-        item["axis_relation"] = _curriculum_relation(state or {}, axis_number)
+        item["curriculum_relation"] = _curriculum_relation(state or {}, _chunk_section_number(meta))
         unicas.append(item)
 
     unicas.sort(key=lambda item: float(item.get("final_score") or item.get("score") or 0), reverse=True)
@@ -830,7 +802,60 @@ def _buscar_evidencia(pregunta: str, modo_lookup: bool = False, state: dict = No
 
     unicas = _preparar_evidencias_contextuales(evidencias, pregunta, state, modo_lookup=modo_lookup)
     _debug_resultados_retrieval(unicas, "semantic+lexical merged")
+    _log_retrieval_scope(pregunta, state, unicas)
     return unicas
+
+
+def _log_retrieval_scope(pregunta: str, state: dict, evidencias: list):
+    """Observabilidad scope-aware + expansión progresiva DECLARADA.
+
+    El retrieval es curso-wide y prioriza por afinidad (bloque>lección>sección).
+    Aquí determinamos qué nivel de contexto SUSTENTA realmente la respuesta y si
+    hubo que AMPLIAR el alcance (fallback) por falta de evidencia local. El
+    resultado se imprime y se deja en `state` para que el endpoint lo persista en
+    las trazas (retrieval_scope, retrieval_fallback)."""
+    relevantes = [
+        it for it in (evidencias or [])
+        if float(it.get("final_score") or it.get("score") or 0) >= MIN_RELEVANCE_SCORE
+    ]
+    relaciones = [it.get("context_relation", "") for it in relevantes]
+    if "same_block" in relaciones:
+        scope_usado = "block"
+    elif "same_lesson" in relaciones:
+        scope_usado = "lesson"
+    elif "same_section" in relaciones:
+        scope_usado = "section"
+    elif "global" in relaciones:
+        scope_usado = "course_global"
+    elif "same_course" in relaciones or relevantes:
+        scope_usado = "course"
+    else:
+        scope_usado = "none"
+
+    # Hay contexto local (bloque/lección/sección) pero la evidencia que sustenta
+    # la respuesta NO es local -> ampliación de alcance (fallback) documentada.
+    hay_contexto_local = bool(
+        _current_block_id(state) or _current_lesson_id(state) or _current_section_id(state)
+    )
+    fallback = hay_contexto_local and scope_usado in ("course_global", "course", "none")
+
+    info = {
+        "query": (pregunta or "")[:80],
+        "course_id": next(iter(_course_scope_values(state)), ""),
+        "section_id": _current_section_id(state),
+        "lesson_id": _current_lesson_id(state),
+        "block_id": _current_block_id(state),
+        "candidatos": len(evidencias or []),
+        "relevantes": len(relevantes),
+        "relaciones": relaciones[:8],
+        "retrieval_scope": scope_usado,
+        "fallback_used": fallback,
+    }
+    print("[RETRIEVAL SCOPE]", info)
+    if isinstance(state, dict):
+        state["retrieval_scope"] = scope_usado
+        state["retrieval_fallback"] = fallback
+    return info
 
 
 def _extraer_frases_lookup(pregunta: str):
@@ -995,12 +1020,13 @@ def _formatear_fuente(meta: dict, score: float, index: int, item: dict = None):
         "page": meta.get("page") if meta.get("page") not in ("", None) else None,
         "start_time": meta.get("start_time") if meta.get("start_time") not in ("", None) else None,
         "end_time": meta.get("end_time") if meta.get("end_time") not in ("", None) else None,
-        "axis": meta.get("axis") or meta.get("eje") or meta.get("axis_id") or meta.get("module") or meta.get("modulo") or "",
-        "axis_relation": "",
-        "layer": meta.get("layer") or meta.get("capa") or "",
-        "submodule": meta.get("submodule") or meta.get("submodulo") or "",
+        "section_id": meta.get("moodle_section_id") or meta.get("section_id") or "",
+        "section_number": meta.get("section_number") or "",
+        "section_title": meta.get("section_title") or "",
+        "curriculum_relation": "",
+        "layer": meta.get("layer") or "",
         "lesson_title": meta.get("lesson_title") or "",
-        "topic": meta.get("topic") or meta.get("tema") or "",
+        "topic": meta.get("topic") or meta.get("section_title") or "",
         "resource_title": meta.get("resource_title") or meta.get("recurso_recomendado") or meta.get("recurso") or "",
         "description": meta.get("description") or meta.get("notes") or "",
         "concepts": meta.get("concepts") or [],
@@ -1018,8 +1044,9 @@ def _formatear_fuente(meta: dict, score: float, index: int, item: dict = None):
         "is_global": meta.get("is_global"),
         "scope": meta.get("scope") or "",
         "course_id": meta.get("course_id") or "",
-        "axis_id": meta.get("axis_id") or "",
+        "section_slug": meta.get("section_slug") or "",
         "lesson_id": meta.get("lesson_id") or "",
+        "block_id": meta.get("block_id") or "",
         "context_relation": item.get("context_relation", ""),
         "base_score": round(float(item.get("base_score", score) or 0), 4),
         "scope_affinity": round(float(item.get("scope_affinity") or 0), 4),
@@ -1040,8 +1067,9 @@ def _fuente_a_texto(fuente: dict):
         ("doc_type", "tipo"),
         ("scope", "scope"),
         ("context_relation", "relacion_contextual"),
-        ("axis_id", "axis_id"),
+        ("section_title", "seccion"),
         ("lesson_id", "lesson_id"),
+        ("block_id", "block_id"),
         ("page", "pagina"),
         ("start_time", "inicio"),
         ("end_time", "fin"),
@@ -1059,7 +1087,7 @@ def _chunks_desde_evidencias(evidencias: list):
     for index, item in enumerate(evidencias or [], start=1):
         meta = item["document"].metadata or {}
         fuente = _formatear_fuente(meta, item.get("score", 0), index, item)
-        fuente["axis_relation"] = item.get("axis_relation", "")
+        fuente["curriculum_relation"] = item.get("curriculum_relation", "")
         chunks.append(fuente)
     return chunks
 
@@ -1073,7 +1101,7 @@ def _construir_contexto_evidencia(evidencias: list):
         score = item["score"]
         meta = doc.metadata or {}
         fuente = _formatear_fuente(meta, score, index, item)
-        fuente["axis_relation"] = item.get("axis_relation", "")
+        fuente["curriculum_relation"] = item.get("curriculum_relation", "")
         fuentes.append(fuente)
 
         texto_crudo += f"[{_fuente_a_texto(fuente)}]\n"
@@ -1101,10 +1129,10 @@ def _construir_contexto_evidencia(evidencias: list):
                 "(por ejemplo: 'te dejo la plantilla para descargar').\n"
             )
 
-        if fuente.get("context_relation") in {"other_section", "other_axis"}:
+        if fuente.get("context_relation") == "other_section":
             texto_crudo += (
-                "NOTA DE CONTEXTO: Esta evidencia pertenece a otro eje distinto del eje actual. "
-                "Si la usas, indica brevemente el salto de contexto antes de responder.\n"
+                "NOTA DE CONTEXTO: Esta evidencia pertenece a OTRA SECCIÓN distinta de la "
+                "sección actual del alumno. Si la usas, indica brevemente el salto de contexto.\n"
             )
 
         if objetivo:
@@ -1170,8 +1198,7 @@ def _formatear_fuente_lookup(meta: dict):
     lineas = []
     recurso = meta.get("resource_title") or meta.get("recurso_recomendado") or meta.get("recurso") or ""
     clase = meta.get("lesson_title") or meta.get("topic") or meta.get("tema") or ""
-    axis = meta.get("axis") or meta.get("eje") or meta.get("module") or meta.get("modulo") or ""
-    submodulo = meta.get("submodule") or meta.get("submodulo") or ""
+    seccion = meta.get("section_title") or ""
     page = meta.get("page")
     start_time = meta.get("start_time")
     end_time = meta.get("end_time")
@@ -1183,11 +1210,8 @@ def _formatear_fuente_lookup(meta: dict):
         lineas.append(f"  - Recurso: {recurso}")
     if clase:
         lineas.append(f"  - Clase/tema: {clase}")
-    if axis:
-        detalle = f"Eje {axis}"
-        if submodulo:
-            detalle += f", submodulo {submodulo}"
-        lineas.append(f"  - Ubicacion: {detalle}")
+    if seccion:
+        lineas.append(f"  - Sección: {seccion}")
     if start_time not in ("", None):
         tiempo = _formatear_segundos(start_time)
         cierre = f"  - Minuto: {tiempo}"
@@ -1205,13 +1229,13 @@ def _formatear_fuente_lookup(meta: dict):
 def _formatear_documento_oficial_lookup(meta: dict):
     filename = meta.get("filename") or os.path.basename(meta.get("source", "")) or "archivo sin nombre"
     doc_type = meta.get("doc_type") or "documento"
-    topic = meta.get("topic") or meta.get("tema") or ""
-    axis = meta.get("axis") or meta.get("eje") or meta.get("module") or meta.get("modulo") or ""
+    topic = meta.get("topic") or meta.get("section_title") or ""
+    section = meta.get("section_title") or ""
 
     lineas = [f"  - Documento: {filename} ({doc_type})"]
-    if axis:
-        lineas.append(f"  - Eje: {axis}")
-    if topic:
+    if section:
+        lineas.append(f"  - Sección: {section}")
+    if topic and topic != section:
         lineas.append(f"  - Contenido asociado: {topic}")
     return lineas
 
@@ -1220,7 +1244,7 @@ def _respuesta_lookup(pregunta: str, evidencias: list):
     if not evidencias:
         return (
             "No encontre ubicaciones oficiales validadas ni documentos oficiales indexados para esa consulta. "
-            "Prueba indicando el concepto exacto o eje."
+            "Prueba indicando el concepto exacto o la sección."
         )
 
     pregunta_limpia = _normalizar_texto(pregunta)
@@ -1298,9 +1322,9 @@ def _respuesta_lookup(pregunta: str, evidencias: list):
 
 def _respuesta_sin_evidencia(state: EstadoAgente):
     if state.get("imagen"):
-        detalle = "La captura ayuda, pero necesito que precises el eje, clase, recurso o la parte concreta del DAW/plugin que quieres analizar."
+        detalle = "La captura ayuda, pero necesito que precises la sección, clase, recurso o la parte concreta del DAW/plugin que quieres analizar."
     else:
-        detalle = "Puedes precisar el eje, clase, recurso o subir una captura relacionada para buscar mejor en la base del curso."
+        detalle = "Puedes precisar la sección, clase, recurso o subir una captura relacionada para buscar mejor en la base del curso."
 
     return (
         "No tengo suficiente respaldo en el material cargado del curso para responder eso con seguridad. "
