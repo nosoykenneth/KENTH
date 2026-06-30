@@ -172,7 +172,8 @@ def test_retrieval_prioriza_moodle_section_id():
     section_meta = {"course_id": "2", "scope": "section", "moodle_section_id": "15", "allowed_for_indexing": True}
     other_meta = {"course_id": "2", "scope": "section", "moodle_section_id": "99", "allowed_for_indexing": True}
 
-    assert _scope_affinity(section_meta, state) == 0.45
+    # same_section = +0.60 en la arquitectura por secciones (antes 0.45).
+    assert _scope_affinity(section_meta, state) == 0.60
     assert _context_relation(section_meta, state) == "same_section"
     assert _context_relation(other_meta, state) == "other_section"
 
