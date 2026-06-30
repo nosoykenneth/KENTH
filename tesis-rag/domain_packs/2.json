@@ -852,7 +852,7 @@
     "web_query_suffix": " plugins audio VST mezcla masterizacion",
     "web_intro": "Eres el asistente experto del curso de KENTH.\nEstas en MODO INTERNET: la informacion externa NO reemplaza el material del curso.\n",
     "web_rules": "Usala solo para links, descargas, plugins o informacion externa solicitada.\nNo inventes enlaces y aclara cuando algo viene de informacion externa.\nNo sugieras software, plugins o recursos que no aparezcan en la pregunta o en la informacion web.\n\n",
-    "guard_reply": "Solo puedo ayudarte con mezcla, masterizacion, audio, DAWs, plugins y contenido del curso. Si tu duda esta relacionada con el curso, dime el eje, clase o concepto que quieres revisar.",
+    "guard_reply": "Solo puedo ayudarte con mezcla, masterizacion, audio, DAWs, plugins y contenido del curso. Si tu duda esta relacionada con el curso, dime la seccion, clase o concepto que quieres revisar.",
     "greetings": {
       "thanks": "De nada. Estoy aqui para ayudarte con mezcla, mastering y el material del curso. Que duda seguimos puliendo?",
       "ok": "Excelente. Sigamos con el curso. Tienes alguna duda puntual de mezcla o masterizacion?",
