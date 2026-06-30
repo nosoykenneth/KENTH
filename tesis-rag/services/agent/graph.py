@@ -30,13 +30,11 @@ from services.agent.retrieval import (
     _chunks_desde_evidencias,
     _concepto_definicion_directa,
     _construir_contexto_evidencia,
-    _current_axis_number,
+    _current_section_number,
     _debe_incluir_historial_en_prompt,
     _es_pregunta_comparativa_multiconcepto,
     _formatear_fuente,
     _intent_efectivo_para_prompt,
-    _is_future_axis_question,
-    _question_axis_number,
     _ordenar_para_respuesta_directa,
     _preparar_retrieval,
     _respuesta_fuera_de_material,
@@ -52,7 +50,6 @@ from services.agent.vision import (
 from services.agent.verification import (
     _bloquear_localizacion_no_validada,
     _limpiar_citas_internas_rag,
-    _limitar_anticipo_eje_posterior,
     _recortar_relleno_sin_evidencia,
     _respuesta_conceptual_controlada,
     _verificar_respuesta,
@@ -163,7 +160,7 @@ def _fuente_contextual_suficiente(fuente: dict):
     if not isinstance(fuente, dict):
         return False
     relation = fuente.get("context_relation")
-    if relation not in {"same_lesson", "same_section", "same_axis"}:
+    if relation not in {"same_block", "same_lesson", "same_section"}:
         return False
     return bool(
         _fuente_titulo(fuente)
@@ -190,8 +187,8 @@ def _regla_resource_type(fuente: dict):
         f"- Fuente {fuente.get('index')}: {titulo}",
         f"  scope={fuente.get('scope') or ''}; relation={fuente.get('context_relation') or ''}; "
         f"resource_type={resource_type or ''}; media_type={media_type or ''}; "
-        f"lesson_id={fuente.get('lesson_id') or ''}; moodle_section_id={fuente.get('moodle_section_id') or ''}; "
-        f"axis_id={fuente.get('axis_id') or ''}.",
+        f"lesson_id={fuente.get('lesson_id') or ''}; section_id={fuente.get('section_id') or fuente.get('moodle_section_id') or ''}; "
+        f"block_id={fuente.get('block_id') or ''}.",
     ]
     if descripcion:
         lineas.append(f"  descripcion usable: {descripcion}")
@@ -233,7 +230,7 @@ def _bloque_uso_evidencia(fuentes: list, state: EstadoAgente):
 
     contextual_sufficient = any(_fuente_contextual_suficiente(f) for f in top)
     downloadable = any(_fuente_es_recurso_descargable(f) for f in top)
-    context_jump = any(f.get("context_relation") in {"other_section", "other_axis"} for f in top)
+    context_jump = any(f.get("context_relation") == "other_section" for f in top)
     weak_generic = not contextual_sufficient and all(
         f.get("context_relation") in {"global", "unknown", ""} for f in top
     )
@@ -260,7 +257,7 @@ def _bloque_uso_evidencia(fuentes: list, state: EstadoAgente):
 
     if context_jump:
         lineas.append(
-            "Si usas una fuente marcada other_section/other_axis, indica brevemente el salto: pertenece mas a otra seccion/tema que a la seccion actual, "
+            "Si usas una fuente marcada other_section, indica brevemente el salto: pertenece mas a otra seccion que a la seccion actual, "
             "y responde como anticipo corto sin hacerlo pasar como parte de la leccion actual."
         )
 
@@ -290,11 +287,11 @@ def _respuesta_recurso_contextual_desde_metadata(pregunta: str, fuentes: list, s
     visible = fuente.get("visible_to_student") is True or _bool_fuente(fuente.get("visible_to_student"))
     lesson_id = fuente.get("lesson_id") or state.get("current_lesson_id") or "esta leccion"
 
-    if relation in {"other_section", "other_axis"}:
-        axis = fuente.get("current_section_name") or fuente.get("moodle_section_id") or fuente.get("axis_id") or "otra seccion"
-        current_axis = state.get("current_section_name") or state.get("moodle_section_id") or state.get("current_axis_id") or "la seccion actual"
+    if relation == "other_section":
+        otra = fuente.get("section_title") or fuente.get("moodle_section_id") or "otra seccion"
+        actual = state.get("current_section_name") or state.get("moodle_section_id") or "la seccion actual"
         return (
-            f"Eso pertenece mas a {axis}; ahora estas en {current_axis}. "
+            f"Eso pertenece mas a {otra}; ahora estas en {actual}. "
             f"Con esa salvedad: {titulo} se debe leer segun su descripcion disponible: {descripcion or 'material recuperado del curso'}."
         )
 
@@ -359,11 +356,11 @@ def _reparar_incertidumbre_recurso_contextual(respuesta: str, pregunta: str, fue
 
 def _respuesta_sin_evidencia_contextual(state: EstadoAgente):
     lesson = state.get("current_lesson_id") or ""
-    axis = state.get("current_section_name") or state.get("current_axis_id") or ""
-    if lesson or axis:
+    seccion = state.get("current_section_name") or ""
+    if lesson or seccion:
         scope = f" en {lesson}" if lesson else ""
-        if axis:
-            scope += f" del {axis}" if scope else f" en {axis}"
+        if seccion:
+            scope += f" de {seccion}" if scope else f" en {seccion}"
         return (
             f"No veo una fuente relevante{scope} para responder eso con seguridad. "
             "Dame el nombre exacto del recurso o dime si quieres que busque fuera de la leccion actual."
@@ -775,23 +772,21 @@ def nodo_rag(state: EstadoAgente):
         "------------------------\n"
         if conceptos_comparacion else ""
     )
-    current_axis = _current_axis_number(state)
-    requested_axis = _question_axis_number(pregunta)
-    future_axis_question = _is_future_axis_question(state, pregunta)
+    current_section = _current_section_number(state)
     # La politica de fuentes/grounding/ubicaciones vive ahora en RAG_SYSTEM_PROMPT
     # (Domain Pack, reglas 12-13). Aqui solo va lo DINAMICO de este turno: en que
     # seccion esta el alumno y el gate de no-adelantar secciones posteriores.
+    # La deteccion por TEXTO de "que seccion pide la pregunta" se elimino (dependia
+    # de la taxonomia por eje, deprecada); el retrieval ya penaliza la evidencia
+    # de secciones futuras por section_number.
     regla_curricular = ""
-    if current_axis is not None:
-        regla_curricular += f"Seccion actual del alumno: Seccion {current_axis} (numerada por orden).\n"
-    if future_axis_question:
+    if current_section is not None:
         regla_curricular += (
-            f"La pregunta apunta a Seccion {requested_axis}, que es posterior a la seccion actual. "
-            "Responde solo como anticipo controlado: una orientacion breve, sin clase exhaustiva, "
-            "y di explicitamente que se vera mas adelante. No desarrolles procedimientos completos de esa seccion. "
-            "Maximo 4 frases. No menciones ids internos de bloque/leccion ni digas 'leccion piloto'.\n"
+            f"Seccion actual del alumno: Seccion {current_section} (numerada por orden Moodle).\n"
+            "Si el alumno pregunta por contenido de una seccion POSTERIOR a la suya, responde solo "
+            "como anticipo controlado (orientacion breve, maximo 4 frases, di que se vera mas adelante) "
+            "y no desarrolles procedimientos completos de esa seccion. No menciones ids internos.\n"
         )
-    if regla_curricular:
         regla_curricular = "--- UBICACION CURRICULAR (este turno) ---\n" + regla_curricular + "------------------------\n"
 
     if evidence_level == "alto":
@@ -811,7 +806,7 @@ def nodo_rag(state: EstadoAgente):
 
     # Si llego un bloque activo del video, el orden de prioridad cambia.
     # Primero el bloque (que esta viendo el alumno ahora), luego la
-    # metadata de la leccion, luego la evidencia RAG del eje. Esto evita
+    # metadata de la leccion, luego la evidencia RAG de la seccion. Esto evita
     # que el RAG general opaque el bloque actual.
     envelope_actual = state.get("tutor_envelope")
     tiene_bloque_activo = bool(getattr(envelope_actual, "active_block", None))
@@ -820,10 +815,10 @@ def nodo_rag(state: EstadoAgente):
         "--- ORDEN DE PRIORIDAD (BLOQUE ACTIVO) ---\n"
         "1. BLOQUE ACTIVO DEL VIDEO como punto de partida (lo que el alumno esta viendo justo ahora).\n"
         "2. Metadata de la leccion (learning_goal, expected_action).\n"
-        "3. EVIDENCIA DEL CURSO (RAG del eje actual y ejes previos) para profundizar conceptos.\n"
+        "3. EVIDENCIA DEL CURSO (RAG de la seccion actual y secciones previas) para profundizar conceptos.\n"
         "4. Historial reciente y resto del contexto solo para resolver referencias.\n"
         "Si la pregunta encaja en una de las preguntas probables del bloque, ancla la respuesta a ese bloque. "
-        "Puedes apoyarte en otros bloques, la leccion o ejes previos si la pregunta lo exige, "
+        "Puedes apoyarte en otros bloques, la leccion o secciones previas si la pregunta lo exige, "
         "pero senala el puente y no reemplaces el punto actual por una clase lateral.\n"
         "------------------------\n"
         if tiene_bloque_activo else ""
@@ -856,8 +851,6 @@ def nodo_rag(state: EstadoAgente):
     respuesta = _bloquear_localizacion_no_validada(respuesta, fuentes)
     respuesta = _recortar_relleno_sin_evidencia(respuesta)
     respuesta = _limpiar_citas_internas_rag(respuesta)
-    if future_axis_question:
-        respuesta = _limitar_anticipo_eje_posterior(respuesta, requested_axis)
 
     # FIX G: imponer las attribution_constraints de la leccion sobre la salida.
     respuesta, attr_policies, attr_warnings = _imponer_attribution_constraints(state, respuesta)
@@ -865,11 +858,11 @@ def nodo_rag(state: EstadoAgente):
     print("[AGENTE RAG]: Respuesta generada y verificada.")
     policy_warnings = []
     if evidence_policy_flags.get("context_jump_rule"):
-        policy_warnings.append(_warning("CONTEXT_JUMP", "La evidencia principal pertenece a otro eje."))
+        policy_warnings.append(_warning("CONTEXT_JUMP", "La evidencia principal pertenece a otra seccion."))
     if evidence_policy_flags.get("downloadable_resource_rule"):
         policy_warnings.append(_warning("DOWNLOADABLE_RESOURCE_POLICY", "Se activo politica de recurso descargable/media."))
     if evidence_policy_flags.get("contextual_resource_sufficient"):
-        policy_warnings.append(_warning("CONTEXTUAL_RESOURCE_EVIDENCE", "Hay evidencia contextual suficiente de leccion/eje."))
+        policy_warnings.append(_warning("CONTEXTUAL_RESOURCE_EVIDENCE", "Hay evidencia contextual suficiente de leccion/seccion."))
     return {
         "respuesta_final": respuesta,
         "evidencias": fuentes,
@@ -883,9 +876,7 @@ def nodo_rag(state: EstadoAgente):
             answer_type="rag_answer",
             retrieved_chunks=_chunks_desde_evidencias(evidencias_para_respuesta),
             warnings=(
-                ([_warning("FUTURE_AXIS_PREVIEW", f"La consulta apunta a Eje {requested_axis}, posterior al eje actual.")]
-                 if future_axis_question else [])
-                + policy_warnings
+                policy_warnings
                 + ([] if evidence_level == "alto" else [
                     _warning("LOW_EVIDENCE", "La evidencia recuperada tiene relevancia moderada.")
                 ])

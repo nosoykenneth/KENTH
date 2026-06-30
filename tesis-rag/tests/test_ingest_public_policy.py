@@ -14,13 +14,10 @@ def _path(*parts):
 
 
 def test_canonico_operativo_aprobado():
-    # Contenido canonico centralizado (reorg del corpus): ejes/contenido_canonico/.
+    # Corpus canonico por SECCION (arquitectura nueva).
     path = _path(
-        "documentos",
-        "oficial",
-        "ejes",
-        "contenido_canonico",
-        "KENTH_Eje2_Contenido_Canonico.md",
+        "documentos", "oficial", "curso_2",
+        "seccion_03_integridad_de_la_senal", "contenido_canonico.md",
     )
     if not os.path.exists(path):
         import pytest
@@ -32,12 +29,11 @@ def test_canonico_operativo_aprobado():
 
 
 def test_paquete_limpio_operativo_bloqueado():
+    # La politica bloquea por PATRON (independiente de que el archivo exista),
+    # incluso bajo el corpus nuevo por seccion.
     path = _path(
-        "documentos",
-        "oficial",
-        "ejes",
-        "eje_2_integridad_senal",
-        "02_paquete_limpio.md",
+        "documentos", "oficial", "curso_2",
+        "seccion_03_integridad_de_la_senal", "02_paquete_limpio.md",
     )
 
     aprobado, razones, _ = es_documento_aprobado_para_indexar(path, explicar=True)
@@ -47,12 +43,9 @@ def test_paquete_limpio_operativo_bloqueado():
 
 
 def test_paquete_limpio_legacy_bloqueado():
+    # Carpeta paquetes_limpios = excluida y patron prohibido.
     path = _path(
-        "documentos",
-        "oficial",
-        "ejes",
-        "paquetes_limpios",
-        "KENTH_Eje1_Paquete_Limpio.md",
+        "documentos", "oficial", "paquetes_limpios", "KENTH_Eje1_Paquete_Limpio.md",
     )
 
     aprobado, razones, _ = es_documento_aprobado_para_indexar(path, explicar=True)

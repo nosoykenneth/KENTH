@@ -354,10 +354,11 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
         lineas.append("--- BLOQUE ACTIVO DEL VIDEO (PUNTO DE PARTIDA) ---")
         if lesson_data:
             lineas.append(f"Lección: {lesson_data.get('lesson_id', '')} - {lesson_data.get('lesson_title', '')}")
-            if lesson_data.get("moodle_section_id"):
-                lineas.append(f"Seccion Moodle de la leccion: {lesson_data.get('moodle_section_id', '')}")
-            if lesson_data.get("axis_id"):
-                lineas.append(f"Eje de la leccion: {lesson_data.get('axis_id', '')}")
+            if lesson_data.get("section_name") or lesson_data.get("moodle_section_id"):
+                lineas.append(
+                    f"Sección del curso: {lesson_data.get('section_name', '')} "
+                    f"(moodle_section_id={lesson_data.get('moodle_section_id', '')})"
+                )
         lineas.append(f"Bloque: {block.get('block_id', '')} - {block.get('block_title', '')}")
         lineas.append(f"Rango: {block.get('start_time', 0)}s - {block.get('end_time', 0)}s")
         if ctx.current_timestamp is not None:
@@ -376,9 +377,9 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
                 lineas.append(f"  - {q}")
         lineas.append(
             "USO DEL BLOQUE: responde primero anclado a este bloque. "
-            "La evidencia RAG del eje sirve para fundamentar o ampliar, no para borrar el punto actual. "
+            "La evidencia RAG de la seccion sirve para fundamentar o ampliar, no para borrar el punto actual. "
             "Las preguntas probables son pistas runtime, no evidencia documental. "
-            "Si el alumno pregunta algo mas amplio, puedes conectar con la leccion, el eje actual o ejes previos."
+            "Si el alumno pregunta algo mas amplio, puedes conectar con la leccion, la seccion actual o secciones previas."
         )
         lineas.append("------------------------")
 
@@ -388,10 +389,11 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
             lineas.append(
                 f"Leccion activa: {lesson_data.get('lesson_id', '')} - {lesson_data.get('lesson_title', '')}"
             )
-        if lesson_data.get("moodle_section_id"):
-            lineas.append(f"Moodle_section_id de la leccion activa: {lesson_data.get('moodle_section_id', '')}")
-        if lesson_data.get("axis_id"):
-            lineas.append(f"Axis_id de la leccion activa: {lesson_data.get('axis_id', '')}")
+        if lesson_data.get("section_name") or lesson_data.get("moodle_section_id"):
+            lineas.append(
+                f"Seccion activa: {lesson_data.get('section_name', '')} "
+                f"(moodle_section_id={lesson_data.get('moodle_section_id', '')})"
+            )
         if lesson_data.get("learning_goal"):
             objetivo_leccion_inyectado = lesson_data.get("learning_goal", "")
             lineas.append(f"Objetivo de la leccion: {objetivo_leccion_inyectado}")

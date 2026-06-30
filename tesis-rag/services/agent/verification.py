@@ -30,21 +30,25 @@ def _verificar_respuesta(respuesta: str, fuentes: list, evidencias: list):
         for url in urls_inventadas:
             respuesta = respuesta.replace(url, "[enlace no verificado - consulta el material del curso]")
 
-    # 2. Detectar mencion de ejes no presentes en evidencia
-    ejes_evidencia = set()
+    # 2. Detectar mencion de secciones no presentes en evidencia
+    secciones_evidencia = set()
     for item in evidencias:
         meta = item["document"].metadata or {}
-        eje = meta.get("axis") or meta.get("eje") or meta.get("module") or meta.get("modulo")
-        if eje:
-            # Normalizar para comparar (ej: "Eje 4" -> "4")
-            val = str(eje).lower().replace("eje", "").replace("axis", "").strip()
-            if val:
-                ejes_evidencia.add(val)
-    
-    ejes_mencionados = set(re.findall(r'(?:[Ee]je|[Aa]xis)\s*(\d+)', respuesta))
-    ejes_inventados = {e for e in ejes_mencionados if e not in ejes_evidencia}
-    if ejes_inventados:
-        problemas.append(f"Ejes mencionados sin evidencia: {ejes_inventados}")
+        seccion = (
+            meta.get("section_number")
+            or meta.get("section_title")
+            or meta.get("moodle_section_id")
+        )
+        if seccion not in (None, ""):
+            # Normalizar a solo digitos (ej: "Seccion 4" / "4" -> "4")
+            digitos = re.sub(r"\D", "", str(seccion))
+            if digitos:
+                secciones_evidencia.add(digitos)
+
+    secciones_mencionadas = set(re.findall(r'(?:[Ss]ecci[oó]n)\s*(\d+)', respuesta))
+    secciones_inventadas = {s for s in secciones_mencionadas if s not in secciones_evidencia}
+    if secciones_inventadas:
+        problemas.append(f"Secciones mencionadas sin evidencia: {secciones_inventadas}")
 
     if problemas:
         print(f"[VERIFICADOR]: Problemas detectados: {problemas}")
@@ -69,8 +73,9 @@ def _fuentes_tienen_ubicacion_validada(fuentes: list):
         recurso_generico = (
             not recurso_norm
             or recurso_norm == filename_norm
-            or recurso_norm in {"01_contenido_canonico", "02_paquete_limpio"}
-            or any(f"eje{i}" in recurso_norm for i in range(8))
+            or recurso_norm in {"01_contenido_canonico", "02_paquete_limpio", "contenido_canonico"}
+            or "contenido canonico" in recurso_norm
+            or re.search(r"\bseccion[ _]?\d", recurso_norm) is not None
         )
         if recurso and not recurso_generico:
             return True
@@ -87,7 +92,7 @@ def _bloquear_localizacion_no_validada(respuesta: str, fuentes: list):
         norm = _normalizar_texto(parrafo)
         recomienda_ubicacion = (
             ("recomiendo revisar" in norm or "puedes revisar" in norm or "revisa el recurso" in norm)
-            and any(token in norm for token in ["clase", "modulo", "eje", "axis", "recurso", "guia", "seccion"])
+            and any(token in norm for token in ["clase", "modulo", "recurso", "guia", "seccion"])
         )
         if recomienda_ubicacion:
             continue
@@ -95,8 +100,7 @@ def _bloquear_localizacion_no_validada(respuesta: str, fuentes: list):
         for oracion in parrafo.split(". "):
             oracion_norm = _normalizar_texto(oracion)
             cita_ubicacion_interna = (
-                "eje" in oracion_norm
-                or "axis" in oracion_norm
+                "seccion" in oracion_norm
                 or "fuente " in oracion_norm
                 or "score" in oracion_norm
                 or "archivo" in oracion_norm
@@ -150,15 +154,21 @@ def _limpiar_citas_internas_rag(respuesta: str):
     return limpia.strip()
 
 
-def _limitar_anticipo_eje_posterior(respuesta: str, requested_axis: int):
-    """Reduce respuestas de ejes posteriores a un anticipo breve."""
+def _limitar_anticipo_seccion_posterior(respuesta: str, requested_section: int):
+    """Reduce respuestas de secciones posteriores a un anticipo breve.
+
+    La proteccion ACTIVA contra adelantar secciones posteriores vive en el prompt
+    curricular de graph.py y en la penalizacion de retrieval por seccion futura;
+    este helper queda disponible para recortes deterministas puntuales (migrado de
+    la antigua taxonomia por eje, conserva la proteccion en lenguaje de seccion).
+    """
     if not respuesta:
         return respuesta
 
     norm = _normalizar_texto(respuesta)
     prefijo = (
-        f"Eso pertenece al Eje {requested_axis}, que veras mas adelante. "
-        if requested_axis is not None and "mas adelante" not in norm
+        f"Eso pertenece a la Seccion {requested_section}, que veras mas adelante. "
+        if requested_section is not None and "mas adelante" not in norm
         else ""
     )
 

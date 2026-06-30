@@ -1,7 +1,9 @@
+import glob
 import hashlib
 import json
 import os
 import re
+import unicodedata
 
 import pdfplumber
 
@@ -22,8 +24,6 @@ TRANSCRIPT_CHUNK_OVERLAP = 120
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DOCUMENTS_DIR = os.path.join(BASE_DIR, "documentos")
 OFFICIAL_DIR = os.path.join(DOCUMENTS_DIR, "oficial")
-EJES_DIR = os.path.join(OFFICIAL_DIR, "ejes")
-CONTENT_CANONICO_DIR = os.path.join(EJES_DIR, "contenido_canonico")
 COURSE_RUNTIME_DIR = os.path.join(BASE_DIR, "course_runtime")
 LOCATION_DIR = os.path.join(DOCUMENTS_DIR, "localizacion")
 EXTERNAL_DIR = os.path.join(DOCUMENTS_DIR, "externo")
@@ -34,11 +34,23 @@ COURSE_UPLOADS_DIR = os.path.join(OFFICIAL_DIR, "cursos")
 # Conocimiento UNIVERSAL compartido por TODOS los cursos (course_id vacío).
 GLOBAL_DIR = os.path.join(OFFICIAL_DIR, "global")
 
+# Corpus canónico organizado por SECCIÓN (arquitectura nueva, post-migración ejes):
+#   documentos/oficial/curso_<id>/seccion_<NN>_<slug>/contenido_canonico.md
+# Cada archivo lleva frontmatter con su moodle_section_id real. La taxonomía por
+# "eje" quedó deprecada: el conocimiento se ancla a la sección Moodle, no al eje.
+def _canonical_course_dirs():
+    return tuple(
+        p for p in glob.glob(os.path.join(OFFICIAL_DIR, "curso_*"))
+        if os.path.isdir(p)
+    )
+
+
+CANONICAL_COURSE_DIRS = _canonical_course_dirs()
+
 # Convención multi-curso para etiquetar course_id por la RUTA del archivo:
-#   - documentos/oficial/cursos/<id>/...  -> course_id = <id>
-#   - documentos/oficial/global/...       -> course_id = ""  (universal)
-#   - resto (legacy: ejes/, contenido_canonico/, course_runtime) -> curso base actual.
-# Cuando crees un 2º curso, su contenido va bajo cursos/<id>/ y se etiqueta solo.
+#   - documentos/oficial/curso_<id>/...   -> course_id = <id>  (corpus canónico por sección)
+#   - documentos/oficial/cursos/<id>/...  -> course_id = <id>  (subidas del profesor)
+#   - documentos/oficial/global/...       -> course_id = ""    (universal)
 DEFAULT_COURSE_ID = os.getenv("KENTH_DEFAULT_COURSE_ID", "2")
 
 READY_STATUS = "ready_for_indexing"
@@ -73,19 +85,22 @@ def resource_media_type(ext: str) -> str:
     return "file"
 # Archivos de ESTRUCTURA/estado (no son conocimiento): se inyectan desde la BD,
 # no deben entrar al RAG. Se saltan en la ingesta para no contaminar la búsqueda.
-STRUCTURE_SKIP_NAMES = ("00_manifest.json", "curso_manifest.json", "mapa_curricular.json")
-
-ALLOWED_PUBLIC_DIRS = (
-    EJES_DIR,
-    CONTENT_CANONICO_DIR,
-    COURSE_UPLOADS_DIR,
-    GLOBAL_DIR,
-    # COURSE_RUNTIME_DIR se quitó: son SEMILLAS de estructura (manifests,
-    # res_*.json, lecciones), no conocimiento. El estado se inyecta desde la BD.
-    # Los modulo_01..08 (estructura vieja) se archivaron a documentos/no_indexar/.
+STRUCTURE_SKIP_NAMES = (
+    "00_manifest.json", "curso_manifest.json", "mapa_curricular.json",
+    "_seccion_map.json",  # log de decisión de la migración ejes->secciones, no es contenido
 )
 
+# Carpetas públicas indexables. El corpus canónico ahora vive bajo
+# documentos/oficial/curso_<id>/ (por sección); ejes/ quedó deprecado y se purga.
+ALLOWED_PUBLIC_DIRS = (
+    COURSE_UPLOADS_DIR,
+    GLOBAL_DIR,
+) + CANONICAL_COURSE_DIRS
+# COURSE_RUNTIME_DIR se quitó: son SEMILLAS de estructura (manifests, res_*.json,
+# lecciones), no conocimiento. El estado se inyecta desde la BD.
+
 EXCLUDED_DIR_NAMES = {
+    "ejes",            # taxonomía vieja por eje: deprecada, no se indexa
     "paquetes_limpios",
     "no_indexar",
     "externo",
@@ -101,8 +116,7 @@ EXCLUDED_DIR_NAMES = {
 }
 
 ALLOWED_FILE_PATTERNS = (
-    r"^01_contenido_canonico\.md$",
-    r"^kenth_eje\d+_contenido_canonico\.md$",
+    r"^contenido_canonico\.md$",
     r"^03_glosario\.json$",
     r"^04_heuristicas\.json$",
     r"^05_errores_frecuentes\.json$",
@@ -194,9 +208,18 @@ def _nombre_permitido(filepath: str) -> bool:
     # Documentos subidos por el profesor (documentos/oficial/cursos/<course_id>/
     # y documentos/oficial/global/): se permite cualquier nombre con extension
     # segura o de imagen. La politica de copyright se aplica aparte.
-    if _esta_dentro(filepath, COURSE_UPLOADS_DIR) or _esta_dentro(filepath, GLOBAL_DIR):
+    if (
+        _esta_dentro(filepath, COURSE_UPLOADS_DIR)
+        or _esta_dentro(filepath, GLOBAL_DIR)
+        or _en_curso_canonico(filepath)
+    ):
         return filename.endswith(SAFE_EXTENSIONS) or filename.endswith(IMAGE_EXTENSIONS)
     return _coincide_patron(ALLOWED_FILE_PATTERNS, filename)
+
+
+def _en_curso_canonico(filepath: str) -> bool:
+    """¿El archivo vive bajo documentos/oficial/curso_<id>/ (corpus por sección)?"""
+    return any(_esta_dentro(filepath, d) for d in CANONICAL_COURSE_DIRS)
 
 
 def _contenido_contiene_marcador_prohibido(filepath: str) -> bool:
@@ -314,11 +337,13 @@ def es_documento_aprobado_para_indexar(filepath: str, explicar: bool = False):
     status = metadata.get("status", "")
     source_origin = metadata.get("source_origin", "")
     is_course_runtime = _esta_dentro(filepath, COURSE_RUNTIME_DIR)
-    is_legacy_canonical = _esta_dentro(filepath, CONTENT_CANONICO_DIR) and filename_lower.endswith("_contenido_canonico.md")
+    # El corpus canónico por sección lleva su propio frontmatter (status/origin);
+    # exento del requisito sólo de forma defensiva.
+    is_canonical_course = _en_curso_canonico(filepath) and filename_lower.endswith(".md")
 
-    if not (is_course_runtime or is_legacy_canonical) and status != READY_STATUS:
+    if not (is_course_runtime or is_canonical_course) and status != READY_STATUS:
         razones.append(f"status='{status or 'missing'}' distinto de '{READY_STATUS}'")
-    if not (is_course_runtime or is_legacy_canonical) and source_origin != SAFE_SOURCE_ORIGIN:
+    if not (is_course_runtime or is_canonical_course) and source_origin != SAFE_SOURCE_ORIGIN:
         razones.append(f"source_origin='{source_origin or 'missing'}' distinto de '{SAFE_SOURCE_ORIGIN}'")
 
     nested_metadata = metadata.get("metadata", {}) if isinstance(metadata, dict) else {}
@@ -393,29 +418,30 @@ def _default_resource_type_safe(media_type: str, doc_type: str = "") -> str:
 
 def _scope_chunk(
     course_id: str,
-    axis_id: str,
     lesson_id: str,
     is_global: bool,
     declared: str = "",
     moodle_section_id: str = "",
+    block_id: str = "",
 ) -> str:
-    """Scope del chunk para Chroma. Usa el declarado en metadata si es valido;
-    si no, lo deriva con la misma regla que la BD (single source: db_service)."""
+    """Scope pedagógico del chunk para Chroma. Jerarquía:
+    block > lesson > section > course > global. El scope 'axis' quedó eliminado:
+    el conocimiento se ancla a la sección Moodle, nunca al eje."""
     declared = (declared or "").strip().lower()
-    if declared in ("global", "course", "section", "axis", "lesson"):
+    if declared in ("global", "course", "section", "lesson", "block"):
         return declared
     try:
         from services.db_service import derive_scope
-        return derive_scope(course_id, axis_id, lesson_id, is_global, moodle_section_id)
+        return derive_scope(course_id, lesson_id, is_global, moodle_section_id, block_id)
     except Exception:
-        if is_global or (not course_id and not axis_id and not lesson_id and not moodle_section_id):
+        if is_global or (not course_id and not lesson_id and not moodle_section_id and not block_id):
             return "global"
+        if block_id:
+            return "block"
         if lesson_id:
             return "lesson"
         if moodle_section_id:
             return "section"
-        if axis_id:
-            return "axis"
         return "course"
 
 
@@ -427,7 +453,7 @@ def _course_sections_ordered(course_id: str):
     cid = str(course_id or "").strip()
     if not cid:
         return []
-    if cid in _SECTIONS_CACHE:
+    if _SECTIONS_CACHE.get(cid):
         return _SECTIONS_CACHE[cid]
     try:
         from services import section_service
@@ -435,92 +461,82 @@ def _course_sections_ordered(course_id: str):
     except Exception as exc:
         print(f"[ingest] no se pudieron leer secciones del curso {cid}: {exc}")
         sections = []
-    _SECTIONS_CACHE[cid] = sections
+    # Solo cacheamos resultados NO vacíos: un vacío puede deberse a que la BD aún
+    # no estaba inicializada (using_moodle_db False antes de init_db); reintentar.
+    if sections:
+        _SECTIONS_CACHE[cid] = sections
     return sections
 
 
-def _section_id_for_axis(course_id: str, axis_value: str) -> str:
-    """Mapea el axis legacy ('Eje 2', 'eje_2', '2') a moodle_section_id por POSICION.
+def _slugify(text: str) -> str:
+    """Slug estable y ASCII desde un título Moodle (sin acentos, kebab/snake)."""
+    text = str(text or "").strip()
+    # quitar prefijo "SECCIÓN N:" / "Tema N:" si lo hubiera
+    text = re.sub(r"^\s*(secci[oó]n|tema)\s*\d+\s*[:.\-]\s*", "", text, flags=re.IGNORECASE)
+    norm = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    norm = re.sub(r"[^a-zA-Z0-9]+", "_", norm).strip("_").lower()
+    return norm
 
-    Regla del curso: la primera seccion es Bienvenida (no pedagogica) y la
-    seccion pedagogica N es la (N+2)-esima en el orden de Moodle. Permite que el
-    corpus viejo tageado por eje salga del re-ingest ya alineado a secciones,
-    sin editar los archivos fuente.
-    """
-    match = re.search(r"(\d+)", str(axis_value or ""))
-    if not match:
-        return ""
-    idx = int(match.group(1)) + 1  # saltar Bienvenida (indice 0)
-    sections = _course_sections_ordered(course_id)
-    if 0 <= idx < len(sections):
-        return str(sections[idx].get("moodle_section_id") or "")
-    return ""
+
+def _section_meta_for_id(course_id: str, moodle_section_id: str) -> dict:
+    """Resuelve {section_number, section_title, section_slug} desde Moodle para un
+    moodle_section_id. Devuelve {} si no se puede resolver (sin DB / sección ausente)."""
+    sid = str(moodle_section_id or "").strip()
+    if not sid:
+        return {}
+    for sec in _course_sections_ordered(course_id):
+        if str(sec.get("moodle_section_id") or "") == sid:
+            title = sec.get("section_name") or sec.get("current_section_name") or ""
+            return {
+                "section_number": sec.get("section_number"),
+                "section_title": title,
+                "section_slug": _slugify(title),
+            }
+    return {}
+
+
+_FILE_HASH_CACHE = {}
+
+
+def _file_source_hash(filepath: str) -> str:
+    """md5 del contenido del archivo fuente (estable, para detectar duplicados/cambios)."""
+    key = os.path.abspath(filepath)
+    if key in _FILE_HASH_CACHE:
+        return _FILE_HASH_CACHE[key]
+    try:
+        with open(filepath, "rb") as f:
+            digest = hashlib.md5(f.read()).hexdigest()
+    except Exception:
+        digest = ""
+    _FILE_HASH_CACHE[key] = digest
+    return digest
 
 
 def _stem(filename: str) -> str:
     return os.path.splitext(filename)[0]
 
 
-def _inferir_modulo_desde_nombre(filename: str):
-    # Soporte para Eje 0-7 y Modulo 1-8
-    match_eje = re.search(r"eje\s*(\d+)", filename, re.IGNORECASE)
-    if match_eje:
-        return int(match_eje.group(1))
-    match_mod = re.search(r"m[oó]dulo\s*(\d+)", filename, re.IGNORECASE)
-    if match_mod:
-        return int(match_mod.group(1))
-    return ""
-
-
-def _inferir_eje_desde_path(filepath: str):
-    path = _normalizar_path(filepath).lower()
-    match = re.search(r"eje[_\s-]*(\d+)", path)
-    if match:
-        return f"Eje {int(match.group(1))}"
-    return ""
-
-
-def _normalizar_eje(valor):
-    if valor in ("", None):
-        return ""
-    if isinstance(valor, (int, float)):
-        return f"Eje {int(valor)}"
-    text = str(valor).strip()
-    match = re.search(r"(\d+)", text)
-    if match and ("eje" in text.lower() or text.isdigit()):
-        return f"Eje {int(match.group(1))}"
-    return text
-
-
-def _metadata_axis(doc_meta: dict, filepath: str):
-    axis = (
-        doc_meta.get("axis")
-        or doc_meta.get("eje")
-        or doc_meta.get("axis_id")
-        or doc_meta.get("module_id")
-        or doc_meta.get("axis_number")
-        or _inferir_eje_desde_path(filepath)
-        or _inferir_modulo_desde_nombre(os.path.basename(filepath))
-    )
-    return _normalizar_eje(axis)
-
-
 def _inferir_layer_desde_nombre(filename: str):
     fn = filename.lower()
-    if "canonico" in fn or "guia_canonica" in fn:
-        return "canonico"
-    if "paquete_limpio" in fn or "limpio" in fn:
-        return "limpio"
-    return "general"
+    if "transcrip" in fn:
+        return "transcript"
+    if "canonico" in fn or "guia_canonica" in fn or "contenido" in fn:
+        return "canonical"
+    if "rubric" in fn or "rubrica" in fn:
+        return "rubric"
+    return "resource"
 
 
 def _metadata_layer(doc_meta: dict, filename: str):
-    return (
+    raw = (
         doc_meta.get("layer")
         or doc_meta.get("capa")
         or doc_meta.get("doc_layer")
         or _inferir_layer_desde_nombre(filename)
     )
+    # Normaliza vocabulario viejo (canonico/limpio/general) al nuevo.
+    alias = {"canonico": "canonical", "limpio": "resource", "general": "resource"}
+    return alias.get(str(raw).strip().lower(), str(raw).strip().lower())
 
 
 def _inferir_course(filepath: str) -> str:
@@ -542,6 +558,11 @@ def _inferir_course_id(filepath: str) -> str:
     norm = _normalizar_path(filepath)
     if "/oficial/global/" in norm or norm.endswith("/oficial/global"):
         return ""
+    # Corpus canónico por sección: documentos/oficial/curso_<id>/...
+    m = re.search(r"/oficial/curso_([^/]+)/", norm)
+    if m:
+        return m.group(1)
+    # Subidas del profesor: documentos/oficial/cursos/<id>/...
     m = re.search(r"/cursos/([^/]+)/", norm)
     if m:
         return m.group(1)
@@ -554,27 +575,38 @@ def _crear_chunk_id(filepath: str, chunk_index: int, prefix: str = "", page="") 
 
 
 def _metadata_base(filepath: str, doc_type: str, chunk_index: int, chunk_id: str):
+    """Metadata canónica de un chunk. Estándar SECCIÓN/LECCIÓN/BLOQUE.
+
+    Regla dura: ningún chunk seccional puede quedar sin moodle_section_id; sólo el
+    conocimiento realmente universal (course_id vacío) puede ser scope 'global'.
+    El eje quedó eliminado como fuente: se conserva `legacy_axis` SÓLO si el
+    frontmatter lo trae, como traza de migración (nunca gobierna nada).
+    """
     filename = os.path.basename(filepath)
     doc_meta = obtener_metadata_documental(filepath)
-    axis = _metadata_axis(doc_meta, filepath)
     layer = _metadata_layer(doc_meta, filename)
 
-    course_id = doc_meta.get("course_id") or _inferir_course_id(filepath)
-    lesson_id = doc_meta.get("lesson_id", "") or ""
-    moodle_section_id = str(doc_meta.get("moodle_section_id", "") or "").strip()
-    axis_id = doc_meta.get("axis_id", axis) or ""
-    # Corpus legacy tageado por eje: derivar la seccion Moodle equivalente para
-    # que el retrieval por seccion (affinity/gate) funcione tras re-ingest.
-    if not moodle_section_id and axis_id:
-        moodle_section_id = _section_id_for_axis(course_id, axis_id)
-    # Fase 1: la visibilidad y el alcance viajan al chunk para que el retrieval
-    # y el servido de media puedan filtrar sin volver a la BD.
+    course_id = str(doc_meta.get("course_id") or _inferir_course_id(filepath) or "").strip()
+    lesson_id = str(doc_meta.get("lesson_id", "") or "").strip()
+    block_id = str(doc_meta.get("block_id", "") or "").strip()
+    moodle_section_id = str(
+        doc_meta.get("moodle_section_id", "") or doc_meta.get("section_id", "") or ""
+    ).strip()
+
+    # Resolver título/número/slug de sección desde el frontmatter o, si falta,
+    # desde Moodle (single source of truth de la estructura).
+    sec_meta = _section_meta_for_id(course_id, moodle_section_id) if moodle_section_id else {}
+    section_number = str(doc_meta.get("section_number") or sec_meta.get("section_number") or "")
+    section_title = str(doc_meta.get("section_title") or sec_meta.get("section_title") or "")
+    section_slug = str(doc_meta.get("section_slug") or sec_meta.get("section_slug") or "")
+
     is_global = _as_bool(doc_meta.get("is_global"), course_id == "")
     visible_to_student = _as_bool(doc_meta.get("visible_to_student"), True)
     allowed_for_indexing = _as_bool(doc_meta.get("allowed_for_indexing"), True)
-    scope = _scope_chunk(course_id, axis_id, lesson_id, is_global, doc_meta.get("scope", ""), moodle_section_id)
-    # Fase 2: media_type (formato) + resource_type (uso pedagogico) viajan al chunk.
+    scope = _scope_chunk(course_id, lesson_id, is_global, doc_meta.get("scope", ""), moodle_section_id, block_id)
+
     media_type = doc_meta.get("media_type") or resource_media_type(os.path.splitext(filepath)[1])
+    content_type = str(doc_meta.get("content_type") or os.path.splitext(filename)[1].lstrip(".").lower() or media_type)
     resource_type = (doc_meta.get("resource_type") or "").strip().lower()
     if not resource_type:
         try:
@@ -583,64 +615,62 @@ def _metadata_base(filepath: str, doc_type: str, chunk_index: int, chunk_id: str
         except Exception:
             resource_type = "other"
 
-    return {
-        "source": _normalizar_path(filepath),
-        "filename": filename,
-        "doc_type": doc_meta.get("doc_type", doc_type),
-        "source_origin": doc_meta.get("source_origin", ""),
-        "status": doc_meta.get("status", ""),
-        "course": doc_meta.get("course_id", "") or _inferir_course_id(filepath) or _inferir_course(filepath),
+    source_kind = str(doc_meta.get("source") or "").strip().lower()
+    if source_kind not in ("moodle", "canonical_md", "resource_file", "transcript"):
+        source_kind = "canonical_md" if filename.lower().endswith(".md") else "resource_file"
+
+    meta = {
+        # --- identidad pedagógica (sección/lección/bloque) ---
         "course_id": course_id,
-        "module_id": doc_meta.get("module_id", ""),
-        "lesson_id": lesson_id,
         "moodle_section_id": moodle_section_id,
-        "axis_id": axis_id,
-        "axis_number": doc_meta.get("axis_number", ""),
-        "axis_title": doc_meta.get("axis_title", ""),
-        "axis": axis,
-        "eje": axis,
+        "section_id": moodle_section_id,
+        "section_number": section_number,
+        "section_title": section_title,
+        "section_slug": section_slug,
+        "lesson_id": lesson_id,
+        "lesson_title": str(doc_meta.get("lesson_title", "") or ""),
+        "block_id": block_id,
+        "block_title": str(doc_meta.get("block_title", "") or ""),
+        "resource_id": str(doc_meta.get("resource_id", "") or ""),
+        # --- clasificación ---
+        "resource_type": resource_type,
+        "content_type": content_type,
         "layer": layer,
-        "capa": layer,
-        "module_title": doc_meta.get("module_title", ""),
-        "version": doc_meta.get("version", ""),
         "scope": scope,
+        # --- procedencia / versionado ---
+        "source": source_kind,
+        "source_path": _normalizar_path(os.path.relpath(filepath, BASE_DIR)),
+        "source_hash": _file_source_hash(filepath),
+        "version": str(doc_meta.get("version", "") or ""),
+        "index_status": "indexed",
+        # --- flags operativos (filtrado/servido) ---
         "is_global": is_global,
         "visible_to_student": visible_to_student,
         "allowed_for_indexing": allowed_for_indexing,
         "media_type": media_type,
-        "resource_type": resource_type,
+        "doc_type": doc_meta.get("doc_type", doc_type),
+        "filename": filename,
         "chunk_index": chunk_index,
         "chunk_id": chunk_id,
     }
+    # Traza de migración (no funcional). Nunca se usa para routing/retrieval.
+    legacy_axis = str(doc_meta.get("legacy_axis", "") or "").strip()
+    if legacy_axis:
+        meta["legacy_axis"] = legacy_axis
+    return meta
 
 
 def _metadata_pdf(filepath: str, page, chunk_index: int):
     filename = os.path.basename(filepath)
     doc_meta = obtener_metadata_documental(filepath)
-    axis = _metadata_axis(doc_meta, filepath)
-    layer = _metadata_layer(doc_meta, filename)
     chunk_id = _crear_chunk_id(filepath, chunk_index, "pdf", page)
     metadata = _metadata_base(filepath, "pdf", chunk_index, chunk_id)
     metadata.update({
-        "module": axis,
-        "modulo": axis,
-        "axis": axis,
-        "eje": axis,
-        "layer": layer,
-        "capa": layer,
-        "submodule": "",
-        "submodulo": "",
-        "lesson_title": _stem(filename),
-        "topic": _stem(filename),
-        "tema": _stem(filename),
-        "learning_objective": "",
-        "resource_title": _stem(filename),
-        "resource_type": "pdf",
-        "url": "",
-        "url_video": "",
+        "lesson_title": metadata.get("lesson_title") or _stem(filename),
+        "content_type": "pdf",
+        "page": page,
         "start_time": "",
         "end_time": "",
-        "page": page,
     })
     return metadata
 
@@ -747,72 +777,41 @@ def _metadata_transcripcion(filepath: str, item: dict, chunk_index: int, parent_
         or item.get("recurso_recomendado", "")
         or item.get("recurso", "")
     )
-    axis = _normalizar_eje(
-        item.get("axis")
-        or item.get("eje")
-        or item.get("axis_id")
-        or item.get("module")
-        or item.get("modulo")
-        or parent_meta.get("axis_id")
-        or parent_meta.get("module_id")
-        or parent_meta.get("axis_number")
-        or _inferir_eje_desde_path(filepath)
-    )
-    submodule = item.get("submodule", item.get("submodulo", ""))
-    layer = (
-        item.get("layer")
-        or item.get("capa")
-        or item.get("doc_layer")
-        or parent_meta.get("doc_layer")
-        or _inferir_layer_desde_nombre(filename)
-    )
     chunk_id = item.get("chunk_id", "") or _crear_chunk_id(filepath, chunk_index, item_id, start_time)
 
     metadata = _metadata_base(filepath, parent_meta.get("doc_type", "video_transcript"), chunk_index, chunk_id)
     metadata.update({
         "id": _valor_metadata(item_id),
-        "module": _valor_metadata(axis),
-        "modulo": _valor_metadata(axis),
-        "axis": _valor_metadata(axis),
-        "eje": _valor_metadata(axis),
-        "layer": _valor_metadata(layer),
-        "capa": _valor_metadata(layer),
-        "submodule": _valor_metadata(submodule),
-        "submodulo": _valor_metadata(submodule),
-        "lesson_title": _valor_metadata(titulo),
-        "topic": _valor_metadata(tema),
-        "tema": _valor_metadata(tema),
+        "lesson_title": _valor_metadata(titulo) or metadata.get("lesson_title", ""),
         "learning_objective": _valor_metadata(
             item.get("learning_objective", "")
             or item.get("objetivo_aprendizaje", "")
             or parent_meta.get("learning_objective", "")
         ),
-        "resource_title": _valor_metadata(recurso),
-        "resource_type": _valor_metadata(
-            item.get("resource_type", "")
-            or item.get("tipo_recurso", "")
-            or parent_meta.get("doc_type", "json")
-        ),
-        "recurso_recomendado": _valor_metadata(recurso),
-        "recurso": _valor_metadata(recurso),
         "url": _valor_metadata(url),
         "url_video": _valor_metadata(url),
         "start_time": _valor_metadata(start_time),
         "end_time": _valor_metadata(end_time),
         "page": "",
     })
+    rt = (
+        item.get("resource_type", "")
+        or item.get("tipo_recurso", "")
+    )
+    if rt:
+        metadata["resource_type"] = _valor_metadata(rt)
     return metadata
 
 
 def _texto_chunk(page_content: str, metadata: dict) -> str:
-    """Texto que se VECTORIZA. Estandar RAG: la metadata-maquina (doc_type, capa,
+    """Texto que se VECTORIZA. Estandar RAG: la metadata-maquina (doc_type, layer,
     filename, etc.) vive en el dict de metadata (Chroma la guarda aparte para
     filtrar/scope), NO embebida en el texto. Aqui solo va un prefijo de CONTEXTO
-    corto y con sentido (leccion/eje) + el contenido limpio. Esto evita ruido
+    corto y con sentido (seccion/leccion) + el contenido limpio. Esto evita ruido
     repetido en cada chunk y mejora la discriminacion semantica."""
-    lesson = str(metadata.get("lesson_id") or "").strip()
-    axis = str(metadata.get("axis") or metadata.get("axis_id") or "").strip()
-    ctx = list(dict.fromkeys([v for v in (lesson, axis) if v]))  # dedup, preserva orden
+    section = str(metadata.get("section_title") or "").strip()
+    lesson = str(metadata.get("lesson_title") or metadata.get("lesson_id") or "").strip()
+    ctx = list(dict.fromkeys([v for v in (section, lesson) if v]))  # dedup, preserva orden
     prefix = f"[{' · '.join(ctx)}]\n" if ctx else ""
     return f"{prefix}{(page_content or '').strip()}".strip()
 
@@ -1021,26 +1020,12 @@ def _crear_chunks_markdown(filepath: str):
         chunk_index = len(chunks)
         chunk_id = _crear_chunk_id(filepath, chunk_index, "md")
         metadata = _metadata_base(filepath, metadata_doc.get("doc_type", "markdown"), chunk_index, chunk_id)
-        axis = _metadata_axis(metadata_doc, filepath)
-        layer = _metadata_layer(metadata_doc, os.path.basename(filepath))
-        
         metadata.update({
-            "module": axis,
-            "modulo": axis,
-            "axis": axis,
-            "eje": axis,
-            "layer": layer,
-            "capa": layer,
-            "submodule": "",
-            "submodulo": "",
-            "lesson_title": metadata_doc.get("module_title", "") or _stem(os.path.basename(filepath)),
-            "topic": metadata_doc.get("module_title", "") or _stem(os.path.basename(filepath)),
-            "tema": metadata_doc.get("module_title", "") or _stem(os.path.basename(filepath)),
-            "learning_objective": "",
-            "resource_title": _stem(os.path.basename(filepath)),
-            "resource_type": metadata_doc.get("resource_type", "markdown"),
+            "lesson_title": metadata_doc.get("lesson_title", "")
+                or metadata.get("lesson_title")
+                or metadata.get("section_title")
+                or _stem(os.path.basename(filepath)),
             "url": "",
-            "url_video": "",
             "start_time": "",
             "end_time": "",
             "page": "",
@@ -1153,16 +1138,24 @@ def add_single_document(filepath: str):
 
 def remove_single_document(filepath: str):
     """
-    Elimina los fragmentos de un documento especifico de ChromaDB por su source.
+    Elimina los fragmentos de un documento especifico de ChromaDB por su ruta.
+    La ruta vive en `source_path` (relativa a tesis-rag/). Se intentan varias
+    formas por compatibilidad con índices viejos que guardaban la ruta en `source`.
     """
     db = get_vector_store()
     collection = db._collection
 
+    relpath = _normalizar_path(os.path.relpath(filepath, BASE_DIR)) if os.path.isabs(filepath) else _normalizar_path(filepath)
+    variantes = {
+        relpath,
+        _normalizar_path(filepath),
+        filepath.replace("/", "\\"),
+        filepath.replace("\\", "/"),
+    }
     try:
-        collection.delete(where={"source": filepath})
-        collection.delete(where={"source": _normalizar_path(filepath)})
-        collection.delete(where={"source": filepath.replace("/", "\\")})
-        collection.delete(where={"source": filepath.replace("\\", "/")})
+        for v in variantes:
+            collection.delete(where={"source_path": v})
+            collection.delete(where={"source": v})  # compat índice viejo
     except Exception as e:
         print(f"Nota al borrar documento (puede no existir previamente): {e}")
 
@@ -1187,10 +1180,16 @@ def reindex_course_documents(course_id: str):
     from services import db_service  # import perezoso: evita ciclos al cargar ingest.
 
     db = get_vector_store()
-    try:
-        db._collection.delete(where={"course_id": course})
-    except Exception as e:
-        print(f"Nota al borrar chunks del curso {course}: {e}")
+    # Limpieza ACOTADA: borra solo el conocimiento DB-driven del curso
+    # (transcripciones y descripciones de recursos), que se re-agrega abajo.
+    # NO toca el corpus canónico por sección (source='canonical_md'), que lo
+    # gestiona rebuild_all_documents / add_single_document por archivo. Antes se
+    # borraba TODO el curso aquí y eso aniquilaba el corpus canónico tras un rebuild.
+    for src in ("transcript", "resource_file"):
+        try:
+            db._collection.delete(where={"$and": [{"course_id": course}, {"source": src}]})
+        except Exception as e:
+            print(f"Nota al borrar chunks DB-driven ({src}) del curso {course}: {e}")
 
     processed = 0
     skipped = 0
@@ -1321,10 +1320,13 @@ def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource
 
     source_tag = f"transcription:{lid}"
     store = get_vector_store()
+    sec_id = str(moodle_section_id or "").strip()
+    sec_meta = _section_meta_for_id(course, sec_id) if sec_id else {}
 
     # 1) Borrar chunks previos de esta transcripción.
     try:
-        store._collection.delete(where={"source": source_tag})
+        store._collection.delete(where={"source_path": source_tag})
+        store._collection.delete(where={"source": source_tag})  # compat con índice viejo
     except Exception as e:  # pragma: no cover
         print(f"Nota al borrar transcript chunks de {lid}: {e}")
 
@@ -1356,25 +1358,35 @@ def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource
         texts.append(ch["text"])
         metadatas.append({
             "course_id": course,
-            "axis_id": str(axis_id or ""),
-            "moodle_section_id": str(moodle_section_id or ""),
+            "moodle_section_id": sec_id,
+            "section_id": sec_id,
+            "section_number": str(sec_meta.get("section_number") or ""),
+            "section_title": str(sec_meta.get("section_title") or ""),
+            "section_slug": str(sec_meta.get("section_slug") or ""),
             "lesson_id": lid,
+            "lesson_title": lid,
+            "block_id": "",
+            "block_title": "",
             "resource_id": str(resource_id or ""),
             "start_time": float(ch["start"] or 0),
             "end_time": float(ch["end"] or 0),
-            "doc_layer": "canonico",
+            "layer": "transcript",
             "doc_type": "video_transcript",
-            "source": source_tag,
+            "content_type": "transcript",
+            "source": "transcript",
+            "source_path": source_tag,
+            "source_hash": hashlib.md5(f"{source_tag}:{i}".encode("utf-8")).hexdigest(),
+            "version": "",
+            "index_status": "indexed",
             "chunk_index": i,
             "chunk_id": f"{source_tag}:{i}",
-            "title": lid,
             # La transcripcion es conocimiento del curso (scope lección): el tutor
             # la usa y la puede citar; no es un archivo descargable.
-            "scope": _scope_chunk(course, str(axis_id or ""), lid, False, "lesson" if lid else "", moodle_section_id),
+            "scope": _scope_chunk(course, lid, False, "lesson" if lid else "", sec_id, ""),
             "is_global": False,
             "visible_to_student": True,
             "allowed_for_indexing": True,
-            "resource_type": "transcription",
+            "resource_type": "transcript",
         })
         ids.append(f"{source_tag}:{i}")
 
@@ -1408,8 +1420,11 @@ def index_resource_description(course_id, lesson_id, doc_id, title, description,
 
     source_tag = f"resource:{did}"
     store = get_vector_store()
+    sec_id = str(moodle_section_id or "").strip()
+    sec_meta = _section_meta_for_id(str(course_id or ""), sec_id) if sec_id else {}
     try:
-        store._collection.delete(where={"source": source_tag})
+        store._collection.delete(where={"source_path": source_tag})
+        store._collection.delete(where={"source": source_tag})  # compat con índice viejo
     except Exception as e:  # pragma: no cover
         print(f"Nota al borrar resource chunks de {did}: {e}")
 
@@ -1425,18 +1440,29 @@ def index_resource_description(course_id, lesson_id, doc_id, title, description,
 
     metadata = {
         "course_id": str(course_id or ""),
-        "axis_id": str(axis_id or ""),
-        "moodle_section_id": str(moodle_section_id or ""),
+        "moodle_section_id": sec_id,
+        "section_id": sec_id,
+        "section_number": str(sec_meta.get("section_number") or ""),
+        "section_title": str(sec_meta.get("section_title") or ""),
+        "section_slug": str(sec_meta.get("section_slug") or ""),
         "lesson_id": str(lesson_id or ""),
-        "doc_layer": "canonico",
+        "lesson_title": "",
+        "block_id": "",
+        "block_title": "",
+        "resource_id": did,
+        "layer": "resource",
         "doc_type": doc_type or media_type or "resource",
-        "source": source_tag,
+        "content_type": media_type or "file",
+        "source": "resource_file",
+        "source_path": source_tag,
+        "source_hash": hashlib.md5(source_tag.encode("utf-8")).hexdigest(),
+        "version": "",
+        "index_status": "indexed",
         "title": title or did,
         "media_type": media_type or "file",
         "media_path": (media_path or "").replace("\\", "/"),
-        # Fase 1: visibilidad + alcance viajan al chunk.
-        "scope": _scope_chunk(str(course_id or ""), str(axis_id or ""), str(lesson_id or ""),
-                              _as_bool(is_global, False), scope, moodle_section_id),
+        "scope": _scope_chunk(str(course_id or ""), str(lesson_id or ""),
+                              _as_bool(is_global, False), scope, sec_id, ""),
         "is_global": _as_bool(is_global, False),
         "visible_to_student": _as_bool(visible_to_student, True),
         "allowed_for_indexing": _as_bool(allowed_for_indexing, True),
@@ -1458,7 +1484,9 @@ def delete_resource_index(doc_id):
     if not did:
         return
     try:
-        get_vector_store()._collection.delete(where={"source": f"resource:{did}"})
+        coll = get_vector_store()._collection
+        coll.delete(where={"source_path": f"resource:{did}"})
+        coll.delete(where={"source": f"resource:{did}"})  # compat índice viejo
     except Exception as e:  # pragma: no cover
         print(f"Nota al borrar resource index {did}: {e}")
 

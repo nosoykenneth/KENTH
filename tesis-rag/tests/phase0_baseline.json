@@ -47,11 +47,11 @@
       }
     },
     "prompts.PROMPT_COMMON_RULES": "--- REGLAS COMUNES DEL TUTOR ---\n- Usa fuente del curso como evidencia principal cuando answer_type no sea web_answer.\n- Prioriza 'Contenido Canonico' para definiciones y conceptos fundamentales.\n- Prioriza 'Paquete Limpio' para matrices de error, heuristica y criterio operativo.\n- Distingue explicitamente fuente del curso de fuente externa.\n- No inventes recursos, clases, paginas, minutos, URLs, plugins, DAWs, presets, parametros ni valores en dB.\n- Si falta contexto o evidencia, pide una aclaracion breve o declara que no hay respaldo suficiente.\n- Si la consulta esta fuera del dominio del curso, bloquea limpio y no des una mini clase general.\n-------------------------------\n",
-    "retrieval.CURRENT_AXIS_BOOST": 0.35,
-    "retrieval.FUTURE_AXIS_DEFAULT_PENALTY": -0.3,
-    "retrieval.FUTURE_AXIS_REQUESTED_BOOST": 0.24,
+    "retrieval.CURRENT_SECTION_BOOST": 0.35,
+    "retrieval.FUTURE_SECTION_DEFAULT_PENALTY": -0.3,
+    "retrieval.FUTURE_SECTION_REQUESTED_BOOST": 0.24,
     "retrieval.MIN_RELEVANCE_SCORE": 0.35,
-    "retrieval.PREVIOUS_AXIS_SUPPORT_BOOST": 0.16,
+    "retrieval.PREVIOUS_SECTION_SUPPORT_BOOST": 0.16,
     "retrieval.RETRIEVAL_K": 8,
     "retrieval.SPECIFIC_UNSUPPORTED_TERMS": [
       "serum",
@@ -73,98 +73,106 @@
       "oversampling"
     ],
     "routing.AMBIGUOUS_MAX_WORDS": 8,
-    "routing.COURSE_AXES": [
+    "routing.COURSE_SECTIONS": [
       {
         "evaluation_category": "fundamentos_acustica",
-        "id": "eje0_identidad_acustica",
+        "id": "seccion_01_el_sistema_de_decision",
         "keywords": [
-          "eje 0",
+          "seccion 1",
           "identidad",
           "frecuencia",
           "amplitud",
           "acustica",
           "medicion"
-        ]
+        ],
+        "section_number": 1
       },
       {
         "evaluation_category": "estructura_ganancia",
-        "id": "eje1_estructura_flujo",
+        "id": "seccion_02_leer_la_senal",
         "keywords": [
-          "eje 1",
+          "seccion 2",
           "gain staging",
           "headroom",
           "flujo de senal",
           "ruteo",
           "db"
-        ]
+        ],
+        "section_number": 2
       },
       {
         "evaluation_category": "fase_imagen_estereo",
-        "id": "eje2_espacio_fase",
+        "id": "seccion_03_integridad_de_la_senal",
         "keywords": [
-          "eje 2",
+          "seccion 3",
           "polaridad",
           "fase",
           "mono",
           "estereo",
           "correlacion"
-        ]
+        ],
+        "section_number": 3
       },
       {
         "evaluation_category": "ecualizacion",
-        "id": "eje3_identidad_espectral",
+        "id": "seccion_04_identidad_espectral",
         "keywords": [
-          "eje 3",
+          "seccion 4",
           "eq",
           "filtro",
           "frecuencia de corte",
           "balance tonal"
-        ]
+        ],
+        "section_number": 4
       },
       {
         "evaluation_category": "dinamica",
-        "id": "eje4_control_dinamico",
+        "id": "seccion_05_energia_y_movimiento",
         "keywords": [
-          "eje 4",
+          "seccion 5",
           "compresion",
           "threshold",
           "ratio",
           "ataque",
           "release"
-        ]
+        ],
+        "section_number": 5
       },
       {
         "evaluation_category": "espacialidad",
-        "id": "eje5_dimension_ambiencia",
+        "id": "seccion_06_dimension_espacial",
         "keywords": [
-          "eje 5",
+          "seccion 6",
           "reverb",
           "delay",
           "profundidad",
           "ambiencia"
-        ]
+        ],
+        "section_number": 6
       },
       {
         "evaluation_category": "mezcla_general",
-        "id": "eje6_criterio_integracion",
+        "id": "seccion_07_integracion_global",
         "keywords": [
-          "eje 6",
+          "seccion 7",
           "mezcla",
           "integracion",
           "criterio",
           "jerarquia"
-        ]
+        ],
+        "section_number": 7
       },
       {
         "evaluation_category": "mastering",
-        "id": "eje7_optimizacion_entrega",
+        "id": "seccion_08_traduccion_y_entrega",
         "keywords": [
-          "eje 7",
+          "seccion 8",
           "mastering",
           "lufs",
           "limitador",
           "streaming"
-        ]
+        ],
+        "section_number": 8
       }
     ],
     "routing.LOOKUP_STOPWORDS": [
@@ -236,8 +244,8 @@
       "kontakt",
       "oversampling"
     ],
-    "routing.STRONG_AXIS_TERMS": {
-      "Eje 0": [
+    "routing.STRONG_SECTION_TERMS": {
+      "Seccion 1": [
         "frecuencia",
         "tono",
         "curvas isofonicas",
@@ -245,7 +253,7 @@
         "resonadores",
         "acustica"
       ],
-      "Eje 1": [
+      "Seccion 2": [
         "gain staging",
         "headroom",
         "fader",
@@ -255,7 +263,7 @@
         "bus",
         "envio"
       ],
-      "Eje 2": [
+      "Seccion 3": [
         "polaridad",
         "fase",
         "mono",
@@ -263,7 +271,7 @@
         "correlacion",
         "estereo"
       ],
-      "Eje 3": [
+      "Seccion 4": [
         "frecuencia de corte",
         "filtro",
         "pendiente",
@@ -271,7 +279,7 @@
         "eq",
         "ecualizacion"
       ],
-      "Eje 4": [
+      "Seccion 5": [
         "compresor",
         "compresion",
         "threshold",
@@ -280,21 +288,21 @@
         "release",
         "dinamica"
       ],
-      "Eje 5": [
+      "Seccion 6": [
         "reverb",
         "delay",
         "espacialidad",
         "profundidad",
         "ambiencia"
       ],
-      "Eje 6": [
+      "Seccion 7": [
         "mezcla integradora",
         "criterio de mezcla",
         "jerarquia",
         "contexto",
         "integracion"
       ],
-      "Eje 7": [
+      "Seccion 8": [
         "mastering",
         "lufs",
         "limitador",
@@ -638,7 +646,7 @@
       "ok": "Excelente. Sigamos con el curso. Tienes alguna duda puntual de mezcla o masterizacion?",
       "thanks": "De nada. Estoy aqui para ayudarte con mezcla, mastering y el material del curso. Que duda seguimos puliendo?"
     },
-    "graph.GUARD_REPLY": "Solo puedo ayudarte con mezcla, masterizacion, audio, DAWs, plugins y contenido del curso. Si tu duda esta relacionada con el curso, dime el eje, clase o concepto que quieres revisar.",
+    "graph.GUARD_REPLY": "Solo puedo ayudarte con mezcla, masterizacion, audio, DAWs, plugins y contenido del curso. Si tu duda esta relacionada con el curso, dime la seccion, clase o concepto que quieres revisar.",
     "graph.LOST_INTRO": "Eres KENTH, tutor del curso de mezcla y masterizacion.\nEl alumno esta confundido o frustrado. Responde como guia pedagogico, no como enciclopedia.\n\n",
     "graph.LOST_RULES": "REGLAS:\n1. Usa exactamente 4 bloques con estos titulos: Validacion, Explicacion simple, Siguiente paso, Pregunta de calibracion.\n2. Se breve: 1 o 2 frases por bloque.\n3. Recomienda recursos, software, plugins, DAWs o tecnicas especificas SOLO si aparecen literalmente en la evidencia o pregunta.\n4. No menciones Ableton, Logic, Serum ni nombres propios si no aparecen en evidencia o pregunta.\n5. Si no hay evidencia suficiente, guia el proceso sin inventar clase, recurso, timestamp ni parametro.\n\n",
     "graph.RAG_SYSTEM_PROMPT": "Eres KENTH, tutor experto del curso de mezcla y masterizacion.\nTu respuesta debe estar basada principalmente en la EVIDENCIA DEL CURSO.\nSi la evidencia no alcanza para una afirmacion especifica, dilo claramente y no inventes.\n\nREGLAS ESTRICTAS:\n1. Dominio cerrado: solo mezcla, masterizacion, audio, DAWs, plugins y material del curso.\n2. Prioriza la EVIDENCIA DEL CURSO sobre conocimiento general.\n3. El HISTORIAL ayuda a entender referencias, pero NO justifica hechos tecnicos.\n4. Si respondes teoria, explica claro y directo.\n5. Si respondes practica, guia el razonamiento. Evita recetas rigidas sin diagnostico.\n6. Recomienda recursos, videos, herramientas, software, plugins o tecnicas especificas SOLO si aparecen literalmente en la evidencia o en la pregunta del alumno.\n7. Prohibido mencionar Ableton, Logic, Serum u otros nombres propios si no aparecen en evidencia o pregunta.\n8. Nunca inventes URLs, modulos, secciones, recursos, DAWs, plugins, parametros ni valores en dB.\n9. Si hay incertidumbre, pide una aclaracion breve.\n10. Mantente conciso, profesional y pedagogico.\n\n11. No menciones en la respuesta nombres internos como Fuente 1, score, chunk, archivo, tema o seccion salvo que el alumno pregunte explicitamente donde revisar o pida fuentes. Esos datos ya viajan en el JSON.\n\n12. Jerarquia pedagogica: parte del bloque o leccion actual como punto de partida, apoyate en secciones previas como soporte y puedes ampliar a toda la seccion actual; no adelantes secciones posteriores salvo como anticipo breve. El contexto runtime indica donde esta el alumno pero no convierte por si solo una afirmacion tecnica en evidencia documental del curso.\n13. No presentes ubicaciones oficiales (clase, pagina, minuto, recurso o URL) que la evidencia no traiga literalmente; los nombres de Fuente o archivo solo indican evidencia recuperada, no una ubicacion recomendada.\n14. NUNCA describas, cites, transcribas ni enumeres el bloque de CONTEXTO ACTIVO, el HISTORIAL, los ids internos (lesson_id, block_id), los rangos de tiempo de los bloques ni la lista de temas delegados al tutor. Eso es andamiaje interno para ti, no contenido para el alumno. Si el alumno pregunta donde esta o que leccion es, respondele en lenguaje natural con el nombre de la leccion o seccion, sin ids ni metadatos internos.\n\n",
@@ -655,7 +663,7 @@
     "a cuantos db": {
       "clasificacion_pedagogica": {
         "answer_type": "clarification",
-        "course_module": "eje1_estructura_flujo",
+        "course_module": "seccion_02_leer_la_senal",
         "evaluation_category": "estructura_ganancia",
         "intent": "ambigua",
         "requires_course_evidence": false
@@ -664,7 +672,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": true,
       "es_pregunta_conceptual_directa": false,
@@ -677,8 +684,8 @@
           "cuantos"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje1_estructura_flujo",
+      "inferir_seccion_categoria": [
+        "seccion_02_leer_la_senal",
         "estructura_ganancia"
       ],
       "normalizar": "a cuantos db",
@@ -689,6 +696,7 @@
         "De que parametro en dB hablas: nivel, threshold, reduccion de ganancia, LUFS u otro?"
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": [
@@ -711,7 +719,6 @@
       "conceptos_relevantes": [
         "ecualizacion"
       ],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -728,7 +735,7 @@
           "ecualizador"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -740,6 +747,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "Tecnicamente no se comprime un ecualizador: se comprime una senal con un compresor y se ecualiza con un EQ. Si te refieres a controlar una frecuencia solo cuando se dispara, eso se parece mas a ecualizacion dinamica o compresion multibanda. Primero identifica el problema: balance tonal, resonancia puntual o exceso dinamico en una banda.",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -760,7 +768,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -781,7 +788,7 @@
           "toms"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -793,6 +800,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -806,7 +814,7 @@
     "como hago el mastering para streaming con lufs": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje7_optimizacion_entrega",
+        "course_module": "seccion_08_traduccion_y_entrega",
         "evaluation_category": "mastering",
         "intent": "optimizacion_mastering_comercial",
         "requires_course_evidence": true
@@ -821,7 +829,6 @@
         "lufs",
         "mastering"
       ],
-      "eje_fuerte": "Eje 7",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -842,8 +849,8 @@
           "lufs"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje7_optimizacion_entrega",
+      "inferir_seccion_categoria": [
+        "seccion_08_traduccion_y_entrega",
         "mastering"
       ],
       "normalizar": "como hago el mastering para streaming con lufs",
@@ -854,6 +861,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 8",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -867,7 +875,7 @@
     "como mezclar bien aplicando plugins a todo": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje6_criterio_integracion",
+        "course_module": "seccion_07_integracion_global",
         "evaluation_category": "mezcla_general",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -880,7 +888,6 @@
       "conceptos_relevantes": [
         "mezcla integradora"
       ],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -903,8 +910,8 @@
           "todo"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje6_criterio_integracion",
+      "inferir_seccion_categoria": [
+        "seccion_07_integracion_global",
         "mezcla_general"
       ],
       "normalizar": "como mezclar bien aplicando plugins a todo",
@@ -915,6 +922,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "No. Mezclar bien no es aplicar plugins a todo. Desde la practica integradora, primero se diagnostica que problema existe, que jerarquia tiene cada elemento, que pasa en contexto y cual es el costo de intervenir. Si una fuente ya cumple su funcion, procesarla por reflejo puede empeorar la mezcla.",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -942,7 +950,6 @@
       "conceptos_relevantes": [
         "mastering"
       ],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -961,7 +968,7 @@
           "masterizar"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -973,6 +980,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [
         "ableton"
       ],
@@ -987,7 +995,7 @@
     "compresor compresion threshold ratio ataque release dinamica": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje4_control_dinamico",
+        "course_module": "seccion_05_energia_y_movimiento",
         "evaluation_category": "dinamica",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -1002,7 +1010,6 @@
         "threshold",
         "compresion"
       ],
-      "eje_fuerte": "Eje 4",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1027,8 +1034,8 @@
           "dinamica"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje4_control_dinamico",
+      "inferir_seccion_categoria": [
+        "seccion_05_energia_y_movimiento",
         "dinamica"
       ],
       "normalizar": "compresor compresion threshold ratio ataque release dinamica",
@@ -1039,6 +1046,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 5",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1054,7 +1062,7 @@
     "cual es la diferencia entre frecuencia y tono": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje0_identidad_acustica",
+        "course_module": "seccion_01_el_sistema_de_decision",
         "evaluation_category": "fundamentos_acustica",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -1069,7 +1077,6 @@
         "frecuencia",
         "tono"
       ],
-      "eje_fuerte": "Eje 0",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -1086,8 +1093,8 @@
           "tono"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje0_identidad_acustica",
+      "inferir_seccion_categoria": [
+        "seccion_01_el_sistema_de_decision",
         "fundamentos_acustica"
       ],
       "normalizar": "cual es la diferencia entre frecuencia y tono",
@@ -1098,6 +1105,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "La frecuencia es una magnitud fisica medible: cuantas veces vibra una senal por segundo. El tono es la percepcion auditiva asociada a esa frecuencia: como sentimos si algo es mas grave o mas agudo. No son lo mismo: una es medicion fisica y la otra es percepcion.",
+      "seccion_fuerte": "Seccion 1",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1109,7 +1117,7 @@
     "curvas isofonicas sala acustica resonadores": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje0_identidad_acustica",
+        "course_module": "seccion_01_el_sistema_de_decision",
         "evaluation_category": "fundamentos_acustica",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -1122,7 +1130,6 @@
       "conceptos_relevantes": [
         "sala"
       ],
-      "eje_fuerte": "Eje 0",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1143,8 +1150,8 @@
           "resonadores"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje0_identidad_acustica",
+      "inferir_seccion_categoria": [
+        "seccion_01_el_sistema_de_decision",
         "fundamentos_acustica"
       ],
       "normalizar": "curvas isofonicas sala acustica resonadores",
@@ -1155,6 +1162,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 1",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1168,7 +1176,7 @@
     "diferencia entre compresion y ecualizacion": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje3_identidad_espectral",
+        "course_module": "seccion_04_identidad_espectral",
         "evaluation_category": "ecualizacion",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -1183,7 +1191,6 @@
         "ecualizacion",
         "compresion"
       ],
-      "eje_fuerte": "Eje 3",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -1200,8 +1207,8 @@
           "ecualizacion"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje3_identidad_espectral",
+      "inferir_seccion_categoria": [
+        "seccion_04_identidad_espectral",
         "ecualizacion"
       ],
       "normalizar": "diferencia entre compresion y ecualizacion",
@@ -1212,6 +1219,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "Tecnicamente no se comprime un ecualizador: se comprime una senal con un compresor y se ecualiza con un EQ. Si te refieres a controlar una frecuencia solo cuando se dispara, eso se parece mas a ecualizacion dinamica o compresion multibanda. Primero identifica el problema: balance tonal, resonancia puntual o exceso dinamico en una banda.",
+      "seccion_fuerte": "Seccion 4",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1223,7 +1231,7 @@
     "diferencia entre filtro y ecualizacion": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje3_identidad_espectral",
+        "course_module": "seccion_04_identidad_espectral",
         "evaluation_category": "ecualizacion",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -1238,7 +1246,6 @@
         "ecualizacion",
         "filtro"
       ],
-      "eje_fuerte": "Eje 3",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -1255,8 +1262,8 @@
           "ecualizacion"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje3_identidad_espectral",
+      "inferir_seccion_categoria": [
+        "seccion_04_identidad_espectral",
         "ecualizacion"
       ],
       "normalizar": "diferencia entre filtro y ecualizacion",
@@ -1267,6 +1274,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 4",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1293,7 +1301,6 @@
         "clip",
         "mastering"
       ],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1312,7 +1319,7 @@
           "bien"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -1324,6 +1331,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "No. Que el master no clipee solo indica que no esta superando ese limite de pico. No demuestra por si solo que el flujo de nivel, el margen, la dinamica, el balance o la traduccion esten bien. Es una condicion tecnica basica, no una validacion completa.",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1336,7 +1344,7 @@
     "en que minuto reviso el gain staging": {
       "clasificacion_pedagogica": {
         "answer_type": "source_lookup",
-        "course_module": "eje1_estructura_flujo",
+        "course_module": "seccion_02_leer_la_senal",
         "evaluation_category": "estructura_ganancia",
         "intent": "busqueda_fuente",
         "requires_course_evidence": true
@@ -1345,7 +1353,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "Eje 1",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1359,8 +1366,8 @@
           "staging"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje1_estructura_flujo",
+      "inferir_seccion_categoria": [
+        "seccion_02_leer_la_senal",
         "estructura_ganancia"
       ],
       "normalizar": "en que minuto reviso el gain staging",
@@ -1371,6 +1378,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 2",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": [
@@ -1381,7 +1389,7 @@
     "en que modulo hablan de frecuencia de corte": {
       "clasificacion_pedagogica": {
         "answer_type": "source_lookup",
-        "course_module": "eje3_identidad_espectral",
+        "course_module": "seccion_04_identidad_espectral",
         "evaluation_category": "ecualizacion",
         "intent": "busqueda_fuente",
         "requires_course_evidence": true
@@ -1396,7 +1404,6 @@
         "frecuencia",
         "frecuencia de corte"
       ],
-      "eje_fuerte": "Eje 3",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1413,8 +1420,8 @@
           "corte"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje3_identidad_espectral",
+      "inferir_seccion_categoria": [
+        "seccion_04_identidad_espectral",
         "ecualizacion"
       ],
       "normalizar": "en que modulo hablan de frecuencia de corte",
@@ -1425,6 +1432,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 4",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1446,7 +1454,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": true,
       "es_pregunta_conceptual_directa": false,
@@ -1459,7 +1466,7 @@
           "conviene"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -1471,6 +1478,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": [
@@ -1489,7 +1497,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": true,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1506,7 +1513,7 @@
           "cero"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -1518,6 +1525,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": [
@@ -1529,7 +1537,7 @@
     "frecuencia de corte filtro pendiente factor q eq": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje3_identidad_espectral",
+        "course_module": "seccion_04_identidad_espectral",
         "evaluation_category": "ecualizacion",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -1552,7 +1560,6 @@
         "ecualizacion",
         "filtro"
       ],
-      "eje_fuerte": "Eje 3",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1573,8 +1580,8 @@
           "factor"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje3_identidad_espectral",
+      "inferir_seccion_categoria": [
+        "seccion_04_identidad_espectral",
         "ecualizacion"
       ],
       "normalizar": "frecuencia de corte filtro pendiente factor q eq",
@@ -1585,6 +1592,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 4",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1599,7 +1607,7 @@
     "gain staging headroom fader trim clip gain flujo de senal": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje1_estructura_flujo",
+        "course_module": "seccion_02_leer_la_senal",
         "evaluation_category": "estructura_ganancia",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -1616,7 +1624,6 @@
         "flujo de senal",
         "headroom"
       ],
-      "eje_fuerte": "Eje 1",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1645,8 +1652,8 @@
           "senal"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje1_estructura_flujo",
+      "inferir_seccion_categoria": [
+        "seccion_02_leer_la_senal",
         "estructura_ganancia"
       ],
       "normalizar": "gain staging headroom fader trim clip gain flujo de senal",
@@ -1657,6 +1664,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 2",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1683,7 +1691,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1696,7 +1703,7 @@
           "gracias"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -1708,6 +1715,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": [
@@ -1726,7 +1734,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1739,7 +1746,7 @@
           "hola"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -1751,6 +1758,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": [
@@ -1773,7 +1781,6 @@
       "conceptos_relevantes": [
         "sala"
       ],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -1790,7 +1797,7 @@
           "graves"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -1802,6 +1809,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "No necesariamente. En el marco de acustica del curso, la espuma puede ayudar con reflexiones o contenido medio-agudo, pero no conviene tratarla como solucion automatica para graves inflados. Para graves suele hacer falta diagnosticar sala, modos/resonancias y tratamiento adecuado, no solo pegar espuma.",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1813,7 +1821,7 @@
     "mastering lufs limitador streaming normalizacion": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje7_optimizacion_entrega",
+        "course_module": "seccion_08_traduccion_y_entrega",
         "evaluation_category": "mastering",
         "intent": "optimizacion_mastering_comercial",
         "requires_course_evidence": true
@@ -1830,7 +1838,6 @@
         "limitador",
         "mastering"
       ],
-      "eje_fuerte": "Eje 7",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1851,8 +1858,8 @@
           "normalizacion"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje7_optimizacion_entrega",
+      "inferir_seccion_categoria": [
+        "seccion_08_traduccion_y_entrega",
         "mastering"
       ],
       "normalizar": "mastering lufs limitador streaming normalizacion",
@@ -1863,6 +1870,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 8",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1876,7 +1884,7 @@
     "mezcla integradora criterio de mezcla jerarquia contexto": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje6_criterio_integracion",
+        "course_module": "seccion_07_integracion_global",
         "evaluation_category": "mezcla_general",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -1889,7 +1897,6 @@
       "conceptos_relevantes": [
         "mezcla integradora"
       ],
-      "eje_fuerte": "Eje 6",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1912,8 +1919,8 @@
           "contexto"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje6_criterio_integracion",
+      "inferir_seccion_categoria": [
+        "seccion_07_integracion_global",
         "mezcla_general"
       ],
       "normalizar": "mezcla integradora criterio de mezcla jerarquia contexto",
@@ -1924,6 +1931,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 7",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -1947,7 +1955,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -1966,7 +1973,7 @@
           "wavetable"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -1978,6 +1985,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [
         "serum",
         "wavetable"
@@ -2002,7 +2010,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": true,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2019,7 +2026,7 @@
           "rindo"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -2031,6 +2038,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": [
@@ -2051,7 +2059,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2060,7 +2067,7 @@
         [],
         []
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -2072,6 +2079,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": []
@@ -2079,7 +2087,7 @@
     "polaridad fase mono monocompatibilidad correlacion estereo": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje2_espacio_fase",
+        "course_module": "seccion_03_integridad_de_la_senal",
         "evaluation_category": "fase_imagen_estereo",
         "intent": "consejo_estetico_espacialidad",
         "requires_course_evidence": true
@@ -2100,7 +2108,6 @@
         "monocompatibilidad",
         "correlacion"
       ],
-      "eje_fuerte": "Eje 2",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2123,8 +2130,8 @@
           "estereo"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje2_espacio_fase",
+      "inferir_seccion_categoria": [
+        "seccion_03_integridad_de_la_senal",
         "fase_imagen_estereo"
       ],
       "normalizar": "polaridad fase mono monocompatibilidad correlacion estereo",
@@ -2135,6 +2142,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "En este curso, correlacion se entiende como una lectura de relacion entre canales o senales para estimar como suman y que tan compatibles son al revisar mono. Sirve como orientacion: valores muy positivos suelen indicar suma mas estable, y valores negativos advierten posible cancelacion. No es una verdad absoluta; hay que leerla por contexto, por bandas y por rol musical.",
+      "seccion_fuerte": "Seccion 3",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2149,7 +2157,7 @@
     "por que revisar en mono": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje2_espacio_fase",
+        "course_module": "seccion_03_integridad_de_la_senal",
         "evaluation_category": "fase_imagen_estereo",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -2162,7 +2170,6 @@
       "conceptos_relevantes": [
         "mono"
       ],
-      "eje_fuerte": "Eje 2",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -2175,8 +2182,8 @@
           "mono"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje2_espacio_fase",
+      "inferir_seccion_categoria": [
+        "seccion_03_integridad_de_la_senal",
         "fase_imagen_estereo"
       ],
       "normalizar": "por que revisar en mono",
@@ -2187,6 +2194,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "Porque al cerrar a mono aparecen problemas de suma que en estereo pueden quedar disimulados. Si elementos importantes como voz, bombo, caja o bajo pierden solidez, hay un problema real de compatibilidad. La revision en mono no busca que todo sea estrecho, sino comprobar que la mezcla no se desarme fuera del punto ideal de escucha.",
+      "seccion_fuerte": "Seccion 3",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2205,7 +2213,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2226,7 +2233,7 @@
           "procesados"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -2238,6 +2245,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": [
@@ -2266,7 +2274,6 @@
         "serie",
         "paralelo"
       ],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2285,7 +2292,7 @@
           "paralelo"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -2297,6 +2304,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "En serie, la senal pasa por un proceso y luego por el siguiente: el orden cambia el resultado. En paralelo, una copia o envio se procesa por otra ruta y luego se mezcla con la senal original. La diferencia practica es flujo: cadena unica versus rutas simultaneas que se recombinan.",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2318,7 +2326,6 @@
       "concepto_definicion_directa": "0 vu y dbfs y el overhead",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2332,7 +2339,7 @@
           "overhead"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -2344,6 +2351,7 @@
         "De que parametro en dB hablas: nivel, threshold, reduccion de ganancia, LUFS u otro?"
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": [
@@ -2354,7 +2362,7 @@
     "que es el factor q": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje3_identidad_espectral",
+        "course_module": "seccion_04_identidad_espectral",
         "evaluation_category": "ecualizacion",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -2367,7 +2375,6 @@
       "conceptos_relevantes": [
         "factor q"
       ],
-      "eje_fuerte": "Eje 3",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -2380,8 +2387,8 @@
           "factor"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje3_identidad_espectral",
+      "inferir_seccion_categoria": [
+        "seccion_04_identidad_espectral",
         "ecualizacion"
       ],
       "normalizar": "que es el factor q",
@@ -2392,6 +2399,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 4",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2402,7 +2410,7 @@
     "que es el headroom": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje1_estructura_flujo",
+        "course_module": "seccion_02_leer_la_senal",
         "evaluation_category": "estructura_ganancia",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -2415,7 +2423,6 @@
       "conceptos_relevantes": [
         "headroom"
       ],
-      "eje_fuerte": "Eje 1",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -2428,8 +2435,8 @@
           "headroom"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje1_estructura_flujo",
+      "inferir_seccion_categoria": [
+        "seccion_02_leer_la_senal",
         "estructura_ganancia"
       ],
       "normalizar": "que es el headroom",
@@ -2440,6 +2447,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 2",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2464,7 +2472,6 @@
         "serie",
         "paralelo"
       ],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -2478,7 +2485,7 @@
           "paralelo"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -2490,6 +2497,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2509,7 +2517,6 @@
       "concepto_definicion_directa": "eso",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": true,
       "es_pregunta_conceptual_directa": false,
@@ -2518,7 +2525,7 @@
         [],
         []
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -2530,6 +2537,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": []
@@ -2537,7 +2545,7 @@
     "que es la correlacion": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje2_espacio_fase",
+        "course_module": "seccion_03_integridad_de_la_senal",
         "evaluation_category": "fase_imagen_estereo",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -2550,7 +2558,6 @@
       "conceptos_relevantes": [
         "correlacion"
       ],
-      "eje_fuerte": "Eje 2",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -2563,8 +2570,8 @@
           "correlacion"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje2_espacio_fase",
+      "inferir_seccion_categoria": [
+        "seccion_03_integridad_de_la_senal",
         "fase_imagen_estereo"
       ],
       "normalizar": "que es la correlacion",
@@ -2575,6 +2582,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "En este curso, correlacion se entiende como una lectura de relacion entre canales o senales para estimar como suman y que tan compatibles son al revisar mono. Sirve como orientacion: valores muy positivos suelen indicar suma mas estable, y valores negativos advierten posible cancelacion. No es una verdad absoluta; hay que leerla por contexto, por bandas y por rol musical.",
+      "seccion_fuerte": "Seccion 3",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2584,7 +2592,7 @@
     "que es la frecuencia de corte": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje3_identidad_espectral",
+        "course_module": "seccion_04_identidad_espectral",
         "evaluation_category": "ecualizacion",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -2599,7 +2607,6 @@
         "frecuencia",
         "frecuencia de corte"
       ],
-      "eje_fuerte": "Eje 3",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -2613,8 +2620,8 @@
           "corte"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje3_identidad_espectral",
+      "inferir_seccion_categoria": [
+        "seccion_04_identidad_espectral",
         "ecualizacion"
       ],
       "normalizar": "que es la frecuencia de corte",
@@ -2625,6 +2632,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "La frecuencia de corte es un punto de referencia tecnico dentro del comportamiento de un filtro. Sirve para ubicar desde donde se entiende o se mide la transicion del filtro, pero no debe pensarse como un muro instantaneo. Algunas definiciones usan referencias numericas segun el tipo de filtro o contexto, pero no conviene fijarlas como doctrina universal cerrada sin matiz.",
+      "seccion_fuerte": "Seccion 4",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2635,7 +2643,7 @@
     "que es la polaridad y cuando la invierto": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje2_espacio_fase",
+        "course_module": "seccion_03_integridad_de_la_senal",
         "evaluation_category": "fase_imagen_estereo",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -2648,7 +2656,6 @@
       "conceptos_relevantes": [
         "polaridad"
       ],
-      "eje_fuerte": "Eje 2",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -2662,8 +2669,8 @@
           "invierto"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje2_espacio_fase",
+      "inferir_seccion_categoria": [
+        "seccion_03_integridad_de_la_senal",
         "fase_imagen_estereo"
       ],
       "normalizar": "que es la polaridad y cuando la invierto",
@@ -2674,6 +2681,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "No necesariamente. Invertir polaridad puede resolver casos donde dos senales estan opuestas de forma binaria, pero no corrige cualquier problema de fase o de tiempo. Si el conflicto viene de retraso, alineacion o filtrado peine, hay que diagnosticar la relacion temporal, no solo apretar el boton de polaridad.",
+      "seccion_fuerte": "Seccion 3",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2693,7 +2701,6 @@
       "concepto_definicion_directa": "la sintesis fm",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2706,7 +2713,7 @@
           "sintesis"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -2718,6 +2725,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [
         "sintesis",
         "fm",
@@ -2731,7 +2739,7 @@
     "que hace un compresor": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje4_control_dinamico",
+        "course_module": "seccion_05_energia_y_movimiento",
         "evaluation_category": "dinamica",
         "intent": "aclaracion_concepto",
         "requires_course_evidence": true
@@ -2744,7 +2752,6 @@
       "conceptos_relevantes": [
         "compresion"
       ],
-      "eje_fuerte": "Eje 4",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": true,
@@ -2758,8 +2765,8 @@
           "compresor"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje4_control_dinamico",
+      "inferir_seccion_categoria": [
+        "seccion_05_energia_y_movimiento",
         "dinamica"
       ],
       "normalizar": "que hace un compresor",
@@ -2770,6 +2777,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "Un compresor controla la dinamica: reduce o contiene el excedente de una senal cuando supera un umbral, segun parametros como ratio, ataque y release. En la practica no es un boton de mejora automatica; sirve para ordenar, sostener o moldear movimiento dinamico segun el problema.",
+      "seccion_fuerte": "Seccion 5",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2780,7 +2788,7 @@
     "que pdf tengo que leer sobre headroom": {
       "clasificacion_pedagogica": {
         "answer_type": "source_lookup",
-        "course_module": "eje1_estructura_flujo",
+        "course_module": "seccion_02_leer_la_senal",
         "evaluation_category": "estructura_ganancia",
         "intent": "busqueda_fuente",
         "requires_course_evidence": true
@@ -2793,7 +2801,6 @@
       "conceptos_relevantes": [
         "headroom"
       ],
-      "eje_fuerte": "Eje 1",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2807,8 +2814,8 @@
           "headroom"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje1_estructura_flujo",
+      "inferir_seccion_categoria": [
+        "seccion_02_leer_la_senal",
         "estructura_ganancia"
       ],
       "normalizar": "que pdf tengo que leer sobre headroom",
@@ -2819,6 +2826,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 2",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2829,7 +2837,7 @@
     "que recurso reviso para entender compresion paralela": {
       "clasificacion_pedagogica": {
         "answer_type": "source_lookup",
-        "course_module": "eje4_control_dinamico",
+        "course_module": "seccion_05_energia_y_movimiento",
         "evaluation_category": "dinamica",
         "intent": "busqueda_fuente",
         "requires_course_evidence": true
@@ -2842,7 +2850,6 @@
       "conceptos_relevantes": [
         "compresion paralela"
       ],
-      "eje_fuerte": "Eje 4",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2856,8 +2863,8 @@
           "paralela"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje4_control_dinamico",
+      "inferir_seccion_categoria": [
+        "seccion_05_energia_y_movimiento",
         "dinamica"
       ],
       "normalizar": "que recurso reviso para entender compresion paralela",
@@ -2868,6 +2875,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 5",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2891,7 +2899,6 @@
       "conceptos_relevantes": [
         "sala"
       ],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2910,7 +2917,7 @@
           "interfaz"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -2922,6 +2929,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2934,7 +2942,7 @@
     "que reverb uso para dar profundidad": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje5_dimension_ambiencia",
+        "course_module": "seccion_06_dimension_espacial",
         "evaluation_category": "espacialidad",
         "intent": "consejo_estetico_espacialidad",
         "requires_course_evidence": true
@@ -2947,7 +2955,6 @@
       "conceptos_relevantes": [
         "reverb"
       ],
-      "eje_fuerte": "Eje 5",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -2966,8 +2973,8 @@
           "profundidad"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje5_dimension_ambiencia",
+      "inferir_seccion_categoria": [
+        "seccion_06_dimension_espacial",
         "espacialidad"
       ],
       "normalizar": "que reverb uso para dar profundidad",
@@ -2978,6 +2985,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 6",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -2999,7 +3007,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -3013,7 +3020,7 @@
           "napoleon"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -3025,6 +3032,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": [
@@ -3035,7 +3043,7 @@
     "reverb delay espacialidad profundidad ambiencia": {
       "clasificacion_pedagogica": {
         "answer_type": "rag_answer",
-        "course_module": "eje5_dimension_ambiencia",
+        "course_module": "seccion_06_dimension_espacial",
         "evaluation_category": "espacialidad",
         "intent": "consejo_estetico_espacialidad",
         "requires_course_evidence": true
@@ -3050,7 +3058,6 @@
         "reverb",
         "delay"
       ],
-      "eje_fuerte": "Eje 5",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -3071,8 +3078,8 @@
           "ambiencia"
         ]
       ],
-      "inferir_modulo_categoria": [
-        "eje5_dimension_ambiencia",
+      "inferir_seccion_categoria": [
+        "seccion_06_dimension_espacial",
         "espacialidad"
       ],
       "normalizar": "reverb delay espacialidad profundidad ambiencia",
@@ -3083,6 +3090,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "Seccion 6",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -3105,7 +3113,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": false,
       "es_pregunta_conceptual_directa": false,
@@ -3124,7 +3131,7 @@
           "gate"
         ]
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -3136,6 +3143,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": true,
       "tokens_lookup": [
@@ -3157,7 +3165,6 @@
       "concepto_definicion_directa": "",
       "conceptos_en_texto": [],
       "conceptos_relevantes": [],
-      "eje_fuerte": "",
       "es_estudiante_perdido": false,
       "es_pregunta_ambigua": true,
       "es_pregunta_conceptual_directa": false,
@@ -3166,7 +3173,7 @@
         [],
         []
       ],
-      "inferir_modulo_categoria": [
+      "inferir_seccion_categoria": [
         "",
         ""
       ],
@@ -3178,6 +3185,7 @@
         ""
       ],
       "respuesta_conceptual_controlada": "",
+      "seccion_fuerte": "",
       "terminos_no_soportados": [],
       "tiene_termino_tecnico": false,
       "tokens_lookup": []
@@ -3230,581 +3238,581 @@
     }
   },
   "scoring": {
-    "q=a cuantos db|s=0|c=0": 1.36,
-    "q=a cuantos db|s=0|c=1": 0.56,
-    "q=a cuantos db|s=0|c=2": 0.4,
-    "q=a cuantos db|s=0|c=3": 0.56,
-    "q=a cuantos db|s=1|c=0": 0.56,
-    "q=a cuantos db|s=1|c=1": 0.56,
-    "q=a cuantos db|s=1|c=2": 0.4,
-    "q=a cuantos db|s=1|c=3": 0.56,
-    "q=a cuantos db|s=2|c=0": 0.56,
-    "q=a cuantos db|s=2|c=1": 0.56,
-    "q=a cuantos db|s=2|c=2": 0.4,
-    "q=a cuantos db|s=2|c=3": 0.56,
-    "q=como comprimo un ecualizador|s=0|c=0": 1.42,
-    "q=como comprimo un ecualizador|s=0|c=1": 0.56,
-    "q=como comprimo un ecualizador|s=0|c=2": 0.4,
-    "q=como comprimo un ecualizador|s=0|c=3": 0.56,
-    "q=como comprimo un ecualizador|s=1|c=0": 0.62,
-    "q=como comprimo un ecualizador|s=1|c=1": 0.56,
-    "q=como comprimo un ecualizador|s=1|c=2": 0.4,
-    "q=como comprimo un ecualizador|s=1|c=3": 0.56,
-    "q=como comprimo un ecualizador|s=2|c=0": 0.62,
-    "q=como comprimo un ecualizador|s=2|c=1": 0.56,
-    "q=como comprimo un ecualizador|s=2|c=2": 0.4,
-    "q=como comprimo un ecualizador|s=2|c=3": 0.56,
-    "q=como controlo el hiss y el doubling en los toms|s=0|c=0": 1.42,
-    "q=como controlo el hiss y el doubling en los toms|s=0|c=1": 0.56,
-    "q=como controlo el hiss y el doubling en los toms|s=0|c=2": 0.4,
-    "q=como controlo el hiss y el doubling en los toms|s=0|c=3": 0.56,
-    "q=como controlo el hiss y el doubling en los toms|s=1|c=0": 0.62,
-    "q=como controlo el hiss y el doubling en los toms|s=1|c=1": 0.56,
-    "q=como controlo el hiss y el doubling en los toms|s=1|c=2": 0.4,
-    "q=como controlo el hiss y el doubling en los toms|s=1|c=3": 0.56,
-    "q=como controlo el hiss y el doubling en los toms|s=2|c=0": 0.62,
-    "q=como controlo el hiss y el doubling en los toms|s=2|c=1": 0.56,
-    "q=como controlo el hiss y el doubling en los toms|s=2|c=2": 0.4,
-    "q=como controlo el hiss y el doubling en los toms|s=2|c=3": 0.56,
-    "q=como hago el mastering para streaming con lufs|s=0|c=0": 1.22,
-    "q=como hago el mastering para streaming con lufs|s=0|c=1": 0.36,
-    "q=como hago el mastering para streaming con lufs|s=0|c=2": 0.4,
-    "q=como hago el mastering para streaming con lufs|s=0|c=3": 0.36,
-    "q=como hago el mastering para streaming con lufs|s=1|c=0": 0.42,
-    "q=como hago el mastering para streaming con lufs|s=1|c=1": 0.36,
-    "q=como hago el mastering para streaming con lufs|s=1|c=2": 0.4,
-    "q=como hago el mastering para streaming con lufs|s=1|c=3": 0.36,
-    "q=como hago el mastering para streaming con lufs|s=2|c=0": 0.42,
-    "q=como hago el mastering para streaming con lufs|s=2|c=1": 0.36,
-    "q=como hago el mastering para streaming con lufs|s=2|c=2": 0.4,
-    "q=como hago el mastering para streaming con lufs|s=2|c=3": 0.36,
-    "q=como mezclar bien aplicando plugins a todo|s=0|c=0": 1.42,
-    "q=como mezclar bien aplicando plugins a todo|s=0|c=1": 0.56,
-    "q=como mezclar bien aplicando plugins a todo|s=0|c=2": 0.4,
-    "q=como mezclar bien aplicando plugins a todo|s=0|c=3": 0.56,
-    "q=como mezclar bien aplicando plugins a todo|s=1|c=0": 0.62,
-    "q=como mezclar bien aplicando plugins a todo|s=1|c=1": 0.56,
-    "q=como mezclar bien aplicando plugins a todo|s=1|c=2": 0.4,
-    "q=como mezclar bien aplicando plugins a todo|s=1|c=3": 0.56,
-    "q=como mezclar bien aplicando plugins a todo|s=2|c=0": 0.62,
-    "q=como mezclar bien aplicando plugins a todo|s=2|c=1": 0.56,
-    "q=como mezclar bien aplicando plugins a todo|s=2|c=2": 0.4,
-    "q=como mezclar bien aplicando plugins a todo|s=2|c=3": 0.56,
-    "q=como uso ableton para masterizar|s=0|c=0": 1.42,
-    "q=como uso ableton para masterizar|s=0|c=1": 0.56,
-    "q=como uso ableton para masterizar|s=0|c=2": 0.4,
-    "q=como uso ableton para masterizar|s=0|c=3": 0.56,
-    "q=como uso ableton para masterizar|s=1|c=0": 0.62,
-    "q=como uso ableton para masterizar|s=1|c=1": 0.56,
-    "q=como uso ableton para masterizar|s=1|c=2": 0.4,
-    "q=como uso ableton para masterizar|s=1|c=3": 0.56,
-    "q=como uso ableton para masterizar|s=2|c=0": 0.62,
-    "q=como uso ableton para masterizar|s=2|c=1": 0.56,
-    "q=como uso ableton para masterizar|s=2|c=2": 0.4,
-    "q=como uso ableton para masterizar|s=2|c=3": 0.56,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=0": 1.16,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=1": 1.56,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=2": 0.4,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=3": 0.36,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=0": 0.36,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=1": 1.56,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=2": 0.4,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=3": 0.36,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=0": 0.36,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=1": 1.56,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=2": 0.4,
-    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=3": 0.36,
-    "q=cual es la diferencia entre frecuencia y tono|s=0|c=0": 1.68,
-    "q=cual es la diferencia entre frecuencia y tono|s=0|c=1": 0.62,
-    "q=cual es la diferencia entre frecuencia y tono|s=0|c=2": 0.4,
-    "q=cual es la diferencia entre frecuencia y tono|s=0|c=3": 0.36,
-    "q=cual es la diferencia entre frecuencia y tono|s=1|c=0": 0.88,
-    "q=cual es la diferencia entre frecuencia y tono|s=1|c=1": 0.62,
-    "q=cual es la diferencia entre frecuencia y tono|s=1|c=2": 0.4,
-    "q=cual es la diferencia entre frecuencia y tono|s=1|c=3": 0.36,
-    "q=cual es la diferencia entre frecuencia y tono|s=2|c=0": 0.88,
-    "q=cual es la diferencia entre frecuencia y tono|s=2|c=1": 0.62,
-    "q=cual es la diferencia entre frecuencia y tono|s=2|c=2": 0.4,
-    "q=cual es la diferencia entre frecuencia y tono|s=2|c=3": 0.36,
-    "q=curvas isofonicas sala acustica resonadores|s=0|c=0": 1.16,
-    "q=curvas isofonicas sala acustica resonadores|s=0|c=1": 0.36,
-    "q=curvas isofonicas sala acustica resonadores|s=0|c=2": 0.4,
-    "q=curvas isofonicas sala acustica resonadores|s=0|c=3": 0.36,
-    "q=curvas isofonicas sala acustica resonadores|s=1|c=0": 0.36,
-    "q=curvas isofonicas sala acustica resonadores|s=1|c=1": 0.36,
-    "q=curvas isofonicas sala acustica resonadores|s=1|c=2": 0.4,
-    "q=curvas isofonicas sala acustica resonadores|s=1|c=3": 0.36,
-    "q=curvas isofonicas sala acustica resonadores|s=2|c=0": 0.36,
-    "q=curvas isofonicas sala acustica resonadores|s=2|c=1": 0.36,
-    "q=curvas isofonicas sala acustica resonadores|s=2|c=2": 0.4,
-    "q=curvas isofonicas sala acustica resonadores|s=2|c=3": 0.36,
-    "q=diferencia entre compresion y ecualizacion|s=0|c=0": 2.36,
-    "q=diferencia entre compresion y ecualizacion|s=0|c=1": 0.78,
-    "q=diferencia entre compresion y ecualizacion|s=0|c=2": 0.4,
-    "q=diferencia entre compresion y ecualizacion|s=0|c=3": 0.36,
-    "q=diferencia entre compresion y ecualizacion|s=1|c=0": 1.56,
-    "q=diferencia entre compresion y ecualizacion|s=1|c=1": 0.78,
-    "q=diferencia entre compresion y ecualizacion|s=1|c=2": 0.4,
-    "q=diferencia entre compresion y ecualizacion|s=1|c=3": 0.36,
-    "q=diferencia entre compresion y ecualizacion|s=2|c=0": 1.56,
-    "q=diferencia entre compresion y ecualizacion|s=2|c=1": 0.78,
-    "q=diferencia entre compresion y ecualizacion|s=2|c=2": 0.4,
-    "q=diferencia entre compresion y ecualizacion|s=2|c=3": 0.36,
-    "q=diferencia entre filtro y ecualizacion|s=0|c=0": 3.03,
-    "q=diferencia entre filtro y ecualizacion|s=0|c=1": 0.62,
-    "q=diferencia entre filtro y ecualizacion|s=0|c=2": 0.4,
-    "q=diferencia entre filtro y ecualizacion|s=0|c=3": 0.36,
-    "q=diferencia entre filtro y ecualizacion|s=1|c=0": 2.23,
-    "q=diferencia entre filtro y ecualizacion|s=1|c=1": 0.62,
-    "q=diferencia entre filtro y ecualizacion|s=1|c=2": 0.4,
-    "q=diferencia entre filtro y ecualizacion|s=1|c=3": 0.36,
-    "q=diferencia entre filtro y ecualizacion|s=2|c=0": 2.23,
-    "q=diferencia entre filtro y ecualizacion|s=2|c=1": 0.62,
-    "q=diferencia entre filtro y ecualizacion|s=2|c=2": 0.4,
-    "q=diferencia entre filtro y ecualizacion|s=2|c=3": 0.36,
-    "q=el master no clipea esta bien|s=0|c=0": 1.44,
-    "q=el master no clipea esta bien|s=0|c=1": 0.68,
-    "q=el master no clipea esta bien|s=0|c=2": 0.4,
-    "q=el master no clipea esta bien|s=0|c=3": 0.56,
-    "q=el master no clipea esta bien|s=1|c=0": 0.64,
-    "q=el master no clipea esta bien|s=1|c=1": 0.68,
-    "q=el master no clipea esta bien|s=1|c=2": 0.4,
-    "q=el master no clipea esta bien|s=1|c=3": 0.56,
-    "q=el master no clipea esta bien|s=2|c=0": 0.64,
-    "q=el master no clipea esta bien|s=2|c=1": 0.68,
-    "q=el master no clipea esta bien|s=2|c=2": 0.4,
-    "q=el master no clipea esta bien|s=2|c=3": 0.56,
-    "q=en que minuto reviso el gain staging|s=0|c=0": 1.16,
-    "q=en que minuto reviso el gain staging|s=0|c=1": 0.36,
-    "q=en que minuto reviso el gain staging|s=0|c=2": 0.4,
-    "q=en que minuto reviso el gain staging|s=0|c=3": 1.26,
-    "q=en que minuto reviso el gain staging|s=1|c=0": 0.36,
-    "q=en que minuto reviso el gain staging|s=1|c=1": 0.36,
-    "q=en que minuto reviso el gain staging|s=1|c=2": 0.4,
-    "q=en que minuto reviso el gain staging|s=1|c=3": 1.26,
-    "q=en que minuto reviso el gain staging|s=2|c=0": 0.36,
-    "q=en que minuto reviso el gain staging|s=2|c=1": 0.36,
-    "q=en que minuto reviso el gain staging|s=2|c=2": 0.4,
-    "q=en que minuto reviso el gain staging|s=2|c=3": 1.26,
-    "q=en que modulo hablan de frecuencia de corte|s=0|c=0": 2.43,
-    "q=en que modulo hablan de frecuencia de corte|s=0|c=1": 0.36,
-    "q=en que modulo hablan de frecuencia de corte|s=0|c=2": 0.4,
-    "q=en que modulo hablan de frecuencia de corte|s=0|c=3": 0.36,
-    "q=en que modulo hablan de frecuencia de corte|s=1|c=0": 1.63,
-    "q=en que modulo hablan de frecuencia de corte|s=1|c=1": 0.36,
-    "q=en que modulo hablan de frecuencia de corte|s=1|c=2": 0.4,
-    "q=en que modulo hablan de frecuencia de corte|s=1|c=3": 0.36,
-    "q=en que modulo hablan de frecuencia de corte|s=2|c=0": 1.63,
-    "q=en que modulo hablan de frecuencia de corte|s=2|c=1": 0.36,
-    "q=en que modulo hablan de frecuencia de corte|s=2|c=2": 0.4,
-    "q=en que modulo hablan de frecuencia de corte|s=2|c=3": 0.36,
-    "q=eso cuando conviene|s=0|c=0": 1.36,
-    "q=eso cuando conviene|s=0|c=1": 0.56,
-    "q=eso cuando conviene|s=0|c=2": 0.4,
-    "q=eso cuando conviene|s=0|c=3": 0.56,
-    "q=eso cuando conviene|s=1|c=0": 0.56,
-    "q=eso cuando conviene|s=1|c=1": 0.56,
-    "q=eso cuando conviene|s=1|c=2": 0.4,
-    "q=eso cuando conviene|s=1|c=3": 0.56,
-    "q=eso cuando conviene|s=2|c=0": 0.56,
-    "q=eso cuando conviene|s=2|c=1": 0.56,
-    "q=eso cuando conviene|s=2|c=2": 0.4,
-    "q=eso cuando conviene|s=2|c=3": 0.56,
-    "q=explicame desde cero|s=0|c=0": 1.36,
-    "q=explicame desde cero|s=0|c=1": 0.56,
-    "q=explicame desde cero|s=0|c=2": 0.4,
-    "q=explicame desde cero|s=0|c=3": 0.56,
-    "q=explicame desde cero|s=1|c=0": 0.56,
-    "q=explicame desde cero|s=1|c=1": 0.56,
-    "q=explicame desde cero|s=1|c=2": 0.4,
-    "q=explicame desde cero|s=1|c=3": 0.56,
-    "q=explicame desde cero|s=2|c=0": 0.56,
-    "q=explicame desde cero|s=2|c=1": 0.56,
-    "q=explicame desde cero|s=2|c=2": 0.4,
-    "q=explicame desde cero|s=2|c=3": 0.56,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=0": 2.49,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=1": 0.42,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=2": 0.4,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=3": 0.42,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=0": 1.69,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=1": 0.42,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=2": 0.4,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=3": 0.42,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=0": 1.69,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=1": 0.42,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=2": 0.4,
-    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=3": 0.42,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=0": 1.24,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=1": 0.48,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=2": 0.4,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=3": 1.26,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=0": 0.44,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=1": 0.48,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=2": 0.4,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=3": 1.26,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=0": 0.44,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=1": 0.48,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=2": 0.4,
-    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=3": 1.26,
-    "q=gracias|s=0|c=0": 1.36,
-    "q=gracias|s=0|c=1": 0.56,
-    "q=gracias|s=0|c=2": 0.4,
-    "q=gracias|s=0|c=3": 0.56,
-    "q=gracias|s=1|c=0": 0.56,
-    "q=gracias|s=1|c=1": 0.56,
-    "q=gracias|s=1|c=2": 0.4,
-    "q=gracias|s=1|c=3": 0.56,
-    "q=gracias|s=2|c=0": 0.56,
-    "q=gracias|s=2|c=1": 0.56,
-    "q=gracias|s=2|c=2": 0.4,
-    "q=gracias|s=2|c=3": 0.56,
-    "q=hola|s=0|c=0": 1.36,
-    "q=hola|s=0|c=1": 0.56,
-    "q=hola|s=0|c=2": 0.4,
-    "q=hola|s=0|c=3": 0.56,
-    "q=hola|s=1|c=0": 0.56,
-    "q=hola|s=1|c=1": 0.56,
-    "q=hola|s=1|c=2": 0.4,
-    "q=hola|s=1|c=3": 0.56,
-    "q=hola|s=2|c=0": 0.56,
-    "q=hola|s=2|c=1": 0.56,
-    "q=hola|s=2|c=2": 0.4,
-    "q=hola|s=2|c=3": 0.56,
-    "q=la espuma sirve para los graves|s=0|c=0": 1.66,
-    "q=la espuma sirve para los graves|s=0|c=1": 0.82,
-    "q=la espuma sirve para los graves|s=0|c=2": 0.4,
-    "q=la espuma sirve para los graves|s=0|c=3": 0.56,
-    "q=la espuma sirve para los graves|s=1|c=0": 0.86,
-    "q=la espuma sirve para los graves|s=1|c=1": 0.82,
-    "q=la espuma sirve para los graves|s=1|c=2": 0.4,
-    "q=la espuma sirve para los graves|s=1|c=3": 0.56,
-    "q=la espuma sirve para los graves|s=2|c=0": 0.86,
-    "q=la espuma sirve para los graves|s=2|c=1": 0.82,
-    "q=la espuma sirve para los graves|s=2|c=2": 0.4,
-    "q=la espuma sirve para los graves|s=2|c=3": 0.56,
-    "q=mastering lufs limitador streaming normalizacion|s=0|c=0": 1.16,
-    "q=mastering lufs limitador streaming normalizacion|s=0|c=1": 0.36,
-    "q=mastering lufs limitador streaming normalizacion|s=0|c=2": 0.4,
-    "q=mastering lufs limitador streaming normalizacion|s=0|c=3": 0.36,
-    "q=mastering lufs limitador streaming normalizacion|s=1|c=0": 0.36,
-    "q=mastering lufs limitador streaming normalizacion|s=1|c=1": 0.36,
-    "q=mastering lufs limitador streaming normalizacion|s=1|c=2": 0.4,
-    "q=mastering lufs limitador streaming normalizacion|s=1|c=3": 0.36,
-    "q=mastering lufs limitador streaming normalizacion|s=2|c=0": 0.36,
-    "q=mastering lufs limitador streaming normalizacion|s=2|c=1": 0.36,
-    "q=mastering lufs limitador streaming normalizacion|s=2|c=2": 0.4,
-    "q=mastering lufs limitador streaming normalizacion|s=2|c=3": 0.36,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=0": 1.3,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=1": 0.48,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=2": 0.52,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=3": 0.36,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=0": 0.5,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=1": 0.48,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=2": 0.52,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=3": 0.36,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=0": 0.5,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=1": 0.48,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=2": 0.52,
-    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=3": 0.36,
-    "q=necesito plugins de serum y wavetable|s=0|c=0": 1.36,
-    "q=necesito plugins de serum y wavetable|s=0|c=1": 0.56,
-    "q=necesito plugins de serum y wavetable|s=0|c=2": 0.4,
-    "q=necesito plugins de serum y wavetable|s=0|c=3": 0.56,
-    "q=necesito plugins de serum y wavetable|s=1|c=0": 0.56,
-    "q=necesito plugins de serum y wavetable|s=1|c=1": 0.56,
-    "q=necesito plugins de serum y wavetable|s=1|c=2": 0.4,
-    "q=necesito plugins de serum y wavetable|s=1|c=3": 0.56,
-    "q=necesito plugins de serum y wavetable|s=2|c=0": 0.56,
-    "q=necesito plugins de serum y wavetable|s=2|c=1": 0.56,
-    "q=necesito plugins de serum y wavetable|s=2|c=2": 0.4,
-    "q=necesito plugins de serum y wavetable|s=2|c=3": 0.56,
-    "q=no entiendo nada me rindo|s=0|c=0": 1.36,
-    "q=no entiendo nada me rindo|s=0|c=1": 0.56,
-    "q=no entiendo nada me rindo|s=0|c=2": 0.4,
-    "q=no entiendo nada me rindo|s=0|c=3": 0.56,
-    "q=no entiendo nada me rindo|s=1|c=0": 0.56,
-    "q=no entiendo nada me rindo|s=1|c=1": 0.56,
-    "q=no entiendo nada me rindo|s=1|c=2": 0.4,
-    "q=no entiendo nada me rindo|s=1|c=3": 0.56,
-    "q=no entiendo nada me rindo|s=2|c=0": 0.56,
-    "q=no entiendo nada me rindo|s=2|c=1": 0.56,
-    "q=no entiendo nada me rindo|s=2|c=2": 0.4,
-    "q=no entiendo nada me rindo|s=2|c=3": 0.56,
-    "q=ok|s=0|c=0": 1.36,
-    "q=ok|s=0|c=1": 0.56,
-    "q=ok|s=0|c=2": 0.4,
-    "q=ok|s=0|c=3": 0.56,
-    "q=ok|s=1|c=0": 0.56,
-    "q=ok|s=1|c=1": 0.56,
-    "q=ok|s=1|c=2": 0.4,
-    "q=ok|s=1|c=3": 0.56,
-    "q=ok|s=2|c=0": 0.56,
-    "q=ok|s=2|c=1": 0.56,
-    "q=ok|s=2|c=2": 0.4,
-    "q=ok|s=2|c=3": 0.56,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=0": 1.16,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=1": 0.36,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=2": 0.4,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=3": 0.36,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=0": 0.36,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=1": 0.36,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=2": 0.4,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=3": 0.36,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=0": 0.36,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=1": 0.36,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=2": 0.4,
-    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=3": 0.36,
-    "q=por que revisar en mono|s=0|c=0": 1.46,
-    "q=por que revisar en mono|s=0|c=1": 0.62,
-    "q=por que revisar en mono|s=0|c=2": 0.4,
-    "q=por que revisar en mono|s=0|c=3": 0.36,
-    "q=por que revisar en mono|s=1|c=0": 0.66,
-    "q=por que revisar en mono|s=1|c=1": 0.62,
-    "q=por que revisar en mono|s=1|c=2": 0.4,
-    "q=por que revisar en mono|s=1|c=3": 0.36,
-    "q=por que revisar en mono|s=2|c=0": 0.66,
-    "q=por que revisar en mono|s=2|c=1": 0.62,
-    "q=por que revisar en mono|s=2|c=2": 0.4,
-    "q=por que revisar en mono|s=2|c=3": 0.36,
-    "q=puedo ecualizar con mis audios ya procesados|s=0|c=0": 1.36,
-    "q=puedo ecualizar con mis audios ya procesados|s=0|c=1": 0.56,
-    "q=puedo ecualizar con mis audios ya procesados|s=0|c=2": 0.4,
-    "q=puedo ecualizar con mis audios ya procesados|s=0|c=3": 0.56,
-    "q=puedo ecualizar con mis audios ya procesados|s=1|c=0": 0.56,
-    "q=puedo ecualizar con mis audios ya procesados|s=1|c=1": 0.56,
-    "q=puedo ecualizar con mis audios ya procesados|s=1|c=2": 0.4,
-    "q=puedo ecualizar con mis audios ya procesados|s=1|c=3": 0.56,
-    "q=puedo ecualizar con mis audios ya procesados|s=2|c=0": 0.56,
-    "q=puedo ecualizar con mis audios ya procesados|s=2|c=1": 0.56,
-    "q=puedo ecualizar con mis audios ya procesados|s=2|c=2": 0.4,
-    "q=puedo ecualizar con mis audios ya procesados|s=2|c=3": 0.56,
-    "q=que diferencia hay entre serie y paralelo|s=0|c=0": 1.66,
-    "q=que diferencia hay entre serie y paralelo|s=0|c=1": 0.94,
-    "q=que diferencia hay entre serie y paralelo|s=0|c=2": 0.4,
-    "q=que diferencia hay entre serie y paralelo|s=0|c=3": 0.56,
-    "q=que diferencia hay entre serie y paralelo|s=1|c=0": 0.86,
-    "q=que diferencia hay entre serie y paralelo|s=1|c=1": 0.94,
-    "q=que diferencia hay entre serie y paralelo|s=1|c=2": 0.4,
-    "q=que diferencia hay entre serie y paralelo|s=1|c=3": 0.56,
-    "q=que diferencia hay entre serie y paralelo|s=2|c=0": 0.86,
-    "q=que diferencia hay entre serie y paralelo|s=2|c=1": 0.94,
-    "q=que diferencia hay entre serie y paralelo|s=2|c=2": 0.4,
-    "q=que diferencia hay entre serie y paralelo|s=2|c=3": 0.56,
-    "q=que es 0 vu y dbfs y el overhead|s=0|c=0": 1.66,
-    "q=que es 0 vu y dbfs y el overhead|s=0|c=1": 0.82,
-    "q=que es 0 vu y dbfs y el overhead|s=0|c=2": 0.4,
-    "q=que es 0 vu y dbfs y el overhead|s=0|c=3": 0.56,
-    "q=que es 0 vu y dbfs y el overhead|s=1|c=0": 0.86,
-    "q=que es 0 vu y dbfs y el overhead|s=1|c=1": 0.82,
-    "q=que es 0 vu y dbfs y el overhead|s=1|c=2": 0.4,
-    "q=que es 0 vu y dbfs y el overhead|s=1|c=3": 0.56,
-    "q=que es 0 vu y dbfs y el overhead|s=2|c=0": 0.86,
-    "q=que es 0 vu y dbfs y el overhead|s=2|c=1": 0.82,
-    "q=que es 0 vu y dbfs y el overhead|s=2|c=2": 0.4,
-    "q=que es 0 vu y dbfs y el overhead|s=2|c=3": 0.56,
-    "q=que es el factor q|s=0|c=0": 2.36,
-    "q=que es el factor q|s=0|c=1": 0.68,
-    "q=que es el factor q|s=0|c=2": 0.4,
-    "q=que es el factor q|s=0|c=3": 0.42,
-    "q=que es el factor q|s=1|c=0": 1.56,
-    "q=que es el factor q|s=1|c=1": 0.68,
-    "q=que es el factor q|s=1|c=2": 0.4,
-    "q=que es el factor q|s=1|c=3": 0.42,
-    "q=que es el factor q|s=2|c=0": 1.56,
-    "q=que es el factor q|s=2|c=1": 0.68,
-    "q=que es el factor q|s=2|c=2": 0.4,
-    "q=que es el factor q|s=2|c=3": 0.42,
-    "q=que es el headroom|s=0|c=0": 1.46,
-    "q=que es el headroom|s=0|c=1": 0.62,
-    "q=que es el headroom|s=0|c=2": 0.4,
-    "q=que es el headroom|s=0|c=3": 1.26,
-    "q=que es el headroom|s=1|c=0": 0.66,
-    "q=que es el headroom|s=1|c=1": 0.62,
-    "q=que es el headroom|s=1|c=2": 0.4,
-    "q=que es el headroom|s=1|c=3": 1.26,
-    "q=que es el headroom|s=2|c=0": 0.66,
-    "q=que es el headroom|s=2|c=1": 0.62,
-    "q=que es el headroom|s=2|c=2": 0.4,
-    "q=que es el headroom|s=2|c=3": 1.26,
-    "q=que es en serie y en paralelo|s=0|c=0": 1.66,
-    "q=que es en serie y en paralelo|s=0|c=1": 0.94,
-    "q=que es en serie y en paralelo|s=0|c=2": 0.4,
-    "q=que es en serie y en paralelo|s=0|c=3": 0.56,
-    "q=que es en serie y en paralelo|s=1|c=0": 0.86,
-    "q=que es en serie y en paralelo|s=1|c=1": 0.94,
-    "q=que es en serie y en paralelo|s=1|c=2": 0.4,
-    "q=que es en serie y en paralelo|s=1|c=3": 0.56,
-    "q=que es en serie y en paralelo|s=2|c=0": 0.86,
-    "q=que es en serie y en paralelo|s=2|c=1": 0.94,
-    "q=que es en serie y en paralelo|s=2|c=2": 0.4,
-    "q=que es en serie y en paralelo|s=2|c=3": 0.56,
-    "q=que es eso|s=0|c=0": 1.66,
-    "q=que es eso|s=0|c=1": 0.82,
-    "q=que es eso|s=0|c=2": 0.4,
-    "q=que es eso|s=0|c=3": 0.56,
-    "q=que es eso|s=1|c=0": 0.86,
-    "q=que es eso|s=1|c=1": 0.82,
-    "q=que es eso|s=1|c=2": 0.4,
-    "q=que es eso|s=1|c=3": 0.56,
-    "q=que es eso|s=2|c=0": 0.86,
-    "q=que es eso|s=2|c=1": 0.82,
-    "q=que es eso|s=2|c=2": 0.4,
-    "q=que es eso|s=2|c=3": 0.56,
-    "q=que es la correlacion|s=0|c=0": 1.46,
-    "q=que es la correlacion|s=0|c=1": 0.62,
-    "q=que es la correlacion|s=0|c=2": 0.4,
-    "q=que es la correlacion|s=0|c=3": 0.36,
-    "q=que es la correlacion|s=1|c=0": 0.66,
-    "q=que es la correlacion|s=1|c=1": 0.62,
-    "q=que es la correlacion|s=1|c=2": 0.4,
-    "q=que es la correlacion|s=1|c=3": 0.36,
-    "q=que es la correlacion|s=2|c=0": 0.66,
-    "q=que es la correlacion|s=2|c=1": 0.62,
-    "q=que es la correlacion|s=2|c=2": 0.4,
-    "q=que es la correlacion|s=2|c=3": 0.36,
-    "q=que es la frecuencia de corte|s=0|c=0": 2.73,
-    "q=que es la frecuencia de corte|s=0|c=1": 0.62,
-    "q=que es la frecuencia de corte|s=0|c=2": 0.4,
-    "q=que es la frecuencia de corte|s=0|c=3": 0.36,
-    "q=que es la frecuencia de corte|s=1|c=0": 1.93,
-    "q=que es la frecuencia de corte|s=1|c=1": 0.62,
-    "q=que es la frecuencia de corte|s=1|c=2": 0.4,
-    "q=que es la frecuencia de corte|s=1|c=3": 0.36,
-    "q=que es la frecuencia de corte|s=2|c=0": 1.93,
-    "q=que es la frecuencia de corte|s=2|c=1": 0.62,
-    "q=que es la frecuencia de corte|s=2|c=2": 0.4,
-    "q=que es la frecuencia de corte|s=2|c=3": 0.36,
-    "q=que es la polaridad y cuando la invierto|s=0|c=0": 1.46,
-    "q=que es la polaridad y cuando la invierto|s=0|c=1": 0.62,
-    "q=que es la polaridad y cuando la invierto|s=0|c=2": 0.4,
-    "q=que es la polaridad y cuando la invierto|s=0|c=3": 0.36,
-    "q=que es la polaridad y cuando la invierto|s=1|c=0": 0.66,
-    "q=que es la polaridad y cuando la invierto|s=1|c=1": 0.62,
-    "q=que es la polaridad y cuando la invierto|s=1|c=2": 0.4,
-    "q=que es la polaridad y cuando la invierto|s=1|c=3": 0.36,
-    "q=que es la polaridad y cuando la invierto|s=2|c=0": 0.66,
-    "q=que es la polaridad y cuando la invierto|s=2|c=1": 0.62,
-    "q=que es la polaridad y cuando la invierto|s=2|c=2": 0.4,
-    "q=que es la polaridad y cuando la invierto|s=2|c=3": 0.36,
-    "q=que es la sintesis fm|s=0|c=0": 1.66,
-    "q=que es la sintesis fm|s=0|c=1": 0.82,
-    "q=que es la sintesis fm|s=0|c=2": 0.4,
-    "q=que es la sintesis fm|s=0|c=3": 0.56,
-    "q=que es la sintesis fm|s=1|c=0": 0.86,
-    "q=que es la sintesis fm|s=1|c=1": 0.82,
-    "q=que es la sintesis fm|s=1|c=2": 0.4,
-    "q=que es la sintesis fm|s=1|c=3": 0.56,
-    "q=que es la sintesis fm|s=2|c=0": 0.86,
-    "q=que es la sintesis fm|s=2|c=1": 0.82,
-    "q=que es la sintesis fm|s=2|c=2": 0.4,
-    "q=que es la sintesis fm|s=2|c=3": 0.56,
-    "q=que hace un compresor|s=0|c=0": 1.46,
-    "q=que hace un compresor|s=0|c=1": 1.58,
-    "q=que hace un compresor|s=0|c=2": 0.4,
-    "q=que hace un compresor|s=0|c=3": 0.36,
-    "q=que hace un compresor|s=1|c=0": 0.66,
-    "q=que hace un compresor|s=1|c=1": 1.58,
-    "q=que hace un compresor|s=1|c=2": 0.4,
-    "q=que hace un compresor|s=1|c=3": 0.36,
-    "q=que hace un compresor|s=2|c=0": 0.66,
-    "q=que hace un compresor|s=2|c=1": 1.58,
-    "q=que hace un compresor|s=2|c=2": 0.4,
-    "q=que hace un compresor|s=2|c=3": 0.36,
-    "q=que pdf tengo que leer sobre headroom|s=0|c=0": 1.16,
-    "q=que pdf tengo que leer sobre headroom|s=0|c=1": 0.36,
-    "q=que pdf tengo que leer sobre headroom|s=0|c=2": 0.4,
-    "q=que pdf tengo que leer sobre headroom|s=0|c=3": 1.26,
-    "q=que pdf tengo que leer sobre headroom|s=1|c=0": 0.36,
-    "q=que pdf tengo que leer sobre headroom|s=1|c=1": 0.36,
-    "q=que pdf tengo que leer sobre headroom|s=1|c=2": 0.4,
-    "q=que pdf tengo que leer sobre headroom|s=1|c=3": 1.26,
-    "q=que pdf tengo que leer sobre headroom|s=2|c=0": 0.36,
-    "q=que pdf tengo que leer sobre headroom|s=2|c=1": 0.36,
-    "q=que pdf tengo que leer sobre headroom|s=2|c=2": 0.4,
-    "q=que pdf tengo que leer sobre headroom|s=2|c=3": 1.26,
-    "q=que recurso reviso para entender compresion paralela|s=0|c=0": 1.16,
-    "q=que recurso reviso para entender compresion paralela|s=0|c=1": 1.26,
-    "q=que recurso reviso para entender compresion paralela|s=0|c=2": 0.4,
-    "q=que recurso reviso para entender compresion paralela|s=0|c=3": 0.36,
-    "q=que recurso reviso para entender compresion paralela|s=1|c=0": 0.36,
-    "q=que recurso reviso para entender compresion paralela|s=1|c=1": 1.26,
-    "q=que recurso reviso para entender compresion paralela|s=1|c=2": 0.4,
-    "q=que recurso reviso para entender compresion paralela|s=1|c=3": 0.36,
-    "q=que recurso reviso para entender compresion paralela|s=2|c=0": 0.36,
-    "q=que recurso reviso para entender compresion paralela|s=2|c=1": 1.26,
-    "q=que recurso reviso para entender compresion paralela|s=2|c=2": 0.4,
-    "q=que recurso reviso para entender compresion paralela|s=2|c=3": 0.36,
-    "q=que relacion tiene la espuma con la interfaz|s=0|c=0": 1.36,
-    "q=que relacion tiene la espuma con la interfaz|s=0|c=1": 0.56,
-    "q=que relacion tiene la espuma con la interfaz|s=0|c=2": 0.4,
-    "q=que relacion tiene la espuma con la interfaz|s=0|c=3": 0.56,
-    "q=que relacion tiene la espuma con la interfaz|s=1|c=0": 0.56,
-    "q=que relacion tiene la espuma con la interfaz|s=1|c=1": 0.56,
-    "q=que relacion tiene la espuma con la interfaz|s=1|c=2": 0.4,
-    "q=que relacion tiene la espuma con la interfaz|s=1|c=3": 0.56,
-    "q=que relacion tiene la espuma con la interfaz|s=2|c=0": 0.56,
-    "q=que relacion tiene la espuma con la interfaz|s=2|c=1": 0.56,
-    "q=que relacion tiene la espuma con la interfaz|s=2|c=2": 0.4,
-    "q=que relacion tiene la espuma con la interfaz|s=2|c=3": 0.56,
-    "q=que reverb uso para dar profundidad|s=0|c=0": 1.16,
-    "q=que reverb uso para dar profundidad|s=0|c=1": 0.36,
-    "q=que reverb uso para dar profundidad|s=0|c=2": 0.4,
-    "q=que reverb uso para dar profundidad|s=0|c=3": 0.42,
-    "q=que reverb uso para dar profundidad|s=1|c=0": 0.36,
-    "q=que reverb uso para dar profundidad|s=1|c=1": 0.36,
-    "q=que reverb uso para dar profundidad|s=1|c=2": 0.4,
-    "q=que reverb uso para dar profundidad|s=1|c=3": 0.42,
-    "q=que reverb uso para dar profundidad|s=2|c=0": 0.36,
-    "q=que reverb uso para dar profundidad|s=2|c=1": 0.36,
-    "q=que reverb uso para dar profundidad|s=2|c=2": 0.4,
-    "q=que reverb uso para dar profundidad|s=2|c=3": 0.42,
-    "q=quien es napoleon|s=0|c=0": 1.36,
-    "q=quien es napoleon|s=0|c=1": 0.56,
-    "q=quien es napoleon|s=0|c=2": 0.4,
-    "q=quien es napoleon|s=0|c=3": 0.56,
-    "q=quien es napoleon|s=1|c=0": 0.56,
-    "q=quien es napoleon|s=1|c=1": 0.56,
-    "q=quien es napoleon|s=1|c=2": 0.4,
-    "q=quien es napoleon|s=1|c=3": 0.56,
-    "q=quien es napoleon|s=2|c=0": 0.56,
-    "q=quien es napoleon|s=2|c=1": 0.56,
-    "q=quien es napoleon|s=2|c=2": 0.4,
-    "q=quien es napoleon|s=2|c=3": 0.56,
-    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=0": 1.16,
-    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=1": 0.36,
-    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=2": 0.4,
-    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=3": 0.42,
-    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=0": 0.36,
-    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=1": 0.36,
-    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=2": 0.4,
-    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=3": 0.42,
-    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=0": 0.36,
-    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=1": 0.36,
-    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=2": 0.4,
-    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=3": 0.42,
-    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=0": 1.36,
-    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=1": 0.56,
-    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=2": 0.4,
-    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=3": 0.56,
-    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=0": 0.56,
-    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=1": 0.56,
-    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=2": 0.4,
-    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=3": 0.56,
-    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=0": 0.56,
-    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=1": 0.56,
-    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=2": 0.4,
-    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=3": 0.56,
-    "q=y eso|s=0|c=0": 1.36,
-    "q=y eso|s=0|c=1": 0.56,
-    "q=y eso|s=0|c=2": 0.4,
-    "q=y eso|s=0|c=3": 0.56,
-    "q=y eso|s=1|c=0": 0.56,
-    "q=y eso|s=1|c=1": 0.56,
-    "q=y eso|s=1|c=2": 0.4,
-    "q=y eso|s=1|c=3": 0.56,
-    "q=y eso|s=2|c=0": 0.56,
-    "q=y eso|s=2|c=1": 0.56,
-    "q=y eso|s=2|c=2": 0.4,
-    "q=y eso|s=2|c=3": 0.56
+    "q=a cuantos db|s=0|c=0": 1.41,
+    "q=a cuantos db|s=0|c=1": 0.66,
+    "q=a cuantos db|s=0|c=2": 0.75,
+    "q=a cuantos db|s=0|c=3": 0.66,
+    "q=a cuantos db|s=1|c=0": 0.66,
+    "q=a cuantos db|s=1|c=1": 0.66,
+    "q=a cuantos db|s=1|c=2": 0.75,
+    "q=a cuantos db|s=1|c=3": 0.66,
+    "q=a cuantos db|s=2|c=0": 0.66,
+    "q=a cuantos db|s=2|c=1": 0.66,
+    "q=a cuantos db|s=2|c=2": 0.75,
+    "q=a cuantos db|s=2|c=3": 0.66,
+    "q=como comprimo un ecualizador|s=0|c=0": 1.47,
+    "q=como comprimo un ecualizador|s=0|c=1": 0.66,
+    "q=como comprimo un ecualizador|s=0|c=2": 0.75,
+    "q=como comprimo un ecualizador|s=0|c=3": 0.66,
+    "q=como comprimo un ecualizador|s=1|c=0": 0.72,
+    "q=como comprimo un ecualizador|s=1|c=1": 0.66,
+    "q=como comprimo un ecualizador|s=1|c=2": 0.75,
+    "q=como comprimo un ecualizador|s=1|c=3": 0.66,
+    "q=como comprimo un ecualizador|s=2|c=0": 0.72,
+    "q=como comprimo un ecualizador|s=2|c=1": 0.66,
+    "q=como comprimo un ecualizador|s=2|c=2": 0.75,
+    "q=como comprimo un ecualizador|s=2|c=3": 0.66,
+    "q=como controlo el hiss y el doubling en los toms|s=0|c=0": 1.47,
+    "q=como controlo el hiss y el doubling en los toms|s=0|c=1": 0.66,
+    "q=como controlo el hiss y el doubling en los toms|s=0|c=2": 0.75,
+    "q=como controlo el hiss y el doubling en los toms|s=0|c=3": 0.66,
+    "q=como controlo el hiss y el doubling en los toms|s=1|c=0": 0.72,
+    "q=como controlo el hiss y el doubling en los toms|s=1|c=1": 0.66,
+    "q=como controlo el hiss y el doubling en los toms|s=1|c=2": 0.75,
+    "q=como controlo el hiss y el doubling en los toms|s=1|c=3": 0.66,
+    "q=como controlo el hiss y el doubling en los toms|s=2|c=0": 0.72,
+    "q=como controlo el hiss y el doubling en los toms|s=2|c=1": 0.66,
+    "q=como controlo el hiss y el doubling en los toms|s=2|c=2": 0.75,
+    "q=como controlo el hiss y el doubling en los toms|s=2|c=3": 0.66,
+    "q=como hago el mastering para streaming con lufs|s=0|c=0": 1.47,
+    "q=como hago el mastering para streaming con lufs|s=0|c=1": 0.66,
+    "q=como hago el mastering para streaming con lufs|s=0|c=2": 0.75,
+    "q=como hago el mastering para streaming con lufs|s=0|c=3": 0.66,
+    "q=como hago el mastering para streaming con lufs|s=1|c=0": 0.72,
+    "q=como hago el mastering para streaming con lufs|s=1|c=1": 0.66,
+    "q=como hago el mastering para streaming con lufs|s=1|c=2": 0.75,
+    "q=como hago el mastering para streaming con lufs|s=1|c=3": 0.66,
+    "q=como hago el mastering para streaming con lufs|s=2|c=0": 0.72,
+    "q=como hago el mastering para streaming con lufs|s=2|c=1": 0.66,
+    "q=como hago el mastering para streaming con lufs|s=2|c=2": 0.75,
+    "q=como hago el mastering para streaming con lufs|s=2|c=3": 0.66,
+    "q=como mezclar bien aplicando plugins a todo|s=0|c=0": 1.47,
+    "q=como mezclar bien aplicando plugins a todo|s=0|c=1": 0.66,
+    "q=como mezclar bien aplicando plugins a todo|s=0|c=2": 0.75,
+    "q=como mezclar bien aplicando plugins a todo|s=0|c=3": 0.66,
+    "q=como mezclar bien aplicando plugins a todo|s=1|c=0": 0.72,
+    "q=como mezclar bien aplicando plugins a todo|s=1|c=1": 0.66,
+    "q=como mezclar bien aplicando plugins a todo|s=1|c=2": 0.75,
+    "q=como mezclar bien aplicando plugins a todo|s=1|c=3": 0.66,
+    "q=como mezclar bien aplicando plugins a todo|s=2|c=0": 0.72,
+    "q=como mezclar bien aplicando plugins a todo|s=2|c=1": 0.66,
+    "q=como mezclar bien aplicando plugins a todo|s=2|c=2": 0.75,
+    "q=como mezclar bien aplicando plugins a todo|s=2|c=3": 0.66,
+    "q=como uso ableton para masterizar|s=0|c=0": 1.47,
+    "q=como uso ableton para masterizar|s=0|c=1": 0.66,
+    "q=como uso ableton para masterizar|s=0|c=2": 0.75,
+    "q=como uso ableton para masterizar|s=0|c=3": 0.66,
+    "q=como uso ableton para masterizar|s=1|c=0": 0.72,
+    "q=como uso ableton para masterizar|s=1|c=1": 0.66,
+    "q=como uso ableton para masterizar|s=1|c=2": 0.75,
+    "q=como uso ableton para masterizar|s=1|c=3": 0.66,
+    "q=como uso ableton para masterizar|s=2|c=0": 0.72,
+    "q=como uso ableton para masterizar|s=2|c=1": 0.66,
+    "q=como uso ableton para masterizar|s=2|c=2": 0.75,
+    "q=como uso ableton para masterizar|s=2|c=3": 0.66,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=0": 1.41,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=1": 0.96,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=2": 0.75,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=0|c=3": 0.66,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=0": 0.66,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=1": 0.96,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=2": 0.75,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=1|c=3": 0.66,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=0": 0.66,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=1": 0.96,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=2": 0.75,
+    "q=compresor compresion threshold ratio ataque release dinamica|s=2|c=3": 0.66,
+    "q=cual es la diferencia entre frecuencia y tono|s=0|c=0": 1.93,
+    "q=cual es la diferencia entre frecuencia y tono|s=0|c=1": 0.92,
+    "q=cual es la diferencia entre frecuencia y tono|s=0|c=2": 0.75,
+    "q=cual es la diferencia entre frecuencia y tono|s=0|c=3": 0.66,
+    "q=cual es la diferencia entre frecuencia y tono|s=1|c=0": 1.18,
+    "q=cual es la diferencia entre frecuencia y tono|s=1|c=1": 0.92,
+    "q=cual es la diferencia entre frecuencia y tono|s=1|c=2": 0.75,
+    "q=cual es la diferencia entre frecuencia y tono|s=1|c=3": 0.66,
+    "q=cual es la diferencia entre frecuencia y tono|s=2|c=0": 1.18,
+    "q=cual es la diferencia entre frecuencia y tono|s=2|c=1": 0.92,
+    "q=cual es la diferencia entre frecuencia y tono|s=2|c=2": 0.75,
+    "q=cual es la diferencia entre frecuencia y tono|s=2|c=3": 0.66,
+    "q=curvas isofonicas sala acustica resonadores|s=0|c=0": 1.41,
+    "q=curvas isofonicas sala acustica resonadores|s=0|c=1": 0.66,
+    "q=curvas isofonicas sala acustica resonadores|s=0|c=2": 0.75,
+    "q=curvas isofonicas sala acustica resonadores|s=0|c=3": 0.66,
+    "q=curvas isofonicas sala acustica resonadores|s=1|c=0": 0.66,
+    "q=curvas isofonicas sala acustica resonadores|s=1|c=1": 0.66,
+    "q=curvas isofonicas sala acustica resonadores|s=1|c=2": 0.75,
+    "q=curvas isofonicas sala acustica resonadores|s=1|c=3": 0.66,
+    "q=curvas isofonicas sala acustica resonadores|s=2|c=0": 0.66,
+    "q=curvas isofonicas sala acustica resonadores|s=2|c=1": 0.66,
+    "q=curvas isofonicas sala acustica resonadores|s=2|c=2": 0.75,
+    "q=curvas isofonicas sala acustica resonadores|s=2|c=3": 0.66,
+    "q=diferencia entre compresion y ecualizacion|s=0|c=0": 1.71,
+    "q=diferencia entre compresion y ecualizacion|s=0|c=1": 1.08,
+    "q=diferencia entre compresion y ecualizacion|s=0|c=2": 0.75,
+    "q=diferencia entre compresion y ecualizacion|s=0|c=3": 0.66,
+    "q=diferencia entre compresion y ecualizacion|s=1|c=0": 0.96,
+    "q=diferencia entre compresion y ecualizacion|s=1|c=1": 1.08,
+    "q=diferencia entre compresion y ecualizacion|s=1|c=2": 0.75,
+    "q=diferencia entre compresion y ecualizacion|s=1|c=3": 0.66,
+    "q=diferencia entre compresion y ecualizacion|s=2|c=0": 0.96,
+    "q=diferencia entre compresion y ecualizacion|s=2|c=1": 1.08,
+    "q=diferencia entre compresion y ecualizacion|s=2|c=2": 0.75,
+    "q=diferencia entre compresion y ecualizacion|s=2|c=3": 0.66,
+    "q=diferencia entre filtro y ecualizacion|s=0|c=0": 2.38,
+    "q=diferencia entre filtro y ecualizacion|s=0|c=1": 0.92,
+    "q=diferencia entre filtro y ecualizacion|s=0|c=2": 0.75,
+    "q=diferencia entre filtro y ecualizacion|s=0|c=3": 0.66,
+    "q=diferencia entre filtro y ecualizacion|s=1|c=0": 1.63,
+    "q=diferencia entre filtro y ecualizacion|s=1|c=1": 0.92,
+    "q=diferencia entre filtro y ecualizacion|s=1|c=2": 0.75,
+    "q=diferencia entre filtro y ecualizacion|s=1|c=3": 0.66,
+    "q=diferencia entre filtro y ecualizacion|s=2|c=0": 1.63,
+    "q=diferencia entre filtro y ecualizacion|s=2|c=1": 0.92,
+    "q=diferencia entre filtro y ecualizacion|s=2|c=2": 0.75,
+    "q=diferencia entre filtro y ecualizacion|s=2|c=3": 0.66,
+    "q=el master no clipea esta bien|s=0|c=0": 1.49,
+    "q=el master no clipea esta bien|s=0|c=1": 0.78,
+    "q=el master no clipea esta bien|s=0|c=2": 0.75,
+    "q=el master no clipea esta bien|s=0|c=3": 0.66,
+    "q=el master no clipea esta bien|s=1|c=0": 0.74,
+    "q=el master no clipea esta bien|s=1|c=1": 0.78,
+    "q=el master no clipea esta bien|s=1|c=2": 0.75,
+    "q=el master no clipea esta bien|s=1|c=3": 0.66,
+    "q=el master no clipea esta bien|s=2|c=0": 0.74,
+    "q=el master no clipea esta bien|s=2|c=1": 0.78,
+    "q=el master no clipea esta bien|s=2|c=2": 0.75,
+    "q=el master no clipea esta bien|s=2|c=3": 0.66,
+    "q=en que minuto reviso el gain staging|s=0|c=0": 1.41,
+    "q=en que minuto reviso el gain staging|s=0|c=1": 0.66,
+    "q=en que minuto reviso el gain staging|s=0|c=2": 0.75,
+    "q=en que minuto reviso el gain staging|s=0|c=3": 0.66,
+    "q=en que minuto reviso el gain staging|s=1|c=0": 0.66,
+    "q=en que minuto reviso el gain staging|s=1|c=1": 0.66,
+    "q=en que minuto reviso el gain staging|s=1|c=2": 0.75,
+    "q=en que minuto reviso el gain staging|s=1|c=3": 0.66,
+    "q=en que minuto reviso el gain staging|s=2|c=0": 0.66,
+    "q=en que minuto reviso el gain staging|s=2|c=1": 0.66,
+    "q=en que minuto reviso el gain staging|s=2|c=2": 0.75,
+    "q=en que minuto reviso el gain staging|s=2|c=3": 0.66,
+    "q=en que modulo hablan de frecuencia de corte|s=0|c=0": 1.78,
+    "q=en que modulo hablan de frecuencia de corte|s=0|c=1": 0.66,
+    "q=en que modulo hablan de frecuencia de corte|s=0|c=2": 0.75,
+    "q=en que modulo hablan de frecuencia de corte|s=0|c=3": 0.66,
+    "q=en que modulo hablan de frecuencia de corte|s=1|c=0": 1.03,
+    "q=en que modulo hablan de frecuencia de corte|s=1|c=1": 0.66,
+    "q=en que modulo hablan de frecuencia de corte|s=1|c=2": 0.75,
+    "q=en que modulo hablan de frecuencia de corte|s=1|c=3": 0.66,
+    "q=en que modulo hablan de frecuencia de corte|s=2|c=0": 1.03,
+    "q=en que modulo hablan de frecuencia de corte|s=2|c=1": 0.66,
+    "q=en que modulo hablan de frecuencia de corte|s=2|c=2": 0.75,
+    "q=en que modulo hablan de frecuencia de corte|s=2|c=3": 0.66,
+    "q=eso cuando conviene|s=0|c=0": 1.41,
+    "q=eso cuando conviene|s=0|c=1": 0.66,
+    "q=eso cuando conviene|s=0|c=2": 0.75,
+    "q=eso cuando conviene|s=0|c=3": 0.66,
+    "q=eso cuando conviene|s=1|c=0": 0.66,
+    "q=eso cuando conviene|s=1|c=1": 0.66,
+    "q=eso cuando conviene|s=1|c=2": 0.75,
+    "q=eso cuando conviene|s=1|c=3": 0.66,
+    "q=eso cuando conviene|s=2|c=0": 0.66,
+    "q=eso cuando conviene|s=2|c=1": 0.66,
+    "q=eso cuando conviene|s=2|c=2": 0.75,
+    "q=eso cuando conviene|s=2|c=3": 0.66,
+    "q=explicame desde cero|s=0|c=0": 1.41,
+    "q=explicame desde cero|s=0|c=1": 0.66,
+    "q=explicame desde cero|s=0|c=2": 0.75,
+    "q=explicame desde cero|s=0|c=3": 0.66,
+    "q=explicame desde cero|s=1|c=0": 0.66,
+    "q=explicame desde cero|s=1|c=1": 0.66,
+    "q=explicame desde cero|s=1|c=2": 0.75,
+    "q=explicame desde cero|s=1|c=3": 0.66,
+    "q=explicame desde cero|s=2|c=0": 0.66,
+    "q=explicame desde cero|s=2|c=1": 0.66,
+    "q=explicame desde cero|s=2|c=2": 0.75,
+    "q=explicame desde cero|s=2|c=3": 0.66,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=0": 1.84,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=1": 0.72,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=2": 0.75,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=0|c=3": 0.72,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=0": 1.09,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=1": 0.72,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=2": 0.75,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=1|c=3": 0.72,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=0": 1.09,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=1": 0.72,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=2": 0.75,
+    "q=frecuencia de corte filtro pendiente factor q eq|s=2|c=3": 0.72,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=0": 1.49,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=1": 0.78,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=2": 0.75,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=0|c=3": 0.66,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=0": 0.74,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=1": 0.78,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=2": 0.75,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=1|c=3": 0.66,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=0": 0.74,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=1": 0.78,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=2": 0.75,
+    "q=gain staging headroom fader trim clip gain flujo de senal|s=2|c=3": 0.66,
+    "q=gracias|s=0|c=0": 1.41,
+    "q=gracias|s=0|c=1": 0.66,
+    "q=gracias|s=0|c=2": 0.75,
+    "q=gracias|s=0|c=3": 0.66,
+    "q=gracias|s=1|c=0": 0.66,
+    "q=gracias|s=1|c=1": 0.66,
+    "q=gracias|s=1|c=2": 0.75,
+    "q=gracias|s=1|c=3": 0.66,
+    "q=gracias|s=2|c=0": 0.66,
+    "q=gracias|s=2|c=1": 0.66,
+    "q=gracias|s=2|c=2": 0.75,
+    "q=gracias|s=2|c=3": 0.66,
+    "q=hola|s=0|c=0": 1.41,
+    "q=hola|s=0|c=1": 0.66,
+    "q=hola|s=0|c=2": 0.75,
+    "q=hola|s=0|c=3": 0.66,
+    "q=hola|s=1|c=0": 0.66,
+    "q=hola|s=1|c=1": 0.66,
+    "q=hola|s=1|c=2": 0.75,
+    "q=hola|s=1|c=3": 0.66,
+    "q=hola|s=2|c=0": 0.66,
+    "q=hola|s=2|c=1": 0.66,
+    "q=hola|s=2|c=2": 0.75,
+    "q=hola|s=2|c=3": 0.66,
+    "q=la espuma sirve para los graves|s=0|c=0": 1.71,
+    "q=la espuma sirve para los graves|s=0|c=1": 0.92,
+    "q=la espuma sirve para los graves|s=0|c=2": 0.75,
+    "q=la espuma sirve para los graves|s=0|c=3": 0.66,
+    "q=la espuma sirve para los graves|s=1|c=0": 0.96,
+    "q=la espuma sirve para los graves|s=1|c=1": 0.92,
+    "q=la espuma sirve para los graves|s=1|c=2": 0.75,
+    "q=la espuma sirve para los graves|s=1|c=3": 0.66,
+    "q=la espuma sirve para los graves|s=2|c=0": 0.96,
+    "q=la espuma sirve para los graves|s=2|c=1": 0.92,
+    "q=la espuma sirve para los graves|s=2|c=2": 0.75,
+    "q=la espuma sirve para los graves|s=2|c=3": 0.66,
+    "q=mastering lufs limitador streaming normalizacion|s=0|c=0": 1.41,
+    "q=mastering lufs limitador streaming normalizacion|s=0|c=1": 0.66,
+    "q=mastering lufs limitador streaming normalizacion|s=0|c=2": 0.75,
+    "q=mastering lufs limitador streaming normalizacion|s=0|c=3": 0.66,
+    "q=mastering lufs limitador streaming normalizacion|s=1|c=0": 0.66,
+    "q=mastering lufs limitador streaming normalizacion|s=1|c=1": 0.66,
+    "q=mastering lufs limitador streaming normalizacion|s=1|c=2": 0.75,
+    "q=mastering lufs limitador streaming normalizacion|s=1|c=3": 0.66,
+    "q=mastering lufs limitador streaming normalizacion|s=2|c=0": 0.66,
+    "q=mastering lufs limitador streaming normalizacion|s=2|c=1": 0.66,
+    "q=mastering lufs limitador streaming normalizacion|s=2|c=2": 0.75,
+    "q=mastering lufs limitador streaming normalizacion|s=2|c=3": 0.66,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=0": 1.55,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=1": 0.78,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=2": 0.87,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=0|c=3": 0.66,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=0": 0.8,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=1": 0.78,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=2": 0.87,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=1|c=3": 0.66,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=0": 0.8,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=1": 0.78,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=2": 0.87,
+    "q=mezcla integradora criterio de mezcla jerarquia contexto|s=2|c=3": 0.66,
+    "q=necesito plugins de serum y wavetable|s=0|c=0": 1.41,
+    "q=necesito plugins de serum y wavetable|s=0|c=1": 0.66,
+    "q=necesito plugins de serum y wavetable|s=0|c=2": 0.75,
+    "q=necesito plugins de serum y wavetable|s=0|c=3": 0.66,
+    "q=necesito plugins de serum y wavetable|s=1|c=0": 0.66,
+    "q=necesito plugins de serum y wavetable|s=1|c=1": 0.66,
+    "q=necesito plugins de serum y wavetable|s=1|c=2": 0.75,
+    "q=necesito plugins de serum y wavetable|s=1|c=3": 0.66,
+    "q=necesito plugins de serum y wavetable|s=2|c=0": 0.66,
+    "q=necesito plugins de serum y wavetable|s=2|c=1": 0.66,
+    "q=necesito plugins de serum y wavetable|s=2|c=2": 0.75,
+    "q=necesito plugins de serum y wavetable|s=2|c=3": 0.66,
+    "q=no entiendo nada me rindo|s=0|c=0": 1.41,
+    "q=no entiendo nada me rindo|s=0|c=1": 0.66,
+    "q=no entiendo nada me rindo|s=0|c=2": 0.75,
+    "q=no entiendo nada me rindo|s=0|c=3": 0.66,
+    "q=no entiendo nada me rindo|s=1|c=0": 0.66,
+    "q=no entiendo nada me rindo|s=1|c=1": 0.66,
+    "q=no entiendo nada me rindo|s=1|c=2": 0.75,
+    "q=no entiendo nada me rindo|s=1|c=3": 0.66,
+    "q=no entiendo nada me rindo|s=2|c=0": 0.66,
+    "q=no entiendo nada me rindo|s=2|c=1": 0.66,
+    "q=no entiendo nada me rindo|s=2|c=2": 0.75,
+    "q=no entiendo nada me rindo|s=2|c=3": 0.66,
+    "q=ok|s=0|c=0": 1.41,
+    "q=ok|s=0|c=1": 0.66,
+    "q=ok|s=0|c=2": 0.75,
+    "q=ok|s=0|c=3": 0.66,
+    "q=ok|s=1|c=0": 0.66,
+    "q=ok|s=1|c=1": 0.66,
+    "q=ok|s=1|c=2": 0.75,
+    "q=ok|s=1|c=3": 0.66,
+    "q=ok|s=2|c=0": 0.66,
+    "q=ok|s=2|c=1": 0.66,
+    "q=ok|s=2|c=2": 0.75,
+    "q=ok|s=2|c=3": 0.66,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=0": 1.41,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=1": 0.66,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=2": 0.75,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=0|c=3": 0.66,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=0": 0.66,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=1": 0.66,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=2": 0.75,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=1|c=3": 0.66,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=0": 0.66,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=1": 0.66,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=2": 0.75,
+    "q=polaridad fase mono monocompatibilidad correlacion estereo|s=2|c=3": 0.66,
+    "q=por que revisar en mono|s=0|c=0": 1.71,
+    "q=por que revisar en mono|s=0|c=1": 0.92,
+    "q=por que revisar en mono|s=0|c=2": 0.75,
+    "q=por que revisar en mono|s=0|c=3": 0.66,
+    "q=por que revisar en mono|s=1|c=0": 0.96,
+    "q=por que revisar en mono|s=1|c=1": 0.92,
+    "q=por que revisar en mono|s=1|c=2": 0.75,
+    "q=por que revisar en mono|s=1|c=3": 0.66,
+    "q=por que revisar en mono|s=2|c=0": 0.96,
+    "q=por que revisar en mono|s=2|c=1": 0.92,
+    "q=por que revisar en mono|s=2|c=2": 0.75,
+    "q=por que revisar en mono|s=2|c=3": 0.66,
+    "q=puedo ecualizar con mis audios ya procesados|s=0|c=0": 1.41,
+    "q=puedo ecualizar con mis audios ya procesados|s=0|c=1": 0.66,
+    "q=puedo ecualizar con mis audios ya procesados|s=0|c=2": 0.75,
+    "q=puedo ecualizar con mis audios ya procesados|s=0|c=3": 0.66,
+    "q=puedo ecualizar con mis audios ya procesados|s=1|c=0": 0.66,
+    "q=puedo ecualizar con mis audios ya procesados|s=1|c=1": 0.66,
+    "q=puedo ecualizar con mis audios ya procesados|s=1|c=2": 0.75,
+    "q=puedo ecualizar con mis audios ya procesados|s=1|c=3": 0.66,
+    "q=puedo ecualizar con mis audios ya procesados|s=2|c=0": 0.66,
+    "q=puedo ecualizar con mis audios ya procesados|s=2|c=1": 0.66,
+    "q=puedo ecualizar con mis audios ya procesados|s=2|c=2": 0.75,
+    "q=puedo ecualizar con mis audios ya procesados|s=2|c=3": 0.66,
+    "q=que diferencia hay entre serie y paralelo|s=0|c=0": 1.71,
+    "q=que diferencia hay entre serie y paralelo|s=0|c=1": 1.04,
+    "q=que diferencia hay entre serie y paralelo|s=0|c=2": 0.75,
+    "q=que diferencia hay entre serie y paralelo|s=0|c=3": 0.66,
+    "q=que diferencia hay entre serie y paralelo|s=1|c=0": 0.96,
+    "q=que diferencia hay entre serie y paralelo|s=1|c=1": 1.04,
+    "q=que diferencia hay entre serie y paralelo|s=1|c=2": 0.75,
+    "q=que diferencia hay entre serie y paralelo|s=1|c=3": 0.66,
+    "q=que diferencia hay entre serie y paralelo|s=2|c=0": 0.96,
+    "q=que diferencia hay entre serie y paralelo|s=2|c=1": 1.04,
+    "q=que diferencia hay entre serie y paralelo|s=2|c=2": 0.75,
+    "q=que diferencia hay entre serie y paralelo|s=2|c=3": 0.66,
+    "q=que es 0 vu y dbfs y el overhead|s=0|c=0": 1.71,
+    "q=que es 0 vu y dbfs y el overhead|s=0|c=1": 0.92,
+    "q=que es 0 vu y dbfs y el overhead|s=0|c=2": 0.75,
+    "q=que es 0 vu y dbfs y el overhead|s=0|c=3": 0.66,
+    "q=que es 0 vu y dbfs y el overhead|s=1|c=0": 0.96,
+    "q=que es 0 vu y dbfs y el overhead|s=1|c=1": 0.92,
+    "q=que es 0 vu y dbfs y el overhead|s=1|c=2": 0.75,
+    "q=que es 0 vu y dbfs y el overhead|s=1|c=3": 0.66,
+    "q=que es 0 vu y dbfs y el overhead|s=2|c=0": 0.96,
+    "q=que es 0 vu y dbfs y el overhead|s=2|c=1": 0.92,
+    "q=que es 0 vu y dbfs y el overhead|s=2|c=2": 0.75,
+    "q=que es 0 vu y dbfs y el overhead|s=2|c=3": 0.66,
+    "q=que es el factor q|s=0|c=0": 1.71,
+    "q=que es el factor q|s=0|c=1": 0.98,
+    "q=que es el factor q|s=0|c=2": 0.75,
+    "q=que es el factor q|s=0|c=3": 0.72,
+    "q=que es el factor q|s=1|c=0": 0.96,
+    "q=que es el factor q|s=1|c=1": 0.98,
+    "q=que es el factor q|s=1|c=2": 0.75,
+    "q=que es el factor q|s=1|c=3": 0.72,
+    "q=que es el factor q|s=2|c=0": 0.96,
+    "q=que es el factor q|s=2|c=1": 0.98,
+    "q=que es el factor q|s=2|c=2": 0.75,
+    "q=que es el factor q|s=2|c=3": 0.72,
+    "q=que es el headroom|s=0|c=0": 1.71,
+    "q=que es el headroom|s=0|c=1": 0.92,
+    "q=que es el headroom|s=0|c=2": 0.75,
+    "q=que es el headroom|s=0|c=3": 0.66,
+    "q=que es el headroom|s=1|c=0": 0.96,
+    "q=que es el headroom|s=1|c=1": 0.92,
+    "q=que es el headroom|s=1|c=2": 0.75,
+    "q=que es el headroom|s=1|c=3": 0.66,
+    "q=que es el headroom|s=2|c=0": 0.96,
+    "q=que es el headroom|s=2|c=1": 0.92,
+    "q=que es el headroom|s=2|c=2": 0.75,
+    "q=que es el headroom|s=2|c=3": 0.66,
+    "q=que es en serie y en paralelo|s=0|c=0": 1.71,
+    "q=que es en serie y en paralelo|s=0|c=1": 1.04,
+    "q=que es en serie y en paralelo|s=0|c=2": 0.75,
+    "q=que es en serie y en paralelo|s=0|c=3": 0.66,
+    "q=que es en serie y en paralelo|s=1|c=0": 0.96,
+    "q=que es en serie y en paralelo|s=1|c=1": 1.04,
+    "q=que es en serie y en paralelo|s=1|c=2": 0.75,
+    "q=que es en serie y en paralelo|s=1|c=3": 0.66,
+    "q=que es en serie y en paralelo|s=2|c=0": 0.96,
+    "q=que es en serie y en paralelo|s=2|c=1": 1.04,
+    "q=que es en serie y en paralelo|s=2|c=2": 0.75,
+    "q=que es en serie y en paralelo|s=2|c=3": 0.66,
+    "q=que es eso|s=0|c=0": 1.71,
+    "q=que es eso|s=0|c=1": 0.92,
+    "q=que es eso|s=0|c=2": 0.75,
+    "q=que es eso|s=0|c=3": 0.66,
+    "q=que es eso|s=1|c=0": 0.96,
+    "q=que es eso|s=1|c=1": 0.92,
+    "q=que es eso|s=1|c=2": 0.75,
+    "q=que es eso|s=1|c=3": 0.66,
+    "q=que es eso|s=2|c=0": 0.96,
+    "q=que es eso|s=2|c=1": 0.92,
+    "q=que es eso|s=2|c=2": 0.75,
+    "q=que es eso|s=2|c=3": 0.66,
+    "q=que es la correlacion|s=0|c=0": 1.71,
+    "q=que es la correlacion|s=0|c=1": 0.92,
+    "q=que es la correlacion|s=0|c=2": 0.75,
+    "q=que es la correlacion|s=0|c=3": 0.66,
+    "q=que es la correlacion|s=1|c=0": 0.96,
+    "q=que es la correlacion|s=1|c=1": 0.92,
+    "q=que es la correlacion|s=1|c=2": 0.75,
+    "q=que es la correlacion|s=1|c=3": 0.66,
+    "q=que es la correlacion|s=2|c=0": 0.96,
+    "q=que es la correlacion|s=2|c=1": 0.92,
+    "q=que es la correlacion|s=2|c=2": 0.75,
+    "q=que es la correlacion|s=2|c=3": 0.66,
+    "q=que es la frecuencia de corte|s=0|c=0": 2.08,
+    "q=que es la frecuencia de corte|s=0|c=1": 0.92,
+    "q=que es la frecuencia de corte|s=0|c=2": 0.75,
+    "q=que es la frecuencia de corte|s=0|c=3": 0.66,
+    "q=que es la frecuencia de corte|s=1|c=0": 1.33,
+    "q=que es la frecuencia de corte|s=1|c=1": 0.92,
+    "q=que es la frecuencia de corte|s=1|c=2": 0.75,
+    "q=que es la frecuencia de corte|s=1|c=3": 0.66,
+    "q=que es la frecuencia de corte|s=2|c=0": 1.33,
+    "q=que es la frecuencia de corte|s=2|c=1": 0.92,
+    "q=que es la frecuencia de corte|s=2|c=2": 0.75,
+    "q=que es la frecuencia de corte|s=2|c=3": 0.66,
+    "q=que es la polaridad y cuando la invierto|s=0|c=0": 1.71,
+    "q=que es la polaridad y cuando la invierto|s=0|c=1": 0.92,
+    "q=que es la polaridad y cuando la invierto|s=0|c=2": 0.75,
+    "q=que es la polaridad y cuando la invierto|s=0|c=3": 0.66,
+    "q=que es la polaridad y cuando la invierto|s=1|c=0": 0.96,
+    "q=que es la polaridad y cuando la invierto|s=1|c=1": 0.92,
+    "q=que es la polaridad y cuando la invierto|s=1|c=2": 0.75,
+    "q=que es la polaridad y cuando la invierto|s=1|c=3": 0.66,
+    "q=que es la polaridad y cuando la invierto|s=2|c=0": 0.96,
+    "q=que es la polaridad y cuando la invierto|s=2|c=1": 0.92,
+    "q=que es la polaridad y cuando la invierto|s=2|c=2": 0.75,
+    "q=que es la polaridad y cuando la invierto|s=2|c=3": 0.66,
+    "q=que es la sintesis fm|s=0|c=0": 1.71,
+    "q=que es la sintesis fm|s=0|c=1": 0.92,
+    "q=que es la sintesis fm|s=0|c=2": 0.75,
+    "q=que es la sintesis fm|s=0|c=3": 0.66,
+    "q=que es la sintesis fm|s=1|c=0": 0.96,
+    "q=que es la sintesis fm|s=1|c=1": 0.92,
+    "q=que es la sintesis fm|s=1|c=2": 0.75,
+    "q=que es la sintesis fm|s=1|c=3": 0.66,
+    "q=que es la sintesis fm|s=2|c=0": 0.96,
+    "q=que es la sintesis fm|s=2|c=1": 0.92,
+    "q=que es la sintesis fm|s=2|c=2": 0.75,
+    "q=que es la sintesis fm|s=2|c=3": 0.66,
+    "q=que hace un compresor|s=0|c=0": 1.71,
+    "q=que hace un compresor|s=0|c=1": 0.98,
+    "q=que hace un compresor|s=0|c=2": 0.75,
+    "q=que hace un compresor|s=0|c=3": 0.66,
+    "q=que hace un compresor|s=1|c=0": 0.96,
+    "q=que hace un compresor|s=1|c=1": 0.98,
+    "q=que hace un compresor|s=1|c=2": 0.75,
+    "q=que hace un compresor|s=1|c=3": 0.66,
+    "q=que hace un compresor|s=2|c=0": 0.96,
+    "q=que hace un compresor|s=2|c=1": 0.98,
+    "q=que hace un compresor|s=2|c=2": 0.75,
+    "q=que hace un compresor|s=2|c=3": 0.66,
+    "q=que pdf tengo que leer sobre headroom|s=0|c=0": 1.41,
+    "q=que pdf tengo que leer sobre headroom|s=0|c=1": 0.66,
+    "q=que pdf tengo que leer sobre headroom|s=0|c=2": 0.75,
+    "q=que pdf tengo que leer sobre headroom|s=0|c=3": 0.66,
+    "q=que pdf tengo que leer sobre headroom|s=1|c=0": 0.66,
+    "q=que pdf tengo que leer sobre headroom|s=1|c=1": 0.66,
+    "q=que pdf tengo que leer sobre headroom|s=1|c=2": 0.75,
+    "q=que pdf tengo que leer sobre headroom|s=1|c=3": 0.66,
+    "q=que pdf tengo que leer sobre headroom|s=2|c=0": 0.66,
+    "q=que pdf tengo que leer sobre headroom|s=2|c=1": 0.66,
+    "q=que pdf tengo que leer sobre headroom|s=2|c=2": 0.75,
+    "q=que pdf tengo que leer sobre headroom|s=2|c=3": 0.66,
+    "q=que recurso reviso para entender compresion paralela|s=0|c=0": 1.41,
+    "q=que recurso reviso para entender compresion paralela|s=0|c=1": 0.66,
+    "q=que recurso reviso para entender compresion paralela|s=0|c=2": 0.75,
+    "q=que recurso reviso para entender compresion paralela|s=0|c=3": 0.66,
+    "q=que recurso reviso para entender compresion paralela|s=1|c=0": 0.66,
+    "q=que recurso reviso para entender compresion paralela|s=1|c=1": 0.66,
+    "q=que recurso reviso para entender compresion paralela|s=1|c=2": 0.75,
+    "q=que recurso reviso para entender compresion paralela|s=1|c=3": 0.66,
+    "q=que recurso reviso para entender compresion paralela|s=2|c=0": 0.66,
+    "q=que recurso reviso para entender compresion paralela|s=2|c=1": 0.66,
+    "q=que recurso reviso para entender compresion paralela|s=2|c=2": 0.75,
+    "q=que recurso reviso para entender compresion paralela|s=2|c=3": 0.66,
+    "q=que relacion tiene la espuma con la interfaz|s=0|c=0": 1.41,
+    "q=que relacion tiene la espuma con la interfaz|s=0|c=1": 0.66,
+    "q=que relacion tiene la espuma con la interfaz|s=0|c=2": 0.75,
+    "q=que relacion tiene la espuma con la interfaz|s=0|c=3": 0.66,
+    "q=que relacion tiene la espuma con la interfaz|s=1|c=0": 0.66,
+    "q=que relacion tiene la espuma con la interfaz|s=1|c=1": 0.66,
+    "q=que relacion tiene la espuma con la interfaz|s=1|c=2": 0.75,
+    "q=que relacion tiene la espuma con la interfaz|s=1|c=3": 0.66,
+    "q=que relacion tiene la espuma con la interfaz|s=2|c=0": 0.66,
+    "q=que relacion tiene la espuma con la interfaz|s=2|c=1": 0.66,
+    "q=que relacion tiene la espuma con la interfaz|s=2|c=2": 0.75,
+    "q=que relacion tiene la espuma con la interfaz|s=2|c=3": 0.66,
+    "q=que reverb uso para dar profundidad|s=0|c=0": 1.41,
+    "q=que reverb uso para dar profundidad|s=0|c=1": 0.66,
+    "q=que reverb uso para dar profundidad|s=0|c=2": 0.75,
+    "q=que reverb uso para dar profundidad|s=0|c=3": 0.72,
+    "q=que reverb uso para dar profundidad|s=1|c=0": 0.66,
+    "q=que reverb uso para dar profundidad|s=1|c=1": 0.66,
+    "q=que reverb uso para dar profundidad|s=1|c=2": 0.75,
+    "q=que reverb uso para dar profundidad|s=1|c=3": 0.72,
+    "q=que reverb uso para dar profundidad|s=2|c=0": 0.66,
+    "q=que reverb uso para dar profundidad|s=2|c=1": 0.66,
+    "q=que reverb uso para dar profundidad|s=2|c=2": 0.75,
+    "q=que reverb uso para dar profundidad|s=2|c=3": 0.72,
+    "q=quien es napoleon|s=0|c=0": 1.41,
+    "q=quien es napoleon|s=0|c=1": 0.66,
+    "q=quien es napoleon|s=0|c=2": 0.75,
+    "q=quien es napoleon|s=0|c=3": 0.66,
+    "q=quien es napoleon|s=1|c=0": 0.66,
+    "q=quien es napoleon|s=1|c=1": 0.66,
+    "q=quien es napoleon|s=1|c=2": 0.75,
+    "q=quien es napoleon|s=1|c=3": 0.66,
+    "q=quien es napoleon|s=2|c=0": 0.66,
+    "q=quien es napoleon|s=2|c=1": 0.66,
+    "q=quien es napoleon|s=2|c=2": 0.75,
+    "q=quien es napoleon|s=2|c=3": 0.66,
+    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=0": 1.41,
+    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=1": 0.66,
+    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=2": 0.75,
+    "q=reverb delay espacialidad profundidad ambiencia|s=0|c=3": 0.72,
+    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=0": 0.66,
+    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=1": 0.66,
+    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=2": 0.75,
+    "q=reverb delay espacialidad profundidad ambiencia|s=1|c=3": 0.72,
+    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=0": 0.66,
+    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=1": 0.66,
+    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=2": 0.75,
+    "q=reverb delay espacialidad profundidad ambiencia|s=2|c=3": 0.72,
+    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=0": 1.41,
+    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=1": 0.66,
+    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=2": 0.75,
+    "q=tengo bleed y resonancia en la compuerta gate|s=0|c=3": 0.66,
+    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=0": 0.66,
+    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=1": 0.66,
+    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=2": 0.75,
+    "q=tengo bleed y resonancia en la compuerta gate|s=1|c=3": 0.66,
+    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=0": 0.66,
+    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=1": 0.66,
+    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=2": 0.75,
+    "q=tengo bleed y resonancia en la compuerta gate|s=2|c=3": 0.66,
+    "q=y eso|s=0|c=0": 1.41,
+    "q=y eso|s=0|c=1": 0.66,
+    "q=y eso|s=0|c=2": 0.75,
+    "q=y eso|s=0|c=3": 0.66,
+    "q=y eso|s=1|c=0": 0.66,
+    "q=y eso|s=1|c=1": 0.66,
+    "q=y eso|s=1|c=2": 0.75,
+    "q=y eso|s=1|c=3": 0.66,
+    "q=y eso|s=2|c=0": 0.66,
+    "q=y eso|s=2|c=1": 0.66,
+    "q=y eso|s=2|c=2": 0.75,
+    "q=y eso|s=2|c=3": 0.66
   }
 }

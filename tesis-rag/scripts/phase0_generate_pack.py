@@ -61,8 +61,8 @@ def build_pack():
             "domain_label": "mezcla y masterizacion",
         },
         "taxonomy": {
-            "course_axes": routing.COURSE_AXES,
-            "strong_axis_terms": routing.STRONG_AXIS_TERMS,
+            "course_sections": routing.COURSE_SECTIONS,
+            "strong_section_terms": routing.STRONG_SECTION_TERMS,
         },
         "lexicon": {
             "concept_patterns": [[c, list(a)] for c, a in routing.TECHNICAL_CONCEPT_PATTERNS],
@@ -104,7 +104,7 @@ def main():
     with open(out, "w", encoding="utf-8") as f:
         json.dump(pack, f, ensure_ascii=False, indent=2)
     print(f"Domain Pack escrito en {out}")
-    print(f"  axes={len(pack['taxonomy']['course_axes'])} concepts={len(pack['lexicon']['concept_patterns'])} "
+    print(f"  sections={len(pack['taxonomy']['course_sections'])} concepts={len(pack['lexicon']['concept_patterns'])} "
           f"intents={len(pack['intents']['by_intent'])} controlled={len(pack['controlled_answers'])}")
 
 

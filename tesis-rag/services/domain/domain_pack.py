@@ -1,6 +1,6 @@
 """Domain Pack — conocimiento de dominio de un curso cargado desde datos.
 
-Objetivo (Fase 0): sacar TODO el conocimiento de dominio (ejes, conceptos,
+Objetivo (Fase 0): sacar TODO el conocimiento de dominio (secciones, conceptos,
 listas permitidas/bloqueadas, prompts de persona, respuestas controladas) del
 codigo Python hacia domain_packs/<course_id>.json. El backend se vuelve un
 lienzo en blanco que procesa el dominio inyectado.
@@ -62,12 +62,12 @@ class DomainPack:
     def node_prompts(self) -> Dict[str, Any]:
         return dict(self._data.get("node_prompts") or {})
 
-    # ---- taxonomy ----
-    def course_axes(self) -> List[dict]:
-        return list((self._data.get("taxonomy") or {}).get("course_axes") or [])
+    # ---- taxonomy (secciones del curso; la taxonomia "eje" quedo deprecada) ----
+    def course_sections(self) -> List[dict]:
+        return list((self._data.get("taxonomy") or {}).get("course_sections") or [])
 
-    def strong_axis_terms(self) -> Dict[str, List[str]]:
-        return dict((self._data.get("taxonomy") or {}).get("strong_axis_terms") or {})
+    def strong_section_terms(self) -> Dict[str, List[str]]:
+        return dict((self._data.get("taxonomy") or {}).get("strong_section_terms") or {})
 
     # ---- lexicon ----
     def concept_patterns(self) -> List[Tuple[str, List[str]]]:

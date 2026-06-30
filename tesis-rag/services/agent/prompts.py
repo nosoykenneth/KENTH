@@ -34,6 +34,11 @@ def _campos_pedagogicos(state: dict, **overrides):
         "requires_course_evidence": state.get("requires_course_evidence", True),
         "warnings": list(state.get("warnings", []) or []),
         "retrieved_chunks": list(state.get("retrieved_chunks", []) or []),
+        # Observabilidad scope-aware: nivel de contexto que sustenta la respuesta
+        # (block/lesson/section/course_global/course/none) y si hubo ampliación
+        # de alcance (fallback). Lo setea retrieval._buscar_evidencia sobre `state`.
+        "retrieval_scope": state.get("retrieval_scope", ""),
+        "retrieval_fallback": bool(state.get("retrieval_fallback", False)),
         "model_used": state.get("model_used", TEXT_MODEL_NAME),
         "prompt_id": state.get("prompt_id", "")
     }

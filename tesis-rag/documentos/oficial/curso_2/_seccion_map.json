@@ -1,0 +1,79 @@
+{
+  "course_id": "2",
+  "dest_root": "documentos\\oficial\\curso_2",
+  "migrated": [
+    {
+      "eje": "Eje 0",
+      "src": "documentos\\oficial\\ejes\\contenido_canonico\\KENTH_Eje0_Contenido_Canonico.md",
+      "dest": "documentos\\oficial\\curso_2\\seccion_01_el_sistema_de_decision\\contenido_canonico.md",
+      "moodle_section_id": "2",
+      "section_number": 1,
+      "section_title": "SECCIÓN 0: El sistema de decisión",
+      "bytes": 34937
+    },
+    {
+      "eje": "Eje 1",
+      "src": "documentos\\oficial\\ejes\\contenido_canonico\\KENTH_Eje1_Contenido_Canonico.md",
+      "dest": "documentos\\oficial\\curso_2\\seccion_02_leer_la_senal\\contenido_canonico.md",
+      "moodle_section_id": "3",
+      "section_number": 2,
+      "section_title": "SECCIÓN 1: Leer la señal",
+      "bytes": 39295
+    },
+    {
+      "eje": "Eje 2",
+      "src": "documentos\\oficial\\ejes\\contenido_canonico\\KENTH_Eje2_Contenido_Canonico.md",
+      "dest": "documentos\\oficial\\curso_2\\seccion_03_integridad_de_la_senal\\contenido_canonico.md",
+      "moodle_section_id": "4",
+      "section_number": 3,
+      "section_title": "SECCIÓN 2: Integridad de la señal",
+      "bytes": 54735
+    },
+    {
+      "eje": "Eje 3",
+      "src": "documentos\\oficial\\ejes\\contenido_canonico\\KENTH_Eje3_Contenido_Canonico.md",
+      "dest": "documentos\\oficial\\curso_2\\seccion_04_identidad_espectral\\contenido_canonico.md",
+      "moodle_section_id": "5",
+      "section_number": 4,
+      "section_title": "SECCIÓN 3: Identidad espectral",
+      "bytes": 54420
+    },
+    {
+      "eje": "Eje 4",
+      "src": "documentos\\oficial\\ejes\\contenido_canonico\\KENTH_Eje4_Contenido_Canonico.md",
+      "dest": "documentos\\oficial\\curso_2\\seccion_05_energia_y_movimiento\\contenido_canonico.md",
+      "moodle_section_id": "20",
+      "section_number": 5,
+      "section_title": "SECCIÓN 4: Energía y movimiento",
+      "bytes": 65590
+    },
+    {
+      "eje": "Eje 5",
+      "src": "documentos\\oficial\\ejes\\contenido_canonico\\KENTH_Eje5_Contenido_Canonico.md",
+      "dest": "documentos\\oficial\\curso_2\\seccion_06_dimension_espacial\\contenido_canonico.md",
+      "moodle_section_id": "19",
+      "section_number": 6,
+      "section_title": "SECCIÓN 5: Dimensión espacial",
+      "bytes": 56420
+    },
+    {
+      "eje": "Eje 6",
+      "src": "documentos\\oficial\\ejes\\contenido_canonico\\KENTH_Eje6_Contenido_Canonico.md",
+      "dest": "documentos\\oficial\\curso_2\\seccion_07_integracion_global\\contenido_canonico.md",
+      "moodle_section_id": "18",
+      "section_number": 7,
+      "section_title": "SECCIÓN 6: Integración global",
+      "bytes": 55234
+    },
+    {
+      "eje": "Eje 7",
+      "src": "documentos\\oficial\\ejes\\contenido_canonico\\KENTH_Eje7_Contenido_Canonico.md",
+      "dest": "documentos\\oficial\\curso_2\\seccion_08_traduccion_y_entrega\\contenido_canonico.md",
+      "moodle_section_id": "17",
+      "section_number": 8,
+      "section_title": "SECCIÓN 7: Traducción y entrega",
+      "bytes": 63218
+    }
+  ],
+  "missing": []
+}

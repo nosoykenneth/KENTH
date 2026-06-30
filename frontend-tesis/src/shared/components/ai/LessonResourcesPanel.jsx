@@ -346,10 +346,10 @@ export default function LessonResourcesPanel({ courseId, lessonId }) {
       {inherited.length > 0 && (
         <div className="mt-2 border-t border-kenth-border pt-3">
           <p className="text-[10px] uppercase font-black tracking-widest text-kenth-subtext mb-1">
-            🧩 Heredados del eje (no editables aquí)
+            🧩 Heredados de la sección (no editables aquí)
           </p>
           <p className="text-[10px] text-kenth-subtext mb-2">
-            Pertenecen a todo el eje. Para gestionarlos, ve a <strong className="text-kenth-text">Conocimiento → Recursos del eje</strong>.
+            Pertenecen a toda la sección. Para gestionarlos, ve a <strong className="text-kenth-text">Conocimiento → Recursos de la sección</strong>.
           </p>
           <div className="flex flex-col gap-2 opacity-90">
             {inherited.map((r) => {
@@ -359,7 +359,7 @@ export default function LessonResourcesPanel({ courseId, lessonId }) {
                   <div className="w-10 h-10 rounded-lg border border-kenth-border bg-kenth-surface/5 flex items-center justify-center text-xl flex-shrink-0">{meta.icon}</div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      <span className="text-[8px] uppercase font-black tracking-widest text-amber-300 border border-amber-500/30 rounded px-1">Eje</span>
+                      <span className="text-[8px] uppercase font-black tracking-widest text-amber-300 border border-amber-500/30 rounded px-1">Sección</span>
                       {r.resource_type && <span className="text-[8px] uppercase font-black tracking-widest text-kenth-subtext border border-kenth-border rounded px-1">{r.resource_type}</span>}
                       {r.indexed && <StatusBadge status={r.index_status} error={r.index_error} />}
                     </div>

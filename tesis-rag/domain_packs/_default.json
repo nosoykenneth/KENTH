@@ -7,8 +7,8 @@
     "domain_label": "el curso"
   },
   "taxonomy": {
-    "course_axes": [],
-    "strong_axis_terms": {}
+    "course_sections": [],
+    "strong_section_terms": {}
   },
   "lexicon": {
     "concept_patterns": [],

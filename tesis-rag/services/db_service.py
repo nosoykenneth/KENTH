@@ -208,7 +208,7 @@ def _bool(value: bool) -> int:
 # Estados de indexacion de un documento/recurso.
 INDEX_STATUS = {"pending", "indexed", "failed", "stale"}
 # Niveles de alcance de un documento/recurso.
-DOC_SCOPES = {"global", "course", "section", "axis", "lesson"}
+DOC_SCOPES = {"global", "course", "section", "lesson", "block"}
 # resource_type = USO pedagogico (distinto de media_type = formato tecnico).
 RESOURCE_TYPES = {
     "theory", "transcription", "script", "canonical_content", "clean_package",
@@ -237,37 +237,38 @@ def default_resource_type(media_type: str = "", doc_type: str = "") -> str:
 
 def derive_scope(
     course_id: str = "",
-    axis_id: str = "",
     lesson_id: str = "",
     is_global: bool = False,
     moodle_section_id: str = "",
+    block_id: str = "",
 ) -> str:
-    """Deriva el scope canonico a partir de los campos presentes.
+    """Deriva el scope pedagogico canonico. Jerarquia: block>lesson>section>course>global.
 
-    Reglas (ver auditoria Fase 1):
-      - global : is_global=1 (o, en backfill, sin course/axis/lesson).
-      - lesson : course_id + lesson_id.
-      - section: course_id + moodle_section_id (sin lesson_id).
-      - axis   : legacy course_id + axis_id (sin lesson_id).
-      - course : course_id (sin axis/lesson).
+    Reglas:
+      - global : is_global=1 (o, en backfill, sin course/section/lesson/block).
+      - block  : course_id + block_id.
+      - lesson : course_id + lesson_id (sin block_id).
+      - section: course_id + moodle_section_id (sin lesson/block).
+      - course : course_id (sin section/lesson/block).
+    El scope 'axis' quedo ELIMINADO: el conocimiento se ancla a la seccion Moodle.
     NO infiere global solo por course_id vacio: eso lo decide is_global.
     """
     if is_global:
         return "global"
     cid = str(course_id or "").strip()
-    aid = str(axis_id or "").strip()
     lid = str(lesson_id or "").strip()
     sid = str(moodle_section_id or "").strip()
-    if not cid and not aid and not lid and not sid:
+    bid = str(block_id or "").strip()
+    if not cid and not lid and not sid and not bid:
         # Sin ninguna coordenada y sin is_global explicito: tratado como
         # global SOLO en backfill de datos legacy (course_id="" historico).
         return "global"
+    if bid:
+        return "block"
     if lid:
         return "lesson"
     if sid:
         return "section"
-    if aid:
-        return "axis"
     return "course"
 
 
@@ -286,10 +287,12 @@ def validate_scope(
     para llamarse desde los endpoints de subida (que traducen a HTTP 400).
     """
     cid = str(course_id or "").strip()
-    aid = str(axis_id or "").strip()
     sid = str(moodle_section_id or "").strip()
     lid = str(lesson_id or "").strip()
-    sc = (scope or "").strip().lower() or derive_scope(cid, aid, lid, is_global, sid)
+    sc = (scope or "").strip().lower() or derive_scope(cid, lid, is_global, sid)
+    # 'axis' legacy: se normaliza a 'section' (la seccion equivalente debe venir aparte).
+    if sc == "axis":
+        sc = "section"
     if sc not in DOC_SCOPES:
         raise ValueError(f"scope invalido: '{scope}'. Use uno de {sorted(DOC_SCOPES)}.")
 
@@ -312,13 +315,10 @@ def validate_scope(
         if lid:
             raise ValueError("scope='section' no debe llevar lesson_id.")
         return "section", False
-    if sc == "axis":
-        # Compatibilidad de lectura/escritura legacy. El flujo nuevo debe usar section.
-        if not aid:
-            raise ValueError("scope='axis' requiere axis_id.")
-        if lid:
-            raise ValueError("scope='axis' no debe llevar lesson_id.")
-        return "axis", False
+    if sc == "block":
+        if not lid:
+            raise ValueError("scope='block' requiere lesson_id (el bloque vive en una leccion).")
+        return "block", False
     # sc == "lesson"
     if not lid:
         raise ValueError("scope='lesson' requiere lesson_id.")
@@ -1254,7 +1254,7 @@ def _normalize_document(row: Dict[str, Any]) -> Dict[str, Any]:
             row.get("doc_type", ""),
         ),
         "scope": row.get("scope", "") or derive_scope(
-            row.get("course_id", ""), row.get("axis_id", ""), row.get("lesson_id", ""),
+            row.get("course_id", ""), row.get("lesson_id", ""),
             bool(row.get("is_global")), row.get("moodle_section_id", ""),
         ),
         "is_global": bool(row.get("is_global")),
@@ -1299,7 +1299,6 @@ def upsert_document(
     metadata: Optional[Dict[str, Any]] = None,
 ) -> None:
     init_db()
-    axis_id = ""
     t = _ts()
     name = table_name("documents")
     # Scope explicito + auto-reparacion de coherencia. El scope declarado nunca
@@ -1307,7 +1306,7 @@ def upsert_document(
     # (caso del bug: un INSERT que hereda el DEFAULT 'course' de la columna pese a
     # traer lesson_id). is_global solo es valido con scope='global'.
     scope = (scope or "").strip().lower()
-    derived = derive_scope(course_id, axis_id, lesson_id, is_global, moodle_section_id)
+    derived = derive_scope(course_id, lesson_id, is_global, moodle_section_id)
     if not scope:
         scope = derived
     if scope == "global":
@@ -1391,18 +1390,18 @@ def backfill_document_scopes(*, dry_run: bool = False) -> Dict[str, Any]:
         rows = _fetchall(conn, f"SELECT * FROM {name}")
     updated = 0
     ambiguous: List[Dict[str, Any]] = []
-    summary: Dict[str, int] = {"global": 0, "course": 0, "axis": 0, "lesson": 0}
+    summary: Dict[str, int] = {"global": 0, "course": 0, "section": 0, "lesson": 0, "block": 0}
     for row in rows:
         cid = str(row.get("course_id", "") or "").strip()
-        aid = str(row.get("axis_id", "") or "").strip()
+        sid = str(row.get("moodle_section_id", "") or "").strip()
         lid = str(row.get("lesson_id", "") or "").strip()
-        legacy_global = not cid and not aid and not lid
+        legacy_global = not cid and not sid and not lid
         is_global = bool(row.get("is_global")) or legacy_global
-        scope = derive_scope(cid, aid, lid, is_global)
+        scope = derive_scope(cid, lid, is_global, sid)
 
-        # Coherencia: lesson sin axis, o axis/lesson sin course -> ambiguo.
-        if (lid and not aid) or ((aid or lid) and not cid and not is_global):
-            ambiguous.append({"doc_id": row.get("doc_id"), "course_id": cid, "axis_id": aid, "lesson_id": lid})
+        # Coherencia: seccion/leccion sin course -> ambiguo.
+        if (sid or lid) and not cid and not is_global:
+            ambiguous.append({"doc_id": row.get("doc_id"), "course_id": cid, "moodle_section_id": sid, "lesson_id": lid})
 
         meta = _json_load(row.get("metadata_json"), {}) or {}
         chunks_meta = meta.get("chunks")
