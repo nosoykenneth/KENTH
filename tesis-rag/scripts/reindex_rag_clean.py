@@ -44,6 +44,16 @@ def main() -> int:
     ap.add_argument("--skip-validate", action="store_true")
     args = ap.parse_args()
 
+    # Inicializa la conexión a Moodle/MariaDB ANTES del rebuild para que la
+    # resolución de secciones (section_number/title/slug) funcione desde el
+    # primer chunk (si no, using_moodle_db() arranca en False y no resuelve).
+    try:
+        from services import db_service
+        db_service.init_db()
+        print(f"[REINDEX] DB lista: using_moodle_db={db_service.using_moodle_db()}")
+    except Exception as e:
+        print(f"[REINDEX] aviso init_db: {e}")
+
     print("[REINDEX] (1/3) Rebuild limpio del corpus canónico (ChromaDB)...")
     result = rebuild_all_documents()
     print(f"[REINDEX] corpus: {result}")

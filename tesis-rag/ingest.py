@@ -453,7 +453,7 @@ def _course_sections_ordered(course_id: str):
     cid = str(course_id or "").strip()
     if not cid:
         return []
-    if cid in _SECTIONS_CACHE:
+    if _SECTIONS_CACHE.get(cid):
         return _SECTIONS_CACHE[cid]
     try:
         from services import section_service
@@ -461,7 +461,10 @@ def _course_sections_ordered(course_id: str):
     except Exception as exc:
         print(f"[ingest] no se pudieron leer secciones del curso {cid}: {exc}")
         sections = []
-    _SECTIONS_CACHE[cid] = sections
+    # Solo cacheamos resultados NO vacíos: un vacío puede deberse a que la BD aún
+    # no estaba inicializada (using_moodle_db False antes de init_db); reintentar.
+    if sections:
+        _SECTIONS_CACHE[cid] = sections
     return sections
 
 
@@ -1177,10 +1180,16 @@ def reindex_course_documents(course_id: str):
     from services import db_service  # import perezoso: evita ciclos al cargar ingest.
 
     db = get_vector_store()
-    try:
-        db._collection.delete(where={"course_id": course})
-    except Exception as e:
-        print(f"Nota al borrar chunks del curso {course}: {e}")
+    # Limpieza ACOTADA: borra solo el conocimiento DB-driven del curso
+    # (transcripciones y descripciones de recursos), que se re-agrega abajo.
+    # NO toca el corpus canónico por sección (source='canonical_md'), que lo
+    # gestiona rebuild_all_documents / add_single_document por archivo. Antes se
+    # borraba TODO el curso aquí y eso aniquilaba el corpus canónico tras un rebuild.
+    for src in ("transcript", "resource_file"):
+        try:
+            db._collection.delete(where={"$and": [{"course_id": course}, {"source": src}]})
+        except Exception as e:
+            print(f"Nota al borrar chunks DB-driven ({src}) del curso {course}: {e}")
 
     processed = 0
     skipped = 0
