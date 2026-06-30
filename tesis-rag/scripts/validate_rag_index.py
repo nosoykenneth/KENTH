@@ -67,7 +67,9 @@ def validate():
     by_scope = collections.Counter()
     by_source = collections.Counter()
     by_layer = collections.Counter()
-    hashes = collections.Counter()
+    # source_hash -> set de source_path distintos (duplicado REAL = mismo contenido
+    # en >1 archivo; los múltiples chunks de un mismo doc comparten hash y NO cuentan).
+    hash_to_paths = collections.defaultdict(set)
 
     violations = {
         "with_axis_id": [],
@@ -90,7 +92,7 @@ def validate():
         by_layer[str(m.get("layer") or "(vacío)")] += 1
         sh = str(m.get("source_hash") or "")
         if sh:
-            hashes[sh] += 1
+            hash_to_paths[sh].add(str(m.get("source_path") or ""))
 
         if is_global:
             globales += 1
@@ -110,7 +112,8 @@ def validate():
         if not is_global and not course_id:
             violations["non_global_without_course"].append(i)
 
-    duplicados = {h: c for h, c in hashes.items() if c > 1}
+    # Duplicado real: un mismo source_hash presente en >1 source_path distinto.
+    duplicados = {h: sorted(paths) for h, paths in hash_to_paths.items() if len(paths) > 1}
 
     ejemplos = []
     for m in metas[:3]:
