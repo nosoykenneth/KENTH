@@ -215,7 +215,7 @@ export default function AssignLessonDialog({ resource, courseId, sectionContext 
 
             {mode === 'existente' && (
               freeLessons.length === 0 ? (
-                <p className="text-xs text-kenth-subtext py-2">Este eje no tiene lecciones libres (sin video). Crea una nueva o importa.</p>
+                <p className="text-xs text-kenth-subtext py-2">Esta sección no tiene lecciones libres (sin video). Crea una nueva o importa.</p>
               ) : (
                 <div className="flex flex-col gap-2 max-h-[40vh] overflow-y-auto pr-1">
                   {freeLessons.map((l) => {

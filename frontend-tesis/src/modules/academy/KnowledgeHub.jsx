@@ -428,9 +428,9 @@ export default function KnowledgeHub({ courseId, sections = [] }) {
 
       {/* ESTE CURSO (por eje) — solo lectura/auditoría */}
       <div>
-        <p className={`${labelCls} mb-1`}>Este curso — por eje (qué sabe el tutor)</p>
+        <p className={`${labelCls} mb-1`}>Este curso — por sección (qué sabe el tutor)</p>
         <p className="text-[11px] text-kenth-subtext mb-2">
-          Solo lectura. Para añadir material a un eje, súbelo en la pestaña <strong className="text-kenth-text">Recursos</strong> de la lección correspondiente.
+          Solo lectura. Para añadir material a una sección, súbelo en la pestaña <strong className="text-kenth-text">Recursos</strong> de la lección correspondiente.
         </p>
         <div className="flex flex-col gap-1.5">
           {sections.map((ax, idx) => {
@@ -480,7 +480,7 @@ export default function KnowledgeHub({ courseId, sections = [] }) {
                     <div>
                       <p className={`${labelCls} mb-1`}>📚 Recursos por lección</p>
                       {lessonKeys.length === 0
-                        ? <p className="text-[11px] text-kenth-subtext">Ninguna lección de este eje tiene recursos todavía.</p>
+                        ? <p className="text-[11px] text-kenth-subtext">Ninguna lección de esta sección tiene recursos todavía.</p>
                         : <div className="flex flex-col gap-2">{lessonKeys.sort().map((lid) => (
                             <div key={lid}>
                               <p className="text-[11px] font-bold text-kenth-text mb-0.5">{lid} <span className="text-kenth-subtext font-normal">({lessonsMap[lid].length})</span></p>

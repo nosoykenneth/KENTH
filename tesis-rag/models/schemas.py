@@ -15,7 +15,9 @@ class EstadoAgente(TypedDict, total=False):
     respuesta_final: str
     course_id: str
     current_lesson_id: str
-    current_axis_id: str
+    moodle_section_id: str
+    current_section_name: str
+    current_section_order: int
     intent: str
     answer_type: str
     course_module: str
@@ -27,6 +29,10 @@ class EstadoAgente(TypedDict, total=False):
     blocked_by: str
     applied_policies: list
     retrieved_chunks: list
+    # Observabilidad scope-aware del retrieval (arquitectura por secciones):
+    # nivel de contexto que sustento la respuesta y si hubo ampliacion de alcance.
+    retrieval_scope: str
+    retrieval_fallback: bool
     trace_id: str
     model_used: str
     prompt_id: str

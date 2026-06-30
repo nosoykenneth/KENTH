@@ -251,6 +251,8 @@ def chat_endpoint(
     warnings = resultado.get("warnings", [])
     blocked_by = resultado.get("blocked_by", "")
     applied_policies = resultado.get("applied_policies", []) or []
+    retrieval_scope = resultado.get("retrieval_scope", "")
+    retrieval_fallback = bool(resultado.get("retrieval_fallback", False))
     retrieved_chunks = resultado.get("retrieved_chunks", [])
     model_used = resultado.get("model_used", "")
     prompt_id = resultado.get("prompt_id", "")
@@ -283,6 +285,8 @@ def chat_endpoint(
         "warnings": warnings,
         "blocked_by": blocked_by,
         "applied_policies": applied_policies,
+        "retrieval_scope": retrieval_scope,
+        "retrieval_fallback": retrieval_fallback,
         "runtime_context": runtime_context_trace,
         "source_policy": {
             "A_INDEXED_RAG": bool(retrieved_chunks),
@@ -319,6 +323,8 @@ def chat_endpoint(
         "warnings": warnings,
         "blocked_by": blocked_by,
         "applied_policies": applied_policies,
+        "retrieval_scope": retrieval_scope,
+        "retrieval_fallback": retrieval_fallback,
         "runtime_context": runtime_context_trace,
         "source_policy": trace_data["source_policy"],
         "trace_id": trace_id,
