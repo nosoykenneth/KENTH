@@ -8,7 +8,7 @@ import {
   upsertResourceLink,
 } from '../src/shared/services/sectionsService.js';
 import {
-  resolveLessonByMoodleOrder,
+  resolveLessonForResource,
 } from '../src/shared/services/lessonAutoAssignment.js';
 
 globalThis.localStorage = {
@@ -59,18 +59,31 @@ const lessons = [
   { lesson_id: 'SEC15-L02', moodle_section_id: '15', order: 2 },
 ];
 
-assert.equal(
-  resolveLessonByMoodleOrder({ resource: { id: 987 }, secciones, lessons }).lesson_id,
-  'SEC15-L01',
-);
-assert.equal(
-  resolveLessonByMoodleOrder({
-    resource: { id: 987 },
-    secciones: [{ ...secciones[0], modules: [...secciones[0].modules].reverse() }],
-    lessons,
-  }).lesson_id,
-  'SEC15-L02',
-);
+// La identidad de la leccion se ancla al cmid del modulo (lessonIdForResource),
+// NO a su posicion: reordenar los modulos de la seccion NO debe cambiar el
+// lesson_id resuelto (invariante anti-swap; reemplaza al antiguo resolver por
+// orden de Moodle). Tambien se verifica que el moodle_section_id viaja correcto.
+const resolved = resolveLessonForResource({ resource: { id: 987 }, secciones, lessons });
+assert.equal(resolved.lesson_id, 'SEC15-R987');
+assert.equal(resolved.moodle_section_id, '15');
+
+const resolvedReordered = resolveLessonForResource({
+  resource: { id: 987 },
+  secciones: [{ ...secciones[0], modules: [...secciones[0].modules].reverse() }],
+  lessons,
+});
+assert.equal(resolvedReordered.lesson_id, 'SEC15-R987'); // estable pese al reorden
+assert.equal(resolvedReordered.moodle_section_id, '15');
+
+// Un vinculo explicito (resourceLinks) gana sobre la identidad derivada del cmid.
+const resolvedLinked = resolveLessonForResource({
+  resource: { id: 987 },
+  secciones,
+  lessons,
+  resourceLinks: { 987: { lesson_id: 'SEC15-L01' } },
+});
+assert.equal(resolvedLinked.lesson_id, 'SEC15-L01');
+assert.equal(resolvedLinked.moodle_section_id, '15');
 
 await upsertLesson('2', 'S15-L01', {
   lesson_id: 'S15-L01',
