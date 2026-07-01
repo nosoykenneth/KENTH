@@ -19,7 +19,7 @@ from typing import List, Optional
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile
 
 import ingest
-from api.dependencies import require_teacher, TeacherContext
+from api.dependencies import require_teacher, require_course_admin, TeacherContext
 from services import db_service
 
 router = APIRouter(prefix="/authoring/documents", tags=["authoring-documents"])
@@ -524,7 +524,9 @@ def get_media(doc_id: str, scope: str = "", token: str = "", ctx: TeacherContext
 
 
 @router.post("/reindex")
-def reindex_course_documents(ctx: TeacherContext = Depends(require_teacher)):
+def reindex_course_documents(ctx: TeacherContext = Depends(require_course_admin)):
+    # Reindex de Chroma por curso: acción destructiva/costosa reservada al gestor
+    # del curso (moodle/course:update) o superior. El profesor editor NO reindexa.
     result = ingest.reindex_course_documents(ctx.course_id)
     if not result.get("success"):
         raise HTTPException(status_code=400, detail=result.get("message", "No se pudo reindexar el curso."))

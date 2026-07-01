@@ -1543,12 +1543,19 @@ def resolve_course_numeric(course_id: str) -> Optional[str]:
     return None
 
 
-_TEACHER_ROLE_SHORTNAMES = {"editingteacher", "teacher", "manager", "coursecreator"}
-# Admin del curso = puede gestionar la ESTRUCTURA técnica (no solo la pedagogía).
-# Aproxima en Python (sin motor de capabilities) a los titulares de
-# moodle/course:update: manager / coursecreator. editingteacher queda FUERA a
-# propósito -> es "profesor" (pedagogía), no "admin de curso".
+# ATENCIÓN: la fuente de verdad de permisos es la Web Service Moodle
+# `local_tesisai_get_permissions` (has_capability), resuelta por
+# services/moodle_permissions.py. Estas funciones por NOMBRE DE ROL son un
+# FALLBACK offline/dev (o si la WS no está disponible) y aproximan las
+# capabilities por defecto de Moodle:
+#   - pedagogía (moodle/course:manageactivities): editingteacher (+ manager/coursecreator)
+#   - estructura (moodle/course:update):           manager/coursecreator
+#   - revisión  (moodle/grade:viewall):            (non-editing) teacher + los anteriores
+# El profesor SIN edición (shortname "teacher") NO edita pedagogía: se excluye a
+# propósito del set de pedagogía (antes se colaba y podía escribir por API).
+_PEDAGOGY_ROLE_SHORTNAMES = {"editingteacher", "manager", "coursecreator"}
 _COURSE_ADMIN_ROLE_SHORTNAMES = {"manager", "coursecreator"}
+_REVIEWER_ROLE_SHORTNAMES = {"teacher", "editingteacher", "manager", "coursecreator"}
 
 
 def is_site_admin(user_id: str) -> bool:
@@ -1562,21 +1569,15 @@ def is_site_admin(user_id: str) -> bool:
     return str(user_id) in admins
 
 
-def is_course_teacher(user_id: str, course_id: str) -> bool:
-    """True si el usuario puede gestionar el curso (rol docente/manager o site admin).
+def _course_role_shortnames(user_id: str, course_id: str) -> set:
+    """Shortnames de rol asignados al usuario en el CONTEXTO del curso (fallback).
 
-    Reusa la verdad de Moodle: roles asignados en el contexto del curso. En
-    fallback SQLite (dev) devuelve True para no bloquear desarrollo local.
+    Lee tablas core de Moodle directamente; sólo se usa como respaldo cuando la
+    WS de capabilities no está disponible. Devuelve set vacío si no hay contexto.
     """
-    if not using_moodle_db():
-        return True
-    if not user_id:
-        return False
-    if is_site_admin(user_id):
-        return True
     numeric = resolve_course_numeric(course_id)
     if not numeric:
-        return False
+        return set()
     with get_connection() as conn:
         ctx = _fetchone(
             conn,
@@ -1584,7 +1585,7 @@ def is_course_teacher(user_id: str, course_id: str) -> bool:
             (numeric,),
         )
         if not ctx:
-            return False
+            return set()
         rows = _fetchall(
             conn,
             f"""SELECT r.shortname FROM {_moodle_table('role_assignments')} ra
@@ -1592,18 +1593,31 @@ def is_course_teacher(user_id: str, course_id: str) -> bool:
                 WHERE ra.contextid={_q()} AND ra.userid={_q()}""",
             (ctx["id"], user_id),
         )
-    shortnames = {str(r.get("shortname", "")).lower() for r in rows}
-    return bool(shortnames & _TEACHER_ROLE_SHORTNAMES)
+    return {str(r.get("shortname", "")).lower() for r in rows}
+
+
+def is_course_teacher(user_id: str, course_id: str) -> bool:
+    """FALLBACK: True si el usuario puede editar PEDAGOGÍA del curso.
+
+    Equivale a `moodle/course:manageactivities` (editing teacher/manager/coursecreator
+    o site admin). El profesor SIN edición ("teacher") NO pasa. En SQLite (dev)
+    devuelve True para no frenar desarrollo local.
+    """
+    if not using_moodle_db():
+        return True
+    if not user_id:
+        return False
+    if is_site_admin(user_id):
+        return True
+    return bool(_course_role_shortnames(user_id, course_id) & _PEDAGOGY_ROLE_SHORTNAMES)
 
 
 def is_course_admin(user_id: str, course_id: str) -> bool:
-    """True si el usuario puede administrar la ESTRUCTURA del curso (no solo la
-    pedagogía): manager/coursecreator del curso o site admin.
+    """FALLBACK: True si el usuario puede administrar la ESTRUCTURA del curso.
 
-    Se usa para gatear acciones técnicas del editor avanzado (timestamps de
-    bloque, alta/baja/reorden, recursos indexables). Un editingteacher "profesor"
-    NO pasa este filtro: edita momentos vía el endpoint pedagógico, no la
-    estructura. En fallback SQLite (dev) devuelve True para no frenar desarrollo.
+    Equivale a `moodle/course:update` (manager/coursecreator o site admin). Un
+    editingteacher "profesor" NO pasa este filtro: edita momentos vía el endpoint
+    pedagógico, no la estructura. En SQLite (dev) devuelve True.
     """
     if not using_moodle_db():
         return True
@@ -1611,26 +1625,37 @@ def is_course_admin(user_id: str, course_id: str) -> bool:
         return False
     if is_site_admin(user_id):
         return True
-    numeric = resolve_course_numeric(course_id)
-    if not numeric:
+    return bool(_course_role_shortnames(user_id, course_id) & _COURSE_ADMIN_ROLE_SHORTNAMES)
+
+
+def is_course_reviewer(user_id: str, course_id: str) -> bool:
+    """FALLBACK: True si el usuario puede REVISAR/CALIFICAR (analítica de clase).
+
+    Equivale a `moodle/grade:viewall`: incluye al profesor SIN edición ("teacher")
+    además de editingteacher/manager/coursecreator y site admin. En SQLite (dev)
+    devuelve True.
+    """
+    if not using_moodle_db():
+        return True
+    if not user_id:
         return False
-    with get_connection() as conn:
-        ctx = _fetchone(
-            conn,
-            f"SELECT id FROM {_moodle_table('context')} WHERE contextlevel=50 AND instanceid={_q()}",
-            (numeric,),
-        )
-        if not ctx:
-            return False
-        rows = _fetchall(
-            conn,
-            f"""SELECT r.shortname FROM {_moodle_table('role_assignments')} ra
-                JOIN {_moodle_table('role')} r ON r.id = ra.roleid
-                WHERE ra.contextid={_q()} AND ra.userid={_q()}""",
-            (ctx["id"], user_id),
-        )
-    shortnames = {str(r.get("shortname", "")).lower() for r in rows}
-    return bool(shortnames & _COURSE_ADMIN_ROLE_SHORTNAMES)
+    if is_site_admin(user_id):
+        return True
+    return bool(_course_role_shortnames(user_id, course_id) & _REVIEWER_ROLE_SHORTNAMES)
+
+
+def is_course_enrolled_or_visible(user_id: str, course_id: str) -> bool:
+    """FALLBACK: True si el usuario tiene algún rol asignado en el curso (puede ver).
+
+    Aproxima `moodle/course:view`/matrícula. En SQLite (dev) devuelve True.
+    """
+    if not using_moodle_db():
+        return True
+    if not user_id:
+        return False
+    if is_site_admin(user_id):
+        return True
+    return bool(_course_role_shortnames(user_id, course_id))
 
 
 def upsert_lesson(

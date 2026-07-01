@@ -6,6 +6,7 @@ import MarketingLayout from '../layouts/MarketingLayout';
 import AcademyLayout from '../layouts/AcademyLayout';
 import PrivateRoute from './guards/PrivateRoute';
 import PublicRoute from './guards/PublicRoute';
+import SiteAdminRoute from './guards/SiteAdminRoute';
 
 // Marketing & Catalog
 import LandingPage from '../modules/marketing/LandingPage';
@@ -72,8 +73,11 @@ const AppRouter = () => {
             {/* Alias legacy: vistas de depuracion del tutor retiradas. */}
             <Route path="debug-tutor" element={<Navigate to="/dashboard" replace />} />
             <Route path="pilot" element={<Navigate to="/dashboard" replace />} />
-            <Route path="admin/catalog" element={<AdminCommercialView />} />
-            <Route path="admin/knowledge" element={<AdminKnowledgeView />} />
+            {/* Admin de SITIO: gateado por capability real (siteadmin). */}
+            <Route element={<SiteAdminRoute />}>
+              <Route path="admin/catalog" element={<AdminCommercialView />} />
+              <Route path="admin/knowledge" element={<AdminKnowledgeView />} />
+            </Route>
             <Route path="settings/:courseId" element={<CourseSettingsView />} />
             <Route path="course/:courseId/gestion" element={<CourseAuthoringView />} />
           </Route>

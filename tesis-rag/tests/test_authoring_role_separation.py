@@ -183,10 +183,15 @@ def test_render_sin_pedagogia_no_inyecta():
 # Guards de rol (deterministas, con Moodle DB simulada)
 # ---------------------------------------------------------------------------
 
-def _force_moodle(monkeypatch, user_id="u1"):
+def _force_moodle(monkeypatch, user_id="u1", perms=None):
+    """Simula Moodle activo. `perms` es lo que devuelve la WS de capabilities:
+    None -> WS no disponible, los guards caen al fallback por nombre de rol
+    (is_course_teacher/is_course_admin/is_site_admin), que el test monkeypatchea.
+    """
     monkeypatch.setattr(dependencies, "get_current_user_id", lambda *a, **k: user_id)
     monkeypatch.setattr(dependencies, "using_moodle_db", lambda: True)
     monkeypatch.setattr(dependencies, "resolve_course_numeric", lambda cid: "2")
+    monkeypatch.setattr(dependencies, "resolve_course_permissions", lambda uid, cid: perms)
 
 
 def test_require_course_admin_bloquea_no_admin(monkeypatch):
@@ -218,3 +223,86 @@ def test_require_rag_admin_permite_siteadmin(monkeypatch):
     monkeypatch.setattr(dependencies, "is_site_admin", lambda uid: True)
     uid = dependencies.require_rag_admin(authorization="Bearer x", x_dev_user_id=None)
     assert uid == "u1"
+
+
+# ---------------------------------------------------------------------------
+# Autorización por CAPABILITIES (WS get_permissions) + fallback por rol
+# ---------------------------------------------------------------------------
+
+def test_require_teacher_bloquea_non_editing_via_ws(monkeypatch):
+    # La WS dice que puede revisar pero NO es profesor editor -> require_teacher 403.
+    _force_moodle(monkeypatch, perms={"es_profesor": False, "puede_revisar": True})
+    with pytest.raises(HTTPException) as exc:
+        dependencies.require_teacher(authorization="Bearer x", x_course_id="2", x_dev_user_id=None)
+    assert exc.value.status_code == 403
+
+
+def test_require_teacher_permite_editing_via_ws(monkeypatch):
+    _force_moodle(monkeypatch, perms={"es_profesor": True})
+    ctx = dependencies.require_teacher(authorization="Bearer x", x_course_id="2", x_dev_user_id=None)
+    assert ctx.course_id == "2"
+    assert ctx.user_id == "u1"
+
+
+def test_require_teacher_fallback_sin_ws_usa_rol(monkeypatch):
+    # WS no disponible (perms=None) -> cae al fallback is_course_teacher.
+    _force_moodle(monkeypatch, perms=None)
+    monkeypatch.setattr(dependencies, "is_course_teacher", lambda uid, cid: False)
+    with pytest.raises(HTTPException) as exc:
+        dependencies.require_teacher(authorization="Bearer x", x_course_id="2", x_dev_user_id=None)
+    assert exc.value.status_code == 403
+
+
+def test_require_course_view_bloquea_sin_acceso(monkeypatch):
+    _force_moodle(monkeypatch, perms={"puede_ver_curso": False})
+    with pytest.raises(HTTPException) as exc:
+        dependencies.require_course_view(authorization="Bearer x", x_course_id="2", x_dev_user_id=None)
+    assert exc.value.status_code == 403
+
+
+def test_require_course_view_permite_matriculado(monkeypatch):
+    _force_moodle(monkeypatch, perms={"puede_ver_curso": True})
+    ctx = dependencies.require_course_view(authorization="Bearer x", x_course_id="2", x_dev_user_id=None)
+    assert ctx.course_id == "2"
+
+
+def test_require_course_reviewer_permite_non_editing(monkeypatch):
+    _force_moodle(monkeypatch, perms={"puede_revisar": True, "es_profesor": False})
+    ctx = dependencies.require_course_reviewer(authorization="Bearer x", x_course_id="2", x_dev_user_id=None)
+    assert ctx.user_id == "u1"
+
+
+def test_require_course_reviewer_bloquea_estudiante(monkeypatch):
+    _force_moodle(monkeypatch, perms={"puede_revisar": False, "puede_ver_curso": True})
+    with pytest.raises(HTTPException) as exc:
+        dependencies.require_course_reviewer(authorization="Bearer x", x_course_id="2", x_dev_user_id=None)
+    assert exc.value.status_code == 403
+
+
+# ---------------------------------------------------------------------------
+# Fallback por nombre de rol (db_service): el non-editing "teacher" NO edita
+# ---------------------------------------------------------------------------
+
+def test_fallback_non_editing_no_edita_pero_revisa(monkeypatch):
+    monkeypatch.setattr(db_service, "using_moodle_db", lambda: True)
+    monkeypatch.setattr(db_service, "is_site_admin", lambda uid: False)
+    monkeypatch.setattr(db_service, "_course_role_shortnames", lambda uid, cid: {"teacher"})
+    assert db_service.is_course_teacher("u", "2") is False   # non-editing NO edita pedagogía
+    assert db_service.is_course_admin("u", "2") is False     # ni estructura
+    assert db_service.is_course_reviewer("u", "2") is True   # pero SÍ revisa/califica
+
+
+def test_fallback_editing_teacher_edita_pero_no_admin(monkeypatch):
+    monkeypatch.setattr(db_service, "using_moodle_db", lambda: True)
+    monkeypatch.setattr(db_service, "is_site_admin", lambda uid: False)
+    monkeypatch.setattr(db_service, "_course_role_shortnames", lambda uid, cid: {"editingteacher"})
+    assert db_service.is_course_teacher("u", "2") is True
+    assert db_service.is_course_admin("u", "2") is False     # editingteacher NO es admin de estructura
+
+
+def test_fallback_manager_es_admin(monkeypatch):
+    monkeypatch.setattr(db_service, "using_moodle_db", lambda: True)
+    monkeypatch.setattr(db_service, "is_site_admin", lambda uid: False)
+    monkeypatch.setattr(db_service, "_course_role_shortnames", lambda uid, cid: {"manager"})
+    assert db_service.is_course_admin("u", "2") is True
+    assert db_service.is_course_teacher("u", "2") is True    # manager también gestiona pedagogía

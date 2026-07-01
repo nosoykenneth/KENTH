@@ -6,19 +6,28 @@ import TutorAssistCard from './TutorAssistCard';
 import LessonResourcesPanel from './LessonResourcesPanel';
 
 /**
- * TutorPedagogyView — "Configuración docente del tutor" (Vista Profesor).
+ * TutorPedagogyView — "Panel docente de la lección" (Vista Profesor).
  *
- * Vista PEDAGÓGICA simple para el profesor: personaliza cómo se comporta el
- * tutor en esta lección sin ver nada técnico (block_id, timestamps crudos,
- * Chroma, index_status, retrieval_scope…). Reusa los mismos endpoints de
- * autoría que el editor avanzado, pero:
+ * Vista PEDAGÓGICA simple para el profesor editor: personaliza cómo se comporta
+ * el tutor sin ver nada técnico (block_id, timestamps crudos, Chroma,
+ * index_status, retrieval_scope…). Reusa los mismos endpoints de autoría que el
+ * editor avanzado, pero:
  *   - la pedagogía se guarda con `upsertLesson` (incl. metadata.pedagogy).
- *   - los "momentos" se guardan con `updateMoments` (NUNCA `/blocks`): el
- *     backend preserva tiempos/estructura y rechaza cambios técnicos.
+ *   - los "momentos" se guardan con `updateMoments` (NUNCA `/blocks`): el backend
+ *     preserva tiempos/estructura y rechaza cambios técnicos.
+ *
+ * UX (máx. 4 bloques + progressive disclosure):
+ *   1. Objetivo de la lección
+ *   2. Cómo debe ayudar el tutor  (+ "Opciones avanzadas": reforzar / no hacer)
+ *   3. Errores y preguntas frecuentes
+ *   4. Vista previa del tutor
+ *   · Secundario, colapsado: "Editar momentos de la clase", "Recursos de la lección"
  *
  * El editor avanzado (LessonVideoEditor) queda para admin de curso / técnico.
  *
- * Props: { resource, courseId, sectionContext, onClose(refresh) }
+ * Props: { resource, courseId, sectionContext, onClose(refresh), readOnly }
+ *   - readOnly: modo revisión (profesor SIN edición). Deshabilita la edición y
+ *     oculta Guardar; solo permite ver y probar el tutor.
  */
 
 const TONE_OPTIONS = [
@@ -49,7 +58,7 @@ const secondsToClock = (s) => {
   return `${mm}:${ss}`;
 };
 
-export default function TutorPedagogyView({ resource, courseId, sectionContext = null, onClose }) {
+export default function TutorPedagogyView({ resource, courseId, sectionContext = null, onClose, readOnly = false }) {
   const [lessonId, setLessonId] = useState('');
   const [lesson, setLesson] = useState(null);
   const [form, setForm] = useState(null);
@@ -61,6 +70,11 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
   const [dirtyMoments, setDirtyMoments] = useState(false);
   const [dirtyChange, setDirtyChange] = useState(false);
   const [probando, setProbando] = useState(false);
+
+  // Progressive disclosure: casi todo arranca colapsado.
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [showMoments, setShowMoments] = useState(false);
+  const [showResources, setShowResources] = useState(false);
 
   const isDirty = dirtyPed || dirtyMoments;
 
@@ -111,8 +125,13 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
     return () => { alive = false; };
   }, [resource?.id, courseId, sectionContext?.lesson_id]);
 
-  const setPed = (k, v) => { setForm((p) => ({ ...p, [k]: v })); setDirtyPed(true); };
+  const setPed = (k, v) => {
+    if (readOnly) return;
+    setForm((p) => ({ ...p, [k]: v }));
+    setDirtyPed(true);
+  };
   const setMomentField = (idx, k, v) => {
+    if (readOnly) return;
     setMoments((prev) => prev.map((m, i) => (i === idx ? { ...m, [k]: v } : m)));
     setDirtyMoments(true);
   };
@@ -126,7 +145,7 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
   }), [resource, sectionContext, courseId, lessonId]);
 
   const saveAll = useCallback(async () => {
-    if (!lessonId || !isDirty) return true;
+    if (readOnly || !lessonId || !isDirty) return true;
     setSaving(true);
     try {
       if (dirtyPed) {
@@ -175,20 +194,27 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
     } finally {
       setSaving(false);
     }
-  }, [lessonId, isDirty, dirtyPed, dirtyMoments, courseId, lesson, form, moments, sectionContext?.moodle_section_id]);
+  }, [readOnly, lessonId, isDirty, dirtyPed, dirtyMoments, courseId, lesson, form, moments, sectionContext?.moodle_section_id]);
 
   const handleClose = () => {
     if (isDirty && !window.confirm('Tienes cambios sin guardar. ¿Salir de todos modos?')) return;
     onClose?.(dirtyChange);
   };
 
-  const inputCls = 'w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-3 py-2 text-sm text-kenth-text focus:border-kenth-brightred focus:outline-none';
+  const inputCls = 'w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-3 py-2 text-sm text-kenth-text focus:border-kenth-brightred focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed';
   const labelCls = 'text-[10px] uppercase tracking-widest text-kenth-subtext font-bold';
   const cardCls = 'bg-kenth-card border border-kenth-border rounded-2xl p-5 flex flex-col gap-4';
+  const discloseBtnCls = 'w-full flex items-center justify-between text-left text-sm font-black uppercase italic text-kenth-text tracking-tight px-5 py-4 bg-kenth-card border border-kenth-border rounded-2xl hover:border-kenth-brightred/50 transition';
 
   const configurado = Boolean(
     form && (form.learning_goal || form.tutor_tone || form.help_level || form.lesson_rules
       || linesToArr(form.common_mistakes).length || linesToArr(form.attribution).length),
+  );
+
+  const chevron = (open) => (
+    <svg className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
   );
 
   return (
@@ -196,7 +222,9 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
       {/* Header */}
       <div className="flex items-center justify-between gap-4 px-5 py-3 border-b border-kenth-border bg-kenth-card">
         <div className="min-w-0">
-          <p className="text-[10px] uppercase font-black tracking-widest text-kenth-brightred">Configuración docente del tutor</p>
+          <p className="text-[10px] uppercase font-black tracking-widest text-kenth-brightred">
+            {readOnly ? 'Panel docente de la lección · solo lectura' : 'Panel docente de la lección'}
+          </p>
           <h3 className="text-base font-black uppercase italic text-kenth-text tracking-tight truncate">
             {resource?.name || 'Lección'}
             {sectionContext?.current_section_name && (
@@ -209,7 +237,9 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
         <div className="flex items-center gap-3 flex-shrink-0">
           {/* Estados honestos: sin publicación mientras no exista backend real. */}
           <div className="hidden sm:flex items-center gap-2">
-            {saving ? (
+            {readOnly ? (
+              <StatusChip tone="info">Solo lectura</StatusChip>
+            ) : saving ? (
               <StatusChip tone="info">Guardando…</StatusChip>
             ) : isDirty ? (
               <StatusChip tone="warn">Cambios pendientes</StatusChip>
@@ -218,13 +248,15 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
             )}
             {configurado && !isDirty && <StatusChip tone="ok">Tutor configurado</StatusChip>}
           </div>
-          <button
-            onClick={saveAll}
-            disabled={saving || !isDirty || !lessonId}
-            className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40 transition"
-          >
-            {saving ? 'Guardando…' : (isDirty ? 'Guardar' : 'Guardado')}
-          </button>
+          {!readOnly && (
+            <button
+              onClick={saveAll}
+              disabled={saving || !isDirty || !lessonId}
+              className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40 transition"
+            >
+              {saving ? 'Guardando…' : (isDirty ? 'Guardar' : 'Guardado')}
+            </button>
+          )}
           <button onClick={handleClose} className="text-kenth-subtext hover:text-kenth-text" title="Cerrar">
             <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -245,111 +277,90 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
             </p>
           </div>
         ) : (
-          <div className="max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-5">
-            {/* Objetivo y logros */}
+          <div className="max-w-4xl mx-auto flex flex-col gap-4">
+            {readOnly && (
+              <div className="rounded-2xl border border-kenth-border bg-kenth-surface/5 px-5 py-3 text-sm text-kenth-subtext">
+                Estás revisando esta lección en <b className="text-kenth-text">modo solo lectura</b>. Puedes ver la
+                configuración y probar el tutor, pero no editar. La edición requiere permiso de profesor editor.
+              </div>
+            )}
+
+            {/* 1 · Objetivo de la lección */}
             <section className={cardCls}>
-              <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Qué debe aprender el estudiante</h4>
+              <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">1 · Objetivo de la lección</h4>
               <div>
                 <label className={labelCls}>Objetivo de aprendizaje</label>
-                <textarea rows={2} className={inputCls} value={form.learning_goal} onChange={(e) => setPed('learning_goal', e.target.value)} placeholder="En una frase, qué logra el estudiante en esta clase." />
+                <textarea rows={2} disabled={readOnly} className={inputCls} value={form.learning_goal} onChange={(e) => setPed('learning_goal', e.target.value)} placeholder="En una frase, qué logra el estudiante en esta clase." />
               </div>
               <div>
                 <label className={labelCls}>Criterios de logro (uno por línea)</label>
-                <textarea rows={3} className={inputCls} value={form.learning_goals} onChange={(e) => setPed('learning_goals', e.target.value)} placeholder={'Reconoce el concepto X\nAplica la técnica Y'} />
+                <textarea rows={3} disabled={readOnly} className={inputCls} value={form.learning_goals} onChange={(e) => setPed('learning_goals', e.target.value)} placeholder={'Reconoce el concepto X\nAplica la técnica Y'} />
               </div>
             </section>
 
-            {/* Comportamiento del tutor */}
+            {/* 2 · Cómo debe ayudar el tutor */}
             <section className={cardCls}>
-              <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Cómo debe comportarse el tutor</h4>
+              <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">2 · Cómo debe ayudar el tutor</h4>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className={labelCls}>Tono del tutor</label>
-                  <select className={inputCls} value={form.tutor_tone} onChange={(e) => setPed('tutor_tone', e.target.value)}>
+                  <select disabled={readOnly} className={inputCls} value={form.tutor_tone} onChange={(e) => setPed('tutor_tone', e.target.value)}>
                     {TONE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                 </div>
                 <div>
                   <label className={labelCls}>Nivel de ayuda</label>
-                  <select className={inputCls} value={form.help_level} onChange={(e) => setPed('help_level', e.target.value)}>
+                  <select disabled={readOnly} className={inputCls} value={form.help_level} onChange={(e) => setPed('help_level', e.target.value)}>
                     {HELP_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                   </select>
                 </div>
               </div>
               <div>
                 <label className={labelCls}>Reglas de la lección</label>
-                <textarea rows={2} className={inputCls} value={form.lesson_rules} onChange={(e) => setPed('lesson_rules', e.target.value)} placeholder="Ej.: No des la respuesta directa; guía con preguntas." />
+                <textarea rows={2} disabled={readOnly} className={inputCls} value={form.lesson_rules} onChange={(e) => setPed('lesson_rules', e.target.value)} placeholder="Ej.: No des la respuesta directa; guía con preguntas." />
               </div>
-            </section>
 
-            {/* Reforzar / no hacer / errores */}
-            <section className={cardCls}>
-              <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Qué reforzar y qué evitar</h4>
-              <div>
-                <label className={labelCls}>Qué debe reforzar el tutor (uno por línea)</label>
-                <textarea rows={2} className={inputCls} value={form.delegated} onChange={(e) => setPed('delegated', e.target.value)} placeholder="Temas que el tutor debe cubrir aunque no estén en el video." />
-              </div>
-              <div>
-                <label className={labelCls}>Qué NO debe hacer el tutor (uno por línea)</label>
-                <textarea rows={2} className={inputCls} value={form.attribution} onChange={(e) => setPed('attribution', e.target.value)} placeholder="Ej.: No recomendar plugins de pago." />
-              </div>
-              <div>
-                <label className={labelCls}>Errores comunes a vigilar (uno por línea)</label>
-                <textarea rows={2} className={inputCls} value={form.common_mistakes} onChange={(e) => setPed('common_mistakes', e.target.value)} placeholder={'Confundir X con Y\nOlvidar el paso Z'} />
-              </div>
-            </section>
-
-            {/* Momentos de la clase */}
-            <section className={`${cardCls} lg:col-span-2`}>
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Momentos de la clase</h4>
-                <button onClick={() => setShowTimes((v) => !v)} className="text-[10px] uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">
-                  {showTimes ? 'Ocultar tiempos' : 'Mostrar edición avanzada de tiempos'}
-                </button>
-              </div>
-              {moments.length === 0 ? (
-                <p className="text-sm text-kenth-subtext">Esta clase aún no tiene momentos segmentados. Un administrador puede crearlos en el editor avanzado.</p>
-              ) : (
-                <div className="flex flex-col gap-3">
-                  {moments.map((m, idx) => (
-                    <div key={m.block_id || idx} className="border border-kenth-border/60 rounded-xl p-4 bg-kenth-surface/5 flex flex-col gap-3">
-                      <div className="flex items-center gap-3">
-                        <span className="text-[10px] font-black text-kenth-brightred">Momento {idx + 1}</span>
-                        {showTimes && (
-                          <span className="text-[10px] text-kenth-subtext font-mono">
-                            {secondsToClock(m.start_time)} – {secondsToClock(m.end_time)} (solo lectura)
-                          </span>
-                        )}
-                      </div>
-                      <input className={inputCls} value={m.block_title} onChange={(e) => setMomentField(idx, 'block_title', e.target.value)} placeholder="Título del momento (ej.: La regla y tu tarea)" />
-                      <textarea rows={2} className={inputCls} value={m.summary} onChange={(e) => setMomentField(idx, 'summary', e.target.value)} placeholder="Resumen: qué pasa en este momento." />
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                        <input className={inputCls} value={m.tutor_focus} onChange={(e) => setMomentField(idx, 'tutor_focus', e.target.value)} placeholder="Intención / foco del tutor aquí" />
-                        <textarea rows={1} className={inputCls} value={arrToLines(m.concepts)} onChange={(e) => setMomentField(idx, 'concepts', linesToArr(e.target.value))} placeholder="Conceptos (uno por línea)" />
-                        <textarea rows={1} className={inputCls} value={arrToLines(m.preguntas_probables)} onChange={(e) => setMomentField(idx, 'preguntas_probables', linesToArr(e.target.value))} placeholder="Preguntas probables (una por línea)" />
-                      </div>
-                    </div>
-                  ))}
+              {/* Progressive disclosure: reforzar / no hacer */}
+              <button type="button" onClick={() => setShowAdvanced((v) => !v)} className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-kenth-subtext hover:text-kenth-text self-start">
+                {chevron(showAdvanced)} Opciones avanzadas del tutor
+              </button>
+              {showAdvanced && (
+                <div className="flex flex-col gap-4 border-t border-kenth-border/50 pt-4">
+                  <div>
+                    <label className={labelCls}>Qué debe reforzar el tutor (uno por línea)</label>
+                    <textarea rows={2} disabled={readOnly} className={inputCls} value={form.delegated} onChange={(e) => setPed('delegated', e.target.value)} placeholder="Temas que el tutor debe cubrir aunque no estén en el video." />
+                  </div>
+                  <div>
+                    <label className={labelCls}>Qué NO debe hacer el tutor (uno por línea)</label>
+                    <textarea rows={2} disabled={readOnly} className={inputCls} value={form.attribution} onChange={(e) => setPed('attribution', e.target.value)} placeholder="Ej.: No recomendar plugins de pago." />
+                  </div>
                 </div>
               )}
             </section>
 
-            {/* Recursos visibles para el estudiante */}
-            <section className={`${cardCls} lg:col-span-2`}>
-              <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Recursos de la lección</h4>
-              <LessonResourcesPanel courseId={courseId} lessonId={lessonId} />
+            {/* 3 · Errores y preguntas frecuentes */}
+            <section className={cardCls}>
+              <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">3 · Errores y preguntas frecuentes</h4>
+              <div>
+                <label className={labelCls}>Errores comunes a vigilar (uno por línea)</label>
+                <textarea rows={3} disabled={readOnly} className={inputCls} value={form.common_mistakes} onChange={(e) => setPed('common_mistakes', e.target.value)} placeholder={'Confundir X con Y\nOlvidar el paso Z'} />
+              </div>
+              <p className="text-[11px] text-kenth-subtext">
+                Las preguntas probables por momento se editan en “Editar momentos de la clase”.
+              </p>
             </section>
 
-            {/* Probar tutor */}
-            <section className={`${cardCls} lg:col-span-2`}>
+            {/* 4 · Vista previa del tutor */}
+            <section className={cardCls}>
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Probar tutor con esta lección</h4>
+                <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">4 · Vista previa del tutor</h4>
                 <button onClick={() => setProbando((v) => !v)} className="px-3 py-1.5 rounded-lg border border-kenth-border text-[10px] font-black uppercase tracking-widest text-kenth-text hover:border-kenth-brightred/60">
                   {probando ? 'Cerrar prueba' : 'Abrir tutor'}
                 </button>
               </div>
               <p className="text-[11px] text-kenth-subtext">
-                Los cambios de comportamiento del tutor se aplican al instante (no requieren reindexación). Guarda antes de probar.
+                Los cambios de comportamiento del tutor se aplican al instante (no requieren reindexación).
+                {!readOnly && ' Guarda antes de probar.'}
               </p>
               {probando && (
                 <TutorAssistCard
@@ -362,6 +373,61 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                 />
               )}
             </section>
+
+            {/* Secundario · Editar momentos de la clase (colapsado) */}
+            <div>
+              <button type="button" onClick={() => setShowMoments((v) => !v)} className={discloseBtnCls}>
+                <span>Editar momentos de la clase{moments.length ? ` (${moments.length})` : ''}</span>
+                {chevron(showMoments)}
+              </button>
+              {showMoments && (
+                <section className={`${cardCls} mt-3`}>
+                  <div className="flex items-center justify-end">
+                    <button onClick={() => setShowTimes((v) => !v)} className="text-[10px] uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">
+                      {showTimes ? 'Ocultar tiempos' : 'Mostrar tiempos (solo lectura)'}
+                    </button>
+                  </div>
+                  {moments.length === 0 ? (
+                    <p className="text-sm text-kenth-subtext">Esta clase aún no tiene momentos segmentados. Un administrador puede crearlos en el editor avanzado.</p>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      {moments.map((m, idx) => (
+                        <div key={m.block_id || idx} className="border border-kenth-border/60 rounded-xl p-4 bg-kenth-surface/5 flex flex-col gap-3">
+                          <div className="flex items-center gap-3">
+                            <span className="text-[10px] font-black text-kenth-brightred">Momento {idx + 1}</span>
+                            {showTimes && (
+                              <span className="text-[10px] text-kenth-subtext font-mono">
+                                {secondsToClock(m.start_time)} – {secondsToClock(m.end_time)} (solo lectura)
+                              </span>
+                            )}
+                          </div>
+                          <input disabled={readOnly} className={inputCls} value={m.block_title} onChange={(e) => setMomentField(idx, 'block_title', e.target.value)} placeholder="Título del momento (ej.: La regla y tu tarea)" />
+                          <textarea rows={2} disabled={readOnly} className={inputCls} value={m.summary} onChange={(e) => setMomentField(idx, 'summary', e.target.value)} placeholder="Resumen: qué pasa en este momento." />
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            <input disabled={readOnly} className={inputCls} value={m.tutor_focus} onChange={(e) => setMomentField(idx, 'tutor_focus', e.target.value)} placeholder="Intención / foco del tutor aquí" />
+                            <textarea rows={1} disabled={readOnly} className={inputCls} value={arrToLines(m.concepts)} onChange={(e) => setMomentField(idx, 'concepts', linesToArr(e.target.value))} placeholder="Conceptos (uno por línea)" />
+                            <textarea rows={1} disabled={readOnly} className={inputCls} value={arrToLines(m.preguntas_probables)} onChange={(e) => setMomentField(idx, 'preguntas_probables', linesToArr(e.target.value))} placeholder="Preguntas probables (una por línea)" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+              )}
+            </div>
+
+            {/* Secundario · Recursos de la lección (colapsado) */}
+            <div>
+              <button type="button" onClick={() => setShowResources((v) => !v)} className={discloseBtnCls}>
+                <span>Recursos de la lección</span>
+                {chevron(showResources)}
+              </button>
+              {showResources && (
+                <section className={`${cardCls} mt-3`}>
+                  <LessonResourcesPanel courseId={courseId} lessonId={lessonId} />
+                </section>
+              )}
+            </div>
           </div>
         )}
       </div>

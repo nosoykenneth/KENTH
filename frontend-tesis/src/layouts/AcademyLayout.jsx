@@ -5,6 +5,7 @@ import Logo from '../shared/components/ui/Logo';
 import Notification from '../shared/components/ui/Notification';
 import ThemeToggle from '../shared/components/ui/ThemeToggle';
 import UserMenu from '../shared/components/layout/UserMenu';
+import { useSitePermissions } from '../shared/services/permissions';
 
 const AssistantIcon = ({ isActive }) => {
   return (
@@ -64,8 +65,11 @@ export default function AcademyLayout() {
     localStorage.setItem('sidebar_expandida', JSON.stringify(sidebarExpandida));
   }, [sidebarExpandida]);
   
-  const [userRole] = useState(() => localStorage.getItem('moodle_rol') || 'student');
-  
+  // Entradas de administración de SITIO gateadas por capability real (siteadmin),
+  // no por localStorage.moodle_rol (heurística por username, spoofeable). La
+  // barrera real de estas vistas vive además en el backend (require_rag_admin).
+  const { esTecnicoRAG } = useSitePermissions().perms;
+
   useEffect(() => {
     const contentArea = document.getElementById('main-content-area');
     if (contentArea) contentArea.scrollTo(0, 0);
@@ -84,7 +88,7 @@ export default function AcademyLayout() {
         </div>
         <nav className={`flex flex-col gap-2 w-full px-4 mt-2 lg:mt-0 ${sidebarExpandida ? 'lg:px-6' : ''}`}>
           <NavItem to="/dashboard" label="Dashboard" sidebarExpandida={sidebarExpandida} icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" /></svg>} />
-          {(userRole === 'admin' || userRole === 'teacher') && (
+          {esTecnicoRAG && (
             <>
               <NavItem to="/dashboard/admin/knowledge" label="Gestor IA" sidebarExpandida={sidebarExpandida} icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>} />
               <NavItem to="/dashboard/admin/catalog" label="Precios" sidebarExpandida={sidebarExpandida} icon={<svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>} />

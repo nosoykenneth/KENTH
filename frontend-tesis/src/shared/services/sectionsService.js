@@ -89,8 +89,10 @@ export function upsertResourceLink(resourceId, payload) {
   });
 }
 
-export function deleteResourceLink(resourceId) {
-  return writeJson('DELETE', `/sections/links/${encodeURIComponent(resourceId)}`, '');
+export function deleteResourceLink(resourceId, courseId = '') {
+  // courseId se envía como X-Course-Id: el backend (require_teacher) valida rol
+  // docente en ese curso antes de borrar el vínculo.
+  return writeJson('DELETE', `/sections/links/${encodeURIComponent(resourceId)}`, courseId);
 }
 
 export async function getLesson(lessonId, courseId = '') {

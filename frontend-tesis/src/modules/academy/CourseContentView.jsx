@@ -12,7 +12,7 @@ import {
 import LessonVideoEditor from '../../shared/components/ai/LessonVideoEditor';
 import TutorPedagogyView from '../../shared/components/ai/TutorPedagogyView';
 import StudentLessonResources from '../../shared/components/ai/StudentLessonResources';
-import { fetchCoursePermissions, canEditAdvancedLesson } from '../../shared/services/permissions';
+import { fetchCoursePermissions, canEditAdvancedLesson, canEditPedagogy, canReviewStudents, canUseTutor } from '../../shared/services/permissions';
 import {
   listResourceLinks,
   getLesson,
@@ -424,7 +424,7 @@ export default function CourseContentView() {
         // nuestra BD para que el tutor no quede con lecciones fantasma.
         const link = resourceLinks[String(cmid)];
         try {
-          await deleteResourceLink(cmid);
+          await deleteResourceLink(cmid, id);
           if (link?.lesson_id) await deleteLesson(id, link.lesson_id);
         } catch (cleanupErr) {
           console.warn('[LESSON_AUTO] No se pudo limpiar la leccion del recurso borrado', cleanupErr);
@@ -682,15 +682,19 @@ export default function CourseContentView() {
               <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight text-kenth-text uppercase drop-shadow">
                 {courseName}
               </h1>
-              {esProfesor && (
+              {canReviewStudents(perms) && (
                 <div className="flex gap-3">
-                  <button 
+                  {/* Participantes / progreso: visible también al profesor SIN edición
+                      (revisar clase). Gestión y Configuración quedan para el editor. */}
+                  <button
                     onClick={() => setParticipantesAbierto(true)}
                     className="bg-kenth-surface/10 hover:bg-indigo-500 text-kenth-text border border-kenth-border px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs uppercase tracking-widest"
                   >
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
                     Participantes
                   </button>
+                  {esProfesor && (
+                  <>
                   <button
                     onClick={() => navigate(`/dashboard/course/${id}/gestion`)}
                     className="bg-kenth-surface/10 hover:bg-kenth-brightred text-kenth-text border border-kenth-border px-4 py-2 rounded-xl transition flex items-center gap-2 font-bold text-xs uppercase tracking-widest"
@@ -705,6 +709,8 @@ export default function CourseContentView() {
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                     Configuración
                   </button>
+                  </>
+                  )}
                 </div>
               )}
             </div>
@@ -1160,7 +1166,7 @@ export default function CourseContentView() {
         </div>
       )}
 
-      {esProfesor && participantesAbierto && (
+      {canReviewStudents(perms) && participantesAbierto && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/90 p-4 backdrop-blur-md animate-in fade-in duration-300">
           <div className="bg-kenth-card w-full max-w-5xl h-[85vh] rounded-3xl flex flex-col border border-kenth-border overflow-hidden shadow-[0_0_100px_rgba(0,0,0,0.5)]">
             <div className="p-6 border-b border-kenth-border flex justify-between items-center bg-kenth-surface/5">
@@ -1378,7 +1384,9 @@ export default function CourseContentView() {
                   className="resource-view-grid flex-1 min-h-0 w-full bg-kenth-bg relative grid overflow-hidden"
                   style={{ '--tutor-panel-width': tutorAbierto ? '380px' : '0px' }}
                 >
-                  {!tutorAbierto && (
+                  {/* El invitado ve el contenido permitido pero NO usa el tutor IA
+                      (sin trazas). La barrera real vive en el backend del chat. */}
+                  {canUseTutor(perms) && !tutorAbierto && (
                     <button
                       onClick={abrirTutor}
                       title={activeLessonId ? `Abrir tutor - ${activeLessonId}` : 'Abrir tutor'}
@@ -1463,6 +1471,7 @@ export default function CourseContentView() {
           <TutorPedagogyView
             resource={linkModalRecurso}
             courseId={id}
+            readOnly={!canEditPedagogy(perms)}
             sectionContext={getSectionContextForResource(linkModalRecurso)}
             onClose={(refresh) => {
               setLinkModalRecurso(null);
