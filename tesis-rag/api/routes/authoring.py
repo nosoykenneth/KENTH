@@ -9,12 +9,12 @@ Reusa la capa de persistencia de `services.db_service` (DB Moodle, fallback SQLi
 y la resolución DB-first de `services.lesson_service`.
 """
 
-from typing import List, Optional
+from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from api.dependencies import require_teacher, TeacherContext
+from api.dependencies import require_teacher, require_course_admin, TeacherContext
 from services import db_service, transcription_service
 from services.lesson_service import load_lesson
 
@@ -41,6 +41,20 @@ def _index_transcript_safe(course_id: str, lesson_id: str, segments) -> None:
 # MODELOS
 # ==========================================
 
+class PedagogyPayload(BaseModel):
+    """Personalización pedagógica que edita el PROFESOR desde la Vista Profesor.
+
+    Se persiste dentro de `metadata.pedagogy` de la lección (sin migración de
+    esquema) y se inyecta de forma aditiva en el prompt del tutor
+    (`render_context_block`). No re-cablea dominio: tono/nivel son datos.
+    """
+    model_config = ConfigDict(extra="ignore")
+    tutor_tone: str = ""            # directo | paciente | exigente | socratico | practico
+    help_level: str = ""           # orientar | explicar | corregir | preguntar | ejemplo_guiado
+    lesson_rules: str = ""         # reglas de la lección (texto libre)
+    common_mistakes: List[str] = []  # errores comunes a vigilar
+
+
 class LessonPayload(BaseModel):
     lesson_id: str
     axis_id: str = ""
@@ -55,6 +69,30 @@ class LessonPayload(BaseModel):
     delegated_to_tutor: List[str] = []
     attribution_constraints: List[str] = []
     notes: str = ""
+    # Personalización pedagógica del profesor (opcional). Si viene, se mergea en
+    # metadata.pedagogy preservando el resto de la metadata.
+    pedagogy: Optional[PedagogyPayload] = None
+
+
+class MomentPayload(BaseModel):
+    """Edición PEDAGÓGICA de un 'momento' (bloque) por el profesor.
+
+    `extra="forbid"`: el payload NO admite start_time/end_time ni ningún campo
+    técnico. Es la barrera server-side (Obligatorio #7): el profesor no puede
+    tocar tiempos ni estructura, sin depender de que el front no los envíe.
+    """
+    model_config = ConfigDict(extra="forbid")
+    block_id: str  # referencia obligatoria a un bloque EXISTENTE
+    block_title: str = ""
+    summary: str = ""
+    interaction_mode: str = ""
+    tutor_focus: str = ""
+    concepts: List[str] = []
+    preguntas_probables: List[str] = []
+
+
+class MomentsPayload(BaseModel):
+    moments: List[MomentPayload] = []
 
 
 class BlockPayload(BaseModel):
@@ -152,6 +190,12 @@ def upsert_lesson(lesson_id: str, payload: LessonPayload, ctx: TeacherContext = 
         raise HTTPException(status_code=400, detail="moodle_section_id es requerido para guardar lecciones.")
     # metadata se preserva (merge), nunca se pisa: solo se actualiza edited_by.
     metadata = {**(existing.get("metadata") or {}), "edited_by": ctx.user_id}
+    # Personalización pedagógica del profesor -> metadata.pedagogy (sin migración).
+    # Merge campo a campo para no borrar lo previo si llega parcial.
+    if payload.pedagogy is not None:
+        prev_ped = dict(metadata.get("pedagogy") or {})
+        prev_ped.update(payload.pedagogy.model_dump())
+        metadata["pedagogy"] = prev_ped
     db_service.upsert_lesson(
         lesson_id=payload.lesson_id or lesson_id,
         course_id=ctx.course_id,
@@ -181,7 +225,12 @@ def delete_lesson(lesson_id: str, ctx: TeacherContext = Depends(require_teacher)
 
 
 @router.put("/lessons/{lesson_id}/blocks")
-def replace_blocks(lesson_id: str, payload: BlocksPayload, ctx: TeacherContext = Depends(require_teacher)):
+def replace_blocks(lesson_id: str, payload: BlocksPayload, ctx: TeacherContext = Depends(require_course_admin)):
+    """Reemplazo TÉCNICO/estructural de bloques (timestamps, alta/baja, reorden).
+
+    Reservado al ADMIN DEL CURSO / técnico (editor avanzado). El profesor NO edita
+    aquí: usa `PUT /lessons/{id}/moments` (pedagogía). Barrera server-side, no UI.
+    """
     if not db_service.get_lesson(lesson_id, ctx.course_id):
         raise HTTPException(status_code=404, detail="Lección no encontrada.")
     blocks = []
@@ -200,6 +249,61 @@ def replace_blocks(lesson_id: str, payload: BlocksPayload, ctx: TeacherContext =
         })
     count = db_service.replace_lesson_blocks(lesson_id, blocks)
     return {"lesson_id": lesson_id, "blocks": count}
+
+
+@router.put("/lessons/{lesson_id}/moments")
+def update_moments(lesson_id: str, payload: MomentsPayload, ctx: TeacherContext = Depends(require_teacher)):
+    """Edición PEDAGÓGICA de 'momentos' (bloques) por el profesor.
+
+    Barrera real en backend (Obligatorio #7): actualiza SOLO campos pedagógicos
+    (título/resumen/intención/tutor_focus/concepts/preguntas) EN SU SITIO,
+    preservando start_time/end_time/block_order. Rechaza toda alta, baja o cambio
+    del conjunto de block_id; los timestamps ni siquiera se aceptan en el payload
+    (`extra="forbid"`). El orden técnico existente se conserva (no se reordena).
+    """
+    if not db_service.get_lesson(lesson_id, ctx.course_id):
+        raise HTTPException(status_code=404, detail="Lección no encontrada.")
+
+    existing = db_service.list_lesson_blocks(lesson_id)
+    existing_by_id = {str(b.get("block_id")): b for b in existing}
+    incoming_by_id: Dict[str, MomentPayload] = {}
+    for m in payload.moments:
+        bid = str(m.block_id or "").strip()
+        if not bid:
+            raise HTTPException(status_code=400, detail="Cada momento debe referenciar un block_id existente.")
+        if bid in incoming_by_id:
+            raise HTTPException(status_code=400, detail=f"block_id duplicado en la petición: {bid}")
+        incoming_by_id[bid] = m
+
+    # El conjunto de block_id debe coincidir EXACTAMENTE con el existente:
+    # cualquier alta (id nuevo) o baja (id faltante) encubierta se rechaza.
+    if set(incoming_by_id.keys()) != set(existing_by_id.keys()):
+        raise HTTPException(
+            status_code=403,
+            detail="No se permite crear, borrar ni cambiar el conjunto de bloques desde la edición de momentos.",
+        )
+
+    # Itera en el ORDEN TÉCNICO ya guardado (el profesor no reordena) y actualiza
+    # solo lo pedagógico, preservando tiempos y orden.
+    merged: List[Dict[str, Any]] = []
+    for b in existing:
+        bid = str(b.get("block_id"))
+        m = incoming_by_id[bid]
+        merged.append({
+            "block_id": bid,
+            "block_order": b.get("block_order"),
+            "start_time": b.get("start_time"),   # preservado (no editable por profesor)
+            "end_time": b.get("end_time"),       # preservado (no editable por profesor)
+            "block_title": m.block_title,
+            "summary": m.summary,
+            "interaction_mode": m.interaction_mode or b.get("interaction_mode", ""),
+            "tutor_focus": m.tutor_focus,
+            "concepts": m.concepts,
+            "preguntas_probables": m.preguntas_probables,
+            "metadata": b.get("metadata", {}),
+        })
+    count = db_service.replace_lesson_blocks(lesson_id, merged)
+    return {"lesson_id": lesson_id, "moments": count}
 
 
 @router.put("/lessons/{lesson_id}/prompts")
@@ -360,7 +464,8 @@ def transcript_status(lesson_id: str, ctx: TeacherContext = Depends(require_teac
 
 
 @router.put("/lessons-reorder")
-def reorder_lessons(payload: ReorderPayload, ctx: TeacherContext = Depends(require_teacher)):
+def reorder_lessons(payload: ReorderPayload, ctx: TeacherContext = Depends(require_course_admin)):
+    # Reordenar es estructura técnica -> admin del curso, no el profesor.
     updated = 0
     for item in payload.items:
         lesson_id = item.get("id") or item.get("lesson_id")

@@ -432,6 +432,25 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
             )
             for regla in atribuciones:
                 lineas.append(f"  - {regla}")
+        # Personalizacion pedagogica que el profesor definio para esta leccion
+        # (metadata.pedagogy). Inyeccion ADITIVA y condicional: si el campo no
+        # existe, no se emite nada (no rompe el gate de dominio ni contamina la
+        # query vectorial; solo orienta el comportamiento del tutor).
+        pedagogia = (lesson_data.get("metadata") or {}).get("pedagogy") or {}
+        if pedagogia.get("tutor_tone"):
+            lineas.append(f"Tono del tutor solicitado por el profesor: {pedagogia['tutor_tone']}")
+        if pedagogia.get("help_level"):
+            lineas.append(
+                f"Nivel de ayuda esperado en esta leccion: {pedagogia['help_level']} "
+                "(ajusta cuanto guias vs cuanto resuelves)."
+            )
+        if pedagogia.get("lesson_rules"):
+            lineas.append(f"Reglas de la leccion (definidas por el profesor): {pedagogia['lesson_rules']}")
+        errores = pedagogia.get("common_mistakes") or []
+        if errores:
+            lineas.append("Errores comunes a vigilar y prevenir en esta leccion:")
+            for err in errores:
+                lineas.append(f"  - {err}")
     if ctx.current_section_name:
         lineas.append(f"Seccion actual: {ctx.current_section_name}")
     if ctx.current_section_order is not None:

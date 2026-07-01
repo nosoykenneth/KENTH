@@ -4,6 +4,8 @@ from services.db_service import (
     get_user_id_from_token,
     using_moodle_db,
     is_course_teacher,
+    is_course_admin,
+    is_site_admin,
     resolve_course_numeric,
 )
 
@@ -77,3 +79,50 @@ def require_teacher(
 
     numeric = resolve_course_numeric(course_raw) or course_raw
     return TeacherContext(user_id=user_id, course_id=numeric, course_raw=course_raw)
+
+
+def require_course_admin(
+    authorization: Optional[str] = Header(None),
+    x_course_id: Optional[str] = Header(None, alias="X-Course-Id"),
+    x_dev_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+) -> TeacherContext:
+    """Exige rol de ADMIN DEL CURSO (estructura técnica), no solo pedagogía.
+
+    Gatea las acciones sensibles del editor avanzado: timestamps de bloque,
+    alta/baja/reorden de bloques, recursos indexables. Un editingteacher
+    "profesor" NO pasa este filtro (edita momentos vía el endpoint pedagógico).
+    En dev sin Moodle (SQLite) no bloquea. La barrera es server-side: no basta
+    con ocultar el botón en el front.
+    """
+    user_id = get_current_user_id(authorization, x_dev_user_id)
+    course_raw = (x_course_id or "").strip()
+    if not course_raw:
+        raise HTTPException(status_code=400, detail="Falta la cabecera X-Course-Id.")
+
+    if using_moodle_db() and not is_course_admin(user_id, course_raw):
+        raise HTTPException(
+            status_code=403,
+            detail="Acción reservada al administrador del curso: requiere gestionar la estructura del curso.",
+        )
+
+    numeric = resolve_course_numeric(course_raw) or course_raw
+    return TeacherContext(user_id=user_id, course_id=numeric, course_raw=course_raw)
+
+
+def require_rag_admin(
+    authorization: Optional[str] = Header(None),
+    x_dev_user_id: Optional[str] = Header(None, alias="X-User-Id"),
+) -> str:
+    """Exige rol de TÉCNICO IA/RAG (site admin) para acciones destructivas o de
+    diagnóstico del índice (reindex de Chroma, validación, trazas técnicas).
+
+    No requiere X-Course-Id: estas acciones son globales del índice, no de un
+    curso. En dev sin Moodle (SQLite) no bloquea. Devuelve el user_id validado.
+    """
+    user_id = get_current_user_id(authorization, x_dev_user_id)
+    if using_moodle_db() and not is_site_admin(user_id):
+        raise HTTPException(
+            status_code=403,
+            detail="Acción reservada al técnico IA/RAG (site admin).",
+        )
+    return user_id

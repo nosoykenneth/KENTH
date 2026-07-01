@@ -119,6 +119,9 @@ def load_lesson(lesson_id: str, course_id: Optional[str] = None) -> Optional[dic
             "proactive_message": row.get("proactive_message", ""),
             "blocks": db_service.list_lesson_blocks(lesson_id),
             "notes": row.get("notes", ""),
+            # metadata incluye pedagogy (tono/nivel/reglas/errores) que el profesor
+            # personaliza; se inyecta de forma aditiva en render_context_block.
+            "metadata": row.get("metadata", {}) or {},
         }
 
     if course_id:

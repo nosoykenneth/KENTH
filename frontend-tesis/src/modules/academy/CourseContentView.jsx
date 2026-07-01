@@ -10,7 +10,9 @@ import {
   isH5PModule,
 } from '../../shared/services/activityContext';
 import LessonVideoEditor from '../../shared/components/ai/LessonVideoEditor';
+import TutorPedagogyView from '../../shared/components/ai/TutorPedagogyView';
 import StudentLessonResources from '../../shared/components/ai/StudentLessonResources';
+import { fetchCoursePermissions, canEditAdvancedLesson } from '../../shared/services/permissions';
 import {
   listResourceLinks,
   getLesson,
@@ -94,6 +96,9 @@ export default function CourseContentView() {
 
   const [seccionDestinoId, setSeccionDestinoId] = useState(1);
   const [esProfesor, setEsProfesor] = useState(false);
+  // Permisos granulares reales (capacidades Moodle). Deciden si el editor de una
+  // lección abre la Vista Profesor (pedagogía) o el Editor avanzado (admin/técnico).
+  const [perms, setPerms] = useState({ esProfesor: false, puedeAdministrarCurso: false, esTecnicoRAG: false });
 
   const [menuActivo, setMenuActivo] = useState(null);
   const [draggedMod, setDraggedMod] = useState(null);
@@ -308,16 +313,16 @@ export default function CourseContentView() {
   const [cargandoParticipantes, setCargandoParticipantes] = useState(false);
 
   useEffect(() => {
-    const verificarPermisos = async () => {
-      const token = getMoodleToken();
-      if (!token || !id) return;
-      try {
-        const respuesta = await fetch(`/api/lms/proyecto_curso/api_persistente/tesis_role.php?token=${encodeURIComponent(token)}&courseid=${encodeURIComponent(id)}`);
-        const data = await respuesta.json();
-        setEsProfesor(data.esProfesor);
-      } catch { setEsProfesor(false); }
-    };
-    verificarPermisos();
+    let alive = true;
+    (async () => {
+      // Fuente única de permisos (cacheada). esProfesor se conserva para el UI
+      // existente; perms alimenta el enrutado por rol del editor de lección.
+      const p = await fetchCoursePermissions(id);
+      if (!alive) return;
+      setPerms(p);
+      setEsProfesor(p.esProfesor);
+    })();
+    return () => { alive = false; };
   }, [id]);
 
   useEffect(() => {
@@ -1440,15 +1445,31 @@ export default function CourseContentView() {
         </div>
       )}
       {linkModalRecurso && (
-        <LessonVideoEditor
-          resource={linkModalRecurso}
-          courseId={id}
-          sectionContext={getSectionContextForResource(linkModalRecurso)}
-          onClose={(refresh) => {
-            setLinkModalRecurso(null);
-            if (refresh) cargarLinks();
-          }}
-        />
+        // Enrutado por ROL: el profesor (pedagogía) abre la Vista Profesor; el
+        // admin de curso / técnico abre el Editor avanzado. El profesor puro NO
+        // entra al editor avanzado (Obligatorio #1/#6). La barrera real de las
+        // acciones técnicas vive además en el backend (require_course_admin).
+        canEditAdvancedLesson(perms) ? (
+          <LessonVideoEditor
+            resource={linkModalRecurso}
+            courseId={id}
+            sectionContext={getSectionContextForResource(linkModalRecurso)}
+            onClose={(refresh) => {
+              setLinkModalRecurso(null);
+              if (refresh) cargarLinks();
+            }}
+          />
+        ) : (
+          <TutorPedagogyView
+            resource={linkModalRecurso}
+            courseId={id}
+            sectionContext={getSectionContextForResource(linkModalRecurso)}
+            onClose={(refresh) => {
+              setLinkModalRecurso(null);
+              if (refresh) cargarLinks();
+            }}
+          />
+        )
       )}
     </PageContainer>
   );
