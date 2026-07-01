@@ -70,8 +70,10 @@ export const deleteDocument = async (filename) => {
 
 export const indexKnowledgeBase = async () => {
   try {
+    // Operación global del índice: el backend exige site admin (require_rag_admin).
     const response = await fetch(`${API_BASE_URL}/index`, {
       method: 'POST',
+      headers: authHeaders(),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || 'Error al iniciar indexación');
@@ -84,8 +86,10 @@ export const indexKnowledgeBase = async () => {
 
 export const rebuildKnowledgeBase = async () => {
   try {
+    // Rebuild destructivo de Chroma: el backend exige site admin (require_rag_admin).
     const response = await fetch(`${API_BASE_URL}/rebuild`, {
       method: 'POST',
+      headers: authHeaders(),
     });
     const data = await response.json();
     if (!response.ok) throw new Error(data.detail || 'Error al iniciar rebuild');

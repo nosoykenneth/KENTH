@@ -1,9 +1,10 @@
-from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks
+from fastapi import APIRouter, UploadFile, File, HTTPException, BackgroundTasks, Depends
 import os
 import shutil
 from typing import List, Optional
 from pydantic import BaseModel
 
+from api.dependencies import require_rag_admin
 from ingest import (
     add_single_document,
     remove_single_document,
@@ -186,8 +187,11 @@ def run_rebuild_all_documents():
 
 
 @router.post("/index")
-def index_documents(background_tasks: BackgroundTasks):
-    """Sincroniza en segundo plano solo documentos oficiales aprobados."""
+def index_documents(background_tasks: BackgroundTasks, _admin: str = Depends(require_rag_admin)):
+    """Sincroniza en segundo plano solo documentos oficiales aprobados.
+
+    Operación global del índice -> reservada al técnico IA/RAG (site admin).
+    """
     try:
         background_tasks.add_task(run_process_all_documents)
         return {"success": True, "message": "Proceso de ingesta segura iniciado."}
@@ -196,8 +200,12 @@ def index_documents(background_tasks: BackgroundTasks):
 
 
 @router.post("/rebuild")
-def rebuild_documents(background_tasks: BackgroundTasks):
-    """Rebuild completo, limitado a documentos aprobados por politica segura."""
+def rebuild_documents(background_tasks: BackgroundTasks, _admin: str = Depends(require_rag_admin)):
+    """Rebuild completo, limitado a documentos aprobados por politica segura.
+
+    DESTRUCTIVO (reconstruye ChromaDB). Reservado al técnico IA/RAG (site admin):
+    antes este endpoint no exigía autenticación alguna.
+    """
     try:
         background_tasks.add_task(run_rebuild_all_documents)
         return {

@@ -106,6 +106,13 @@ export function replaceLessonBlocks(courseId, lessonId, blocks) {
   return writeJson('PUT', `/authoring/lessons/${encodeURIComponent(lessonId)}/blocks`, courseId, { blocks });
 }
 
+// Edición PEDAGÓGICA de momentos (bloques) para el profesor: solo campos
+// pedagógicos, in-place. El backend (require_teacher) preserva tiempos/estructura
+// y rechaza altas/bajas/reorden; los timestamps ni se envían (barrera server-side).
+export function updateMoments(courseId, lessonId, moments) {
+  return writeJson('PUT', `/authoring/lessons/${encodeURIComponent(lessonId)}/moments`, courseId, { moments });
+}
+
 export function setLessonPrompts(courseId, lessonId, { proactive_message = '', suggested_prompts = [] }) {
   return writeJson('PUT', `/authoring/lessons/${encodeURIComponent(lessonId)}/prompts`, courseId, {
     proactive_message,

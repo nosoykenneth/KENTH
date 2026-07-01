@@ -1544,6 +1544,11 @@ def resolve_course_numeric(course_id: str) -> Optional[str]:
 
 
 _TEACHER_ROLE_SHORTNAMES = {"editingteacher", "teacher", "manager", "coursecreator"}
+# Admin del curso = puede gestionar la ESTRUCTURA técnica (no solo la pedagogía).
+# Aproxima en Python (sin motor de capabilities) a los titulares de
+# moodle/course:update: manager / coursecreator. editingteacher queda FUERA a
+# propósito -> es "profesor" (pedagogía), no "admin de curso".
+_COURSE_ADMIN_ROLE_SHORTNAMES = {"manager", "coursecreator"}
 
 
 def is_site_admin(user_id: str) -> bool:
@@ -1589,6 +1594,43 @@ def is_course_teacher(user_id: str, course_id: str) -> bool:
         )
     shortnames = {str(r.get("shortname", "")).lower() for r in rows}
     return bool(shortnames & _TEACHER_ROLE_SHORTNAMES)
+
+
+def is_course_admin(user_id: str, course_id: str) -> bool:
+    """True si el usuario puede administrar la ESTRUCTURA del curso (no solo la
+    pedagogía): manager/coursecreator del curso o site admin.
+
+    Se usa para gatear acciones técnicas del editor avanzado (timestamps de
+    bloque, alta/baja/reorden, recursos indexables). Un editingteacher "profesor"
+    NO pasa este filtro: edita momentos vía el endpoint pedagógico, no la
+    estructura. En fallback SQLite (dev) devuelve True para no frenar desarrollo.
+    """
+    if not using_moodle_db():
+        return True
+    if not user_id:
+        return False
+    if is_site_admin(user_id):
+        return True
+    numeric = resolve_course_numeric(course_id)
+    if not numeric:
+        return False
+    with get_connection() as conn:
+        ctx = _fetchone(
+            conn,
+            f"SELECT id FROM {_moodle_table('context')} WHERE contextlevel=50 AND instanceid={_q()}",
+            (numeric,),
+        )
+        if not ctx:
+            return False
+        rows = _fetchall(
+            conn,
+            f"""SELECT r.shortname FROM {_moodle_table('role_assignments')} ra
+                JOIN {_moodle_table('role')} r ON r.id = ra.roleid
+                WHERE ra.contextid={_q()} AND ra.userid={_q()}""",
+            (ctx["id"], user_id),
+        )
+    shortnames = {str(r.get("shortname", "")).lower() for r in rows}
+    return bool(shortnames & _COURSE_ADMIN_ROLE_SHORTNAMES)
 
 
 def upsert_lesson(
