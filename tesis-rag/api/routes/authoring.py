@@ -9,6 +9,7 @@ Reusa la capa de persistencia de `services.db_service` (DB Moodle, fallback SQLi
 y la resolución DB-first de `services.lesson_service`.
 """
 
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -17,6 +18,7 @@ from pydantic import BaseModel, ConfigDict
 from api.dependencies import require_teacher, require_course_admin, TeacherContext
 from services import db_service, transcription_service
 from services.lesson_service import load_lesson
+from services.ai_prepare import service as ai_prepare_service, persistence as ai_prepare_persistence, schema as ai_prepare_schema
 
 
 router = APIRouter(prefix="/authoring", tags=["authoring"])
@@ -174,6 +176,27 @@ class ResourcePayload(BaseModel):
 class ReorderPayload(BaseModel):
     # lista de {id, order} para reordenar ejes o lecciones
     items: List[dict] = []
+
+
+class AiPreparePayload(BaseModel):
+    """Entrada del asistente "Preparar tutor con IA". NO admite prompt libre del
+    usuario (anti prompt-injection): solo flags controlados."""
+    model_config = ConfigDict(extra="ignore")
+    mode: str = "draft"              # draft | regenerate | review
+    quality: str = "balanced"       # fast | balanced | max
+    use_existing_transcript: bool = True
+    regenerate_transcript: bool = False   # delegado a /transcript/auto (no bloquea aquí)
+    include_resources: bool = True
+    include_vision: bool = False
+    review_model: Optional[str] = None    # override explícito (p. ej. deepseek-r1:70b)
+
+
+class AiAcceptPayload(BaseModel):
+    """Aceptación del borrador por el profesor. `draft` es el borrador final (puede
+    haberlo editado en el asistente); si no viene, se promueve el guardado."""
+    model_config = ConfigDict(extra="ignore")
+    draft: Optional[Dict[str, Any]] = None
+    apply_moments: bool = True
 
 
 # ==========================================
@@ -433,6 +456,12 @@ def set_transcript(lesson_id: str, payload: TranscriptPayload, ctx: TeacherConte
         })
     count = db_service.replace_transcript(lesson_id, segments)
     _index_transcript_safe(ctx.course_id, lesson_id, segments)
+    # Fase 3: el profesor corrigió términos técnicos -> transcripción editada.
+    db_service.merge_lesson_metadata(lesson_id, ctx.course_id, {
+        "transcript_status": "edited",
+        "transcript_edited_at": datetime.now(timezone.utc).isoformat(),
+        "transcript_edited_by": ctx.user_id,
+    })
     return {"lesson_id": lesson_id, "segments": count}
 
 
@@ -524,3 +553,136 @@ def upsert_resource(resource_id: str, payload: ResourcePayload, ctx: TeacherCont
 def delete_resource(resource_id: str, ctx: TeacherContext = Depends(require_teacher)):
     deleted = db_service.delete_resource(resource_id)
     return {"deleted": deleted, "resource_id": resource_id}
+
+
+# ==========================================
+# ASISTENTE "PREPARAR TUTOR CON IA"
+# ==========================================
+
+def _domain_label(course_id: str) -> str:
+    """Etiqueta de dominio del curso desde el Domain Pack (no se hardcodea 'mezcla')."""
+    try:
+        from services.domain.domain_pack import get_domain_pack
+        return get_domain_pack(course_id).domain_label(default="")
+    except Exception:
+        return ""
+
+
+def _lesson_extra_context(course_id: str, lesson_id: str) -> str:
+    """Contexto adicional (títulos/descripciones de recursos de la lección), best-effort."""
+    try:
+        docs = db_service.list_documents(course_id=course_id, lesson_id=lesson_id)
+    except Exception:
+        return ""
+    lines: List[str] = []
+    for d in docs[:20]:
+        title = (d.get("title") or "").strip()
+        meta = d.get("metadata") or {}
+        desc = (meta.get("description") or d.get("notes") or "").strip()
+        if title or desc:
+            lines.append(f"- {title}: {desc}".strip().rstrip(":"))
+    return "\n".join(lines)
+
+
+@router.post("/lessons/{lesson_id}/ai-prepare")
+def ai_prepare(lesson_id: str, payload: AiPreparePayload, ctx: TeacherContext = Depends(require_teacher)):
+    """Genera un BORRADOR pedagógico con IA a partir de la transcripción (Fase 4).
+
+    Requiere profesor EDITOR (require_teacher = capability es_profesor); el profesor
+    SIN edición, estudiante e invitado NO pasan. NO reindexa Chroma, NO publica, NO
+    toca timestamps ni el conjunto de bloques. El borrador queda aislado en
+    metadata.ai_prepare hasta que el profesor lo acepte.
+    """
+    lesson = db_service.get_lesson(lesson_id, ctx.course_id)
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lección no encontrada.")
+
+    domain_label = _domain_label(ctx.course_id)
+
+    # Modo review: revisa el borrador YA existente sin regenerar.
+    if payload.mode == "review":
+        ai = (lesson.get("metadata") or {}).get("ai_prepare") or {}
+        draft = ai.get("draft")
+        if not draft:
+            raise HTTPException(status_code=422, detail={"code": "no_draft", "message": "No hay un borrador previo que revisar. Genera uno primero."})
+        review = ai_prepare_service.review_draft(draft, domain_label, model=payload.review_model)
+        ai_prepare_persistence.save_review_only(lesson_id, ctx.course_id, ctx.user_id, review, payload.review_model)
+        return {"lesson_id": lesson_id, "ok": True, "mode": "review", "review": review, "lesson": load_lesson(lesson_id, ctx.course_id)}
+
+    # Modo draft | regenerate.
+    segments = db_service.list_transcript(lesson_id)
+    if not segments:
+        # Ollama analiza texto YA transcrito: sin transcripción, no hay análisis.
+        raise HTTPException(
+            status_code=422,
+            detail={"code": "no_transcript", "message": "Esta lección aún no tiene transcripción. Transcribe o edita la transcripción (paso 1) antes de preparar el tutor."},
+        )
+
+    blocks = db_service.list_lesson_blocks(lesson_id)
+    extra = _lesson_extra_context(ctx.course_id, lesson_id) if payload.include_resources else ""
+
+    result = ai_prepare_service.run(
+        lesson_title=lesson.get("title") or lesson.get("lesson_title") or "",
+        section_name="",
+        transcript_segments=segments,
+        blocks=blocks,
+        quality=payload.quality,
+        domain_label=domain_label,
+        extra_context=extra,
+        review_model=payload.review_model,
+    )
+
+    if not result.get("ok"):
+        # Error controlado: no guardamos texto libre no parseado como si fuera válido.
+        db_service.merge_lesson_metadata(lesson_id, ctx.course_id, {"ai_prepare_status": "error", "ai_prepared_at": None})
+        raise HTTPException(
+            status_code=422,
+            detail={"code": "invalid_output", "message": result.get("error") or "El modelo no devolvió un JSON válido.", "errors": result.get("errors", [])},
+        )
+
+    ai_prepare_persistence.save_draft(lesson_id, ctx.course_id, ctx.user_id, result, payload.quality)
+    return {
+        "lesson_id": lesson_id,
+        "ok": True,
+        "mode": payload.mode,
+        "draft": result["draft"],
+        "review": result.get("review"),
+        "models": result["models"],
+        "repaired": result["repaired"],
+        "transcript_info": result["transcript_info"],
+        "elapsed_seconds": result["elapsed_seconds"],
+    }
+
+
+@router.post("/lessons/{lesson_id}/ai-prepare/accept")
+def ai_prepare_accept(lesson_id: str, payload: AiAcceptPayload, ctx: TeacherContext = Depends(require_teacher)):
+    """Acepta el borrador (posiblemente editado) y lo PROMUEVE a los campos vivos del
+    tutor (Fase 10). No reindexa (campos inyectados, no indexados)."""
+    lesson = db_service.get_lesson(lesson_id, ctx.course_id)
+    if not lesson:
+        raise HTTPException(status_code=404, detail="Lección no encontrada.")
+
+    raw_draft = payload.draft
+    if raw_draft is None:
+        raw_draft = ((lesson.get("metadata") or {}).get("ai_prepare") or {}).get("draft")
+    if not raw_draft:
+        raise HTTPException(status_code=422, detail={"code": "no_draft", "message": "No hay borrador para aceptar. Genera uno con el asistente primero."})
+
+    draft_obj, errors = ai_prepare_schema.validate_dict(raw_draft)
+    if draft_obj is None:
+        raise HTTPException(status_code=422, detail={"code": "invalid_draft", "message": "El borrador no es válido.", "errors": errors})
+
+    draft_dict = ai_prepare_schema.draft_to_public(draft_obj)
+    summary = ai_prepare_persistence.promote_draft(
+        lesson_id, ctx.course_id, ctx.user_id, draft_dict, apply_moments=payload.apply_moments
+    )
+    if not summary.get("ok"):
+        raise HTTPException(status_code=422, detail=summary.get("error") or "No se pudo aceptar el borrador.")
+    return {
+        "lesson_id": lesson_id,
+        "ok": True,
+        "changed": summary.get("changed", []),
+        "moments_applied": summary.get("moments_applied", 0),
+        "requires_reindex": summary.get("requires_reindex", False),
+        "lesson": load_lesson(lesson_id, ctx.course_id),
+    }

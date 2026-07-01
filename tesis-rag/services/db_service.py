@@ -1757,6 +1757,40 @@ def get_lesson(lesson_id: str, course_id: Optional[str] = None) -> Optional[Dict
     return _normalize_lesson(row) if row else None
 
 
+def merge_lesson_metadata(lesson_id: str, course_id: Optional[str], patch: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+    """Aplica un patch al metadata_json de una lección PRESERVANDO el resto de campos.
+
+    upsert_lesson reemplaza TODAS las columnas (ON DUPLICATE KEY UPDATE), así que un
+    write parcial borraría campos. Este primitivo recarga la lección, mergea solo el
+    metadata y re-guarda todo lo demás intacto. Único punto seguro para parches de
+    estado (ai_prepare_*, transcript_status, etc.). No toca bloques ni transcripción.
+    """
+    lesson = get_lesson(lesson_id, course_id)
+    if not lesson:
+        return None
+    meta = dict(lesson.get("metadata") or {})
+    meta.update(patch or {})
+    upsert_lesson(
+        lesson_id=lesson_id,
+        course_id=lesson.get("course_id") or (course_id or ""),
+        axis_id="",
+        moodle_section_id=lesson.get("moodle_section_id", "") or "",
+        title=lesson.get("title", "") or lesson.get("lesson_title", ""),
+        order=int(lesson.get("order", 0) or 0),
+        learning_goal=lesson.get("learning_goal", "") or "",
+        expected_action=lesson.get("expected_action", "") or "",
+        is_pilot=bool(lesson.get("is_pilot")),
+        learning_goals=lesson.get("learning_goals", []) or [],
+        resources=lesson.get("resources", []) or [],
+        prerequisites=lesson.get("prerequisites", []) or [],
+        delegated_to_tutor=lesson.get("delegated_to_tutor", []) or [],
+        attribution_constraints=lesson.get("attribution_constraints", []) or [],
+        notes=lesson.get("notes", "") or "",
+        metadata=meta,
+    )
+    return get_lesson(lesson_id, course_id)
+
+
 def list_lessons(
     is_pilot: Optional[bool] = None,
     axis_id: Optional[str] = None,

@@ -1,33 +1,30 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { getResourceLink, getLesson, upsertLesson, updateMoments } from '../../services/sectionsService';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  getResourceLink, getLesson, getTranscript, getTranscriptStatus,
+  autoTranscribe, replaceTranscript, aiPrepare, aiPrepareAccept,
+} from '../../services/sectionsService';
 import { activityContextFromMoodleModule } from '../../services/activityContext';
 import { showNotification } from '../../utils/notify';
 import TutorAssistCard from './TutorAssistCard';
 import LessonResourcesPanel from './LessonResourcesPanel';
 
 /**
- * TutorPedagogyView — "Panel docente de la lección" (Vista Profesor).
+ * TutorPedagogyView — asistente "Preparar tutor con IA" (Vista Profesor).
  *
- * Vista PEDAGÓGICA simple para el profesor editor: personaliza cómo se comporta
- * el tutor sin ver nada técnico (block_id, timestamps crudos, Chroma,
- * index_status, retrieval_scope…). Reusa los mismos endpoints de autoría que el
- * editor avanzado, pero:
- *   - la pedagogía se guarda con `upsertLesson` (incl. metadata.pedagogy).
- *   - los "momentos" se guardan con `updateMoments` (NUNCA `/blocks`): el backend
- *     preserva tiempos/estructura y rechaza cambios técnicos.
+ * Rediseñado como asistente de 3 pasos para que el profesor NO tenga que llenar
+ * 20 campos a mano. La IA (Ollama local, vía backend) analiza la transcripción y
+ * propone un BORRADOR pedagógico; el profesor lo revisa, edita y ACEPTA. Nada se
+ * publica ni indexa automáticamente; el borrador queda aislado hasta aceptar.
  *
- * UX (máx. 4 bloques + progressive disclosure):
- *   1. Objetivo de la lección
- *   2. Cómo debe ayudar el tutor  (+ "Opciones avanzadas": reforzar / no hacer)
- *   3. Errores y preguntas frecuentes
- *   4. Vista previa del tutor
- *   · Secundario, colapsado: "Editar momentos de la clase", "Recursos de la lección"
+ *   Paso 1 · Clase y recursos     -> transcripción (estado, transcribir, corregir) + recursos
+ *   Paso 2 · Preparación con IA    -> calidad + generar borrador + resumen
+ *   Paso 3 · Revisión y prueba     -> editar borrador, probar tutor, aceptar
  *
- * El editor avanzado (LessonVideoEditor) queda para admin de curso / técnico.
+ * Oculta todo lo técnico (block_id, timestamps, source_hash, Chroma, retrieval,
+ * index_status, JSON crudo). El editor avanzado (LessonVideoEditor) sigue siendo
+ * para admin de curso / técnico.
  *
  * Props: { resource, courseId, sectionContext, onClose(refresh), readOnly }
- *   - readOnly: modo revisión (profesor SIN edición). Deshabilita la edición y
- *     oculta Guardar; solo permite ver y probar el tutor.
  */
 
 const TONE_OPTIONS = [
@@ -38,7 +35,6 @@ const TONE_OPTIONS = [
   { value: 'socratico', label: 'Socrático' },
   { value: 'practico', label: 'Práctico' },
 ];
-
 const HELP_OPTIONS = [
   { value: '', label: 'Automático' },
   { value: 'orientar', label: 'Orientar (pistas, no la respuesta)' },
@@ -47,93 +43,245 @@ const HELP_OPTIONS = [
   { value: 'preguntar', label: 'Hacer preguntas' },
   { value: 'ejemplo_guiado', label: 'Dar ejemplo guiado' },
 ];
+const QUALITY_OPTIONS = [
+  { value: 'fast', label: 'Rápido', hint: 'Borrador veloz.' },
+  { value: 'balanced', label: 'Equilibrado', hint: 'Recomendado.' },
+  { value: 'max', label: 'Máximo', hint: 'Añade revisión de calidad (más lento).' },
+];
+// Términos técnicos que el ASR suele transcribir mal (Fase 3): ayuda al profesor
+// a corregirlos. Es solo una guía visual del dominio de mezcla/masterización.
+const GLOSARIO = ['headroom', 'gain staging', 'LUFS', 'threshold', 'sidechain', 'fase', 'compresión paralela', 'ecualización', 'masterización'];
 
 const linesToArr = (s) => (s || '').split('\n').map((x) => x.trim()).filter(Boolean);
 const arrToLines = (a) => (Array.isArray(a) ? a.join('\n') : (a || ''));
 
-const secondsToClock = (s) => {
-  const n = Math.max(0, Math.floor(Number(s) || 0));
-  const mm = String(Math.floor(n / 60)).padStart(2, '0');
-  const ss = String(n % 60).padStart(2, '0');
-  return `${mm}:${ss}`;
-};
+const inputCls = 'w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-3 py-2 text-sm text-kenth-text focus:border-kenth-brightred focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed';
+const labelCls = 'text-[10px] uppercase tracking-widest text-kenth-subtext font-bold';
+const cardCls = 'bg-kenth-card border border-kenth-border rounded-2xl p-5 flex flex-col gap-4';
+
+// Deriva el formulario editable del borrador devuelto por la IA.
+function draftToForm(d = {}) {
+  return {
+    learning_goal: d.learning_goal || '',
+    lesson_summary: d.lesson_summary || '',
+    recommended_tone: d.recommended_tone || '',
+    recommended_help_level: d.recommended_help_level || '',
+    key_concepts: arrToLines(d.key_concepts),
+    common_mistakes: arrToLines(d.common_mistakes),
+    probable_questions: arrToLines(d.probable_questions),
+    tutor_focus: arrToLines(d.tutor_focus),
+    tutor_must_not_do: arrToLines(d.tutor_must_not_do),
+    lesson_rules: arrToLines(d.lesson_rules),
+    terms_to_review: Array.isArray(d.terms_to_review) ? d.terms_to_review : [],
+    transcript_quality_notes: Array.isArray(d.transcript_quality_notes) ? d.transcript_quality_notes : [],
+    confidence: d.confidence || 'low',
+    moments: (d.moments || []).map((m) => ({
+      existing_block_id: m.existing_block_id || null,
+      title: m.title || '',
+      summary: m.summary || '',
+      pedagogical_intent: m.pedagogical_intent || '',
+      key_concepts: arrToLines(m.key_concepts),
+      probable_questions: arrToLines(m.probable_questions),
+      common_mistakes: arrToLines(m.common_mistakes),
+    })),
+  };
+}
+
+// Reconstruye el objeto draft (esquema del backend) desde el formulario.
+function formToDraft(f) {
+  return {
+    learning_goal: f.learning_goal,
+    lesson_summary: f.lesson_summary,
+    recommended_tone: f.recommended_tone,
+    recommended_help_level: f.recommended_help_level,
+    key_concepts: linesToArr(f.key_concepts),
+    common_mistakes: linesToArr(f.common_mistakes),
+    probable_questions: linesToArr(f.probable_questions),
+    tutor_focus: linesToArr(f.tutor_focus),
+    tutor_must_not_do: linesToArr(f.tutor_must_not_do),
+    lesson_rules: linesToArr(f.lesson_rules),
+    terms_to_review: f.terms_to_review || [],
+    transcript_quality_notes: f.transcript_quality_notes || [],
+    confidence: f.confidence || 'low',
+    moments: (f.moments || []).map((m) => ({
+      existing_block_id: m.existing_block_id || null,
+      title: m.title,
+      summary: m.summary,
+      pedagogical_intent: m.pedagogical_intent,
+      key_concepts: linesToArr(m.key_concepts),
+      probable_questions: linesToArr(m.probable_questions),
+      common_mistakes: linesToArr(m.common_mistakes),
+    })),
+  };
+}
 
 export default function TutorPedagogyView({ resource, courseId, sectionContext = null, onClose, readOnly = false }) {
+  const [step, setStep] = useState(1);
   const [lessonId, setLessonId] = useState('');
   const [lesson, setLesson] = useState(null);
-  const [form, setForm] = useState(null);
-  const [moments, setMoments] = useState([]);
-  const [showTimes, setShowTimes] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [dirtyPed, setDirtyPed] = useState(false);
-  const [dirtyMoments, setDirtyMoments] = useState(false);
-  const [dirtyChange, setDirtyChange] = useState(false);
+
+  // Transcripción
+  const [transcript, setTranscript] = useState([]);
+  const [job, setJob] = useState(null);
+  const [correcting, setCorrecting] = useState(false);
+  const [savingTranscript, setSavingTranscript] = useState(false);
+
+  // IA
+  const [quality, setQuality] = useState('balanced');
+  const [aiBusy, setAiBusy] = useState(false);
+  const [aiPhase, setAiPhase] = useState('');
+  const [aiResult, setAiResult] = useState(null); // { draft, review, models, confidence, ... }
+  const [form, setForm] = useState(null);
+  const [accepting, setAccepting] = useState(false);
+  const [accepted, setAccepted] = useState(false);
   const [probando, setProbando] = useState(false);
+  const phaseTimer = useRef(null);
 
-  // Progressive disclosure: casi todo arranca colapsado.
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [showMoments, setShowMoments] = useState(false);
-  const [showResources, setShowResources] = useState(false);
+  const meta = lesson?.metadata || {};
+  const transcriptStatus = meta.transcript_status || (transcript.length ? 'generated' : 'missing');
+  const hasTranscript = transcript.length > 0;
 
-  const isDirty = dirtyPed || dirtyMoments;
-
-  // --- Carga: vínculo del recurso -> lección -> detalle ---
-  useEffect(() => {
-    if (!resource?.id) return undefined;
-    let alive = true;
-    (async () => {
-      setLoading(true);
-      try {
-        const link = await getResourceLink(resource.id, courseId);
-        const lId = link?.lesson_id || sectionContext?.lesson_id || '';
-        if (!alive) return;
-        setLessonId(lId);
-        if (!lId) { setLesson(null); setForm(null); setMoments([]); return; }
-        const data = await getLesson(lId, courseId);
-        if (!alive) return;
-        const ped = (data.metadata || {}).pedagogy || {};
-        setLesson(data);
-        setForm({
-          learning_goal: data.learning_goal || '',
-          learning_goals: arrToLines(data.learning_goals),
-          delegated: arrToLines(data.delegated_to_tutor),
-          attribution: arrToLines(data.attribution_constraints),
-          tutor_tone: ped.tutor_tone || '',
-          help_level: ped.help_level || '',
-          lesson_rules: ped.lesson_rules || '',
-          common_mistakes: arrToLines(ped.common_mistakes),
-        });
-        setMoments((data.blocks || []).map((b) => ({
-          block_id: b.block_id,
-          block_title: b.block_title || '',
-          summary: b.summary || '',
-          tutor_focus: b.tutor_focus || '',
-          concepts: Array.isArray(b.concepts) ? b.concepts : linesToArr(b.concepts),
-          preguntas_probables: Array.isArray(b.preguntas_probables) ? b.preguntas_probables : linesToArr(b.preguntas_probables),
-          start_time: b.start_time,
-          end_time: b.end_time,
-        })));
-        setDirtyPed(false);
-        setDirtyMoments(false);
-      } catch (e) {
-        if (alive) showNotification('error', e.message);
-      } finally {
-        if (alive) setLoading(false);
+  // --- Carga: vínculo del recurso -> lección -> detalle + transcripción ---
+  const reload = useCallback(async () => {
+    if (!resource?.id) return;
+    setLoading(true);
+    try {
+      const link = await getResourceLink(resource.id, courseId);
+      const lId = link?.lesson_id || sectionContext?.lesson_id || '';
+      setLessonId(lId);
+      if (!lId) { setLesson(null); setTranscript([]); return; }
+      const [data, tr] = await Promise.all([
+        getLesson(lId, courseId),
+        getTranscript(courseId, lId).catch(() => ({ segments: [], job: null })),
+      ]);
+      setLesson(data);
+      setTranscript(tr.segments || []);
+      setJob(tr.job || null);
+      // Si ya hay un borrador guardado, precargarlo (permite volver al paso 3).
+      const savedDraft = (data.metadata || {}).ai_prepare?.draft;
+      if (savedDraft) {
+        setForm(draftToForm(savedDraft));
+        setAiResult({ draft: savedDraft, review: (data.metadata || {}).ai_prepare?.review || null });
+        setAccepted((data.metadata || {}).ai_prepare_status === 'accepted');
       }
-    })();
-    return () => { alive = false; };
+    } catch (e) {
+      showNotification('error', e.message);
+    } finally {
+      setLoading(false);
+    }
   }, [resource?.id, courseId, sectionContext?.lesson_id]);
 
-  const setPed = (k, v) => {
-    if (readOnly) return;
-    setForm((p) => ({ ...p, [k]: v }));
-    setDirtyPed(true);
+  useEffect(() => { reload(); }, [reload]);
+
+  // --- Polling del job de transcripción automática ---
+  useEffect(() => {
+    if (!lessonId || job?.status !== 'running') return undefined;
+    const iv = setInterval(async () => {
+      try {
+        const data = await getTranscriptStatus(courseId, lessonId);
+        const st = data.job;
+        setJob(st || null);
+        if (!st || st.status === 'done') {
+          clearInterval(iv);
+          if (st?.status === 'done') {
+            const tr = await getTranscript(courseId, lessonId);
+            setTranscript(tr.segments || []);
+            showNotification('success', 'Transcripción lista.');
+            await reload();
+          }
+        } else if (st.status === 'error') {
+          clearInterval(iv);
+          showNotification('error', st.error || 'Falló la transcripción.');
+        }
+      } catch (e) {
+        clearInterval(iv);
+        showNotification('error', e.message);
+      }
+    }, 3000);
+    return () => clearInterval(iv);
+  }, [job?.status, lessonId, courseId, reload]);
+
+  useEffect(() => () => { if (phaseTimer.current) clearInterval(phaseTimer.current); }, []);
+
+  const startTranscribe = async () => {
+    if (readOnly || !lessonId || !resource?.id) return;
+    if (hasTranscript && !window.confirm('Esto reemplazará la transcripción actual al terminar. ¿Continuar?')) return;
+    try {
+      const data = await autoTranscribe(courseId, lessonId, { resource_id: Number(resource.id) });
+      setJob(data.job || { status: 'running', progress: 0 });
+      showNotification('success', 'Transcripción iniciada. Puede tardar varios minutos…');
+    } catch (e) {
+      showNotification('error', e.message);
+    }
   };
-  const setMomentField = (idx, k, v) => {
-    if (readOnly) return;
-    setMoments((prev) => prev.map((m, i) => (i === idx ? { ...m, [k]: v } : m)));
-    setDirtyMoments(true);
+
+  const setSegText = (idx, text) => setTranscript((p) => p.map((s, i) => (i === idx ? { ...s, text } : s)));
+
+  const saveTranscript = async () => {
+    if (readOnly || !lessonId) return;
+    setSavingTranscript(true);
+    try {
+      const segs = transcript.map((s, i) => ({ seq: i, start_time: Number(s.start_time) || 0, end_time: Number(s.end_time) || 0, text: s.text || '', speaker: s.speaker || '' }));
+      await replaceTranscript(courseId, lessonId, segs);
+      showNotification('success', 'Transcripción corregida y guardada.');
+      setCorrecting(false);
+      await reload();
+    } catch (e) {
+      showNotification('error', e.message);
+    } finally {
+      setSavingTranscript(false);
+    }
+  };
+
+  const runAiPrepare = async () => {
+    if (readOnly || !lessonId) return;
+    setAiBusy(true);
+    setAiResult(null);
+    const phases = quality === 'max'
+      ? ['Analizando la clase…', 'Detectando momentos…', 'Generando la guía del tutor…', 'Revisando calidad…']
+      : ['Analizando la clase…', 'Detectando momentos…', 'Generando la guía del tutor…'];
+    let i = 0;
+    setAiPhase(phases[0]);
+    phaseTimer.current = setInterval(() => { i = Math.min(i + 1, phases.length - 1); setAiPhase(phases[i]); }, 4000);
+    try {
+      const res = await aiPrepare(courseId, lessonId, { mode: 'draft', quality });
+      setAiResult(res);
+      setForm(draftToForm(res.draft));
+      setAccepted(false);
+      showNotification('success', 'Borrador del tutor generado. Revísalo antes de aceptar.');
+      setStep(3);
+    } catch (e) {
+      if (e.code === 'no_transcript') {
+        showNotification('error', 'Primero transcribe el video (paso 1).');
+        setStep(1);
+      } else {
+        showNotification('error', e.message);
+      }
+    } finally {
+      if (phaseTimer.current) clearInterval(phaseTimer.current);
+      setAiPhase('');
+      setAiBusy(false);
+    }
+  };
+
+  const setF = (k, v) => { if (!readOnly) setForm((p) => ({ ...p, [k]: v })); };
+  const setMoment = (idx, k, v) => { if (!readOnly) setForm((p) => ({ ...p, moments: p.moments.map((m, i) => (i === idx ? { ...m, [k]: v } : m)) })); };
+
+  const acceptDraft = async () => {
+    if (readOnly || !lessonId || !form) return;
+    setAccepting(true);
+    try {
+      const res = await aiPrepareAccept(courseId, lessonId, { draft: formToDraft(form), apply_moments: true });
+      setAccepted(true);
+      const changed = (res.changed || []).length;
+      showNotification('success', `Tutor actualizado (${changed} campos${res.moments_applied ? `, ${res.moments_applied} momentos` : ''}).`);
+      await reload();
+    } catch (e) {
+      showNotification('error', e.message);
+    } finally {
+      setAccepting(false);
+    }
   };
 
   const testCtx = useMemo(() => activityContextFromMoodleModule(resource, sectionContext?.section, {
@@ -144,290 +292,312 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
     lessonId: lessonId || sectionContext?.lesson_id,
   }), [resource, sectionContext, courseId, lessonId]);
 
-  const saveAll = useCallback(async () => {
-    if (readOnly || !lessonId || !isDirty) return true;
-    setSaving(true);
-    try {
-      if (dirtyPed) {
-        await upsertLesson(courseId, lessonId, {
-          lesson_id: lessonId,
-          // preservamos estructura: sección, título, orden, prerequisitos, etc.
-          moodle_section_id: lesson.moodle_section_id || sectionContext?.moodle_section_id || '',
-          title: lesson.lesson_title || lesson.title || '',
-          order: Number(lesson.order) || 0,
-          expected_action: lesson.expected_action || '',
-          resources: lesson.resources || [],
-          prerequisites: lesson.prerequisites || [],
-          notes: lesson.notes || '',
-          // pedagogía editable por el profesor:
-          learning_goal: form.learning_goal,
-          learning_goals: linesToArr(form.learning_goals),
-          delegated_to_tutor: linesToArr(form.delegated),
-          attribution_constraints: linesToArr(form.attribution),
-          pedagogy: {
-            tutor_tone: form.tutor_tone,
-            help_level: form.help_level,
-            lesson_rules: form.lesson_rules,
-            common_mistakes: linesToArr(form.common_mistakes),
-          },
-        });
-      }
-      if (dirtyMoments) {
-        // updateMoments NO envía timestamps: el backend preserva la estructura.
-        await updateMoments(courseId, lessonId, moments.map((m) => ({
-          block_id: m.block_id,
-          block_title: m.block_title || '',
-          summary: m.summary || '',
-          tutor_focus: m.tutor_focus || '',
-          concepts: Array.isArray(m.concepts) ? m.concepts : linesToArr(m.concepts),
-          preguntas_probables: Array.isArray(m.preguntas_probables) ? m.preguntas_probables : linesToArr(m.preguntas_probables),
-        })));
-      }
-      setDirtyPed(false);
-      setDirtyMoments(false);
-      setDirtyChange(true);
-      showNotification('success', 'Configuración del tutor guardada.');
-      return true;
-    } catch (e) {
-      showNotification('error', e.message);
-      return false;
-    } finally {
-      setSaving(false);
-    }
-  }, [readOnly, lessonId, isDirty, dirtyPed, dirtyMoments, courseId, lesson, form, moments, sectionContext?.moodle_section_id]);
+  const handleClose = () => onClose?.(accepted);
 
-  const handleClose = () => {
-    if (isDirty && !window.confirm('Tienes cambios sin guardar. ¿Salir de todos modos?')) return;
-    onClose?.(dirtyChange);
-  };
-
-  const inputCls = 'w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-3 py-2 text-sm text-kenth-text focus:border-kenth-brightred focus:outline-none disabled:opacity-60 disabled:cursor-not-allowed';
-  const labelCls = 'text-[10px] uppercase tracking-widest text-kenth-subtext font-bold';
-  const cardCls = 'bg-kenth-card border border-kenth-border rounded-2xl p-5 flex flex-col gap-4';
-  const discloseBtnCls = 'w-full flex items-center justify-between text-left text-sm font-black uppercase italic text-kenth-text tracking-tight px-5 py-4 bg-kenth-card border border-kenth-border rounded-2xl hover:border-kenth-brightred/50 transition';
-
-  const configurado = Boolean(
-    form && (form.learning_goal || form.tutor_tone || form.help_level || form.lesson_rules
-      || linesToArr(form.common_mistakes).length || linesToArr(form.attribution).length),
-  );
-
-  const chevron = (open) => (
-    <svg className={`w-4 h-4 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-    </svg>
-  );
+  const STEPS = [
+    { n: 1, label: 'Clase y recursos' },
+    { n: 2, label: 'Preparación con IA' },
+    { n: 3, label: 'Revisión y prueba' },
+  ];
 
   return (
     <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm flex flex-col">
-      {/* Header */}
+      {/* Header + stepper */}
       <div className="flex items-center justify-between gap-4 px-5 py-3 border-b border-kenth-border bg-kenth-card">
         <div className="min-w-0">
           <p className="text-[10px] uppercase font-black tracking-widest text-kenth-brightred">
-            {readOnly ? 'Panel docente de la lección · solo lectura' : 'Panel docente de la lección'}
+            Preparar tutor con IA{readOnly ? ' · solo lectura' : ''}
           </p>
           <h3 className="text-base font-black uppercase italic text-kenth-text tracking-tight truncate">
             {resource?.name || 'Lección'}
             {sectionContext?.current_section_name && (
-              <span className="ml-2 text-[10px] not-italic font-bold text-kenth-subtext align-middle">
-                · {sectionContext.current_section_name}
-              </span>
+              <span className="ml-2 text-[10px] not-italic font-bold text-kenth-subtext align-middle">· {sectionContext.current_section_name}</span>
             )}
           </h3>
         </div>
         <div className="flex items-center gap-3 flex-shrink-0">
-          {/* Estados honestos: sin publicación mientras no exista backend real. */}
-          <div className="hidden sm:flex items-center gap-2">
-            {readOnly ? (
-              <StatusChip tone="info">Solo lectura</StatusChip>
-            ) : saving ? (
-              <StatusChip tone="info">Guardando…</StatusChip>
-            ) : isDirty ? (
-              <StatusChip tone="warn">Cambios pendientes</StatusChip>
-            ) : (
-              <StatusChip tone="ok">Guardado</StatusChip>
-            )}
-            {configurado && !isDirty && <StatusChip tone="ok">Tutor configurado</StatusChip>}
-          </div>
-          {!readOnly && (
-            <button
-              onClick={saveAll}
-              disabled={saving || !isDirty || !lessonId}
-              className="px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40 transition"
-            >
-              {saving ? 'Guardando…' : (isDirty ? 'Guardar' : 'Guardado')}
-            </button>
-          )}
+          {accepted && <StatusChip tone="ok">Tutor configurado</StatusChip>}
           <button onClick={handleClose} className="text-kenth-subtext hover:text-kenth-text" title="Cerrar">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-            </svg>
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
       </div>
+
+      {/* Stepper */}
+      {lessonId && (
+        <div className="flex items-center justify-center gap-2 px-5 py-3 border-b border-kenth-border bg-kenth-card/40">
+          {STEPS.map((s, i) => (
+            <React.Fragment key={s.n}>
+              <button
+                onClick={() => setStep(s.n)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full border text-[11px] font-black uppercase tracking-widest transition ${
+                  step === s.n ? 'bg-kenth-brightred text-white border-kenth-brightred'
+                  : 'bg-kenth-surface/5 text-kenth-subtext border-kenth-border hover:text-kenth-text'}`}
+              >
+                <span className={`inline-flex h-5 w-5 items-center justify-center rounded-full text-[10px] ${step === s.n ? 'bg-white/20' : 'bg-kenth-surface/20'}`}>{s.n}</span>
+                <span className="hidden sm:inline">{s.label}</span>
+              </button>
+              {i < STEPS.length - 1 && <div className="h-px w-4 bg-kenth-border" />}
+            </React.Fragment>
+          ))}
+        </div>
+      )}
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto p-4 md:p-6">
         {loading ? (
           <p className="text-sm text-kenth-subtext">Cargando…</p>
-        ) : !lessonId || !form ? (
+        ) : !lessonId ? (
           <div className="max-w-xl mx-auto text-center mt-16">
             <p className="text-kenth-text font-bold">Esta actividad todavía no es una lección del tutor.</p>
-            <p className="text-sm text-kenth-subtext mt-2">
-              El tutor se personaliza sobre las clases en video (H5P). Abre una clase en video para configurar su comportamiento.
-            </p>
+            <p className="text-sm text-kenth-subtext mt-2">El tutor se prepara sobre las clases en video (H5P). Abre una clase en video para configurarlo.</p>
           </div>
         ) : (
           <div className="max-w-4xl mx-auto flex flex-col gap-4">
             {readOnly && (
               <div className="rounded-2xl border border-kenth-border bg-kenth-surface/5 px-5 py-3 text-sm text-kenth-subtext">
-                Estás revisando esta lección en <b className="text-kenth-text">modo solo lectura</b>. Puedes ver la
-                configuración y probar el tutor, pero no editar. La edición requiere permiso de profesor editor.
+                Estás en <b className="text-kenth-text">modo solo lectura</b>. Puedes ver la preparación y probar el tutor, pero no editar ni aceptar.
               </div>
             )}
 
-            {/* 1 · Objetivo de la lección */}
-            <section className={cardCls}>
-              <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">1 · Objetivo de la lección</h4>
-              <div>
-                <label className={labelCls}>Objetivo de aprendizaje</label>
-                <textarea rows={2} disabled={readOnly} className={inputCls} value={form.learning_goal} onChange={(e) => setPed('learning_goal', e.target.value)} placeholder="En una frase, qué logra el estudiante en esta clase." />
-              </div>
-              <div>
-                <label className={labelCls}>Criterios de logro (uno por línea)</label>
-                <textarea rows={3} disabled={readOnly} className={inputCls} value={form.learning_goals} onChange={(e) => setPed('learning_goals', e.target.value)} placeholder={'Reconoce el concepto X\nAplica la técnica Y'} />
-              </div>
-            </section>
-
-            {/* 2 · Cómo debe ayudar el tutor */}
-            <section className={cardCls}>
-              <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">2 · Cómo debe ayudar el tutor</h4>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className={labelCls}>Tono del tutor</label>
-                  <select disabled={readOnly} className={inputCls} value={form.tutor_tone} onChange={(e) => setPed('tutor_tone', e.target.value)}>
-                    {TONE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
-                </div>
-                <div>
-                  <label className={labelCls}>Nivel de ayuda</label>
-                  <select disabled={readOnly} className={inputCls} value={form.help_level} onChange={(e) => setPed('help_level', e.target.value)}>
-                    {HELP_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-                  </select>
-                </div>
-              </div>
-              <div>
-                <label className={labelCls}>Reglas de la lección</label>
-                <textarea rows={2} disabled={readOnly} className={inputCls} value={form.lesson_rules} onChange={(e) => setPed('lesson_rules', e.target.value)} placeholder="Ej.: No des la respuesta directa; guía con preguntas." />
-              </div>
-
-              {/* Progressive disclosure: reforzar / no hacer */}
-              <button type="button" onClick={() => setShowAdvanced((v) => !v)} className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-kenth-subtext hover:text-kenth-text self-start">
-                {chevron(showAdvanced)} Opciones avanzadas del tutor
-              </button>
-              {showAdvanced && (
-                <div className="flex flex-col gap-4 border-t border-kenth-border/50 pt-4">
-                  <div>
-                    <label className={labelCls}>Qué debe reforzar el tutor (uno por línea)</label>
-                    <textarea rows={2} disabled={readOnly} className={inputCls} value={form.delegated} onChange={(e) => setPed('delegated', e.target.value)} placeholder="Temas que el tutor debe cubrir aunque no estén en el video." />
+            {/* ============ PASO 1 ============ */}
+            {step === 1 && (
+              <>
+                <section className={cardCls}>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">1 · Transcripción de la clase</h4>
+                    <TranscriptChip status={transcriptStatus} count={transcript.length} />
                   </div>
-                  <div>
-                    <label className={labelCls}>Qué NO debe hacer el tutor (uno por línea)</label>
-                    <textarea rows={2} disabled={readOnly} className={inputCls} value={form.attribution} onChange={(e) => setPed('attribution', e.target.value)} placeholder="Ej.: No recomendar plugins de pago." />
-                  </div>
-                </div>
-              )}
-            </section>
-
-            {/* 3 · Errores y preguntas frecuentes */}
-            <section className={cardCls}>
-              <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">3 · Errores y preguntas frecuentes</h4>
-              <div>
-                <label className={labelCls}>Errores comunes a vigilar (uno por línea)</label>
-                <textarea rows={3} disabled={readOnly} className={inputCls} value={form.common_mistakes} onChange={(e) => setPed('common_mistakes', e.target.value)} placeholder={'Confundir X con Y\nOlvidar el paso Z'} />
-              </div>
-              <p className="text-[11px] text-kenth-subtext">
-                Las preguntas probables por momento se editan en “Editar momentos de la clase”.
-              </p>
-            </section>
-
-            {/* 4 · Vista previa del tutor */}
-            <section className={cardCls}>
-              <div className="flex items-center justify-between">
-                <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">4 · Vista previa del tutor</h4>
-                <button onClick={() => setProbando((v) => !v)} className="px-3 py-1.5 rounded-lg border border-kenth-border text-[10px] font-black uppercase tracking-widest text-kenth-text hover:border-kenth-brightred/60">
-                  {probando ? 'Cerrar prueba' : 'Abrir tutor'}
-                </button>
-              </div>
-              <p className="text-[11px] text-kenth-subtext">
-                Los cambios de comportamiento del tutor se aplican al instante (no requieren reindexación).
-                {!readOnly && ' Guarda antes de probar.'}
-              </p>
-              {probando && (
-                <TutorAssistCard
-                  variant="lesson"
-                  titulo={`Prueba · ${lessonId}`}
-                  contexto={`Lección: ${resource?.name}. Tipo: ${resource?.modname}.`}
-                  activityContext={testCtx}
-                  proactiveMessage={lesson?.proactive_message || ''}
-                  suggestedPrompts={lesson?.suggested_prompts || []}
-                />
-              )}
-            </section>
-
-            {/* Secundario · Editar momentos de la clase (colapsado) */}
-            <div>
-              <button type="button" onClick={() => setShowMoments((v) => !v)} className={discloseBtnCls}>
-                <span>Editar momentos de la clase{moments.length ? ` (${moments.length})` : ''}</span>
-                {chevron(showMoments)}
-              </button>
-              {showMoments && (
-                <section className={`${cardCls} mt-3`}>
-                  <div className="flex items-center justify-end">
-                    <button onClick={() => setShowTimes((v) => !v)} className="text-[10px] uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">
-                      {showTimes ? 'Ocultar tiempos' : 'Mostrar tiempos (solo lectura)'}
+                  <p className="text-[12px] text-kenth-subtext">
+                    La IA necesita la transcripción del video para analizar la clase. El modelo de IA no escucha audio: transcribimos primero y luego analiza el texto.
+                  </p>
+                  {job?.status === 'running' && (
+                    <div className="rounded-lg border border-indigo-500/30 bg-indigo-500/10 p-2">
+                      <div className="flex items-center justify-between text-[10px] text-indigo-200 mb-1">
+                        <span>Transcribiendo… ({job.segments || 0} segmentos)</span>
+                        <span>{Math.round((job.progress || 0) * 100)}%</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-indigo-900/40 overflow-hidden">
+                        <div className="h-full bg-indigo-400 transition-all" style={{ width: `${Math.round((job.progress || 0) * 100)}%` }} />
+                      </div>
+                    </div>
+                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button onClick={startTranscribe} disabled={readOnly || job?.status === 'running'}
+                      className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
+                      {job?.status === 'running' ? 'Transcribiendo…' : (hasTranscript ? '✨ Regenerar transcripción' : '✨ Transcribir con IA')}
                     </button>
+                    {hasTranscript && (
+                      <button onClick={() => setCorrecting((v) => !v)} disabled={readOnly}
+                        className="px-3 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs font-black uppercase tracking-widest hover:border-kenth-brightred/50 disabled:opacity-40">
+                        {correcting ? 'Cerrar corrección' : 'Corregir transcripción'}
+                      </button>
+                    )}
                   </div>
-                  {moments.length === 0 ? (
-                    <p className="text-sm text-kenth-subtext">Esta clase aún no tiene momentos segmentados. Un administrador puede crearlos en el editor avanzado.</p>
-                  ) : (
-                    <div className="flex flex-col gap-3">
-                      {moments.map((m, idx) => (
-                        <div key={m.block_id || idx} className="border border-kenth-border/60 rounded-xl p-4 bg-kenth-surface/5 flex flex-col gap-3">
-                          <div className="flex items-center gap-3">
-                            <span className="text-[10px] font-black text-kenth-brightred">Momento {idx + 1}</span>
-                            {showTimes && (
-                              <span className="text-[10px] text-kenth-subtext font-mono">
-                                {secondsToClock(m.start_time)} – {secondsToClock(m.end_time)} (solo lectura)
-                              </span>
-                            )}
-                          </div>
-                          <input disabled={readOnly} className={inputCls} value={m.block_title} onChange={(e) => setMomentField(idx, 'block_title', e.target.value)} placeholder="Título del momento (ej.: La regla y tu tarea)" />
-                          <textarea rows={2} disabled={readOnly} className={inputCls} value={m.summary} onChange={(e) => setMomentField(idx, 'summary', e.target.value)} placeholder="Resumen: qué pasa en este momento." />
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <input disabled={readOnly} className={inputCls} value={m.tutor_focus} onChange={(e) => setMomentField(idx, 'tutor_focus', e.target.value)} placeholder="Intención / foco del tutor aquí" />
-                            <textarea rows={1} disabled={readOnly} className={inputCls} value={arrToLines(m.concepts)} onChange={(e) => setMomentField(idx, 'concepts', linesToArr(e.target.value))} placeholder="Conceptos (uno por línea)" />
-                            <textarea rows={1} disabled={readOnly} className={inputCls} value={arrToLines(m.preguntas_probables)} onChange={(e) => setMomentField(idx, 'preguntas_probables', linesToArr(e.target.value))} placeholder="Preguntas probables (una por línea)" />
-                          </div>
-                        </div>
-                      ))}
+
+                  {correcting && (
+                    <div className="flex flex-col gap-2 border-t border-kenth-border/50 pt-3">
+                      <p className="text-[11px] text-kenth-subtext">
+                        Corrige los términos técnicos mal transcritos. Referencia:{' '}
+                        {GLOSARIO.map((g) => <span key={g} className="inline-block bg-kenth-surface/10 border border-kenth-border rounded px-1.5 py-0.5 text-[10px] text-kenth-subtext mr-1 mb-1">{g}</span>)}
+                      </p>
+                      <div className="flex flex-col gap-1.5 max-h-[38vh] overflow-y-auto pr-1">
+                        {transcript.map((s, idx) => (
+                          <textarea key={idx} rows={2} disabled={readOnly} value={s.text || ''} onChange={(e) => setSegText(idx, e.target.value)}
+                            className="w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-2 py-1 text-xs text-kenth-text focus:border-kenth-brightred focus:outline-none resize-none" />
+                        ))}
+                      </div>
+                      <button onClick={saveTranscript} disabled={readOnly || savingTranscript}
+                        className="self-start px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
+                        {savingTranscript ? 'Guardando…' : 'Guardar corrección'}
+                      </button>
                     </div>
                   )}
                 </section>
-              )}
-            </div>
 
-            {/* Secundario · Recursos de la lección (colapsado) */}
-            <div>
-              <button type="button" onClick={() => setShowResources((v) => !v)} className={discloseBtnCls}>
-                <span>Recursos de la lección</span>
-                {chevron(showResources)}
-              </button>
-              {showResources && (
-                <section className={`${cardCls} mt-3`}>
+                <section className={cardCls}>
+                  <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Recursos de la lección</h4>
                   <LessonResourcesPanel courseId={courseId} lessonId={lessonId} />
                 </section>
-              )}
-            </div>
+
+                <div className="flex justify-end">
+                  <button onClick={() => setStep(2)} disabled={!hasTranscript}
+                    className="px-5 py-2.5 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40 transition">
+                    Siguiente: Preparación con IA →
+                  </button>
+                </div>
+                {!hasTranscript && <p className="text-[11px] text-amber-300/80 text-right">Transcribe el video para continuar.</p>}
+              </>
+            )}
+
+            {/* ============ PASO 2 ============ */}
+            {step === 2 && (
+              <>
+                <section className={cardCls}>
+                  <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">2 · Genera el borrador del tutor</h4>
+                  <p className="text-[12px] text-kenth-subtext">
+                    La IA analiza la transcripción y propone objetivo, resumen, momentos, conceptos, errores comunes, preguntas probables y reglas. Es un borrador: tú lo revisas y decides.
+                  </p>
+                  <div>
+                    <label className={labelCls}>Calidad</label>
+                    <div className="grid grid-cols-3 gap-2 mt-1">
+                      {QUALITY_OPTIONS.map((q) => (
+                        <button key={q.value} onClick={() => setQuality(q.value)} disabled={readOnly}
+                          className={`rounded-xl border px-3 py-2 text-left transition ${quality === q.value ? 'border-kenth-brightred bg-kenth-brightred/10' : 'border-kenth-border bg-kenth-surface/5 hover:border-kenth-brightred/40'} disabled:opacity-40`}>
+                          <div className="text-xs font-black uppercase tracking-widest text-kenth-text">{q.label}</div>
+                          <div className="text-[10px] text-kenth-subtext mt-0.5">{q.hint}</div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {aiBusy ? (
+                    <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4 flex items-center gap-3">
+                      <span className="inline-block h-4 w-4 rounded-full border-2 border-indigo-300 border-t-transparent animate-spin" />
+                      <span className="text-sm text-indigo-100">{aiPhase || 'Preparando…'}</span>
+                    </div>
+                  ) : (
+                    <button onClick={runAiPrepare} disabled={readOnly || !hasTranscript}
+                      className="self-start px-5 py-3 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-sm font-black uppercase tracking-widest disabled:opacity-40">
+                      Generar borrador del tutor
+                    </button>
+                  )}
+
+                  {aiResult?.draft && !aiBusy && (
+                    <div className="border-t border-kenth-border/50 pt-3 flex flex-col gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <StatusChip tone="ok">Borrador listo</StatusChip>
+                        <ConfidenceChip value={aiResult.draft.confidence} />
+                        {aiResult.models?.review_model && <StatusChip tone="info">Revisado · {aiResult.models.review_model}</StatusChip>}
+                      </div>
+                      <ResumeLine label="Objetivo" value={aiResult.draft.learning_goal} />
+                      <ResumeLine label="Resumen" value={aiResult.draft.lesson_summary} />
+                      <ResumeLine label="Momentos" value={`${(aiResult.draft.moments || []).length}`} />
+                      {(aiResult.draft.terms_to_review || []).length > 0 && (
+                        <ResumeLine label="Términos a revisar" value={(aiResult.draft.terms_to_review || []).join(', ')} tone="warn" />
+                      )}
+                      <button onClick={() => setStep(3)} className="self-start mt-1 px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs font-black uppercase tracking-widest hover:border-kenth-brightred/50">
+                        Revisar y probar →
+                      </button>
+                    </div>
+                  )}
+                </section>
+                <div className="flex justify-between">
+                  <button onClick={() => setStep(1)} className="px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-subtext text-xs font-black uppercase tracking-widest hover:text-kenth-text">← Atrás</button>
+                </div>
+              </>
+            )}
+
+            {/* ============ PASO 3 ============ */}
+            {step === 3 && (
+              !form ? (
+                <section className={cardCls}>
+                  <p className="text-sm text-kenth-subtext">Aún no hay borrador. Genera uno en el paso 2.</p>
+                  <button onClick={() => setStep(2)} className="self-start px-4 py-2 rounded-xl bg-kenth-brightred text-white text-xs font-black uppercase tracking-widest">Ir a Preparación con IA</button>
+                </section>
+              ) : (
+                <>
+                  <section className={cardCls}>
+                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Objetivo y resumen</h4>
+                    <div>
+                      <label className={labelCls}>Objetivo de aprendizaje</label>
+                      <textarea rows={2} disabled={readOnly} className={inputCls} value={form.learning_goal} onChange={(e) => setF('learning_goal', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Resumen de la clase</label>
+                      <textarea rows={3} disabled={readOnly} className={inputCls} value={form.lesson_summary} onChange={(e) => setF('lesson_summary', e.target.value)} />
+                    </div>
+                  </section>
+
+                  <section className={cardCls}>
+                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Estilo del tutor</h4>
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelCls}>Tono</label>
+                        <select disabled={readOnly} className={inputCls} value={form.recommended_tone} onChange={(e) => setF('recommended_tone', e.target.value)}>
+                          {TONE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        </select>
+                      </div>
+                      <div>
+                        <label className={labelCls}>Nivel de ayuda</label>
+                        <select disabled={readOnly} className={inputCls} value={form.recommended_help_level} onChange={(e) => setF('recommended_help_level', e.target.value)}>
+                          {HELP_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                        </select>
+                      </div>
+                    </div>
+                    <div>
+                      <label className={labelCls}>Reglas importantes (una por línea)</label>
+                      <textarea rows={2} disabled={readOnly} className={inputCls} value={form.lesson_rules} onChange={(e) => setF('lesson_rules', e.target.value)} />
+                    </div>
+                  </section>
+
+                  <section className={cardCls}>
+                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Errores, preguntas y foco</h4>
+                    <div>
+                      <label className={labelCls}>Errores comunes a vigilar (uno por línea)</label>
+                      <textarea rows={3} disabled={readOnly} className={inputCls} value={form.common_mistakes} onChange={(e) => setF('common_mistakes', e.target.value)} />
+                    </div>
+                    <div>
+                      <label className={labelCls}>Preguntas probables (una por línea)</label>
+                      <textarea rows={3} disabled={readOnly} className={inputCls} value={form.probable_questions} onChange={(e) => setF('probable_questions', e.target.value)} />
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div>
+                        <label className={labelCls}>Qué debe reforzar el tutor (uno por línea)</label>
+                        <textarea rows={2} disabled={readOnly} className={inputCls} value={form.tutor_focus} onChange={(e) => setF('tutor_focus', e.target.value)} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Qué NO debe hacer el tutor (uno por línea)</label>
+                        <textarea rows={2} disabled={readOnly} className={inputCls} value={form.tutor_must_not_do} onChange={(e) => setF('tutor_must_not_do', e.target.value)} />
+                      </div>
+                    </div>
+                  </section>
+
+                  {form.moments.length > 0 && (
+                    <section className={cardCls}>
+                      <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Momentos de la clase ({form.moments.length})</h4>
+                      <div className="flex flex-col gap-3">
+                        {form.moments.map((m, idx) => (
+                          <div key={idx} className="border border-kenth-border/60 rounded-xl p-4 bg-kenth-surface/5 flex flex-col gap-2">
+                            <div className="flex items-center gap-2">
+                              <span className="text-[10px] font-black text-kenth-brightred">Momento {idx + 1}</span>
+                              {!m.existing_block_id && <span className="text-[10px] text-amber-300/80">nuevo (se creará en el editor avanzado)</span>}
+                            </div>
+                            <input disabled={readOnly} className={inputCls} value={m.title} onChange={(e) => setMoment(idx, 'title', e.target.value)} placeholder="Título del momento" />
+                            <textarea rows={2} disabled={readOnly} className={inputCls} value={m.summary} onChange={(e) => setMoment(idx, 'summary', e.target.value)} placeholder="Resumen del momento" />
+                            <input disabled={readOnly} className={inputCls} value={m.pedagogical_intent} onChange={(e) => setMoment(idx, 'pedagogical_intent', e.target.value)} placeholder="Intención pedagógica / foco del tutor" />
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  <section className={cardCls}>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Probar tutor</h4>
+                      <button onClick={() => setProbando((v) => !v)} className="px-3 py-1.5 rounded-lg border border-kenth-border text-[10px] font-black uppercase tracking-widest text-kenth-text hover:border-kenth-brightred/60">
+                        {probando ? 'Cerrar prueba' : 'Abrir tutor'}
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-kenth-subtext">Acepta el borrador para que el tutor use esta configuración; los cambios de comportamiento se aplican al instante (sin reindexar).</p>
+                    {probando && (
+                      <TutorAssistCard variant="lesson" titulo={`Prueba · ${lessonId}`} contexto={`Lección: ${resource?.name}.`}
+                        activityContext={testCtx} proactiveMessage={lesson?.proactive_message || ''} suggestedPrompts={lesson?.suggested_prompts || []} />
+                    )}
+                  </section>
+
+                  {!readOnly && (
+                    <div className="flex items-center justify-between gap-3 sticky bottom-0 bg-gradient-to-t from-black/60 to-transparent py-3">
+                      <button onClick={() => setStep(2)} className="px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-subtext text-xs font-black uppercase tracking-widest hover:text-kenth-text">← Regenerar</button>
+                      <button onClick={acceptDraft} disabled={accepting}
+                        className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-black uppercase tracking-widest disabled:opacity-40 transition">
+                        {accepting ? 'Aplicando…' : (accepted ? 'Guardar revisión' : 'Aceptar y aplicar al tutor')}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )
+            )}
           </div>
         )}
       </div>
@@ -441,9 +611,27 @@ function StatusChip({ tone = 'info', children }) {
     warn: 'bg-amber-500/10 text-amber-300 border-amber-500/30',
     info: 'bg-kenth-surface/10 text-kenth-subtext border-kenth-border',
   };
+  return <span className={`px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest ${map[tone] || map.info}`}>{children}</span>;
+}
+
+function TranscriptChip({ status, count }) {
+  if (status === 'missing' || !count) return <StatusChip tone="warn">Sin transcripción</StatusChip>;
+  const label = status === 'edited' ? 'Transcripción corregida' : 'Transcripción lista';
+  return <StatusChip tone="ok">{label} · {count} seg.</StatusChip>;
+}
+
+function ConfidenceChip({ value }) {
+  const map = { high: ['ok', 'Confianza alta'], medium: ['info', 'Confianza media'], low: ['warn', 'Confianza baja'] };
+  const [tone, label] = map[value] || map.low;
+  return <StatusChip tone={tone}>{label}</StatusChip>;
+}
+
+function ResumeLine({ label, value, tone }) {
+  if (!value) return null;
   return (
-    <span className={`px-2.5 py-1 rounded-full border text-[10px] font-black uppercase tracking-widest ${map[tone] || map.info}`}>
-      {children}
-    </span>
+    <p className="text-[12px]">
+      <span className={labelCls}>{label}: </span>
+      <span className={tone === 'warn' ? 'text-amber-300' : 'text-kenth-text'}>{value}</span>
+    </p>
   );
 }
