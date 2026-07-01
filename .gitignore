@@ -65,5 +65,6 @@ moodle_error.html
 tesis-rag/evaluation/reports/
 tesis-rag/scripts/*report.txt
 tesis-rag/scripts/*results.jsonl
+tesis-rag/scripts/_out/
 tesis-rag/test*.txt
 tesis-rag/scratch/
