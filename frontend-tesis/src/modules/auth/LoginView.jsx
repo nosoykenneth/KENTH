@@ -3,7 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Logo from '../../shared/components/ui/Logo';
 
 // IMPORTAMOS TUS FUNCIONES REALES
-import { login, getSiteInfo, helperDetermineRole } from '../../shared/services/authService';
+import { login, getSiteInfo } from '../../shared/services/authService';
 import { persistMoodleToken } from '../../shared/utils/moodleToken';
 
 export default function LoginView() {
@@ -43,10 +43,10 @@ export default function LoginView() {
         picUrl += picUrl.includes('?') ? `&token=${token}` : `?token=${token}`;
       }
       localStorage.setItem('moodle_userpictureurl', picUrl);
-      
-      // 4. Determinamos el rol temporalmente usando tu helper
-      const role = helperDetermineRole(username);
-      localStorage.setItem('moodle_rol', role);
+
+      // El rol/permisos NO se derivan del username (spoofeable). La autorización
+      // se resuelve por capabilities reales de Moodle (permissions.js -> WS /
+      // tesis_role.php) y se aplica en el backend. Ya no escribimos moodle_rol.
 
       // 5. Redirección condicional: ¿Necesita Onboarding?
       if (requiresOnboarding) {

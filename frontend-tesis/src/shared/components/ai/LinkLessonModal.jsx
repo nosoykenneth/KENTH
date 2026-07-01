@@ -32,7 +32,7 @@ export default function LinkLessonModal({ resource, courseId, sectionContext = n
         setLoading(true);
         const [all, link] = await Promise.all([
           listAllLessons(courseId),
-          getResourceLink(resource.id),
+          getResourceLink(resource.id, courseId),
         ]);
         if (!alive) return;
         setLessons(all);
@@ -86,7 +86,7 @@ export default function LinkLessonModal({ resource, courseId, sectionContext = n
     setSaving(true);
     setError('');
     try {
-      await deleteResourceLink(resource.id);
+      await deleteResourceLink(resource.id, courseId);
       onClose(true);
     } catch (e) {
       setError(e.message);

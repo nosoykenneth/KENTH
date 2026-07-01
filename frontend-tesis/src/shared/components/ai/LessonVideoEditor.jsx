@@ -991,7 +991,7 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
           onClose={async (lessonId) => {
             setShowAssign(false);
             if (lessonId) {
-              try { setCurrentLink(await getResourceLink(resource.id)); } catch { /* ignore */ }
+              try { setCurrentLink(await getResourceLink(resource.id, courseId)); } catch { /* ignore */ }
               setSelectedLessonId(lessonId);
               setDirtyChange(true);
             }

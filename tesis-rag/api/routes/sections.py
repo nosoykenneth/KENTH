@@ -11,6 +11,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel
 
+from api.dependencies import require_course_view, require_teacher, TeacherContext
 from services import db_service, section_service
 from services.moodle_ws_client import MoodleWSClient, MoodleWSError, get_moodle_ws_client
 
@@ -52,6 +53,7 @@ async def _sections_or_error(course_id: str, client: MoodleWSClient):
 @router.get("/list")
 async def list_sections(
     course_id: str = Query(...),
+    _view: TeacherContext = Depends(require_course_view),
     client: MoodleWSClient = Depends(get_moodle_ws_client),
 ):
     return {"sections": await _sections_or_error(_course(course_id), client)}
@@ -60,6 +62,7 @@ async def list_sections(
 @router.get("/lessons/all")
 async def list_all_lessons(
     course_id: str = Query(...),
+    _view: TeacherContext = Depends(require_course_view),
     client: MoodleWSClient = Depends(get_moodle_ws_client),
 ):
     course = _course(course_id)
@@ -68,7 +71,11 @@ async def list_all_lessons(
 
 
 @router.get("/lessons/{lesson_id}")
-def get_lesson(lesson_id: str, course_id: Optional[str] = Query(default=None)):
+def get_lesson(
+    lesson_id: str,
+    course_id: Optional[str] = Query(default=None),
+    _view: TeacherContext = Depends(require_course_view),
+):
     """Manifest plano completo de una lección."""
     lesson = section_service.load_lesson(lesson_id, course_id)
     if not lesson:
@@ -81,6 +88,7 @@ def get_lesson_block(
     lesson_id: str,
     t: Optional[float] = Query(default=None),
     course_id: Optional[str] = Query(default=None),
+    _view: TeacherContext = Depends(require_course_view),
 ):
     """Bloque del video activo para un timestamp dado (debug / slider de tiempo)."""
     lesson = section_service.load_lesson(lesson_id, course_id)
@@ -93,6 +101,7 @@ def get_lesson_block(
 @router.get("/links")
 async def list_links(
     course_id: str = Query(...),
+    _view: TeacherContext = Depends(require_course_view),
     client: MoodleWSClient = Depends(get_moodle_ws_client),
 ):
     course = _course(course_id)
@@ -107,6 +116,7 @@ async def list_links(
 async def get_link(
     resource_id: str,
     course_id: Optional[str] = Query(default=None),
+    _view: TeacherContext = Depends(require_course_view),
     client: MoodleWSClient = Depends(get_moodle_ws_client),
 ):
     link = db_service.get_resource_link(resource_id)
@@ -122,6 +132,7 @@ async def get_link(
 async def put_link(
     resource_id: str,
     payload: ResourceLinkPayload,
+    _ctx: TeacherContext = Depends(require_teacher),
     client: MoodleWSClient = Depends(get_moodle_ws_client),
 ):
     course = _course(payload.course_id)
@@ -149,7 +160,7 @@ async def put_link(
 
 
 @router.delete("/links/{resource_id}")
-def remove_link(resource_id: str):
+def remove_link(resource_id: str, _ctx: TeacherContext = Depends(require_teacher)):
     deleted = db_service.delete_resource_link(resource_id)
     return {"deleted": deleted, "resource_id": resource_id}
 
@@ -158,6 +169,7 @@ def remove_link(resource_id: str):
 async def get_section_lessons(
     section_id: str,
     course_id: str = Query(...),
+    _view: TeacherContext = Depends(require_course_view),
     client: MoodleWSClient = Depends(get_moodle_ws_client),
 ):
     course = _course(course_id)
