@@ -13,13 +13,22 @@ function courseQuery(courseId) {
   return courseId ? `?course_id=${encodeURIComponent(courseId)}` : '';
 }
 
+// El backend puede devolver `detail` como string o como objeto {code, message,
+// errors} (endpoints ai-prepare). Extrae siempre un mensaje legible.
+function errMessage(body, status, path) {
+  const d = body && body.detail;
+  if (typeof d === 'string') return d;
+  if (d && typeof d === 'object') return d.message || d.code || JSON.stringify(d);
+  return `Error ${status} en ${path}`;
+}
+
 async function readJson(path, courseId = '') {
   const res = await fetch(`${RAG_API_URL}${path}`, {
     headers: authHeaders(courseId),
   });
   if (!res.ok) {
     const detail = await res.json().catch(() => ({}));
-    throw new Error(detail.detail || `Error ${res.status} en ${path}`);
+    throw new Error(errMessage(detail, res.status, path));
   }
   return res.json();
 }
@@ -32,7 +41,10 @@ async function writeJson(method, path, courseId, body) {
   });
   if (!res.ok) {
     const detail = await res.json().catch(() => ({}));
-    throw new Error(detail.detail || `Error ${res.status} en ${path}`);
+    const err = new Error(errMessage(detail, res.status, path));
+    err.status = res.status;
+    err.code = detail && detail.detail && detail.detail.code;
+    throw err;
   }
   return res.json();
 }
@@ -151,4 +163,26 @@ export function autoTranscribe(courseId, lessonId, { resource_id, language = 'es
 
 export async function getTranscriptStatus(courseId, lessonId) {
   return readJson(`/authoring/lessons/${encodeURIComponent(lessonId)}/transcript/status`, courseId);
+}
+
+// Asistente "Preparar tutor con IA": genera un BORRADOR pedagógico desde la
+// transcripción. NO reindexa ni publica; el borrador queda en metadata.ai_prepare.
+export function aiPrepare(courseId, lessonId, {
+  mode = 'draft', quality = 'balanced', use_existing_transcript = true,
+  regenerate_transcript = false, include_resources = true, include_vision = false,
+  review_model = null,
+} = {}) {
+  return writeJson('POST', `/authoring/lessons/${encodeURIComponent(lessonId)}/ai-prepare`, courseId, {
+    mode, quality, use_existing_transcript, regenerate_transcript, include_resources, include_vision,
+    ...(review_model ? { review_model } : {}),
+  });
+}
+
+// Acepta el borrador (posiblemente editado por el profesor) y lo promueve a los
+// campos vivos del tutor. `draft` opcional; si no viene, promueve el guardado.
+export function aiPrepareAccept(courseId, lessonId, { draft = null, apply_moments = true } = {}) {
+  return writeJson('POST', `/authoring/lessons/${encodeURIComponent(lessonId)}/ai-prepare/accept`, courseId, {
+    ...(draft ? { draft } : {}),
+    apply_moments,
+  });
 }

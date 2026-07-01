@@ -16,6 +16,7 @@ from __future__ import annotations
 import os
 import threading
 import time
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Optional
 
 from services import db_service
@@ -110,6 +111,18 @@ def _run(
                 _set(lesson_id, progress=progress, segments=len(collected))
 
         db_service.replace_transcript(lesson_id, collected)
+
+        # Estado de transcripción en metadata de la lección (Fase 3). Best-effort:
+        # no debe tumbar el job si falla el merge.
+        try:
+            db_service.merge_lesson_metadata(lesson_id, course_id, {
+                "transcript_status": "generated",
+                "transcript_model": f"whisper:{_MODEL_SIZE}",
+                "transcript_generated_at": datetime.now(timezone.utc).isoformat(),
+                "transcript_segments_count": len(collected),
+            })
+        except Exception as exc:  # pragma: no cover
+            print(f"[transcript-status] no se pudo marcar estado en {lesson_id}: {exc}")
 
         # Indexar en RAG (no debe tumbar el job si falla).
         try:
