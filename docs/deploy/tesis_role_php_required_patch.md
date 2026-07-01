@@ -41,16 +41,30 @@ Dentro del contexto del curso (`context_course::instance($courseid)`), para el
 | Flag | Derivación | Rol típico |
 |---|---|---|
 | `esProfesor` | `has_capability('moodle/course:manageactivities', $context, $userid)` | editingteacher+ |
-| `puedeAdministrarCurso` | `has_capability('moodle/course:update', $context, $userid)` | manager / admin de curso |
+| `puedeAdministrarCurso` | rol **manager/coursecreator** en el curso, **o** `is_siteadmin` | manager / admin de curso |
 | `esTecnicoRAG` | `is_siteadmin($userid)` | site admin |
+
+> **Por qué `puedeAdministrarCurso` va por ROL y no por `moodle/course:update`:**
+> en este Moodle el rol *editingteacher* **tiene** `moodle/course:update`, así que
+> usar esa capability haría que un profesor apareciera como admin de curso (y
+> entraría al editor avanzado, violando la separación de roles). Se deriva del rol
+> `manager`/`coursecreator` (o site admin) para que **coincida exactamente** con el
+> guard del backend `is_course_admin` (`_COURSE_ADMIN_ROLE_SHORTNAMES = {manager,
+> coursecreator}` + siteadmin). Verificado en vivo: editingteacher → `false`,
+> manager → `true`.
 
 Fragmento relevante del archivo (sin secretos):
 
 ```php
 $userid = $token_record->userid;
 $es_profesor = has_capability('moodle/course:manageactivities', $context, $userid);
-$puede_admin = has_capability('moodle/course:update', $context, $userid);
 $es_tecnico  = is_siteadmin($userid);
+$puede_admin = $es_tecnico;
+if (!$puede_admin) {
+    foreach (get_user_roles($context, $userid, true) as $r) {
+        if ($r->shortname === 'manager' || $r->shortname === 'coursecreator') { $puede_admin = true; break; }
+    }
+}
 
 echo json_encode(array(
     'esProfesor'            => $es_profesor,
