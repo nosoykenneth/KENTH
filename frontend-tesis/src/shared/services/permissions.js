@@ -21,13 +21,16 @@ const EMPTY_PERMS = Object.freeze({
   esTecnicoRAG: false,
 });
 
-// Cache por courseId: evita golpear tesis_role.php en cada montaje.
+// Cache por (token + courseId): evita golpear tesis_role.php en cada montaje,
+// pero AISLA por usuario. Cachear solo por courseId hacía que, al cambiar de
+// usuario en la misma pestaña (p. ej. admin -> profesor), se reutilizaran los
+// permisos del usuario anterior y se abriera la vista equivocada.
 const _cache = new Map();
 
 export async function fetchCoursePermissions(courseId) {
   const token = getMoodleToken();
   if (!token || !courseId) return { ...EMPTY_PERMS };
-  const key = String(courseId);
+  const key = `${token}::${courseId}`;
   if (_cache.has(key)) return _cache.get(key);
   try {
     const res = await fetch(
@@ -49,8 +52,9 @@ export async function fetchCoursePermissions(courseId) {
 }
 
 export function clearPermissionsCache(courseId) {
-  if (courseId === undefined) _cache.clear();
-  else _cache.delete(String(courseId));
+  if (courseId === undefined) { _cache.clear(); return; }
+  const suffix = `::${String(courseId)}`;
+  for (const k of _cache.keys()) { if (k.endsWith(suffix)) _cache.delete(k); }
 }
 
 // --- Reglas de capacidad (derivadas de flags REALES, no de moodle_rol) ---
