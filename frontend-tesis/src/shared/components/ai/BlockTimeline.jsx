@@ -32,6 +32,7 @@ const FAMILY = {
   rose: 'bg-rose-500/40 border-rose-400/70',
   amber: 'bg-amber-500/40 border-amber-400/70',
   sky: 'bg-sky-500/40 border-sky-400/70',
+  violet: 'bg-violet-500/40 border-violet-400/70',
 };
 const MODE_COLORS = {
   // indigo — teoria
@@ -44,6 +45,8 @@ const MODE_COLORS = {
   diagnostico_guiado: FAMILY.rose,
   troubleshooting: FAMILY.rose,
   verificacion: FAMILY.rose,
+  // violeta — revision / repaso
+  revision: FAMILY.violet,
   // ambar — criterio
   criterio_operativo: FAMILY.amber,
   criterio_de_decision: FAMILY.amber,

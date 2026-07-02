@@ -30,6 +30,25 @@ MAX_ITEM = 300          # longitud máx. de un ítem de lista
 TONE_VALUES = {"directo", "paciente", "exigente", "socratico", "practico"}
 HELP_VALUES = {"orientar", "explicar", "corregir", "preguntar", "ejemplo_guiado"}
 CONFIDENCE_VALUES = {"low", "medium", "high"}
+# Modo pedagógico del momento/bloque. Idéntico a InteractionMode (models/context.py)
+# y a MODOS_PEDAGOGICOS (frontend types/lesson.ts). La IA lo elige por momento.
+MODE_VALUES = {
+    "teoria", "practica", "troubleshooting", "revision",
+    "navegacion_de_recurso", "criterio_operativo",
+}
+
+
+def _clean_time(value: Any) -> Optional[float]:
+    """Coacciona a segundos ≥0 (float). None/no numérico -> None (sin tiempo)."""
+    if value is None or value == "":
+        return None
+    try:
+        t = float(value)
+    except (TypeError, ValueError):
+        return None
+    if t < 0:
+        return 0.0
+    return round(t, 3)
 
 # -------- Detectores de inyección (como DATOS, no lógica cableada) --------
 # Se neutraliza (se descarta el ítem/campo) cualquier string que intente
@@ -98,6 +117,11 @@ class AiMoment(BaseModel):
     title: str = ""
     summary: str = ""
     pedagogical_intent: str = ""
+    # Tiempos del momento sobre el video (segundos). La IA los propone para que los
+    # momentos se distribuyan por la línea de tiempo (no apilados). None = sin tiempo.
+    start_time: Optional[float] = None
+    end_time: Optional[float] = None
+    interaction_mode: str = ""          # uno de MODE_VALUES o "" (sin definir)
     key_concepts: List[str] = []
     probable_questions: List[str] = []
     common_mistakes: List[str] = []
@@ -117,6 +141,16 @@ class AiMoment(BaseModel):
     @classmethod
     def _v_sum(cls, v):
         return _clean_str(v, MAX_SUMMARY)
+
+    @field_validator("start_time", "end_time", mode="before")
+    @classmethod
+    def _v_time(cls, v):
+        return _clean_time(v)
+
+    @field_validator("interaction_mode", mode="before")
+    @classmethod
+    def _v_mode(cls, v):
+        return _coerce_enum(v, MODE_VALUES)
 
     @field_validator("key_concepts", "probable_questions", "common_mistakes", mode="before")
     @classmethod

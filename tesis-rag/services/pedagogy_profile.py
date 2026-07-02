@@ -100,20 +100,43 @@ def _moment_field(m: Dict[str, Any], *keys):
     return None
 
 
-def fuse_moments(existing_blocks: List[Dict[str, Any]], moments: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Funde los campos pedagógicos de los momentos en los bloques EXISTENTES.
+def _moment_time(m: Dict[str, Any], key: str):
+    """Tiempo del momento en segundos (float) o None si no es numérico."""
+    v = m.get(key)
+    if v is None or v == "":
+        return None
+    try:
+        t = float(v)
+    except (TypeError, ValueError):
+        return None
+    return max(0.0, round(t, 3))
 
-    Solo por block_id ya existente; PRESERVA start/end/order/interaction_mode.
-    Momentos con id nulo/desconocido se IGNORAN (crear bloques = admin/estructura).
-    `common_mistakes` por momento va a `block.metadata.common_mistakes`.
-    Acepta tanto el shape del borrador IA (`existing_block_id`, `pedagogical_intent`,
-    `key_concepts`, `probable_questions`) como el canónico (`block_id`, …).
+
+def fuse_moments(
+    existing_blocks: List[Dict[str, Any]],
+    moments: List[Dict[str, Any]],
+    lesson_id: str = "",
+) -> List[Dict[str, Any]]:
+    """Funde los campos pedagógicos de los momentos en los bloques EXISTENTES y, si
+    algún momento trae TIEMPOS válidos y no mapea a un bloque, CREA ese bloque.
+
+    - Fusión por block_id existente (PRESERVA start/end salvo que el momento traiga
+      tiempos): así la IA puede actualizar título/resumen/intención/concepts + el modo.
+    - Momentos con tiempos válidos sin id existente -> bloque NUEVO (la IA distribuye
+      los momentos por la línea de tiempo en vez de apilarlos). Sin tiempos válidos se
+      IGNORAN (compat: no se inventan bloques sin tiempo).
+    - `common_mistakes` por momento va a `block.metadata.common_mistakes`.
+    Acepta el shape del borrador IA (`existing_block_id`, `pedagogical_intent`,
+    `key_concepts`, `probable_questions`, `start_time`, `end_time`, `interaction_mode`)
+    y el canónico (`block_id`, …).
     """
     by_id: Dict[str, Dict[str, Any]] = {}
     for m in moments or []:
         bid = str(_moment_field(m, "block_id", "existing_block_id") or "").strip()
         if bid:
             by_id[bid] = m
+    existing_ids = {str(b.get("block_id")) for b in existing_blocks}
+
     merged: List[Dict[str, Any]] = []
     for b in existing_blocks:
         bid = str(b.get("block_id"))
@@ -121,20 +144,69 @@ def fuse_moments(existing_blocks: List[Dict[str, Any]], moments: List[Dict[str, 
         bmeta = dict(b.get("metadata") or {})
         if m is not None and m.get("common_mistakes") is not None:
             bmeta["common_mistakes"] = list(m.get("common_mistakes") or [])
+        m_start = _moment_time(m or {}, "start_time")
+        m_end = _moment_time(m or {}, "end_time")
+        m_mode = str((m or {}).get("interaction_mode") or "").strip()
         merged.append({
             "block_id": bid,
             "block_order": b.get("block_order"),
-            "start_time": b.get("start_time"),   # preservado
-            "end_time": b.get("end_time"),       # preservado
+            # El momento puede reajustar tiempos (solo si trae ambos y son coherentes).
+            "start_time": (m_start if (m_start is not None and m_end is not None and m_end > m_start) else b.get("start_time")),
+            "end_time": (m_end if (m_start is not None and m_end is not None and m_end > m_start) else b.get("end_time")),
             "block_title": (m.get("title") if m and m.get("title") else b.get("block_title", "")),
             "summary": (m.get("summary") if m and m.get("summary") else b.get("summary", "")),
-            "interaction_mode": b.get("interaction_mode", ""),  # preservado (estructura)
+            "interaction_mode": (m_mode or b.get("interaction_mode", "")),
             "tutor_focus": (_moment_field(m or {}, "pedagogical_intent", "tutor_focus") or b.get("tutor_focus", "")),
             "concepts": (m.get("key_concepts") if m and m.get("key_concepts") else b.get("concepts", [])),
             "preguntas_probables": (m.get("probable_questions") if m and m.get("probable_questions") else b.get("preguntas_probables", [])),
             "metadata": bmeta,
         })
-    return merged
+
+    # Bloques NUEVOS: momentos con tiempos válidos que no mapean a un bloque existente.
+    new_blocks: List[Dict[str, Any]] = []
+    for m in moments or []:
+        mid = str(_moment_field(m, "block_id", "existing_block_id") or "").strip()
+        if mid and mid in existing_ids:
+            continue
+        st = _moment_time(m, "start_time")
+        et = _moment_time(m, "end_time")
+        if st is None or et is None or et <= st:
+            continue  # sin tiempos válidos -> no se crea (compat)
+        new_blocks.append({
+            "block_id": None,
+            "start_time": st,
+            "end_time": et,
+            "block_title": m.get("title", "") or "",
+            "summary": m.get("summary", "") or "",
+            "interaction_mode": str(m.get("interaction_mode") or "").strip(),
+            "tutor_focus": _moment_field(m, "pedagogical_intent", "tutor_focus") or "",
+            "concepts": list(m.get("key_concepts") or []),
+            "preguntas_probables": list(m.get("probable_questions") or []),
+            "metadata": {"common_mistakes": list(m.get("common_mistakes") or [])},
+        })
+
+    if not new_blocks:
+        return merged
+
+    # Con bloques nuevos: ordena por tiempo y renumera block_order; conserva ids
+    # existentes y asigna ids frescos (sin colisión) a los nuevos.
+    allb = merged + new_blocks
+    allb.sort(key=lambda x: float(x.get("start_time") or 0))
+    prefix = (lesson_id or (str(existing_blocks[0].get("block_id")).rsplit("-B", 1)[0]
+                            if existing_blocks else "L")).strip() or "L"
+    used = {str(b.get("block_id")) for b in merged}
+    counter = len(allb)
+    for i, b in enumerate(allb):
+        b["block_order"] = i
+        if not b.get("block_id"):
+            counter += 1
+            nid = f"{prefix}-B{counter}"
+            while nid in used:
+                counter += 1
+                nid = f"{prefix}-B{counter}"
+            b["block_id"] = nid
+            used.add(nid)
+    return allb
 
 
 def apply_profile(
@@ -244,18 +316,23 @@ def apply_profile(
             )
             changed.append("prompts")
 
-    # Momentos -> bloques existentes (solo IA; preserva tiempos/orden).
+    # Momentos -> bloques (solo IA). Funde en los existentes y CREA bloques nuevos
+    # para momentos con tiempos válidos (aunque la lección aún no tenga bloques).
     moments_applied = 0
     if apply_moments and profile.get("moments"):
         existing_blocks = db_service.list_lesson_blocks(lesson_id)
-        if existing_blocks:
-            existing_ids = {str(b.get("block_id")) for b in existing_blocks}
-            merged = fuse_moments(existing_blocks, profile["moments"])
+        existing_ids = {str(b.get("block_id")) for b in existing_blocks}
+        merged = fuse_moments(existing_blocks, profile["moments"], lesson_id=lesson_id)
+        # Solo escribimos si hay algo (evita crear bloques de la nada sin tiempos:
+        # con lección sin bloques y momentos sin tiempos, merged==[] y no se toca).
+        if merged or existing_blocks:
             db_service.replace_lesson_blocks(lesson_id, merged)
-            moments_applied = sum(
-                1 for m in profile["moments"]
-                if str(_moment_field(m, "block_id", "existing_block_id") or "") in existing_ids
-            )
+            for m in profile["moments"]:
+                mid = str(_moment_field(m, "block_id", "existing_block_id") or "")
+                if mid and mid in existing_ids:
+                    moments_applied += 1
+                elif _moment_time(m, "start_time") is not None and _moment_time(m, "end_time") is not None:
+                    moments_applied += 1  # bloque nuevo creado desde el momento
             if moments_applied:
                 changed.append(f"moments({moments_applied})")
 
