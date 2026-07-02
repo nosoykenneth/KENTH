@@ -100,11 +100,14 @@ for (const [name, src] of [['Vista Profesor', prof], ['Editor Avanzado', admin]]
   assert.ok(src.includes('savePedagogy'), `${name} debe guardar el perfil canónico (savePedagogy)`);
   assert.ok(src.includes('aiPrepare'), `${name} debe usar el MISMO endpoint de IA (aiPrepare)`);
 }
-// El admin muestra el perfil canónico como principal + IA + legacy demovido a "Avanzado".
-assert.ok(admin.includes("id: 'perfil'") || admin.includes('Perfil'), 'Admin debe tener pestaña "Perfil" (canónico)');
+// El admin (editor avanzado) usa 4 pestañas: Lección (perfil canónico + estructura/legacy),
+// Bloques, Transcripción y Recursos. El perfil canónico y la IA viven en "Lección".
+assert.ok(admin.includes("id: 'leccion'"), 'Admin debe tener la pestaña "Lección"');
+assert.ok(admin.includes('Perfil del tutor'), 'La pestaña "Lección" debe contener el perfil canónico del tutor');
 assert.ok(admin.includes('Generar con IA'), 'Admin debe tener botón "Generar con IA"');
-assert.ok(admin.includes("id: 'avanzado'"), 'Admin debe mover estructura/legacy a "Avanzado"');
-assert.ok(admin.includes('Orden dentro de la sección'), 'Admin debe renombrar "Orden dentro de la sección"');
+assert.ok(!admin.includes("id: 'avanzado'"), 'Admin ya NO debe tener una pestaña "Avanzado" separada');
+assert.ok(!admin.includes("id: 'perfil'"), 'Admin ya NO debe tener una pestaña "Perfil" separada (fusionada en "Lección")');
+assert.ok(admin.includes('Orden dentro de la sección'), 'Admin debe conservar "Orden dentro de la sección" en "Lección"');
 // Paso 1 del profesor NO edita momentos (solo timeline visual): el modal de momento
 // se abre desde el paso 3 (openEditMoment) y el timeline va en readOnly.
 assert.ok(prof.includes('openEditMoment'), 'El profesor edita momentos por modal (paso 3)');

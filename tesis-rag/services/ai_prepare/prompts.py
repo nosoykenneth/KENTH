@@ -55,6 +55,8 @@ def _schema_reminder() -> str:
         '  "lesson_rules": ["regla simple para el tutor", "..."],\n'
         f'  "recommended_tone": "uno de: {_TONES}",\n'
         f'  "recommended_help_level": "uno de: {_HELP}",\n'
+        '  "proactive_message": "mensaje de bienvenida breve que el tutor le muestra al alumno al abrir la clase (1-2 frases, cálido y orientador, en segunda persona)",\n'
+        '  "suggested_prompts": ["pregunta que el alumno podría hacerle al tutor", "..."],\n'
         '  "moments": [\n'
         "    {\n"
         '      "existing_block_id": "id del bloque existente o null",\n'
