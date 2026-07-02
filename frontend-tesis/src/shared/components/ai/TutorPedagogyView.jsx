@@ -582,7 +582,8 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
             {step === 3 && !profile ? (
               <section className={`${cardCls} max-w-3xl mx-auto w-full`}><p className="text-sm text-kenth-subtext">Cargando…</p></section>
             ) : step === 3 && (
-              <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] gap-4 items-start">
+              <div className="max-w-6xl mx-auto w-full flex flex-col gap-4">
+                <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] gap-4 items-start">
                 {/* IZQUIERDA: video + línea de tiempo (momentos) + subtítulos + corrección */}
                 <div className="flex flex-col gap-4 lg:sticky lg:top-0 min-w-0">
                   <section className={cardCls}>
@@ -739,8 +740,13 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                   )}
                 </section>
 
+                </div>
+                </div>
+
+                {/* Barra de acciones a lo ancho de las dos columnas: Regenerar al borde
+                    izquierdo (columna del video/transcripción), Guardar al borde derecho. */}
                 {!readOnly && (
-                  <div className="flex items-center justify-between gap-3 sticky bottom-0 bg-gradient-to-t from-black/60 to-transparent py-3">
+                  <div className="flex items-center justify-between gap-3 sticky bottom-0 bg-gradient-to-t from-black/85 via-black/60 to-transparent pt-4 pb-2 -mx-1 px-1">
                     <button onClick={() => setStep(2)} className="px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-subtext text-xs font-black uppercase tracking-widest hover:text-kenth-text">← Regenerar</button>
                     <button onClick={saveProfile} disabled={saving}
                       className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-black uppercase tracking-widest disabled:opacity-40 transition">
@@ -748,7 +754,6 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                     </button>
                   </div>
                 )}
-                </div>
               </div>
             )}
           </div>
