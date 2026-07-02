@@ -95,7 +95,9 @@ def _draft_to_profile(draft: Dict[str, Any]) -> Dict[str, Any]:
         "probable_questions": draft.get("probable_questions", []),
         "tutor_focus": draft.get("tutor_focus", []),
         "tutor_must_not_do": draft.get("tutor_must_not_do", []),
-        # La IA no genera prompts al alumno; se omiten (merge conserva lo existente).
+        # Mensajes al alumno: la IA ya los propone (merge conserva lo existente si vienen vacíos).
+        "proactive_message": draft.get("proactive_message", ""),
+        "suggested_prompts": draft.get("suggested_prompts", []),
         "moments": draft.get("moments", []),
     }
 

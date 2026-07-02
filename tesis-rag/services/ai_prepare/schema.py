@@ -136,6 +136,9 @@ class AiPrepareDraft(BaseModel):
     lesson_rules: List[str] = []
     recommended_tone: str = ""
     recommended_help_level: str = ""
+    # Mensajes al alumno (student-facing): bienvenida proactiva + preguntas sugeridas.
+    proactive_message: str = ""
+    suggested_prompts: List[str] = []
     moments: List[AiMoment] = []
     transcript_quality_notes: List[str] = []
     terms_to_review: List[str] = []
@@ -146,7 +149,7 @@ class AiPrepareDraft(BaseModel):
     def _v_goal(cls, v):
         return _clean_str(v, MAX_STR)
 
-    @field_validator("lesson_summary", mode="before")
+    @field_validator("lesson_summary", "proactive_message", mode="before")
     @classmethod
     def _v_summary(cls, v):
         return _clean_str(v, MAX_SUMMARY)
@@ -154,7 +157,7 @@ class AiPrepareDraft(BaseModel):
     @field_validator(
         "key_concepts", "common_mistakes", "probable_questions",
         "tutor_focus", "tutor_must_not_do", "lesson_rules",
-        "transcript_quality_notes", "terms_to_review",
+        "suggested_prompts", "transcript_quality_notes", "terms_to_review",
         mode="before",
     )
     @classmethod

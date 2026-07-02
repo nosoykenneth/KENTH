@@ -75,6 +75,8 @@ function overlayDraft(profile, d = {}) {
   set('probable_questions', d.probable_questions);
   set('tutor_focus', d.tutor_focus);
   set('tutor_must_not_do', d.tutor_must_not_do);
+  set('proactive_message', d.proactive_message);
+  set('suggested_prompts', d.suggested_prompts);
   return merged;
 }
 
@@ -92,11 +94,10 @@ const ForwardIcon = () => <Icon><path d="m6 7 5 5-5 5" /><path d="m13 7 5 5-5 5"
 const RefreshIcon = () => <Icon><path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 4v6h-6" /></Icon>;
 
 const TABS = [
-  { id: 'perfil', label: 'Perfil' },
+  { id: 'leccion', label: 'Lección' },
   { id: 'bloques', label: 'Bloques' },
   { id: 'transcripcion', label: 'Transcripción' },
   { id: 'recursos', label: 'Recursos' },
-  { id: 'avanzado', label: 'Avanzado' },
 ];
 
 /**
@@ -116,7 +117,7 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
   const token = getMoodleToken();
   const isH5P = resource?.modname === 'hvp' || resource?.modname === 'h5pactivity';
 
-  const [tab, setTab] = useState('perfil');
+  const [tab, setTab] = useState('leccion');
   const [iframeLoading, setIframeLoading] = useState(true);
   const [revealFallback, setRevealFallback] = useState(false); // revelar aunque no llegue duración
 
@@ -183,7 +184,7 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
         const activeLink = link || fallbackLink;
         setCurrentLink(activeLink);
         setSelectedLessonId(activeLink?.lesson_id || '');
-        setTab('bloques');
+        setTab('leccion');
       } catch (e) {
         if (alive) showNotification('error', e.message);
       } finally {
@@ -792,8 +793,8 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
                   )
                 )}
 
-                {/* ---------- PERFIL PEDAGÓGICO (canónico, mismo modelo que la Vista Profesor) ---------- */}
-                {tab === 'perfil' && (
+                {/* ---------- LECCIÓN: perfil pedagógico canónico + datos de la lección (legacy) ---------- */}
+                {tab === 'leccion' && (
                   !lesson || !profile ? (
                     <p className="text-sm text-kenth-subtext">Enlaza una lección para editar su perfil pedagógico.</p>
                   ) : (
@@ -866,16 +867,10 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
                         <label className={labelCls}>Preguntas sugeridas (una por línea)</label>
                         <textarea rows={3} className={inputCls} value={arrToLines(profile.suggested_prompts)} onChange={(e) => setPro('suggested_prompts', linesToArr(e.target.value))} />
                       </div>
-                    </div>
-                  )
-                )}
 
-                {/* ---------- AVANZADO (estructura + legacy) ---------- */}
-                {tab === 'avanzado' && (
-                  !lesson ? (
-                    <p className="text-sm text-kenth-subtext">Enlaza una lección para editar sus datos.</p>
-                  ) : (
-                    <div className="flex flex-col gap-3">
+                      {/* ---------- Datos de la lección (estructura + legacy) ---------- */}
+                      <div className="h-px bg-kenth-border my-2" />
+                      <span className={labelCls}>Datos de la lección</span>
                       <div>
                         <label className={labelCls}>Título</label>
                         <input className={inputCls} value={lesson.lesson_title || ''} onChange={(e) => setField('lesson_title', e.target.value)} />

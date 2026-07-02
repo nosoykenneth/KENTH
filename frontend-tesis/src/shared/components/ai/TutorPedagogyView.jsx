@@ -83,6 +83,8 @@ function overlayDraft(profile, d = {}) {
   set('probable_questions', d.probable_questions);
   set('tutor_focus', d.tutor_focus);
   set('tutor_must_not_do', d.tutor_must_not_do);
+  set('proactive_message', d.proactive_message);
+  set('suggested_prompts', d.suggested_prompts);
   const byId = {};
   (d.moments || []).forEach((m) => { const id = m.existing_block_id || m.block_id; if (id) byId[id] = m; });
   merged.moments = (profile.moments || []).map((mm) => {
@@ -137,6 +139,7 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
 
   // IA
   const [quality, setQuality] = useState('balanced');
+  const [retranscribe, setRetranscribe] = useState(false); // rehacer transcripción aunque exista
   const [aiBusy, setAiBusy] = useState(false);
   const [aiPhase, setAiPhase] = useState('');
   const [aiResult, setAiResult] = useState(null);
@@ -189,34 +192,6 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
 
   useEffect(() => { reload(); }, [reload]);
 
-  // Polling de transcripción automática
-  useEffect(() => {
-    if (!lessonId || job?.status !== 'running') return undefined;
-    const iv = setInterval(async () => {
-      try {
-        const data = await getTranscriptStatus(courseId, lessonId);
-        const st = data.job;
-        setJob(st || null);
-        if (!st || st.status === 'done') {
-          clearInterval(iv);
-          if (st?.status === 'done') {
-            const tr = await getTranscript(courseId, lessonId);
-            setTranscript(tr.segments || []);
-            showNotification('success', 'Transcripción lista.');
-            await reload();
-          }
-        } else if (st.status === 'error') {
-          clearInterval(iv);
-          showNotification('error', st.error || 'Falló la transcripción.');
-        }
-      } catch (e) {
-        clearInterval(iv);
-        showNotification('error', e.message);
-      }
-    }, 3000);
-    return () => clearInterval(iv);
-  }, [job?.status, lessonId, courseId, reload]);
-
   useEffect(() => () => { if (phaseTimer.current) clearInterval(phaseTimer.current); }, []);
 
   // Video: metadatos + reveal
@@ -238,16 +213,19 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
     return () => clearInterval(iv);
   }, [isH5P, videoReady, hideNativeControls]);
 
-  const startTranscribe = async () => {
-    if (readOnly || !lessonId || !resource?.id) return;
-    if (hasTranscript && !window.confirm('Esto reemplazará la transcripción actual al terminar. ¿Continuar?')) return;
-    try {
-      const data = await autoTranscribe(courseId, lessonId, { resource_id: Number(resource.id) });
-      setJob(data.job || { status: 'running', progress: 0 });
-      showNotification('success', 'Transcripción iniciada. Puede tardar varios minutos…');
-    } catch (e) {
-      showNotification('error', e.message);
+  // Espera activa (await) a que termine un job de transcripción; devuelve los segmentos.
+  // La usa el paso 2: "Generar borrador" transcribe primero y luego analiza.
+  const waitForTranscription = async () => {
+    for (;;) {
+      await new Promise((r) => setTimeout(r, 3000));
+      const data = await getTranscriptStatus(courseId, lessonId);
+      const st = data.job;
+      setJob(st || null);
+      if (!st || st.status === 'done') break;
+      if (st.status === 'error') throw new Error(st.error || 'Falló la transcripción del video.');
     }
+    const tr = await getTranscript(courseId, lessonId);
+    return tr.segments || [];
   };
 
   const setSegText = (idx, text) => setTranscript((p) => p.map((s, i) => (i === idx ? { ...s, text } : s)));
@@ -309,34 +287,45 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
     }
   };
 
+  // Paso 2: un solo botón. Transcribe el video (si hace falta) y luego genera el borrador.
   const runAiPrepare = async () => {
     if (readOnly || !lessonId) return;
     setAiBusy(true);
     setAiResult(null);
-    const phases = quality === 'max'
-      ? ['Transcribiendo…', 'Analizando la clase…', 'Detectando momentos…', 'Generando la guía del tutor…', 'Revisando calidad…']
-      : ['Transcribiendo…', 'Analizando la clase…', 'Detectando momentos…', 'Generando la guía del tutor…'];
-    let i = 0;
-    setAiPhase(phases[0]);
-    phaseTimer.current = setInterval(() => { i = Math.min(i + 1, phases.length - 1); setAiPhase(phases[i]); }, 4000);
     try {
+      // 1) Transcripción: si no existe (o el profesor pide rehacerla), la generamos aquí.
+      const needsTx = retranscribe || !hasTranscript;
+      if (needsTx) {
+        if (!resource?.id) throw new Error('Esta clase no tiene un video asociado para transcribir.');
+        setAiPhase('Transcribiendo el video…');
+        const started = await autoTranscribe(courseId, lessonId, { resource_id: Number(resource.id) });
+        setJob(started.job || { status: 'running', progress: 0 });
+        const segs = await waitForTranscription();
+        setTranscript(segs);
+        setJob(null);
+      }
+      // 2) Análisis + generación del borrador pedagógico (temporizador visual de fases).
+      const phases = quality === 'max'
+        ? ['Analizando la clase…', 'Detectando momentos…', 'Generando la guía del tutor…', 'Revisando calidad…']
+        : ['Analizando la clase…', 'Detectando momentos…', 'Generando la guía del tutor…'];
+      let i = 0;
+      setAiPhase(phases[0]);
+      phaseTimer.current = setInterval(() => { i = Math.min(i + 1, phases.length - 1); setAiPhase(phases[i]); }, 4000);
       const res = await aiPrepare(courseId, lessonId, { mode: 'draft', quality });
+      if (phaseTimer.current) { clearInterval(phaseTimer.current); phaseTimer.current = null; }
       setAiResult(res);
       setProfile((p) => overlayDraft(p || toTutorProfile(lesson || {}), res.draft));
+      setRetranscribe(false);
       setSaved(false);
       showNotification('success', 'Borrador del tutor generado. Revísalo y guárdalo.');
       setStep(3);
     } catch (e) {
-      if (e.code === 'no_transcript') {
-        showNotification('error', 'Primero transcribe el video (paso 1).');
-        setStep(1);
-      } else {
-        showNotification('error', e.message);
-      }
+      showNotification('error', e.message || 'No se pudo preparar el tutor.');
     } finally {
-      if (phaseTimer.current) clearInterval(phaseTimer.current);
+      if (phaseTimer.current) { clearInterval(phaseTimer.current); phaseTimer.current = null; }
       setAiPhase('');
       setAiBusy(false);
+      setJob(null);
     }
   };
 
@@ -372,10 +361,58 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
   const handleClose = () => onClose?.(saved);
 
   const STEPS = [
-    { n: 1, label: 'Clase y recursos' },
+    { n: 1, label: 'Recursos' },
     { n: 2, label: 'Preparación con IA' },
     { n: 3, label: 'Revisión y prueba' },
   ];
+
+  // Video H5P reutilizable (se muestra en el paso 3). Extraído para no duplicar markup.
+  const videoPanel = isH5P && videoSrc ? (
+    <>
+      <div className="relative w-full rounded-xl overflow-hidden bg-black">
+        <div style={{ paddingTop: '56.25%' }} />
+        {!videoReady && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-kenth-bg text-indigo-400 text-xs uppercase tracking-widest">Cargando video…</div>
+        )}
+        <iframe
+          name={IFRAME_NAME}
+          onLoad={() => setIframeLoading(false)}
+          src={videoSrc}
+          className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
+          style={{ height: 'calc(100% + 56px)' }}
+          allow="autoplay *; encrypted-media *"
+          scrolling="no"
+          title="Video de la clase"
+        />
+      </div>
+      <div className="flex items-center gap-2 flex-wrap">
+        <button onClick={() => play()} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/10 text-xs font-bold text-kenth-text hover:border-kenth-brightred/60">▶ Reproducir</button>
+        <button onClick={() => pause()} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/10 text-xs font-bold text-kenth-text hover:border-kenth-brightred/60">⏸ Pausa</button>
+        <button onClick={() => seek(Math.max(0, currentTime - 5))} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/5 text-[10px] font-black uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">-5s</button>
+        <button onClick={() => seek(currentTime + 5)} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/5 text-[10px] font-black uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">+5s</button>
+        <button onClick={() => setMuted(!muted)} className={`px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-widest ${muted ? 'border-kenth-brightred/70 bg-kenth-brightred/15 text-kenth-brightred' : 'border-kenth-border bg-kenth-surface/5 text-kenth-subtext hover:text-kenth-text'}`}>{muted ? 'Activar sonido' : 'Silenciar'}</button>
+      </div>
+      {/* Línea de tiempo SOLO VISUAL: navegación + subtítulos, sin editar momentos. */}
+      <BlockTimeline
+        blocks={blocks}
+        duration={duration}
+        currentTime={currentTime}
+        selectedIndex={selectedMoment}
+        onSelectBlock={(idx) => setSelectedMoment(idx)}
+        onSeek={(s) => seek(s)}
+        requestThumbnail={requestThumbnail}
+        transcript={transcript}
+        readOnly
+        title="Momentos de la clase"
+        unitLabel="momento"
+        itemPrefix="M"
+      />
+    </>
+  ) : isH5P ? (
+    <p className="text-sm text-kenth-subtext">Sesión expirada. Vuelve a iniciar sesión para ver el video.</p>
+  ) : (
+    <p className="text-sm text-kenth-subtext">Esta actividad ({resource?.modname}) no es un video H5P; el timeline requiere un video H5P.</p>
+  );
 
   const p = profile || {};
 
@@ -430,144 +467,55 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
             <p className="text-sm text-kenth-subtext mt-2">El tutor se prepara sobre las clases en video (H5P). Abre una clase en video para configurarlo.</p>
           </div>
         ) : (
-          <div className="max-w-4xl mx-auto flex flex-col gap-4">
+          <div className="w-full flex flex-col gap-4">
             {readOnly && (
-              <div className="rounded-2xl border border-kenth-border bg-kenth-surface/5 px-5 py-3 text-sm text-kenth-subtext">
+              <div className="max-w-3xl mx-auto w-full rounded-2xl border border-kenth-border bg-kenth-surface/5 px-5 py-3 text-sm text-kenth-subtext">
                 Estás en <b className="text-kenth-text">modo solo lectura</b>. Puedes ver la preparación y probar el tutor, pero no editar ni guardar.
               </div>
             )}
 
-            {/* ============ PASO 1 ============ */}
+            {/* ============ PASO 1 · SOLO RECURSOS ============ */}
             {step === 1 && (
-              <>
+              <div className="max-w-3xl mx-auto w-full flex flex-col gap-4">
                 <section className={cardCls}>
                   <div className="flex items-center justify-between flex-wrap gap-2">
-                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">1 · La clase en video</h4>
-                    <span className="text-[11px] text-kenth-subtext">Mira la clase; sus <b className="text-kenth-text">momentos</b> se revisan en el paso 3.</span>
+                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">1 · Recursos de la clase</h4>
+                    <span className="text-[11px] text-kenth-subtext">Sube el material; el video se prepara en el paso 2.</span>
                   </div>
-                  {isH5P && videoSrc ? (
-                    <>
-                      <div className="relative w-full max-w-[820px] mx-auto rounded-xl overflow-hidden bg-black">
-                        <div style={{ paddingTop: '56.25%' }} />
-                        {!videoReady && (
-                          <div className="absolute inset-0 z-10 flex items-center justify-center bg-kenth-bg text-indigo-400 text-xs uppercase tracking-widest">Cargando video…</div>
-                        )}
-                        <iframe
-                          name={IFRAME_NAME}
-                          onLoad={() => setIframeLoading(false)}
-                          src={videoSrc}
-                          className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
-                          style={{ height: 'calc(100% + 56px)' }}
-                          allow="autoplay *; encrypted-media *"
-                          scrolling="no"
-                          title="Video de la clase"
-                        />
-                      </div>
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <button onClick={() => play()} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/10 text-xs font-bold text-kenth-text hover:border-kenth-brightred/60">▶ Reproducir</button>
-                        <button onClick={() => pause()} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/10 text-xs font-bold text-kenth-text hover:border-kenth-brightred/60">⏸ Pausa</button>
-                        <button onClick={() => seek(Math.max(0, currentTime - 5))} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/5 text-[10px] font-black uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">-5s</button>
-                        <button onClick={() => seek(currentTime + 5)} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/5 text-[10px] font-black uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">+5s</button>
-                        <button onClick={() => setMuted(!muted)} className={`px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-widest ${muted ? 'border-kenth-brightred/70 bg-kenth-brightred/15 text-kenth-brightred' : 'border-kenth-border bg-kenth-surface/5 text-kenth-subtext hover:text-kenth-text'}`}>{muted ? 'Activar sonido' : 'Silenciar'}</button>
-                      </div>
-                      {/* Línea de tiempo SOLO VISUAL: navegación, sin editar momentos aquí. */}
-                      <BlockTimeline
-                        blocks={blocks}
-                        duration={duration}
-                        currentTime={currentTime}
-                        selectedIndex={selectedMoment}
-                        onSelectBlock={(idx) => setSelectedMoment(idx)}
-                        onSeek={(s) => seek(s)}
-                        requestThumbnail={requestThumbnail}
-                        transcript={transcript}
-                        readOnly
-                        title="Momentos de la clase"
-                        unitLabel="momento"
-                        itemPrefix="M"
-                      />
-                    </>
-                  ) : isH5P ? (
-                    <p className="text-sm text-kenth-subtext">Sesión expirada. Vuelve a iniciar sesión para ver el video.</p>
-                  ) : (
-                    <p className="text-sm text-kenth-subtext">Esta actividad ({resource?.modname}) no es un video H5P; el timeline requiere un video H5P.</p>
-                  )}
-                </section>
-
-                <section className={cardCls}>
-                  <div className="flex items-center justify-between flex-wrap gap-2">
-                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Transcripción de la clase</h4>
-                    <TranscriptChip status={transcriptStatus} count={transcript.length} />
-                  </div>
-                  <p className="text-[12px] text-kenth-subtext">La IA necesita la transcripción del video para analizar la clase. El modelo no escucha audio: transcribimos primero y luego analiza el texto.</p>
-                  {job?.status === 'running' && (
-                    <div className="rounded-lg border border-indigo-500/30 bg-indigo-500/10 p-2">
-                      <div className="flex items-center justify-between text-[10px] text-indigo-200 mb-1">
-                        <span>Transcribiendo… ({job.segments || 0} segmentos)</span>
-                        <span>{Math.round((job.progress || 0) * 100)}%</span>
-                      </div>
-                      <div className="h-1.5 rounded-full bg-indigo-900/40 overflow-hidden">
-                        <div className="h-full bg-indigo-400 transition-all" style={{ width: `${Math.round((job.progress || 0) * 100)}%` }} />
-                      </div>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <button onClick={startTranscribe} disabled={readOnly || job?.status === 'running'}
-                      className="px-3 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
-                      {job?.status === 'running' ? 'Transcribiendo…' : (hasTranscript ? '✨ Regenerar transcripción' : '✨ Transcribir con IA')}
-                    </button>
-                    {hasTranscript && (
-                      <button onClick={() => setCorrecting((v) => !v)} disabled={readOnly}
-                        className="px-3 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs font-black uppercase tracking-widest hover:border-kenth-brightred/50 disabled:opacity-40">
-                        {correcting ? 'Cerrar corrección' : 'Corregir transcripción'}
-                      </button>
-                    )}
-                  </div>
-                  {correcting && (
-                    <div className="flex flex-col gap-2 border-t border-kenth-border/50 pt-3">
-                      <p className="text-[11px] text-kenth-subtext">
-                        Corrige los términos técnicos mal transcritos. Referencia:{' '}
-                        {GLOSARIO.map((g) => <span key={g} className="inline-block bg-kenth-surface/10 border border-kenth-border rounded px-1.5 py-0.5 text-[10px] text-kenth-subtext mr-1 mb-1">{g}</span>)}
-                      </p>
-                      <div className="flex flex-col gap-1.5 max-h-[38vh] overflow-y-auto pr-1">
-                        {transcript.map((s, idx) => (
-                          <textarea key={idx} rows={2} disabled={readOnly} value={s.text || ''} onChange={(e) => setSegText(idx, e.target.value)}
-                            className="w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-2 py-1 text-xs text-kenth-text focus:border-kenth-brightred focus:outline-none resize-none" />
-                        ))}
-                      </div>
-                      <button onClick={saveTranscript} disabled={readOnly || savingTranscript}
-                        className="self-start px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
-                        {savingTranscript ? 'Guardando…' : 'Guardar corrección'}
-                      </button>
-                    </div>
-                  )}
-                </section>
-
-                <section className={cardCls}>
-                  <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Recursos de la lección</h4>
+                  <p className="text-[12px] text-kenth-subtext">
+                    Material de esta lección: imágenes, plantillas (.flp/.als), audios, PDF.{' '}
+                    <b className="text-kenth-text">Indexar</b> = el tutor lo conoce · <b className="text-kenth-text">Visible</b> = el alumno lo ve/descarga.
+                  </p>
                   <LessonResourcesPanel courseId={courseId} lessonId={lessonId} technical={false} />
                 </section>
 
                 <div className="flex justify-end">
-                  <button onClick={() => setStep(2)} disabled={!hasTranscript}
-                    className="px-5 py-2.5 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40 transition">
+                  <button onClick={() => setStep(2)}
+                    className="px-5 py-2.5 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest transition">
                     Siguiente: Preparación con IA →
                   </button>
                 </div>
-                {!hasTranscript && <p className="text-[11px] text-amber-300/80 text-right">Transcribe el video para continuar.</p>}
-              </>
+              </div>
             )}
 
-            {/* ============ PASO 2 ============ */}
+            {/* ============ PASO 2 · TRANSCRIBE + GENERA BORRADOR ============ */}
             {step === 2 && (
-              <>
+              <div className="max-w-3xl mx-auto w-full flex flex-col gap-4">
                 <section className={cardCls}>
-                  <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">2 · Genera el borrador del tutor</h4>
-                  <p className="text-[12px] text-kenth-subtext">La IA analiza la transcripción y propone objetivo, resumen, momentos, conceptos, errores comunes, preguntas probables y reglas. Es un borrador: tú lo revisas y decides.</p>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">2 · Genera el borrador del tutor</h4>
+                    <TranscriptChip status={transcriptStatus} count={transcript.length} />
+                  </div>
+                  <p className="text-[12px] text-kenth-subtext">
+                    Al pulsar <b className="text-kenth-text">Generar borrador</b>, la IA transcribe el video (si aún no lo está) y luego
+                    propone objetivo, resumen, momentos, conceptos, errores comunes, preguntas probables, reglas y mensajes al alumno.
+                    Es un borrador: tú lo revisas y decides.
+                  </p>
                   <div>
                     <label className={labelCls}>Calidad</label>
                     <div className="grid grid-cols-3 gap-2 mt-1">
                       {QUALITY_OPTIONS.map((q) => (
-                        <button key={q.value} onClick={() => setQuality(q.value)} disabled={readOnly}
+                        <button key={q.value} onClick={() => setQuality(q.value)} disabled={readOnly || aiBusy}
                           className={`rounded-xl border px-3 py-2 text-left transition ${quality === q.value ? 'border-kenth-brightred bg-kenth-brightred/10' : 'border-kenth-border bg-kenth-surface/5 hover:border-kenth-brightred/40'} disabled:opacity-40`}>
                           <div className="text-xs font-black uppercase tracking-widest text-kenth-text">{q.label}</div>
                           <div className="text-[10px] text-kenth-subtext mt-0.5">{q.hint}</div>
@@ -575,13 +523,33 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                       ))}
                     </div>
                   </div>
+                  {hasTranscript && !aiBusy && (
+                    <label className="flex items-center gap-2 text-[11px] text-kenth-subtext cursor-pointer">
+                      <input type="checkbox" checked={retranscribe} disabled={readOnly} onChange={(e) => setRetranscribe(e.target.checked)} className="accent-kenth-brightred" />
+                      Rehacer la transcripción del video (ya existe una; por defecto se reutiliza).
+                    </label>
+                  )}
                   {aiBusy ? (
-                    <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4 flex items-center gap-3">
-                      <span className="inline-block h-4 w-4 rounded-full border-2 border-indigo-300 border-t-transparent animate-spin" />
-                      <span className="text-sm text-indigo-100">{aiPhase || 'Preparando…'}</span>
+                    <div className="rounded-xl border border-indigo-500/30 bg-indigo-500/10 p-4 flex flex-col gap-2">
+                      <div className="flex items-center gap-3">
+                        <span className="inline-block h-4 w-4 rounded-full border-2 border-indigo-300 border-t-transparent animate-spin" />
+                        <span className="text-sm text-indigo-100">{aiPhase || 'Preparando…'}</span>
+                      </div>
+                      {job?.status === 'running' && (
+                        <div>
+                          <div className="flex items-center justify-between text-[10px] text-indigo-200 mb-1">
+                            <span>{job.segments || 0} segmentos</span>
+                            <span>{Math.round((job.progress || 0) * 100)}%</span>
+                          </div>
+                          <div className="h-1.5 rounded-full bg-indigo-900/40 overflow-hidden">
+                            <div className="h-full bg-indigo-400 transition-all" style={{ width: `${Math.round((job.progress || 0) * 100)}%` }} />
+                          </div>
+                        </div>
+                      )}
+                      <p className="text-[10px] text-indigo-200/70">Transcribir un video puede tardar varios minutos. No cierres esta ventana.</p>
                     </div>
                   ) : (
-                    <button onClick={runAiPrepare} disabled={readOnly || !hasTranscript}
+                    <button onClick={runAiPrepare} disabled={readOnly}
                       className="self-start px-5 py-3 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-sm font-black uppercase tracking-widest disabled:opacity-40">
                       Generar borrador del tutor
                     </button>
@@ -605,16 +573,69 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                   )}
                 </section>
                 <div className="flex justify-between">
-                  <button onClick={() => setStep(1)} className="px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-subtext text-xs font-black uppercase tracking-widest hover:text-kenth-text">← Atrás</button>
+                  <button onClick={() => setStep(1)} disabled={aiBusy} className="px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-subtext text-xs font-black uppercase tracking-widest hover:text-kenth-text disabled:opacity-40">← Atrás</button>
                 </div>
-              </>
+              </div>
             )}
 
-            {/* ============ PASO 3: cards edit-on-demand ============ */}
+            {/* ============ PASO 3 · VIDEO (izq.) + REVISIÓN (der.) ============ */}
             {step === 3 && !profile ? (
-              <section className={cardCls}><p className="text-sm text-kenth-subtext">Cargando…</p></section>
+              <section className={`${cardCls} max-w-3xl mx-auto w-full`}><p className="text-sm text-kenth-subtext">Cargando…</p></section>
             ) : step === 3 && (
-              <>
+              <div className="max-w-6xl mx-auto w-full grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_minmax(0,440px)] gap-4 items-start">
+                {/* IZQUIERDA: video + línea de tiempo (momentos) + subtítulos + corrección */}
+                <div className="flex flex-col gap-4 lg:sticky lg:top-0 min-w-0">
+                  <section className={cardCls}>
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">La clase en video</h4>
+                      <span className="text-[11px] text-kenth-subtext">Momentos y subtítulos sobre la línea de tiempo.</span>
+                    </div>
+                    {videoPanel}
+                  </section>
+
+                  <section className={cardCls}>
+                    <div className="flex items-center justify-between flex-wrap gap-2">
+                      <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Transcripción</h4>
+                      <div className="flex items-center gap-2">
+                        <TranscriptChip status={transcriptStatus} count={transcript.length} />
+                        {hasTranscript && !readOnly && (
+                          <button onClick={() => setCorrecting((v) => !v)}
+                            className="px-2.5 py-1 rounded-lg border border-kenth-border text-[10px] font-black uppercase tracking-widest text-kenth-text hover:border-kenth-brightred/60">
+                            {correcting ? 'Cerrar' : 'Corregir'}
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                    {!hasTranscript ? (
+                      <p className="text-[12px] text-kenth-subtext">Aún no hay transcripción. Genera el borrador en el paso 2 para transcribir el video.</p>
+                    ) : !correcting ? (
+                      <p className="text-[12px] text-kenth-subtext">Los subtítulos se muestran bajo la línea de tiempo. Pulsa <b className="text-kenth-text">Corregir</b> para arreglar términos técnicos mal transcritos.</p>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        <p className="text-[11px] text-kenth-subtext">
+                          Corrige los términos técnicos mal transcritos. Referencia:{' '}
+                          {GLOSARIO.map((g) => <span key={g} className="inline-block bg-kenth-surface/10 border border-kenth-border rounded px-1.5 py-0.5 text-[10px] text-kenth-subtext mr-1 mb-1">{g}</span>)}
+                        </p>
+                        <div className="flex flex-col gap-1.5 max-h-[38vh] overflow-y-auto pr-1">
+                          {transcript.map((s, idx) => (
+                            <div key={idx} className="flex gap-2 items-start">
+                              <button onClick={() => seek(Number(s.start_time) || 0)} className="text-[10px] font-mono text-kenth-brightred hover:underline flex-shrink-0 pt-1.5" title="Ir a este punto">{fmtTime(s.start_time)}</button>
+                              <textarea rows={2} disabled={readOnly} value={s.text || ''} onChange={(e) => setSegText(idx, e.target.value)}
+                                className="flex-1 bg-kenth-surface/10 border border-kenth-border rounded-lg px-2 py-1 text-xs text-kenth-text focus:border-kenth-brightred focus:outline-none resize-none" />
+                            </div>
+                          ))}
+                        </div>
+                        <button onClick={saveTranscript} disabled={readOnly || savingTranscript}
+                          className="self-start px-4 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
+                          {savingTranscript ? 'Guardando…' : 'Guardar corrección'}
+                        </button>
+                      </div>
+                    )}
+                  </section>
+                </div>
+
+                {/* DERECHA: revisión pedagógica (tarjetas edit-on-demand) */}
+                <div className="flex flex-col gap-4 min-w-0">
                 <EditableCard
                   title="Lo esencial"
                   readOnly={readOnly}
@@ -727,7 +748,8 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                     </button>
                   </div>
                 )}
-              </>
+                </div>
+              </div>
             )}
           </div>
         )}
