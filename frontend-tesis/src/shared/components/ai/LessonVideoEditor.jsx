@@ -4,12 +4,14 @@ import {
   getResourceLink,
   replaceLessonBlocks,
   upsertLesson,
-  setLessonPrompts,
   getTranscript,
   replaceTranscript,
   autoTranscribe,
   getTranscriptStatus,
   importLesson,
+  savePedagogy,
+  toTutorProfile,
+  aiPrepare,
 } from '../../services/sectionsService';
 import { showNotification } from '../../utils/notify';
 import { MODOS_PEDAGOGICOS } from '../../types/lesson';
@@ -41,6 +43,41 @@ const INTERACTION_MODES = MODOS_PEDAGOGICOS;
 const linesToArr = (s) => (s || '').split('\n').map((x) => x.trim()).filter(Boolean);
 const arrToLines = (a) => (Array.isArray(a) ? a.join('\n') : (a || ''));
 
+// Opciones del perfil pedagógico canónico (idénticas a la Vista Profesor).
+const TONE_OPTIONS = [
+  { value: '', label: 'Automático (según el curso)' },
+  { value: 'directo', label: 'Directo' },
+  { value: 'paciente', label: 'Paciente' },
+  { value: 'exigente', label: 'Exigente' },
+  { value: 'socratico', label: 'Socrático' },
+  { value: 'practico', label: 'Práctico' },
+];
+const HELP_OPTIONS = [
+  { value: '', label: 'Automático' },
+  { value: 'orientar', label: 'Orientar (pistas, no la respuesta)' },
+  { value: 'explicar', label: 'Explicar' },
+  { value: 'corregir', label: 'Corregir' },
+  { value: 'preguntar', label: 'Hacer preguntas' },
+  { value: 'ejemplo_guiado', label: 'Dar ejemplo guiado' },
+];
+
+// Overlay del borrador IA sobre el perfil canónico (solo pisa lo NO vacío).
+function overlayDraft(profile, d = {}) {
+  const merged = { ...profile };
+  const set = (k, v) => { if (v && (!Array.isArray(v) || v.length)) merged[k] = v; };
+  set('learning_goal', d.learning_goal);
+  set('lesson_summary', d.lesson_summary);
+  set('tutor_tone', d.recommended_tone);
+  set('help_level', d.recommended_help_level);
+  set('lesson_rules', d.lesson_rules);
+  set('key_concepts', d.key_concepts);
+  set('common_mistakes', d.common_mistakes);
+  set('probable_questions', d.probable_questions);
+  set('tutor_focus', d.tutor_focus);
+  set('tutor_must_not_do', d.tutor_must_not_do);
+  return merged;
+}
+
 const Icon = ({ children }) => (
   <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     {children}
@@ -55,10 +92,11 @@ const ForwardIcon = () => <Icon><path d="m6 7 5 5-5 5" /><path d="m13 7 5 5-5 5"
 const RefreshIcon = () => <Icon><path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 4v6h-6" /></Icon>;
 
 const TABS = [
+  { id: 'perfil', label: 'Perfil' },
   { id: 'bloques', label: 'Bloques' },
-  { id: 'leccion', label: 'Lección' },
   { id: 'transcripcion', label: 'Transcripción' },
   { id: 'recursos', label: 'Recursos' },
+  { id: 'avanzado', label: 'Avanzado' },
 ];
 
 /**
@@ -78,25 +116,29 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
   const token = getMoodleToken();
   const isH5P = resource?.modname === 'hvp' || resource?.modname === 'h5pactivity';
 
-  const [tab, setTab] = useState('bloques');
+  const [tab, setTab] = useState('perfil');
   const [iframeLoading, setIframeLoading] = useState(true);
   const [revealFallback, setRevealFallback] = useState(false); // revelar aunque no llegue duración
 
   const [currentLink, setCurrentLink] = useState(null);
   const [selectedLessonId, setSelectedLessonId] = useState('');
   const [lesson, setLesson] = useState(null);
+  // Perfil pedagógico CANÓNICO (mismo modelo que la Vista Profesor y la IA).
+  const [profile, setProfile] = useState(null);
   const [selectedBlockIdx, setSelectedBlockIdx] = useState(-1);
   const [showAssign, setShowAssign] = useState(false); // "Corregir vínculo"
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [dirtyChange, setDirtyChange] = useState(false); // hubo cambios persistidos -> refrescar al cerrar
+  const [aiBusy, setAiBusy] = useState(false); // botón "Generar con IA" (mismo endpoint que el profesor)
 
   // Cambios sin guardar, por sección (para el único botón Guardar y el aviso al cerrar).
-  const [dirty, setDirty] = useState({ lesson: false, blocks: false, transcript: false });
+  const [dirty, setDirty] = useState({ profile: false, lesson: false, blocks: false, transcript: false });
   const [showUnsaved, setShowUnsaved] = useState(false);
   const mark = useCallback((k) => setDirty((d) => (d[k] ? d : { ...d, [k]: true })), []);
-  const isDirty = dirty.lesson || dirty.blocks || dirty.transcript;
+  const isDirty = dirty.profile || dirty.lesson || dirty.blocks || dirty.transcript;
+  const setPro = (k, v) => { setProfile((p) => (p ? { ...p, [k]: v } : p)); mark('profile'); };
 
   // Transcripción
   const [transcript, setTranscript] = useState([]);
@@ -158,15 +200,15 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
       const data = await getLesson(lId, courseId);
       setLesson({
         ...data,
+        // Legacy (solo pestaña "Avanzado"): criterios y prerrequisitos pre-IA.
         _learning_goals: arrToLines(data.learning_goals),
         _prerequisites: (data.prerequisites || []).join(', '),
-        _suggested: arrToLines(data.suggested_prompts),
-        _delegated: arrToLines(data.delegated_to_tutor),
-        _attribution: arrToLines(data.attribution_constraints),
         blocks: (data.blocks || []).map((b) => ({ ...EMPTY_BLOCK, ...b })),
       });
+      // Perfil pedagógico canónico (lo consumen Perfil tab + la IA).
+      setProfile(toTutorProfile(data));
       setSelectedBlockIdx((data.blocks || []).length ? 0 : -1);
-      setDirty((d) => ({ ...d, lesson: false, blocks: false }));
+      setDirty((d) => ({ ...d, profile: false, lesson: false, blocks: false }));
     } catch (e) {
       showNotification('error', e.message);
     }
@@ -354,6 +396,17 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
     mark('blocks');
   };
 
+  // Campos del momento que viven en block.metadata (p. ej. common_mistakes).
+  const setBlockMeta = (idx, k, v) => {
+    setLesson((p) => {
+      if (!p) return p;
+      const blocks = [...p.blocks];
+      blocks[idx] = { ...blocks[idx], metadata: { ...(blocks[idx].metadata || {}), [k]: v } };
+      return { ...p, blocks };
+    });
+    mark('blocks');
+  };
+
   const changeBlockTime = useCallback((idx, patch) => {
     setLesson((p) => {
       if (!p) return p;
@@ -392,6 +445,8 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
     setSaving(true);
     try {
       if (lesson) {
+        // Estructura + legacy (title/order/section/notes/criterios/prereq). NO envía
+        // pedagogy: eso lo escribe savePedagogy (perfil canónico) para no duplicar.
         if (dirty.lesson) {
           await upsertLesson(courseId, lesson.lesson_id, {
             lesson_id: lesson.lesson_id,
@@ -399,19 +454,19 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
             moodle_section_id: lesson.moodle_section_id || currentLink?.moodle_section_id || sectionContext?.moodle_section_id || '',
             title: lesson.lesson_title || lesson.title || '',
             order: Number(lesson.order) || 0,
-            learning_goal: lesson.learning_goal || '',
+            learning_goal: (profile?.learning_goal) || lesson.learning_goal || '',
             expected_action: lesson.expected_action || '',
             learning_goals: linesToArr(lesson._learning_goals),
             resources: lesson.resources || [],
             prerequisites: (lesson._prerequisites || '').split(',').map((x) => x.trim()).filter(Boolean),
-            delegated_to_tutor: linesToArr(lesson._delegated),
-            attribution_constraints: linesToArr(lesson._attribution),
+            delegated_to_tutor: profile?.tutor_focus || [],
+            attribution_constraints: profile?.tutor_must_not_do || [],
             notes: lesson.notes || '',
           });
-          await setLessonPrompts(courseId, lesson.lesson_id, {
-            proactive_message: lesson.proactive_message || '',
-            suggested_prompts: linesToArr(lesson._suggested),
-          });
+        }
+        // Perfil pedagógico CANÓNICO (mismo escritor que la Vista Profesor: PUT /pedagogy).
+        if (dirty.profile && profile) {
+          await savePedagogy(courseId, lesson.lesson_id, profile);
         }
         if (dirty.blocks) {
           const blocks = lesson.blocks.map((b) => ({
@@ -424,6 +479,8 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
             tutor_focus: b.tutor_focus || '',
             concepts: Array.isArray(b.concepts) ? b.concepts : linesToArr(b.concepts),
             preguntas_probables: Array.isArray(b.preguntas_probables) ? b.preguntas_probables : linesToArr(b.preguntas_probables),
+            // errores comunes del momento viven en block.metadata (no es columna técnica).
+            metadata: b.metadata || {},
           }));
           await replaceLessonBlocks(courseId, lesson.lesson_id, blocks);
         }
@@ -438,7 +495,7 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
           await replaceTranscript(courseId, lesson.lesson_id, segs);
         }
       }
-      setDirty({ lesson: false, blocks: false, transcript: false });
+      setDirty({ profile: false, lesson: false, blocks: false, transcript: false });
       setDirtyChange(true);
       showNotification('success', 'Cambios guardados.');
       return true;
@@ -448,7 +505,24 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
     } finally {
       setSaving(false);
     }
-  }, [isDirty, dirty, lesson, transcript, courseId, currentLink?.moodle_section_id, sectionContext?.moodle_section_id]);
+  }, [isDirty, dirty, lesson, profile, transcript, courseId, currentLink?.moodle_section_id, sectionContext?.moodle_section_id]);
+
+  // Botón "Generar con IA" del admin: MISMO endpoint que el profesor (ai-prepare).
+  const runAiPrepareAdmin = async () => {
+    if (!selectedLessonId) return;
+    if (!transcript.length) { showNotification('error', 'Primero transcribe el video (pestaña Transcripción).'); return; }
+    setAiBusy(true);
+    try {
+      const res = await aiPrepare(courseId, selectedLessonId, { mode: 'draft', quality: 'balanced' });
+      setProfile((p) => overlayDraft(p || {}, res.draft));
+      mark('profile');
+      showNotification('success', 'Perfil pedagógico generado. Revísalo y guarda los cambios.');
+    } catch (e) {
+      showNotification('error', e.message);
+    } finally {
+      setAiBusy(false);
+    }
+  };
 
   const handleCloseRequest = () => {
     if (isDirty) setShowUnsaved(true);
@@ -706,6 +780,10 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
                             <label className={labelCls}>Preguntas probables (una por línea)</label>
                             <textarea rows={2} className={inputCls} value={Array.isArray(selectedBlock.preguntas_probables) ? arrToLines(selectedBlock.preguntas_probables) : selectedBlock.preguntas_probables} onChange={(e) => setBlockField(selectedBlockIdx, 'preguntas_probables', linesToArr(e.target.value))} />
                           </div>
+                          <div>
+                            <label className={labelCls}>Errores comunes del momento (una por línea)</label>
+                            <textarea rows={2} className={inputCls} value={arrToLines((selectedBlock.metadata || {}).common_mistakes)} onChange={(e) => setBlockMeta(selectedBlockIdx, 'common_mistakes', linesToArr(e.target.value))} />
+                          </div>
                         </div>
                       ) : (
                         <p className="text-xs text-kenth-subtext">Selecciona un bloque (en el timeline o arriba) para editarlo, o crea uno nuevo.</p>
@@ -714,8 +792,86 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
                   )
                 )}
 
-                {/* ---------- LECCIÓN ---------- */}
-                {tab === 'leccion' && (
+                {/* ---------- PERFIL PEDAGÓGICO (canónico, mismo modelo que la Vista Profesor) ---------- */}
+                {tab === 'perfil' && (
+                  !lesson || !profile ? (
+                    <p className="text-sm text-kenth-subtext">Enlaza una lección para editar su perfil pedagógico.</p>
+                  ) : (
+                    <div className="flex flex-col gap-3">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className={labelCls}>Perfil del tutor</span>
+                        <button
+                          onClick={runAiPrepareAdmin}
+                          disabled={aiBusy || !transcript.length}
+                          title={!transcript.length ? 'Transcribe el video primero' : 'Genera el perfil con IA (mismo motor que el profesor)'}
+                          className="px-2.5 py-1 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white text-[10px] font-black uppercase tracking-widest disabled:opacity-40"
+                        >
+                          {aiBusy ? 'Generando…' : '✨ Generar con IA'}
+                        </button>
+                      </div>
+                      <div>
+                        <label className={labelCls}>Objetivo de aprendizaje</label>
+                        <textarea rows={2} className={inputCls} value={profile.learning_goal} onChange={(e) => setPro('learning_goal', e.target.value)} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Resumen de la clase</label>
+                        <textarea rows={2} className={inputCls} value={profile.lesson_summary} onChange={(e) => setPro('lesson_summary', e.target.value)} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <div>
+                          <label className={labelCls}>Tono</label>
+                          <select className={inputCls} value={profile.tutor_tone} onChange={(e) => setPro('tutor_tone', e.target.value)}>
+                            {TONE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                          </select>
+                        </div>
+                        <div>
+                          <label className={labelCls}>Nivel de ayuda</label>
+                          <select className={inputCls} value={profile.help_level} onChange={(e) => setPro('help_level', e.target.value)}>
+                            {HELP_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                          </select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className={labelCls}>Reglas de la lección (una por línea)</label>
+                        <textarea rows={2} className={inputCls} value={arrToLines(profile.lesson_rules)} onChange={(e) => setPro('lesson_rules', linesToArr(e.target.value))} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Conceptos clave (uno por línea)</label>
+                        <textarea rows={2} className={inputCls} value={arrToLines(profile.key_concepts)} onChange={(e) => setPro('key_concepts', linesToArr(e.target.value))} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Errores comunes (uno por línea)</label>
+                        <textarea rows={2} className={inputCls} value={arrToLines(profile.common_mistakes)} onChange={(e) => setPro('common_mistakes', linesToArr(e.target.value))} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Preguntas probables (una por línea)</label>
+                        <textarea rows={2} className={inputCls} value={arrToLines(profile.probable_questions)} onChange={(e) => setPro('probable_questions', linesToArr(e.target.value))} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Qué debe reforzar el tutor (uno por línea)</label>
+                        <textarea rows={2} className={inputCls} value={arrToLines(profile.tutor_focus)} onChange={(e) => setPro('tutor_focus', linesToArr(e.target.value))} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Qué NO debe hacer el tutor (uno por línea)</label>
+                        <textarea rows={2} className={inputCls} value={arrToLines(profile.tutor_must_not_do)} onChange={(e) => setPro('tutor_must_not_do', linesToArr(e.target.value))} />
+                      </div>
+
+                      <div className="h-px bg-kenth-border my-2" />
+                      <span className={labelCls}>Mensajes al alumno</span>
+                      <div>
+                        <label className={labelCls}>Mensaje de bienvenida</label>
+                        <textarea rows={2} className={inputCls} value={profile.proactive_message} onChange={(e) => setPro('proactive_message', e.target.value)} />
+                      </div>
+                      <div>
+                        <label className={labelCls}>Preguntas sugeridas (una por línea)</label>
+                        <textarea rows={3} className={inputCls} value={arrToLines(profile.suggested_prompts)} onChange={(e) => setPro('suggested_prompts', linesToArr(e.target.value))} />
+                      </div>
+                    </div>
+                  )
+                )}
+
+                {/* ---------- AVANZADO (estructura + legacy) ---------- */}
+                {tab === 'avanzado' && (
                   !lesson ? (
                     <p className="text-sm text-kenth-subtext">Enlaza una lección para editar sus datos.</p>
                   ) : (
@@ -725,61 +881,23 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
                         <input className={inputCls} value={lesson.lesson_title || ''} onChange={(e) => setField('lesson_title', e.target.value)} />
                       </div>
                       <div>
-                        <label className={labelCls}>Orden</label>
+                        <label className={labelCls}>Orden dentro de la sección</label>
                         <input type="number" className={inputCls} value={lesson.order ?? 0} onChange={(e) => setField('order', e.target.value)} />
-                      </div>
-                      <div>
-                        <label className={labelCls}>Objetivo de aprendizaje</label>
-                        <input className={inputCls} value={lesson.learning_goal || ''} onChange={(e) => setField('learning_goal', e.target.value)} />
+                        <p className="text-[10px] text-kenth-subtext mt-1">Define la posición de esta lección dentro de la sección.</p>
                       </div>
 
                       <div className="h-px bg-kenth-border my-2" />
 
-                      <span className={labelCls}>Prompts del tutor</span>
-                      <div>
-                        <label className={labelCls}>Mensaje proactivo</label>
-                        <textarea rows={2} className={inputCls} value={lesson.proactive_message || ''} onChange={(e) => setField('proactive_message', e.target.value)} />
-                      </div>
-                      <div>
-                        <label className={labelCls}>Preguntas sugeridas (una por línea)</label>
-                        <textarea rows={3} className={inputCls} value={lesson._suggested} onChange={(e) => setField('_suggested', e.target.value)} />
-                      </div>
-                      <div>
-                        <label className={labelCls}>Delegado al Tutor (un ítem por línea)</label>
-                        <textarea
-                          rows={3}
-                          className={inputCls}
-                          placeholder={'Resolver dudas de routing del DAW\nRepasar el criterio de gain staging'}
-                          value={lesson._delegated}
-                          onChange={(e) => setField('_delegated', e.target.value)}
-                        />
-                        <p className="text-[10px] text-kenth-subtext mt-1">Qué le encargas cubrir al tutor en esta lección.</p>
-                      </div>
-                      <div>
-                        <label className={labelCls}>Restricciones y Atribuciones (un ítem por línea)</label>
-                        <textarea
-                          rows={3}
-                          className={inputCls}
-                          placeholder={'Cita siempre el minuto del video al referir la demo\nNo recomendar plugins de pago'}
-                          value={lesson._attribution}
-                          onChange={(e) => setField('_attribution', e.target.value)}
-                        />
-                        <p className="text-[10px] text-kenth-subtext mt-1">Reglas obligatorias de comportamiento: el tutor las cumple en todas sus respuestas.</p>
-                      </div>
-
-                      <div className="h-px bg-kenth-border my-2" />
-
-                      {/* Configuración pedagógica avanzada: campos pre-IA que el tutor sigue
-                          usando como respaldo (context_service los inyecta si están), pero que
-                          la preparación con IA ya no genera. Plegados por defecto (auditoría #6). */}
+                      {/* Campos pre-IA que el tutor sigue usando como respaldo (context_service los
+                          inyecta si están), pero que el perfil/IA ya no genera. Plegados por defecto. */}
                       <details className="rounded-lg border border-kenth-border bg-kenth-surface/5">
                         <summary className="cursor-pointer px-3 py-2 text-[10px] uppercase tracking-widest text-kenth-subtext font-bold">
-                          Configuración pedagógica avanzada
+                          Configuración pedagógica avanzada (legacy)
                         </summary>
                         <div className="px-3 pb-3 pt-1 flex flex-col gap-3">
                           <p className="text-[10px] text-kenth-subtext">
                             Campos heredados (pre-IA). El tutor los usa como respaldo si están presentes;
-                            la preparación con IA ya no los genera.
+                            el perfil pedagógico y la IA ya no los generan.
                           </p>
                           <div>
                             <label className={labelCls}>Prerrequisitos (coma)</label>

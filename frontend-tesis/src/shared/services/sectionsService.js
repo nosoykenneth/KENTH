@@ -134,6 +134,64 @@ export function setLessonPrompts(courseId, lessonId, { proactive_message = '', s
   });
 }
 
+// ---- Perfil pedagógico CANÓNICO (modelo único Profesor/Admin/IA) ----
+// Normaliza la respuesta de getLesson a un solo shape que ambos editores leen,
+// y lo guarda por PUT /pedagogy (apply_profile). Espejo de services/pedagogy_profile.py.
+const _asList = (v) => (Array.isArray(v)
+  ? v
+  : (typeof v === 'string' ? v.split('\n').map((s) => s.trim()).filter(Boolean) : []));
+
+export function toTutorProfile(lesson = {}) {
+  const meta = lesson.metadata || {};
+  const ped = meta.pedagogy || {};
+  return {
+    learning_goal: lesson.learning_goal || '',
+    lesson_summary: ped.lesson_summary || '',
+    tutor_tone: ped.tutor_tone || '',
+    help_level: ped.help_level || '',
+    lesson_rules: _asList(ped.lesson_rules),
+    key_concepts: _asList(ped.key_concepts),
+    common_mistakes: _asList(ped.common_mistakes),
+    probable_questions: _asList(ped.probable_questions),
+    tutor_focus: _asList(lesson.delegated_to_tutor),
+    tutor_must_not_do: _asList(lesson.attribution_constraints),
+    proactive_message: lesson.proactive_message || '',
+    suggested_prompts: _asList(lesson.suggested_prompts),
+    moments: (lesson.blocks || []).map((b) => ({
+      block_id: b.block_id,
+      title: b.block_title || '',
+      summary: b.summary || '',
+      pedagogical_intent: b.tutor_focus || '',
+      key_concepts: Array.isArray(b.concepts) ? b.concepts : _asList(b.concepts),
+      common_mistakes: Array.isArray((b.metadata || {}).common_mistakes) ? b.metadata.common_mistakes : [],
+      probable_questions: Array.isArray(b.preguntas_probables) ? b.preguntas_probables : _asList(b.preguntas_probables),
+      start_time: b.start_time,
+      end_time: b.end_time,
+    })),
+    ai_prepared: !!meta.ai_prepared,
+    requires_review: !!meta.requires_review,
+  };
+}
+
+// Escribe el perfil pedagógico canónico (campos a nivel lección + prompts).
+// NO toca estructura técnica ni momentos (esos van por /moments y /blocks).
+export function savePedagogy(courseId, lessonId, profile = {}) {
+  return writeJson('PUT', `/authoring/lessons/${encodeURIComponent(lessonId)}/pedagogy`, courseId, {
+    learning_goal: profile.learning_goal || '',
+    lesson_summary: profile.lesson_summary || '',
+    tutor_tone: profile.tutor_tone || '',
+    help_level: profile.help_level || '',
+    lesson_rules: profile.lesson_rules || [],
+    key_concepts: profile.key_concepts || [],
+    common_mistakes: profile.common_mistakes || [],
+    probable_questions: profile.probable_questions || [],
+    tutor_focus: profile.tutor_focus || [],
+    tutor_must_not_do: profile.tutor_must_not_do || [],
+    proactive_message: profile.proactive_message || '',
+    suggested_prompts: profile.suggested_prompts || [],
+  });
+}
+
 export function importLesson(courseId, json, targetLessonId = '') {
   const qs = targetLessonId ? `?target_lesson_id=${encodeURIComponent(targetLessonId)}` : '';
   return writeJson('POST', `/authoring/lessons/import${qs}`, courseId, { ...json, axis_id: '' });

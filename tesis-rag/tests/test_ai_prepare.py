@@ -290,8 +290,9 @@ def test_accept_con_draft_editado_revalida(monkeypatch):
     assert res["ok"] is True
     lesson = db_service.get_lesson("L1", "2")
     assert lesson["learning_goal"] == "Objetivo corregido por el profesor"
-    # La regla peligrosa fue neutralizada por el schema -> pedagogy.lesson_rules vacío.
-    assert lesson["metadata"]["pedagogy"].get("lesson_rules", "") == ""
+    # La regla peligrosa fue neutralizada por el schema -> pedagogy.lesson_rules vacío
+    # (modelo canónico: lesson_rules es LISTA; vacío = [] o ausente).
+    assert not lesson["metadata"]["pedagogy"].get("lesson_rules")
 
 
 def test_accept_sin_draft_422(monkeypatch):
