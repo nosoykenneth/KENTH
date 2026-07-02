@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict
 
 from api.dependencies import require_teacher, require_course_admin, TeacherContext
-from services import db_service, transcription_service
+from services import db_service, transcription_service, pedagogy_profile
 from services.lesson_service import load_lesson
 from services.ai_prepare import service as ai_prepare_service, persistence as ai_prepare_persistence, schema as ai_prepare_schema
 
@@ -91,6 +91,7 @@ class MomentPayload(BaseModel):
     tutor_focus: str = ""
     concepts: List[str] = []
     preguntas_probables: List[str] = []
+    common_mistakes: List[str] = []  # errores del momento -> block.metadata (no es columna técnica)
 
 
 class MomentsPayload(BaseModel):
@@ -114,6 +115,29 @@ class BlocksPayload(BaseModel):
 
 
 class PromptsPayload(BaseModel):
+    proactive_message: str = ""
+    suggested_prompts: List[str] = []
+
+
+class PedagogyProfilePayload(BaseModel):
+    """Perfil pedagógico CANÓNICO de la lección (modelo único Profesor/Admin/IA).
+
+    Es lo que leen/escriben AMBOS editores. No incluye estructura técnica
+    (title/order/section/notes/legacy → upsert_lesson) ni los momentos
+    (→ /moments para profesor, /blocks para admin). `extra="ignore"` tolera que la
+    UI envíe campos de estado (ai_prepared, requires_reindex…) sin romper.
+    """
+    model_config = ConfigDict(extra="ignore")
+    learning_goal: str = ""
+    lesson_summary: str = ""
+    tutor_tone: str = ""
+    help_level: str = ""
+    lesson_rules: List[str] = []
+    key_concepts: List[str] = []
+    common_mistakes: List[str] = []
+    probable_questions: List[str] = []
+    tutor_focus: List[str] = []
+    tutor_must_not_do: List[str] = []
     proactive_message: str = ""
     suggested_prompts: List[str] = []
 
@@ -323,7 +347,8 @@ def update_moments(lesson_id: str, payload: MomentsPayload, ctx: TeacherContext 
             "tutor_focus": m.tutor_focus,
             "concepts": m.concepts,
             "preguntas_probables": m.preguntas_probables,
-            "metadata": b.get("metadata", {}),
+            # errores comunes del momento viven en block.metadata (no hay columna técnica).
+            "metadata": {**(b.get("metadata") or {}), "common_mistakes": list(m.common_mistakes or [])},
         })
     count = db_service.replace_lesson_blocks(lesson_id, merged)
     return {"lesson_id": lesson_id, "moments": count}
@@ -338,6 +363,27 @@ def set_prompts(lesson_id: str, payload: PromptsPayload, ctx: TeacherContext = D
         proactive_message=payload.proactive_message,
         suggested_prompts=payload.suggested_prompts,
     )
+    return load_lesson(lesson_id, ctx.course_id)
+
+
+@router.put("/lessons/{lesson_id}/pedagogy")
+def set_pedagogy(lesson_id: str, payload: PedagogyProfilePayload, ctx: TeacherContext = Depends(require_teacher)):
+    """Escribe el PERFIL PEDAGÓGICO CANÓNICO (modelo único de Profesor y Admin).
+
+    Único escritor de los campos pedagógicos a nivel lección (learning_goal,
+    metadata.pedagogy.*, delegated_to_tutor, attribution_constraints, prompts).
+    NO toca estructura técnica (title/order/section/legacy) ni los momentos
+    (esos van por /moments para el profesor y /blocks para el admin). La IA
+    (ai-prepare/accept) rellena EL MISMO modelo, así ambas vistas quedan sincronizadas.
+    """
+    if not db_service.get_lesson(lesson_id, ctx.course_id):
+        raise HTTPException(status_code=404, detail="Lección no encontrada.")
+    summary = pedagogy_profile.apply_profile(
+        lesson_id, ctx.course_id, ctx.user_id, payload.model_dump(),
+        mode="replace", apply_moments=False,
+    )
+    if not summary.get("ok"):
+        raise HTTPException(status_code=422, detail=summary.get("error") or "No se pudo guardar el perfil pedagógico.")
     return load_lesson(lesson_id, ctx.course_id)
 
 

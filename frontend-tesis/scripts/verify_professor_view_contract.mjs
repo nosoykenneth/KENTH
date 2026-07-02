@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 
-import { updateMoments, replaceLessonBlocks } from '../src/shared/services/sectionsService.js';
+import { updateMoments, replaceLessonBlocks, savePedagogy, toTutorProfile } from '../src/shared/services/sectionsService.js';
 
 /**
  * Contrato de la Vista Profesor (FASE 8, sin runner de componentes).
@@ -42,6 +42,30 @@ const blocksReq = requests.find((r) => r.url.includes('/authoring/lessons/S15-L0
 assert.ok(blocksReq, 'replaceLessonBlocks debe llamar a /authoring/lessons/{id}/blocks');
 assert.notEqual(momentsReq.url, blocksReq.url);
 
+// --- 1c. Perfil pedagógico CANÓNICO: savePedagogy -> PUT /pedagogy; toTutorProfile normaliza ---
+await savePedagogy('2', 'S15-L01', { learning_goal: 'Objetivo', tutor_focus: ['reforzar X'], key_concepts: ['a'] });
+const pedagogyReq = requests.find((r) => r.url.includes('/authoring/lessons/S15-L01/pedagogy'));
+assert.ok(pedagogyReq, 'savePedagogy debe llamar a /authoring/lessons/{id}/pedagogy');
+assert.equal(pedagogyReq.method, 'PUT');
+assert.equal(pedagogyReq.body.learning_goal, 'Objetivo');
+
+const prof0 = toTutorProfile({
+  learning_goal: 'G',
+  delegated_to_tutor: ['reforzar'],
+  attribution_constraints: ['no spoilers'],
+  metadata: { pedagogy: { tutor_tone: 'socratico', key_concepts: ['headroom'], lesson_summary: 'resu' } },
+  proactive_message: 'Hola',
+  suggested_prompts: ['¿qué es X?'],
+  blocks: [{ block_id: 'B1', block_title: 'Intro', tutor_focus: 'activar', concepts: ['c'], preguntas_probables: ['q'], metadata: { common_mistakes: ['err'] }, start_time: 0, end_time: 10 }],
+});
+assert.equal(prof0.tutor_focus[0], 'reforzar', 'delegated_to_tutor -> tutor_focus');
+assert.equal(prof0.tutor_must_not_do[0], 'no spoilers', 'attribution_constraints -> tutor_must_not_do');
+assert.equal(prof0.tutor_tone, 'socratico');
+assert.equal(prof0.lesson_summary, 'resu');
+assert.equal(prof0.proactive_message, 'Hola');
+assert.equal(prof0.moments[0].pedagogical_intent, 'activar', 'block.tutor_focus -> moment.pedagogical_intent');
+assert.equal(prof0.moments[0].common_mistakes[0], 'err', 'block.metadata.common_mistakes -> moment.common_mistakes');
+
 // --- 2. Garantías de fuente ---
 const read = (rel) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)), 'utf8');
 const prof = read('../src/shared/components/ai/TutorPedagogyView.jsx');
@@ -70,4 +94,19 @@ for (const jerga of ['source_hash', 'retrieval_scope', 'index_status', 'chunk_co
 assert.ok(admin.includes('replaceLessonBlocks'), 'Editor avanzado debe usar replaceLessonBlocks (/blocks)');
 assert.ok(admin.includes('Bloques'), 'Editor avanzado debe seguir mostrando "Bloques"');
 
-console.log('OK - contrato Vista Profesor (momentos/blocks, terminología, video/timeline, sin jerga)');
+// --- 3. UNIFICACIÓN: mismo modelo canónico + misma IA en ambos editores ---
+for (const [name, src] of [['Vista Profesor', prof], ['Editor Avanzado', admin]]) {
+  assert.ok(src.includes('toTutorProfile'), `${name} debe leer el perfil canónico (toTutorProfile)`);
+  assert.ok(src.includes('savePedagogy'), `${name} debe guardar el perfil canónico (savePedagogy)`);
+  assert.ok(src.includes('aiPrepare'), `${name} debe usar el MISMO endpoint de IA (aiPrepare)`);
+}
+// El admin muestra el perfil canónico como principal + IA + legacy demovido a "Avanzado".
+assert.ok(admin.includes("id: 'perfil'") || admin.includes('Perfil'), 'Admin debe tener pestaña "Perfil" (canónico)');
+assert.ok(admin.includes('Generar con IA'), 'Admin debe tener botón "Generar con IA"');
+assert.ok(admin.includes("id: 'avanzado'"), 'Admin debe mover estructura/legacy a "Avanzado"');
+assert.ok(admin.includes('Orden dentro de la sección'), 'Admin debe renombrar "Orden dentro de la sección"');
+// Paso 1 del profesor NO edita momentos (solo timeline visual): el modal de momento
+// se abre desde el paso 3 (openEditMoment) y el timeline va en readOnly.
+assert.ok(prof.includes('openEditMoment'), 'El profesor edita momentos por modal (paso 3)');
+
+console.log('OK - contrato unificación (perfil canónico compartido, IA única, terminología, sin jerga)');

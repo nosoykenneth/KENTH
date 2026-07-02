@@ -193,3 +193,68 @@ la UI actual. Posible endpoint legacy/paralelo.
 - **FASE 6 (lenguaje)**: corregir #5 en `context_service` + regla de prompt.
 - **FASE 7 (permisos)**: `/moments`=`require_teacher`, `/blocks`=`require_course_admin` (ya OK);
   la Vista Profesor debe guardar SOLO por `/moments`.
+
+---
+
+# Modelo pedagógico CANÓNICO (Tarea 2 — unificación Profesor/Admin/IA)
+
+Un único **perfil pedagógico** que leen/escriben por igual la Vista Profesor, el
+Editor Avanzado (admin) y el endpoint de IA; lo consume `context_service`. **No es
+una tabla nueva**: es una normalización sobre el almacenamiento existente (sin
+migración, sin perder datos). Implementado en `services/pedagogy_profile.py`
+(`build_profile` / `apply_profile`) y expuesto por `PUT /authoring/lessons/{id}/pedagogy`.
+
+## Campos del perfil ↔ almacenamiento real
+
+| Campo canónico | Almacenamiento | Inyectado al tutor | Profesor | Admin |
+|---|---|---|---|---|
+| `learning_goal` | `lessons.learning_goal` | sí | ✔ | ✔ |
+| `lesson_summary` | `metadata.pedagogy.lesson_summary` | sí | ✔ | ✔ |
+| `tutor_tone` | `metadata.pedagogy.tutor_tone` | sí | ✔ | ✔ |
+| `help_level` | `metadata.pedagogy.help_level` | sí | ✔ | ✔ |
+| `lesson_rules[]` | `metadata.pedagogy.lesson_rules` (lista) | sí | ✔ | ✔ |
+| `key_concepts[]` | `metadata.pedagogy.key_concepts` | **sí (nuevo)** | ✔ | ✔ |
+| `common_mistakes[]` | `metadata.pedagogy.common_mistakes` | sí | ✔ | ✔ |
+| `probable_questions[]` | `metadata.pedagogy.probable_questions` | **sí (nuevo)** | ✔ | ✔ |
+| `tutor_focus[]` | `lessons.delegated_to_tutor` | sí | ✔ | ✔ |
+| `tutor_must_not_do[]` | `lessons.attribution_constraints` | sí | ✔ | ✔ |
+| `proactive_message` | `lesson_prompts (proactive)` | sí + **alumno** | ✔ | ✔ |
+| `suggested_prompts[]` | `lesson_prompts (suggested)` | sí + **alumno (chips)** | ✔ | ✔ |
+| `moments[]` | `lesson_blocks` (+ `block.metadata.common_mistakes`) | sí | ✔ (/moments) | ✔ (/blocks) |
+
+Momento canónico: `{block_id, title, summary, pedagogical_intent, key_concepts,
+common_mistakes, probable_questions}` → columnas de `lesson_blocks`
+(`block_title/summary/tutor_focus/concepts/preguntas_probables`) + `common_mistakes`
+en `block.metadata`. `pedagogical_intent` **unifica** con `tutor_focus` (un solo campo,
+no duplicado). `block_id`/`start_time`/`end_time`/`interaction_mode`/`order` = estructura
+técnica (admin), preservada por `/moments`.
+
+## Mapeo de campos legacy (FASE 2 de la tarea)
+
+| Campo legacy | Decisión | Mapeo | Profesor | Admin | Legacy |
+|---|---|---|---|---|---|
+| mensaje proactivo | **campo canónico propio** (student-facing) | `proactive_message` | ✔ | ✔ | no |
+| preguntas sugeridas | **campo canónico propio** (chips del alumno) | `suggested_prompts` | ✔ | ✔ | no |
+| delegado al tutor | canónico | = `tutor_focus` | ✔ ("qué reforzar") | ✔ | no |
+| restricciones y atribuciones | canónico | = `tutor_must_not_do` | ✔ ("qué evitar") | ✔ | no |
+| objetivo de aprendizaje | canónico | = `learning_goal` | ✔ | ✔ | no |
+| prompts del tutor (lesson_prompts) | canónico | = proactive/suggested | ✔ | ✔ | no |
+| acción esperada | **legacy** (se inyecta como respaldo; la IA no lo genera) | sin mapear | ✗ | ✔ colapsado | sí |
+| criterios de logro | **legacy** (evaluación futura; se inyecta) | sin mapear | ✗ | ✔ colapsado | sí |
+| prerrequisitos | **legacy** (navegación futura; se inyecta) | sin mapear | ✗ | ✔ colapsado | sí |
+| orden | estructural | "Orden dentro de la sección" | ✗ | ✔ | no |
+| axis_id | legacy (siempre `""`) | — | ✗ | ✗ | sí |
+
+## Reglas de escritura/lectura
+
+- **La IA** (`ai-prepare`/`accept`) rellena el mismo perfil: `promote_draft` traduce el
+  borrador → perfil canónico y usa `apply_profile(mode="merge")` (vacío del borrador
+  NO borra lo previo). Un solo endpoint para ambas vistas.
+- **Los editores** guardan el perfil con `apply_profile(mode="replace")` vía
+  `PUT /pedagogy` (permite limpiar). Los **momentos** por `/moments` (profesor, preserva
+  tiempos) o `/blocks` (admin, estructura). La **estructura** (title/order/section/notes/
+  legacy) por `upsert_lesson`.
+- **`requires_reindex` = false** para el perfil (inyectado, no indexado). Solo
+  transcripción y recursos reindexan.
+- Compatibilidad: `lesson_rules` pasó de string a **lista**; `context_service` y el front
+  toleran ambos. No se borra nada de la BD.

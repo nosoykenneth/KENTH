@@ -407,6 +407,11 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
             lineas.append("Preguntas probables del alumno aqui:")
             for q in block["preguntas_probables"]:
                 lineas.append(f"  - {q}")
+        block_mistakes = (block.get("metadata") or {}).get("common_mistakes") or []
+        if block_mistakes:
+            lineas.append("Errores comunes en este momento:")
+            for err in block_mistakes:
+                lineas.append(f"  - {err}")
         lineas.append(
             "USO DEL BLOQUE: responde primero anclado a este bloque. "
             "La evidencia RAG de la seccion sirve para fundamentar o ampliar, no para borrar el punto actual. "
@@ -476,13 +481,24 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
                 f"Nivel de ayuda esperado en esta leccion: {pedagogia['help_level']} "
                 "(ajusta cuanto guias vs cuanto resuelves)."
             )
-        if pedagogia.get("lesson_rules"):
-            lineas.append(f"Reglas de la leccion (definidas por el profesor): {pedagogia['lesson_rules']}")
+        reglas = pedagogia.get("lesson_rules")
+        if isinstance(reglas, (list, tuple)):
+            reglas = "; ".join(str(r) for r in reglas if str(r).strip())
+        if reglas:
+            lineas.append(f"Reglas de la leccion (definidas por el profesor): {reglas}")
+        conceptos_leccion = pedagogia.get("key_concepts") or []
+        if conceptos_leccion:
+            lineas.append("Conceptos clave de la leccion: " + ", ".join(conceptos_leccion))
         errores = pedagogia.get("common_mistakes") or []
         if errores:
             lineas.append("Errores comunes a vigilar y prevenir en esta leccion:")
             for err in errores:
                 lineas.append(f"  - {err}")
+        preguntas_leccion = pedagogia.get("probable_questions") or []
+        if preguntas_leccion:
+            lineas.append("Preguntas probables del alumno en esta leccion:")
+            for q in preguntas_leccion:
+                lineas.append(f"  - {q}")
     if ctx.current_section_name:
         lineas.append(f"Seccion actual: {ctx.current_section_name}")
     if ctx.current_section_order is not None:
