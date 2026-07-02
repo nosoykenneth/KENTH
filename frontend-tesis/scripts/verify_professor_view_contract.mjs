@@ -71,18 +71,19 @@ const read = (rel) => readFileSync(fileURLToPath(new URL(rel, import.meta.url)),
 const prof = read('../src/shared/components/ai/TutorPedagogyView.jsx');
 const admin = read('../src/shared/components/ai/LessonVideoEditor.jsx');
 
-// El profesor guarda por /moments, nunca por /blocks.
-assert.ok(prof.includes('updateMoments'), 'Vista Profesor debe importar/usar updateMoments');
-assert.ok(!prof.includes('replaceLessonBlocks'), 'Vista Profesor NO debe usar replaceLessonBlocks (/blocks)');
+// El profesor ahora edita la línea de tiempo IGUAL que el admin (mover tiempos, tipo,
+// crear/borrar): guarda por /blocks (replaceLessonBlocks). Terminología amable.
+assert.ok(prof.includes('replaceLessonBlocks'), 'Vista Profesor debe guardar los momentos por /blocks (replaceLessonBlocks)');
+assert.ok(prof.includes('mergeDraftMomentsIntoBlocks'), 'Vista Profesor debe reconstruir los momentos del borrador IA (con tiempos)');
 
 // Terminología pedagógica hacia el profesor: "Momentos de la clase", no "Bloques".
 assert.ok(prof.includes('Momentos de la clase'), 'Vista Profesor debe decir "Momentos de la clase"');
 assert.ok(!prof.includes('Bloques'), 'Vista Profesor NO debe mostrar la etiqueta "Bloques"');
 
-// Video + línea de tiempo reutilizados, timeline en solo lectura (sin mover tiempos).
+// Video + línea de tiempo reutilizados; el profesor SÍ puede mover tiempos (onChangeBlockTime).
 assert.ok(prof.includes('useResourceVideoBridge'), 'Vista Profesor debe reutilizar el bridge de video');
 assert.ok(prof.includes('<BlockTimeline'), 'Vista Profesor debe renderizar la línea de tiempo');
-assert.ok(/readOnly\b/.test(prof), 'la línea de tiempo del profesor debe ir en readOnly');
+assert.ok(prof.includes('onChangeBlockTime'), 'la línea de tiempo del profesor debe permitir mover tiempos (onChangeBlockTime)');
 assert.ok(prof.includes('technical={false}'), 'los recursos del profesor deben ir sin jerga técnica (technical={false})');
 
 // El profesor NO ve jerga técnica.

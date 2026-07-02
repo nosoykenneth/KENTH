@@ -1,7 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   getResourceLink, getLesson, getTranscript, getTranscriptStatus,
-  autoTranscribe, replaceTranscript, aiPrepare, updateMoments,
+  autoTranscribe, replaceTranscript, aiPrepare,
+  replaceLessonBlocks, mergeDraftMomentsIntoBlocks,
   savePedagogy, toTutorProfile,
 } from '../../services/sectionsService';
 import { activityContextFromMoodleModule } from '../../services/activityContext';
@@ -27,8 +28,9 @@ import LessonResourcesPanel from './LessonResourcesPanel';
  *   Paso 3 · Revisión y prueba  -> tarjetas resumidas; se editan SOLO al pulsar "Editar"
  *
  * Guarda el perfil con savePedagogy (PUT /pedagogy = apply_profile) y los momentos
- * con updateMoments (PUT /moments, preserva tiempos). Nunca usa /blocks. El profesor
- * no ve block_id, tiempos crudos, order, JSON, metadata, Chroma ni estado técnico.
+ * (bloques) con replaceLessonBlocks (PUT /blocks): el profesor edita la línea de
+ * tiempo igual que el admin (arrastrar tiempos, crear/borrar, fijar el "tipo de
+ * momento"). No ve block_id crudo, JSON, metadata, Chroma ni estado técnico.
  *
  * Props: { resource, courseId, sectionContext, onClose(refresh), readOnly }
  */
@@ -60,6 +62,25 @@ const QUALITY_OPTIONS = [
 ];
 const GLOSARIO = ['headroom', 'gain staging', 'LUFS', 'threshold', 'sidechain', 'fase', 'compresión paralela', 'ecualización', 'masterización'];
 
+// "Tipo de momento" = interaction_mode, con etiquetas simples para el profesor.
+// El valor es el mismo enum del backend (InteractionMode / MODOS_PEDAGOGICOS).
+const MODE_OPTIONS = [
+  { value: '', label: 'Sin definir' },
+  { value: 'teoria', label: 'Teoría / explicación' },
+  { value: 'practica', label: 'Práctica / demostración' },
+  { value: 'criterio_operativo', label: 'Criterio / decisión' },
+  { value: 'troubleshooting', label: 'Diagnóstico / resolución' },
+  { value: 'revision', label: 'Verificación / repaso' },
+  { value: 'navegacion_de_recurso', label: 'Recorrido del recurso' },
+];
+const MODE_LABEL = Object.fromEntries(MODE_OPTIONS.map((o) => [o.value, o.label]));
+// Punto de color por tipo (mismas familias que BlockTimeline) para la leyenda.
+const MODE_DOT = {
+  teoria: 'bg-indigo-400', practica: 'bg-emerald-400', criterio_operativo: 'bg-amber-400',
+  troubleshooting: 'bg-rose-400', revision: 'bg-violet-400', navegacion_de_recurso: 'bg-sky-400',
+};
+const colorDotForMode = (mode) => MODE_DOT[(mode || '').trim().toLowerCase()] || 'bg-kenth-brightred';
+
 const linesToArr = (s) => (s || '').split('\n').map((x) => x.trim()).filter(Boolean);
 const arrToLines = (a) => (Array.isArray(a) ? a.join('\n') : (a || ''));
 
@@ -69,7 +90,8 @@ const cardCls = 'bg-kenth-card border border-kenth-border rounded-2xl p-5 flex f
 
 const momentRange = (b) => `${fmtTime(Number(b?.start_time) || 0)}–${fmtTime(Number(b?.end_time) || 0)}`;
 
-// Overlay del borrador IA sobre el perfil canónico (solo pisa lo NO vacío).
+// Overlay del borrador IA sobre el perfil canónico (solo pisa lo NO vacío). Los
+// momentos NO se tratan aquí: van por `blocks` (mergeDraftMomentsIntoBlocks).
 function overlayDraft(profile, d = {}) {
   const merged = { ...profile };
   const set = (k, v) => { if (v && (!Array.isArray(v) || v.length)) merged[k] = v; };
@@ -85,35 +107,38 @@ function overlayDraft(profile, d = {}) {
   set('tutor_must_not_do', d.tutor_must_not_do);
   set('proactive_message', d.proactive_message);
   set('suggested_prompts', d.suggested_prompts);
-  const byId = {};
-  (d.moments || []).forEach((m) => { const id = m.existing_block_id || m.block_id; if (id) byId[id] = m; });
-  merged.moments = (profile.moments || []).map((mm) => {
-    const dm = byId[mm.block_id];
-    if (!dm) return mm;
-    const pick = (a, b) => (a && (!Array.isArray(a) || a.length) ? a : b);
-    return {
-      ...mm,
-      title: dm.title || mm.title,
-      summary: dm.summary || mm.summary,
-      pedagogical_intent: dm.pedagogical_intent || mm.pedagogical_intent,
-      key_concepts: pick(dm.key_concepts, mm.key_concepts),
-      common_mistakes: pick(dm.common_mistakes, mm.common_mistakes),
-      probable_questions: pick(dm.probable_questions, mm.probable_questions),
-    };
-  });
   return merged;
 }
 
-// Payload de momentos para /moments (solo campos pedagógicos; sin tiempos/estructura).
-const momentsPayload = (moments) => (moments || []).map((m) => ({
-  block_id: m.block_id,
-  block_title: m.title || '',
-  summary: m.summary || '',
-  interaction_mode: '',            // '' => backend preserva el existente
-  tutor_focus: m.pedagogical_intent || '',
-  concepts: m.key_concepts || [],
-  preguntas_probables: m.probable_questions || [],
-  common_mistakes: m.common_mistakes || [],
+// Un "momento" es un bloque del video, con etiqueta amable. El profesor edita el
+// mismo objeto `blocks` que persiste el admin, así puede mover tiempos y tipo.
+const blockToMoment = (b, idx) => ({
+  block_id: b.block_id,
+  order: idx,
+  title: b.block_title || '',
+  summary: b.summary || '',
+  pedagogical_intent: b.tutor_focus || '',
+  interaction_mode: b.interaction_mode || '',
+  key_concepts: Array.isArray(b.concepts) ? b.concepts : linesToArr(b.concepts),
+  common_mistakes: Array.isArray((b.metadata || {}).common_mistakes) ? b.metadata.common_mistakes : [],
+  probable_questions: Array.isArray(b.preguntas_probables) ? b.preguntas_probables : linesToArr(b.preguntas_probables),
+  start_time: b.start_time,
+  end_time: b.end_time,
+});
+
+// Payload de bloques para PUT /blocks (estructura completa: tiempos + modo + pedagogía).
+const blocksPayload = (blocks) => (blocks || []).map((b, i) => ({
+  block_id: b.block_id || '',
+  block_order: i,
+  start_time: Number(b.start_time) || 0,
+  end_time: Number(b.end_time) || 0,
+  block_title: b.block_title || '',
+  summary: b.summary || '',
+  interaction_mode: b.interaction_mode || '',
+  tutor_focus: b.tutor_focus || '',
+  concepts: Array.isArray(b.concepts) ? b.concepts : linesToArr(b.concepts),
+  preguntas_probables: Array.isArray(b.preguntas_probables) ? b.preguntas_probables : linesToArr(b.preguntas_probables),
+  metadata: b.metadata || {},
 }));
 
 export default function TutorPedagogyView({ resource, courseId, sectionContext = null, onClose, readOnly = false }) {
@@ -122,14 +147,21 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
   const [lesson, setLesson] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // Perfil canónico + estructura de momentos (para el timeline visual y el modal).
+  // Perfil canónico (nivel lección) + bloques (momentos, con tiempos y tipo).
   const [profile, setProfile] = useState(null);
   const [blocks, setBlocks] = useState([]);
+  const [blocksDirty, setBlocksDirty] = useState(false); // hay cambios de momentos sin guardar
   const [selectedMoment, setSelectedMoment] = useState(-1);
-  const [editing, setEditing] = useState(null); // edición de UN momento
-  const [savingMoment, setSavingMoment] = useState(false);
+  const [editing, setEditing] = useState(null); // edición de UN momento (modal)
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+
+  // Muta la lista de bloques y marca cambios sin guardar.
+  const mutateBlocks = useCallback((fn) => {
+    setBlocks((prev) => fn(prev));
+    setBlocksDirty(true);
+    setSaved(false);
+  }, []);
 
   // Transcripción
   const [transcript, setTranscript] = useState([]);
@@ -180,6 +212,7 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
       setLesson(data);
       setProfile(toTutorProfile(data));
       setBlocks((data.blocks || []).map((b) => ({ ...b })));
+      setBlocksDirty(false);
       setTranscript(tr.segments || []);
       setJob(tr.job || null);
       setSaved((data.metadata || {}).ai_prepare_status === 'accepted');
@@ -246,46 +279,84 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
     }
   };
 
-  // --- Momento (modal) -> /moments ---
+  // Momentos derivados de los bloques (para la lista + timeline + modal).
+  const moments = useMemo(() => blocks.map(blockToMoment), [blocks]);
+
+  // --- Edición de UN momento (modal) sobre `blocks` (local; persiste al Guardar) ---
   const openEditMoment = (idx) => {
-    if (readOnly || !profile) return;
-    const m = profile.moments[idx];
-    if (!m) return;
+    if (readOnly) return;
+    const b = blocks[idx];
+    if (!b) return;
     setEditing({
       idx,
-      title: m.title || '',
-      summary: m.summary || '',
-      pedagogical_intent: m.pedagogical_intent || '',
-      key_concepts: arrToLines(m.key_concepts),
-      common_mistakes: arrToLines(m.common_mistakes),
-      probable_questions: arrToLines(m.probable_questions),
+      title: b.block_title || '',
+      summary: b.summary || '',
+      pedagogical_intent: b.tutor_focus || '',
+      interaction_mode: b.interaction_mode || '',
+      start_time: Math.round(Number(b.start_time) || 0),
+      end_time: Math.round(Number(b.end_time) || 0),
+      key_concepts: arrToLines(Array.isArray(b.concepts) ? b.concepts : linesToArr(b.concepts)),
+      common_mistakes: arrToLines((b.metadata || {}).common_mistakes),
+      probable_questions: arrToLines(Array.isArray(b.preguntas_probables) ? b.preguntas_probables : linesToArr(b.preguntas_probables)),
     });
   };
 
-  const saveMoment = async () => {
-    if (readOnly || !editing || !lessonId || !profile) return;
-    setSavingMoment(true);
-    const nextMoments = profile.moments.map((m, i) => (i === editing.idx ? {
-      ...m,
-      title: editing.title,
-      summary: editing.summary,
-      pedagogical_intent: editing.pedagogical_intent,
-      key_concepts: linesToArr(editing.key_concepts),
-      common_mistakes: linesToArr(editing.common_mistakes),
-      probable_questions: linesToArr(editing.probable_questions),
-    } : m));
-    try {
-      await updateMoments(courseId, lessonId, momentsPayload(nextMoments));
-      setProfile((p) => ({ ...p, moments: nextMoments }));
-      setEditing(null);
-      showNotification('success', 'Momento actualizado.');
-      await reload();
-    } catch (e) {
-      showNotification('error', e.message);
-    } finally {
-      setSavingMoment(false);
-    }
+  const saveMoment = () => {
+    if (readOnly || !editing) return;
+    const e = editing;
+    const st = Math.max(0, Math.round(Number(e.start_time) || 0));
+    const et = Math.max(st + 1, Math.round(Number(e.end_time) || 0));
+    mutateBlocks((prev) => prev.map((b, i) => (i === e.idx ? {
+      ...b,
+      block_title: e.title,
+      summary: e.summary,
+      tutor_focus: e.pedagogical_intent,
+      interaction_mode: e.interaction_mode || '',
+      start_time: st,
+      end_time: et,
+      concepts: linesToArr(e.key_concepts),
+      preguntas_probables: linesToArr(e.probable_questions),
+      metadata: { ...(b.metadata || {}), common_mistakes: linesToArr(e.common_mistakes) },
+    } : b)));
+    setEditing(null);
   };
+
+  // Añadir un momento en el tiempo actual del video (bloque nuevo). Como el admin.
+  const addMoment = () => {
+    if (readOnly) return;
+    const start = Math.round(currentTime);
+    const end = duration ? Math.min(start + 30, Math.floor(duration)) : start + 30;
+    mutateBlocks((prev) => {
+      const next = [...prev, {
+        block_id: `${lessonId}-B${prev.length + 1}`,
+        block_order: prev.length,
+        start_time: start,
+        end_time: Math.max(start + 1, end),
+        block_title: '', summary: '', interaction_mode: '', tutor_focus: '',
+        concepts: [], preguntas_probables: [], metadata: {},
+      }];
+      next.sort((a, b) => (Number(a.start_time) || 0) - (Number(b.start_time) || 0));
+      return next.map((b, i) => ({ ...b, block_order: i }));
+    });
+  };
+
+  const removeMoment = (idx) => {
+    if (readOnly) return;
+    mutateBlocks((prev) => prev.filter((_, i) => i !== idx).map((b, i) => ({ ...b, block_order: i })));
+    setEditing(null);
+  };
+
+  // Arrastre de tiempos en la línea de tiempo (idéntico al admin).
+  const changeBlockTime = useCallback((idx, patch) => {
+    mutateBlocks((prev) => {
+      const next = [...prev];
+      const b = { ...next[idx] };
+      if (patch.start_time != null) b.start_time = Math.round(patch.start_time);
+      if (patch.end_time != null) b.end_time = Math.round(patch.end_time);
+      next[idx] = b;
+      return next;
+    });
+  }, [mutateBlocks]);
 
   // Paso 2: un solo botón. Transcribe el video (si hace falta) y luego genera el borrador.
   const runAiPrepare = async () => {
@@ -315,6 +386,10 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
       if (phaseTimer.current) { clearInterval(phaseTimer.current); phaseTimer.current = null; }
       setAiResult(res);
       setProfile((p) => overlayDraft(p || toTutorProfile(lesson || {}), res.draft));
+      // Momentos: la IA propone la segmentación con tiempos y tipo -> reconstruye la
+      // línea de tiempo (distribuida, no apilada). Se guarda con el resto al aplicar.
+      setBlocks((prev) => mergeDraftMomentsIntoBlocks(prev, res.draft?.moments || [], lessonId));
+      setBlocksDirty(true);
       setRetranscribe(false);
       setSaved(false);
       showNotification('success', 'Borrador del tutor generado. Revísalo y guárdalo.');
@@ -331,16 +406,19 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
 
   const setP = (k, v) => { if (!readOnly) setProfile((p) => ({ ...p, [k]: v })); };
 
-  // Guardar TODO el perfil canónico + momentos (un solo botón).
+  // Guardar TODO: perfil canónico (nivel lección) + momentos/bloques (tiempos + tipo).
   const saveProfile = async () => {
     if (readOnly || !lessonId || !profile) return;
     setSaving(true);
     try {
       await savePedagogy(courseId, lessonId, profile);
-      if ((profile.moments || []).length) {
-        await updateMoments(courseId, lessonId, momentsPayload(profile.moments));
+      // Momentos = bloques del video (PUT /blocks), igual que el admin: persiste
+      // tiempos, tipo y pedagogía. Solo si hubo cambios en la línea de tiempo.
+      if (blocksDirty) {
+        await replaceLessonBlocks(courseId, lessonId, blocksPayload(blocks));
       }
       setSaved(true);
+      setBlocksDirty(false);
       showNotification('success', 'Tutor actualizado.');
       await reload();
     } catch (e) {
@@ -391,8 +469,14 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
         <button onClick={() => seek(Math.max(0, currentTime - 5))} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/5 text-[10px] font-black uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">-5s</button>
         <button onClick={() => seek(currentTime + 5)} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/5 text-[10px] font-black uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">+5s</button>
         <button onClick={() => setMuted(!muted)} className={`px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-widest ${muted ? 'border-kenth-brightred/70 bg-kenth-brightred/15 text-kenth-brightred' : 'border-kenth-border bg-kenth-surface/5 text-kenth-subtext hover:text-kenth-text'}`}>{muted ? 'Activar sonido' : 'Silenciar'}</button>
+        {!readOnly && (
+          <button onClick={addMoment} className="ml-auto px-3 py-1.5 rounded-lg border border-kenth-brightred/50 bg-kenth-brightred/10 text-[10px] font-black uppercase tracking-widest text-kenth-brightred hover:bg-kenth-brightred/20">
+            + Momento en {fmtTime(currentTime)}
+          </button>
+        )}
       </div>
-      {/* Línea de tiempo SOLO VISUAL: navegación + subtítulos, sin editar momentos. */}
+      {/* Línea de tiempo EDITABLE (como el admin): arrastra los bordes para mover
+          los tiempos de cada momento; el color = tipo de momento. */}
       <BlockTimeline
         blocks={blocks}
         duration={duration}
@@ -400,13 +484,26 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
         selectedIndex={selectedMoment}
         onSelectBlock={(idx) => setSelectedMoment(idx)}
         onSeek={(s) => seek(s)}
+        onChangeBlockTime={readOnly ? undefined : changeBlockTime}
         requestThumbnail={requestThumbnail}
         transcript={transcript}
-        readOnly
+        readOnly={readOnly}
         title="Momentos de la clase"
         unitLabel="momento"
         itemPrefix="M"
       />
+      {/* Leyenda de colores por tipo de momento. */}
+      <div className="flex flex-wrap gap-x-3 gap-y-1">
+        {MODE_OPTIONS.filter((o) => o.value).map((o) => (
+          <span key={o.value} className="inline-flex items-center gap-1 text-[10px] text-kenth-subtext">
+            <span className={`inline-block h-2 w-2 rounded-sm ${colorDotForMode(o.value)}`} />
+            {o.label}
+          </span>
+        ))}
+      </div>
+      {!readOnly && (
+        <p className="text-[10px] text-kenth-subtext">Arrastra los bordes de un momento en la línea de tiempo para ajustar su inicio y fin. Pulsa <b className="text-kenth-text">Revisar</b> para editar su contenido y tipo.</p>
+      )}
     </>
   ) : isH5P ? (
     <p className="text-sm text-kenth-subtext">Sesión expirada. Vuelve a iniciar sesión para ver el video.</p>
@@ -700,14 +797,19 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                   <ListField label="Preguntas sugeridas al alumno (una por línea)" readOnly={readOnly} value={p.suggested_prompts} onChange={(v) => setP('suggested_prompts', v)} />
                 </EditableCard>
 
-                {/* Momentos: lista + revisar cada uno (modal -> /moments) */}
+                {/* Momentos: lista + revisar (modal). Editables: tiempos, tipo y pedagogía. */}
                 <section className={cardCls}>
-                  <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Momentos de la clase ({(p.moments || []).length})</h4>
-                  {(p.moments || []).length === 0 ? (
-                    <p className="text-[12px] text-kenth-subtext">Esta lección aún no tiene momentos marcados sobre el video. Los momentos (con sus minutos) se crean en el editor avanzado (técnico); aquí podrás darles título, resumen e intención.</p>
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Momentos de la clase ({moments.length})</h4>
+                    {!readOnly && (
+                      <button onClick={addMoment} className="px-2.5 py-1 rounded-lg border border-kenth-brightred/50 bg-kenth-brightred/10 text-[10px] font-black uppercase tracking-widest text-kenth-brightred hover:bg-kenth-brightred/20">+ Momento</button>
+                    )}
+                  </div>
+                  {moments.length === 0 ? (
+                    <p className="text-[12px] text-kenth-subtext">Esta lección aún no tiene momentos. Genera el borrador con IA (paso 2) o crea uno con <b className="text-kenth-text">+ Momento</b>; luego ajusta sus tiempos arrastrando en la línea de tiempo.</p>
                   ) : (
                     <div className="flex flex-col gap-2">
-                      {p.moments.map((m, idx) => (
+                      {moments.map((m, idx) => (
                         <div key={m.block_id || idx} className="border border-kenth-border/60 rounded-xl p-3 flex items-start gap-3 bg-kenth-surface/5">
                           <div className="flex flex-col items-center gap-1 flex-shrink-0 pt-0.5">
                             <span className="text-[10px] font-black text-kenth-brightred">M{idx + 1}</span>
@@ -715,6 +817,12 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="text-sm font-bold text-kenth-text truncate">{m.title || `Momento ${idx + 1}`}</p>
+                            {m.interaction_mode && (
+                              <span className="inline-flex items-center gap-1 text-[10px] text-kenth-subtext mt-0.5">
+                                <span className={`inline-block h-2 w-2 rounded-sm ${colorDotForMode(m.interaction_mode)}`} />
+                                {MODE_LABEL[m.interaction_mode] || m.interaction_mode}
+                              </span>
+                            )}
                             {m.summary && <p className="text-[11px] text-kenth-subtext line-clamp-2">{m.summary}</p>}
                           </div>
                           {!readOnly && (
@@ -760,13 +868,35 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
         )}
       </div>
 
-      {/* Modal de edición de UN momento */}
+      {/* Modal de edición de UN momento (tiempos + tipo + pedagogía) */}
       {editing && (
-        <div className="fixed inset-0 z-[210] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => !savingMoment && setEditing(null)}>
+        <div className="fixed inset-0 z-[210] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => setEditing(null)}>
           <div className="w-full max-w-lg bg-kenth-card border border-kenth-border rounded-2xl shadow-2xl p-5 flex flex-col gap-3 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center justify-between">
-              <p className="text-[10px] uppercase font-black tracking-widest text-kenth-brightred">Momento · {momentRange((profile?.moments || [])[editing.idx])}</p>
-              <button onClick={() => !savingMoment && setEditing(null)} className="text-kenth-subtext hover:text-kenth-text">✕</button>
+              <p className="text-[10px] uppercase font-black tracking-widest text-kenth-brightred">Momento M{editing.idx + 1}</p>
+              <button onClick={() => setEditing(null)} className="text-kenth-subtext hover:text-kenth-text">✕</button>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className={labelCls}>Inicio (segundos)</label>
+                <div className="flex gap-1">
+                  <input type="number" min="0" className={inputCls} value={editing.start_time} onChange={(e) => setEditing((x) => ({ ...x, start_time: Number(e.target.value) }))} />
+                  <button onClick={() => setEditing((x) => ({ ...x, start_time: Math.round(currentTime) }))} className="px-2 rounded-lg bg-kenth-surface/10 border border-kenth-border text-[10px] text-kenth-subtext whitespace-nowrap" title="Usar el tiempo actual del video">⏱</button>
+                </div>
+              </div>
+              <div>
+                <label className={labelCls}>Fin (segundos)</label>
+                <div className="flex gap-1">
+                  <input type="number" min="0" className={inputCls} value={editing.end_time} onChange={(e) => setEditing((x) => ({ ...x, end_time: Number(e.target.value) }))} />
+                  <button onClick={() => setEditing((x) => ({ ...x, end_time: Math.round(currentTime) }))} className="px-2 rounded-lg bg-kenth-surface/10 border border-kenth-border text-[10px] text-kenth-subtext whitespace-nowrap" title="Usar el tiempo actual del video">⏱</button>
+                </div>
+              </div>
+            </div>
+            <div>
+              <label className={labelCls}>Tipo de momento (color en la línea de tiempo)</label>
+              <select className={inputCls} value={editing.interaction_mode} onChange={(e) => setEditing((x) => ({ ...x, interaction_mode: e.target.value }))}>
+                {MODE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+              </select>
             </div>
             <div>
               <label className={labelCls}>Título</label>
@@ -792,12 +922,14 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
               <label className={labelCls}>Preguntas probables (una por línea)</label>
               <textarea rows={2} className={inputCls} value={editing.probable_questions} onChange={(e) => setEditing((x) => ({ ...x, probable_questions: e.target.value }))} />
             </div>
-            <div className="flex justify-end gap-2 pt-1">
-              <button onClick={() => setEditing(null)} disabled={savingMoment} className="px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs font-bold uppercase tracking-widest disabled:opacity-40">Cancelar</button>
-              <button onClick={saveMoment} disabled={savingMoment} className="px-5 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
-                {savingMoment ? 'Guardando…' : 'Guardar momento'}
-              </button>
+            <div className="flex items-center justify-between gap-2 pt-1">
+              <button onClick={() => removeMoment(editing.idx)} className="px-3 py-2 rounded-xl border border-red-500/40 text-red-400 text-[10px] font-black uppercase tracking-widest hover:bg-red-500/10">🗑 Borrar momento</button>
+              <div className="flex gap-2">
+                <button onClick={() => setEditing(null)} className="px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs font-bold uppercase tracking-widest">Cancelar</button>
+                <button onClick={saveMoment} className="px-5 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest">Aplicar</button>
+              </div>
             </div>
+            <p className="text-[10px] text-kenth-subtext text-right">Se guarda al pulsar <b className="text-kenth-text">Guardar y aplicar al tutor</b>.</p>
           </div>
         </div>
       )}

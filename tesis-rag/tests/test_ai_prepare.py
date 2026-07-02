@@ -274,7 +274,44 @@ def test_accept_sin_bloques_no_crea_ninguno(monkeypatch):
     _patch_model_valid(monkeypatch)
     authoring.ai_prepare("L1", authoring.AiPreparePayload(), ctx=CTX)
     authoring.ai_prepare_accept("L1", authoring.AiAcceptPayload(), ctx=CTX)
+    # VALID_DRAFT: momentos SIN tiempos -> no se inventan bloques.
     assert db_service.list_lesson_blocks("L1") == []
+
+
+# Borrador cuyos momentos SÍ traen tiempos + modo: la IA distribuye por la línea de
+# tiempo. Al aceptar deben crearse bloques con esos tiempos y modo, aunque la lección
+# no tuviera bloques (arreglo: antes se apilaban / se descartaban).
+TIMED_DRAFT = dict(VALID_DRAFT)
+TIMED_DRAFT["moments"] = [
+    {"existing_block_id": None, "title": "Intro", "summary": "arranque",
+     "start_time": 0, "end_time": 30, "interaction_mode": "teoria",
+     "pedagogical_intent": "activar", "key_concepts": ["headroom"],
+     "probable_questions": [], "common_mistakes": []},
+    {"existing_block_id": None, "title": "Demostración", "summary": "ejemplo",
+     "start_time": 30, "end_time": 90, "interaction_mode": "practica",
+     "pedagogical_intent": "mostrar", "key_concepts": [], "probable_questions": [], "common_mistakes": []},
+]
+
+
+def test_accept_crea_bloques_distribuidos_desde_momentos_con_tiempos(monkeypatch):
+    _reset_sqlite(monkeypatch)
+    _seed(monkeypatch, with_blocks=False)  # lección SIN bloques
+
+    def fake_invoke(task, s, u, **kw):
+        return json.dumps(TIMED_DRAFT)
+    monkeypatch.setattr(ai_models, "invoke_text", fake_invoke)
+
+    authoring.ai_prepare("L1", authoring.AiPreparePayload(), ctx=CTX)
+    res = authoring.ai_prepare_accept("L1", authoring.AiAcceptPayload(), ctx=CTX)
+    assert res["ok"] is True
+
+    blocks = sorted(db_service.list_lesson_blocks("L1"), key=lambda b: float(b["start_time"]))
+    assert len(blocks) == 2
+    assert [float(b["start_time"]) for b in blocks] == [0.0, 30.0]
+    assert [float(b["end_time"]) for b in blocks] == [30.0, 90.0]
+    assert blocks[0]["interaction_mode"] == "teoria"
+    assert blocks[1]["interaction_mode"] == "practica"
+    assert blocks[0]["block_title"] == "Intro"
 
 
 def test_accept_con_draft_editado_revalida(monkeypatch):

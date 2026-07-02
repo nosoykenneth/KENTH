@@ -28,6 +28,34 @@ def transcript_to_text(segments: List[Dict[str, Any]]) -> str:
     return " ".join(parts).strip()
 
 
+def _mmss(seconds: float) -> str:
+    s = int(max(0, seconds))
+    return f"{s // 60}:{s % 60:02d}"
+
+
+def transcript_to_timestamped_text(segments: List[Dict[str, Any]]) -> str:
+    """Texto de la transcripción con marca [m:ss] por segmento, para que la IA
+    pueda situar los momentos en la línea de tiempo real del video."""
+    lines: List[str] = []
+    for seg in segments or []:
+        txt = (seg.get("text") or "").strip()
+        if not txt:
+            continue
+        lines.append(f"[{_mmss(float(seg.get('start_time') or 0))}] {txt}")
+    return "\n".join(lines).strip()
+
+
+def transcript_duration(segments: List[Dict[str, Any]]) -> float:
+    """Duración aproximada del video = mayor end_time de la transcripción (segundos)."""
+    end = 0.0
+    for seg in segments or []:
+        try:
+            end = max(end, float(seg.get("end_time") or 0))
+        except (TypeError, ValueError):
+            continue
+    return round(end, 3)
+
+
 def _chunk(text: str, size: int) -> List[str]:
     return [text[i:i + size] for i in range(0, len(text), size)] or [""]
 
@@ -62,20 +90,29 @@ def _summarize_long(text: str, domain_label: str) -> str:
 
 
 def prepare_transcript_text(segments: List[Dict[str, Any]], domain_label: str) -> Dict[str, Any]:
-    """Devuelve el texto que se enviará al modelo + metadatos (si se resumió)."""
-    text = transcript_to_text(segments)
-    original_chars = len(text)
+    """Devuelve el texto (con marcas [m:ss]) que se enviará al modelo + metadatos.
+
+    Preferimos el texto CON marcas de tiempo (para situar los momentos). Solo si es
+    muy largo caemos al resumen jerárquico (que pierde las marcas): en el piloto los
+    videos son cortos y este camino rara vez se usa.
+    """
+    stamped = transcript_to_timestamped_text(segments)
+    plain = transcript_to_text(segments)
+    original_chars = len(stamped)
     summarized = False
-    if original_chars > config.AI_PREP_LONG_CONTEXT_THRESHOLD:
-        text = _summarize_long(text[: config.AI_PREP_TRANSCRIPT_CHAR_LIMIT], domain_label)
+    if len(plain) > config.AI_PREP_LONG_CONTEXT_THRESHOLD:
+        text = _summarize_long(plain[: config.AI_PREP_TRANSCRIPT_CHAR_LIMIT], domain_label)
         summarized = True
-    elif original_chars > config.AI_PREP_TRANSCRIPT_CHAR_LIMIT:
-        text = text[: config.AI_PREP_TRANSCRIPT_CHAR_LIMIT]
+    elif len(stamped) > config.AI_PREP_TRANSCRIPT_CHAR_LIMIT:
+        text = stamped[: config.AI_PREP_TRANSCRIPT_CHAR_LIMIT]
+    else:
+        text = stamped
     return {
         "text": text,
         "original_chars": original_chars,
         "processed_chars": len(text),
         "summarized": summarized,
+        "duration_seconds": transcript_duration(segments),
     }
 
 
@@ -97,6 +134,7 @@ def generate_draft(
     transcript_text: str,
     domain_label: str,
     extra_context: str = "",
+    duration_seconds: float = 0,
 ) -> Dict[str, Any]:
     """Genera y valida el JSON pedagógico. Repara una vez si es inválido.
 
@@ -109,6 +147,7 @@ def generate_draft(
         existing_blocks=blocks,
         transcript_text=transcript_text,
         extra_context=extra_context,
+        duration_seconds=duration_seconds,
     )
     raw = models.invoke_text(models.TASK_DRAFT, sys, usr, force_json=True, temperature=0.2)
     draft, errors = schema.parse_and_validate(raw)
@@ -189,6 +228,7 @@ def run(
         transcript_text=prep["text"],
         domain_label=domain_label,
         extra_context=extra_context,
+        duration_seconds=prep.get("duration_seconds", 0),
     )
     if not gen["ok"]:
         return {

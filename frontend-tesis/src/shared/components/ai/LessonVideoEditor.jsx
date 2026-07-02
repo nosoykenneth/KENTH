@@ -12,6 +12,7 @@ import {
   savePedagogy,
   toTutorProfile,
   aiPrepare,
+  mergeDraftMomentsIntoBlocks,
 } from '../../services/sectionsService';
 import { showNotification } from '../../utils/notify';
 import { MODOS_PEDAGOGICOS } from '../../types/lesson';
@@ -517,7 +518,18 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
       const res = await aiPrepare(courseId, selectedLessonId, { mode: 'draft', quality: 'balanced' });
       setProfile((p) => overlayDraft(p || {}, res.draft));
       mark('profile');
-      showNotification('success', 'Perfil pedagógico generado. Revísalo y guarda los cambios.');
+      // Momentos: la IA propone la segmentación con tiempos y modo -> reconstruye los
+      // bloques (distribuidos, no apilados). Se guardan con "Guardar cambios".
+      const aiMoments = res.draft?.moments || [];
+      if (aiMoments.some((m) => Number.isFinite(Number(m.start_time)) && Number.isFinite(Number(m.end_time)))) {
+        setLesson((p) => (p ? {
+          ...p,
+          blocks: mergeDraftMomentsIntoBlocks(p.blocks || [], aiMoments, p.lesson_id).map((b) => ({ ...EMPTY_BLOCK, ...b })),
+        } : p));
+        setSelectedBlockIdx(0);
+        mark('blocks');
+      }
+      showNotification('success', 'Perfil y momentos generados. Revísalos y guarda los cambios.');
     } catch (e) {
       showNotification('error', e.message);
     } finally {

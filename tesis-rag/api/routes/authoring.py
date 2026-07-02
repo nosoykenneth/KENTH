@@ -272,11 +272,13 @@ def delete_lesson(lesson_id: str, ctx: TeacherContext = Depends(require_teacher)
 
 
 @router.put("/lessons/{lesson_id}/blocks")
-def replace_blocks(lesson_id: str, payload: BlocksPayload, ctx: TeacherContext = Depends(require_course_admin)):
-    """Reemplazo TÉCNICO/estructural de bloques (timestamps, alta/baja, reorden).
+def replace_blocks(lesson_id: str, payload: BlocksPayload, ctx: TeacherContext = Depends(require_teacher)):
+    """Reemplazo completo de bloques (timestamps, alta/baja, reorden, modo pedagógico).
 
-    Reservado al ADMIN DEL CURSO / técnico (editor avanzado). El profesor NO edita
-    aquí: usa `PUT /lessons/{id}/moments` (pedagogía). Barrera server-side, no UI.
+    Disponible para el PROFESOR EDITOR (require_teacher): edita los momentos de sus
+    clases en la línea de tiempo igual que el admin (arrastrar tiempos, crear/borrar,
+    fijar el modo pedagógico). `PUT /moments` sigue existiendo para ediciones
+    pedagógicas in-place que no tocan la estructura.
     """
     if not db_service.get_lesson(lesson_id, ctx.course_id):
         raise HTTPException(status_code=404, detail="Lección no encontrada.")

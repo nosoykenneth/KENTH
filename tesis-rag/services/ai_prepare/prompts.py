@@ -13,6 +13,16 @@ from typing import List
 # Enums que el modelo debe respetar (se los recordamos en el prompt).
 _TONES = "directo | paciente | exigente | socratico | practico"
 _HELP = "orientar | explicar | corregir | preguntar | ejemplo_guiado"
+_MODES = "teoria | practica | troubleshooting | revision | navegacion_de_recurso | criterio_operativo"
+# Descripción breve de cada modo pedagógico (para que la IA elija bien por momento).
+_MODES_DESC = (
+    "  - teoria: explicación de un concepto o fundamento.\n"
+    "  - practica: demostración o aplicación práctica paso a paso.\n"
+    "  - troubleshooting: diagnóstico o resolución de un problema.\n"
+    "  - revision: verificación, repaso o comparación de resultados.\n"
+    "  - navegacion_de_recurso: recorrido/introducción de un recurso o de la clase.\n"
+    "  - criterio_operativo: toma de decisión o criterio auditivo/técnico.\n"
+)
 
 
 def system_prompt(domain_label: str) -> str:
@@ -63,6 +73,9 @@ def _schema_reminder() -> str:
         '      "title": "título del momento",\n'
         '      "summary": "qué pasa en este momento",\n'
         '      "pedagogical_intent": "intención pedagógica del tutor aquí",\n'
+        '      "start_time": 0,\n'
+        '      "end_time": 45,\n'
+        f'      "interaction_mode": "uno de: {_MODES}",\n'
         '      "key_concepts": ["..."],\n'
         '      "probable_questions": ["..."],\n'
         '      "common_mistakes": ["..."]\n'
@@ -72,10 +85,24 @@ def _schema_reminder() -> str:
         '  "terms_to_review": ["término técnico dudoso a revisar"],\n'
         '  "confidence": "low | medium | high"\n'
         "}\n"
-        "Reglas de forma: listas de máximo 12 ítems; strings concisos. Si no hay "
-        "momentos definidos, devuelve \"moments\": []. Usa null en existing_block_id "
-        "cuando no puedas mapear el momento a un bloque existente.\n"
+        "Reglas de los MOMENTOS (muy importante):\n"
+        "  - Segmenta la clase en momentos CONSECUTIVOS que cubran la línea de tiempo "
+        "del video, desde el inicio (0) hasta el final (la duración indicada). NO los "
+        "apiles todos al comienzo.\n"
+        "  - `start_time` y `end_time` van en SEGUNDOS y deben salir de los tiempos "
+        "[m:ss] de la transcripción; cada momento empieza donde termina el anterior "
+        "(sin huecos ni solapes) y su end_time no supera la duración del video.\n"
+        f"  - `interaction_mode`: elige el que mejor describa el momento entre estos:\n{_MODES_DESC}"
+        "  - Si hay BLOQUES YA DEFINIDOS, usa su block_id en existing_block_id y respeta "
+        "sus tiempos; si NO hay bloques, propón de 3 a 8 momentos con existing_block_id=null "
+        "y sus tiempos.\n"
+        "Reglas de forma: listas de máximo 12 ítems; strings concisos.\n"
     )
+
+
+def _fmt_mmss(seconds: float) -> str:
+    s = int(max(0, seconds))
+    return f"{s // 60}:{s % 60:02d}"
 
 
 def user_prompt(
@@ -85,11 +112,17 @@ def user_prompt(
     existing_blocks: List[dict],
     transcript_text: str,
     extra_context: str = "",
+    duration_seconds: float = 0,
 ) -> str:
     parts: List[str] = []
     parts.append(f"CLASE: {lesson_title or '(sin título)'}")
     if section_name:
         parts.append(f"SECCIÓN DEL CURSO: {section_name}")
+    if duration_seconds and duration_seconds > 0:
+        parts.append(
+            f"DURACIÓN DEL VIDEO: {int(duration_seconds)} segundos ({_fmt_mmss(duration_seconds)}). "
+            "Los momentos deben cubrir desde 0 hasta esta duración."
+        )
     if existing_blocks:
         parts.append(
             "\nBLOQUES/MOMENTOS YA DEFINIDOS (usa estos block_id en existing_block_id; "
@@ -109,7 +142,11 @@ def user_prompt(
         )
     if extra_context:
         parts.append(f"\nCONTEXTO ADICIONAL (recursos/descripciones):\n{extra_context}")
-    parts.append("\nTRANSCRIPCIÓN DE LA CLASE (puede tener errores de ASR):\n")
+    parts.append(
+        "\nTRANSCRIPCIÓN DE LA CLASE con marcas de tiempo [m:ss] al inicio de cada "
+        "línea (puede tener errores de ASR). Usa esas marcas para fijar start_time/"
+        "end_time de los momentos:\n"
+    )
     parts.append(transcript_text or "(transcripción vacía)")
     parts.append("\n\n" + _schema_reminder())
     return "\n".join(parts)

@@ -173,6 +173,72 @@ export function toTutorProfile(lesson = {}) {
   };
 }
 
+// Funde los momentos del borrador IA en los bloques de la lección. Espejo (frontend)
+// de services/pedagogy_profile.fuse_moments: si algún momento trae TIEMPOS válidos,
+// reconstruye la línea de tiempo desde la segmentación de la IA (distribuida, no
+// apilada) preservando el id del bloque existente cuando corresponde; si NINGÚN
+// momento trae tiempos, solo funde la pedagogía en los bloques existentes.
+const _num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : null; };
+
+export function mergeDraftMomentsIntoBlocks(existingBlocks = [], moments = [], lessonId = '') {
+  const blocks = existingBlocks || [];
+  const ms = moments || [];
+  const byId = {};
+  blocks.forEach((b) => { byId[String(b.block_id)] = b; });
+
+  const hasTimes = ms.some((m) => {
+    const s = _num(m.start_time); const e = _num(m.end_time);
+    return s != null && e != null && e > s;
+  });
+
+  if (!hasTimes) {
+    // Sin tiempos: funde solo la pedagogía en los bloques existentes (por id).
+    const mById = {};
+    ms.forEach((m) => { const id = m.existing_block_id || m.block_id; if (id) mById[String(id)] = m; });
+    const pick = (a, b) => (Array.isArray(a) && a.length ? a : b);
+    return blocks.map((b) => {
+      const m = mById[String(b.block_id)];
+      if (!m) return b;
+      return {
+        ...b,
+        block_title: m.title || b.block_title,
+        summary: m.summary || b.summary,
+        interaction_mode: m.interaction_mode || b.interaction_mode,
+        tutor_focus: m.pedagogical_intent || b.tutor_focus,
+        concepts: pick(m.key_concepts, b.concepts),
+        preguntas_probables: pick(m.probable_questions, b.preguntas_probables),
+        metadata: { ...(b.metadata || {}), common_mistakes: pick(m.common_mistakes, (b.metadata || {}).common_mistakes || []) },
+      };
+    });
+  }
+
+  // Con tiempos: reconstruye la línea de tiempo desde los momentos de la IA.
+  const prefix = (lessonId
+    || (blocks[0]?.block_id ? String(blocks[0].block_id).replace(/-B\d+$/, '') : 'L')) || 'L';
+  return ms
+    .map((m) => ({ m, s: _num(m.start_time), e: _num(m.end_time) }))
+    .filter((x) => x.s != null && x.e != null && x.e > x.s)
+    .sort((a, b) => a.s - b.s)
+    .map(({ m, s, e }, i) => {
+      const ex = (m.existing_block_id && byId[String(m.existing_block_id)]) || null;
+      // Ids frescos y secuenciales tras reordenar por tiempo (sin colisiones); la
+      // identidad del bloque no se referencia fuera de la lección.
+      return {
+        block_id: `${prefix}-B${i + 1}`,
+        block_order: i,
+        start_time: s,
+        end_time: e,
+        block_title: m.title || (ex && ex.block_title) || '',
+        summary: m.summary || (ex && ex.summary) || '',
+        interaction_mode: m.interaction_mode || (ex && ex.interaction_mode) || '',
+        tutor_focus: m.pedagogical_intent || (ex && ex.tutor_focus) || '',
+        concepts: (Array.isArray(m.key_concepts) && m.key_concepts.length) ? m.key_concepts : ((ex && ex.concepts) || []),
+        preguntas_probables: (Array.isArray(m.probable_questions) && m.probable_questions.length) ? m.probable_questions : ((ex && ex.preguntas_probables) || []),
+        metadata: { ...((ex && ex.metadata) || {}), common_mistakes: (Array.isArray(m.common_mistakes) && m.common_mistakes.length) ? m.common_mistakes : (((ex && ex.metadata) || {}).common_mistakes || []) },
+      };
+    });
+}
+
 // Escribe el perfil pedagógico canónico (campos a nivel lección + prompts).
 // NO toca estructura técnica ni momentos (esos van por /moments y /blocks).
 export function savePedagogy(courseId, lessonId, profile = {}) {
