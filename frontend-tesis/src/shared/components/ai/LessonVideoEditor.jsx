@@ -724,27 +724,13 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
                         <label className={labelCls}>Título</label>
                         <input className={inputCls} value={lesson.lesson_title || ''} onChange={(e) => setField('lesson_title', e.target.value)} />
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div>
-                          <label className={labelCls}>Orden</label>
-                          <input type="number" className={inputCls} value={lesson.order ?? 0} onChange={(e) => setField('order', e.target.value)} />
-                        </div>
-                        <div>
-                          <label className={labelCls}>Prerrequisitos (coma)</label>
-                          <input className={inputCls} value={lesson._prerequisites} onChange={(e) => setField('_prerequisites', e.target.value)} />
-                        </div>
+                      <div>
+                        <label className={labelCls}>Orden</label>
+                        <input type="number" className={inputCls} value={lesson.order ?? 0} onChange={(e) => setField('order', e.target.value)} />
                       </div>
                       <div>
                         <label className={labelCls}>Objetivo de aprendizaje</label>
                         <input className={inputCls} value={lesson.learning_goal || ''} onChange={(e) => setField('learning_goal', e.target.value)} />
-                      </div>
-                      <div>
-                        <label className={labelCls}>Acción esperada</label>
-                        <input className={inputCls} value={lesson.expected_action || ''} onChange={(e) => setField('expected_action', e.target.value)} />
-                      </div>
-                      <div>
-                        <label className={labelCls}>Criterios de logro (una por línea)</label>
-                        <textarea rows={2} className={inputCls} value={lesson._learning_goals} onChange={(e) => setField('_learning_goals', e.target.value)} />
                       </div>
 
                       <div className="h-px bg-kenth-border my-2" />
@@ -780,6 +766,35 @@ export default function LessonVideoEditor({ resource, courseId, sectionContext =
                         />
                         <p className="text-[10px] text-kenth-subtext mt-1">Reglas obligatorias de comportamiento: el tutor las cumple en todas sus respuestas.</p>
                       </div>
+
+                      <div className="h-px bg-kenth-border my-2" />
+
+                      {/* Configuración pedagógica avanzada: campos pre-IA que el tutor sigue
+                          usando como respaldo (context_service los inyecta si están), pero que
+                          la preparación con IA ya no genera. Plegados por defecto (auditoría #6). */}
+                      <details className="rounded-lg border border-kenth-border bg-kenth-surface/5">
+                        <summary className="cursor-pointer px-3 py-2 text-[10px] uppercase tracking-widest text-kenth-subtext font-bold">
+                          Configuración pedagógica avanzada
+                        </summary>
+                        <div className="px-3 pb-3 pt-1 flex flex-col gap-3">
+                          <p className="text-[10px] text-kenth-subtext">
+                            Campos heredados (pre-IA). El tutor los usa como respaldo si están presentes;
+                            la preparación con IA ya no los genera.
+                          </p>
+                          <div>
+                            <label className={labelCls}>Prerrequisitos (coma)</label>
+                            <input className={inputCls} value={lesson._prerequisites} onChange={(e) => setField('_prerequisites', e.target.value)} />
+                          </div>
+                          <div>
+                            <label className={labelCls}>Acción esperada</label>
+                            <input className={inputCls} value={lesson.expected_action || ''} onChange={(e) => setField('expected_action', e.target.value)} />
+                          </div>
+                          <div>
+                            <label className={labelCls}>Criterios de logro (una por línea)</label>
+                            <textarea rows={2} className={inputCls} value={lesson._learning_goals} onChange={(e) => setField('_learning_goals', e.target.value)} />
+                          </div>
+                        </div>
+                      </details>
 
                       <div className="h-px bg-kenth-border my-2" />
 
