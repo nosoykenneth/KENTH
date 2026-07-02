@@ -7,6 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "test:moodle-section": "node scripts/verify_moodle_section_contract.mjs",
+    "test:professor-view": "node scripts/verify_professor_view_contract.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

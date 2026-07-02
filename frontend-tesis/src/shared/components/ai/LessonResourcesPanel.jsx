@@ -94,7 +94,7 @@ function ResourceThumb({ courseId, resource }) {
  * dos flags: Indexar al tutor (su descripción/contenido entra al RAG) y Visible al
  * alumno (panel + el tutor lo enlaza). Subida inmediata (no depende del Guardar global).
  */
-export default function LessonResourcesPanel({ courseId, lessonId }) {
+export default function LessonResourcesPanel({ courseId, lessonId, technical = true }) {
   const [resources, setResources] = useState([]);
   const [inherited, setInherited] = useState([]); // recursos del eje (solo lectura)
   const [loading, setLoading] = useState(true);
@@ -113,7 +113,7 @@ export default function LessonResourcesPanel({ courseId, lessonId }) {
       setResources(data.resources || []);
       setInherited(data.inherited_section_resources || []);
     } catch (e) {
-      showNotification(e.message || 'No se pudieron cargar los recursos', 'error');
+      showNotification('error', e.message || 'No se pudieron cargar los recursos');
     } finally {
       setLoading(false);
     }
@@ -147,28 +147,32 @@ export default function LessonResourcesPanel({ courseId, lessonId }) {
       const desc = await suggestResourceCaption(courseId, file);
       setForm((p) => ({ ...p, description: desc }));
     } catch (e) {
-      showNotification(e.message || 'No se pudo sugerir la descripción', 'error');
+      showNotification('error', e.message || 'No se pudo sugerir la descripción');
     } finally {
       setSuggesting(false);
     }
   };
 
   const submit = async () => {
-    if (!file) { showNotification('Elige un archivo', 'error'); return; }
+    if (!file) { showNotification('error', 'Elige un archivo'); return; }
     const needsDesc = form.index_to_tutor && !isImage && !IMAGE_RE.test(file.name)
       && !/\.(pdf|txt|md)$/i.test(file.name);
     if ((isImage || needsDesc) && form.index_to_tutor && !form.description.trim()) {
-      showNotification('Este recurso necesita una descripción para indexarlo al tutor', 'error');
+      showNotification('error', 'Este recurso necesita una descripción para indexarlo al tutor');
       return;
     }
     setUploading(true);
     try {
       await uploadLessonResource(courseId, lessonId, { ...form, file });
-      showNotification('Recurso agregado', 'success');
+      showNotification('success', 'Recurso agregado');
+      // Mensaje humano (sin jerga técnica) cuando el recurso alimenta al tutor.
+      if (form.index_to_tutor) {
+        showNotification('success', 'El tutor se actualizará después de procesar este recurso.');
+      }
       resetForm();
       await load();
     } catch (e) {
-      showNotification(e.message || 'No se pudo subir el recurso', 'error');
+      showNotification('error', e.message || 'No se pudo subir el recurso');
     } finally {
       setUploading(false);
     }
@@ -180,7 +184,7 @@ export default function LessonResourcesPanel({ courseId, lessonId }) {
       await deleteLessonResource(courseId, lessonId, r.doc_id);
       setResources((prev) => prev.filter((x) => x.doc_id !== r.doc_id));
     } catch (e) {
-      showNotification(e.message || 'No se pudo eliminar', 'error');
+      showNotification('error', e.message || 'No se pudo eliminar');
     }
   };
 
@@ -315,17 +319,22 @@ export default function LessonResourcesPanel({ courseId, lessonId }) {
                     <span className="text-[9px] uppercase font-black tracking-widest text-kenth-subtext">{meta.label}</span>
                     <span className="text-[8px] uppercase font-black tracking-widest text-violet-300 border border-violet-500/30 rounded px-1">Lección</span>
                     {r.resource_type && <span className="text-[8px] uppercase font-black tracking-widest text-kenth-subtext border border-kenth-border rounded px-1">{r.resource_type}</span>}
-                    {r.indexed && <StatusBadge status={r.index_status} error={r.index_error} />}
+                    {/* Estado de indexación: técnico solo para admin; el profesor ve lenguaje humano. */}
+                    {technical
+                      ? (r.indexed && <StatusBadge status={r.index_status} error={r.index_error} />)
+                      : (r.indexed && (r.index_status === 'indexed'
+                          ? <span className="text-[8px] uppercase font-black tracking-widest text-emerald-400 border border-emerald-500/30 rounded px-1">Fuente del tutor</span>
+                          : <span className="text-[8px] uppercase font-black tracking-widest text-amber-400 border border-amber-500/30 rounded px-1">Procesando…</span>))}
                     {r.visible_to_student
                       ? <span className="text-[8px] uppercase font-black tracking-widest text-sky-400 border border-sky-500/30 rounded px-1">Visible</span>
                       : <span className="text-[8px] uppercase font-black tracking-widest text-kenth-subtext border border-kenth-border rounded px-1">Oculto</span>}
-                    {typeof r.chunk_count === 'number' && r.chunk_count > 0 && (
+                    {technical && typeof r.chunk_count === 'number' && r.chunk_count > 0 && (
                       <span className="text-[8px] text-kenth-subtext">{r.chunk_count} chunks</span>
                     )}
                   </div>
                   <p className="text-sm font-bold text-kenth-text truncate">{r.title}</p>
                   {r.description && <p className="text-[11px] text-kenth-subtext line-clamp-2">{r.description}</p>}
-                  {r.index_status === 'failed' && r.index_error && (
+                  {technical && r.index_status === 'failed' && r.index_error && (
                     <p className="text-[10px] text-red-400 mt-0.5">⚠ {r.index_error}</p>
                   )}
                 </div>
@@ -361,7 +370,7 @@ export default function LessonResourcesPanel({ courseId, lessonId }) {
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <span className="text-[8px] uppercase font-black tracking-widest text-amber-300 border border-amber-500/30 rounded px-1">Sección</span>
                       {r.resource_type && <span className="text-[8px] uppercase font-black tracking-widest text-kenth-subtext border border-kenth-border rounded px-1">{r.resource_type}</span>}
-                      {r.indexed && <StatusBadge status={r.index_status} error={r.index_error} />}
+                      {technical && r.indexed && <StatusBadge status={r.index_status} error={r.index_error} />}
                     </div>
                     <p className="text-sm font-bold text-kenth-text truncate">{r.title}</p>
                     {r.description && <p className="text-[11px] text-kenth-subtext line-clamp-1">{r.description}</p>}

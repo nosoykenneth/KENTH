@@ -45,6 +45,30 @@ from services.lesson_service import (
 logger = logging.getLogger(__name__)
 
 
+def _fmt_mmss(seconds) -> str:
+    """Segundos -> 'm:ss' humano. Devuelve '' si no es numérico.
+
+    Se usa para que el CONTEXTO inyectado no exponga tiempos crudos (start_time=0)
+    ni invite al tutor a hablar en segundos; el alumno piensa en minutos del video.
+    """
+    try:
+        total = int(float(seconds))
+    except (TypeError, ValueError):
+        return ""
+    if total < 0:
+        total = 0
+    return f"{total // 60}:{total % 60:02d}"
+
+
+def _fmt_rango(start, end) -> str:
+    """Rango 'm:ss–m:ss' humano para ubicar el momento en el video."""
+    ini = _fmt_mmss(start)
+    fin = _fmt_mmss(end)
+    if not ini and not fin:
+        return ""
+    return f"{ini}–{fin}"
+
+
 # ==========================================
 # RUTAS
 # ==========================================
@@ -351,18 +375,26 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
     block = envelope.active_block
     lesson_data = envelope.active_lesson
     if block:
+        # Encabezado técnico (interno): NO exponemos block_id/lesson_id/section_id como
+        # texto; el tutor podría repetirlos. Usamos títulos y tiempos humanizados.
         lineas.append("--- BLOQUE ACTIVO DEL VIDEO (PUNTO DE PARTIDA) ---")
         if lesson_data:
-            lineas.append(f"Lección: {lesson_data.get('lesson_id', '')} - {lesson_data.get('lesson_title', '')}")
+            if lesson_data.get("lesson_title"):
+                lineas.append(f"Lección: {lesson_data.get('lesson_title', '')}")
+            # La sección SÍ se mantiene como dato de grounding (contrato de retrieval);
+            # lo que se quita es el block_id/lesson_id que el tutor podría verbalizar.
             if lesson_data.get("section_name") or lesson_data.get("moodle_section_id"):
                 lineas.append(
                     f"Sección del curso: {lesson_data.get('section_name', '')} "
                     f"(moodle_section_id={lesson_data.get('moodle_section_id', '')})"
                 )
-        lineas.append(f"Bloque: {block.get('block_id', '')} - {block.get('block_title', '')}")
-        lineas.append(f"Rango: {block.get('start_time', 0)}s - {block.get('end_time', 0)}s")
+        if block.get("block_title"):
+            lineas.append(f"Parte actual de la lección: {block.get('block_title', '')}")
+        rango = _fmt_rango(block.get("start_time"), block.get("end_time"))
+        if rango:
+            lineas.append(f"Ubicación en el video: {rango}")
         if ctx.current_timestamp is not None:
-            lineas.append(f"Timestamp del alumno: {ctx.current_timestamp:.1f}s")
+            lineas.append(f"Momento del alumno en el video: {_fmt_mmss(ctx.current_timestamp)}")
         if block.get("summary"):
             lineas.append(f"Que esta pasando en pantalla: {block['summary']}")
         if block.get("interaction_mode"):
@@ -385,10 +417,8 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
 
     lineas.append("--- CONTEXTO ACTIVO DEL ALUMNO (NO ES EVIDENCIA RAG) ---")
     if lesson_data:
-        if lesson_data.get("lesson_id") or lesson_data.get("lesson_title"):
-            lineas.append(
-                f"Leccion activa: {lesson_data.get('lesson_id', '')} - {lesson_data.get('lesson_title', '')}"
-            )
+        if lesson_data.get("lesson_title"):
+            lineas.append(f"Leccion activa: {lesson_data.get('lesson_title', '')}")
         if lesson_data.get("section_name") or lesson_data.get("moodle_section_id"):
             lineas.append(
                 f"Seccion activa: {lesson_data.get('section_name', '')} "
@@ -437,6 +467,8 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
         # existe, no se emite nada (no rompe el gate de dominio ni contamina la
         # query vectorial; solo orienta el comportamiento del tutor).
         pedagogia = (lesson_data.get("metadata") or {}).get("pedagogy") or {}
+        if pedagogia.get("lesson_summary"):
+            lineas.append(f"Resumen de la leccion (para orientar, no es evidencia): {pedagogia['lesson_summary']}")
         if pedagogia.get("tutor_tone"):
             lineas.append(f"Tono del tutor solicitado por el profesor: {pedagogia['tutor_tone']}")
         if pedagogia.get("help_level"):
@@ -458,18 +490,15 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
             lineas.append(f"Numero de seccion (por orden, base 0): {ctx.current_section_order - 2}")
         elif ctx.current_section_order == 1:
             lineas.append("Es la seccion de bienvenida (no cuenta como seccion pedagogica).")
-    if ctx.current_lesson_id:
-        lineas.append(f"Leccion: {ctx.current_lesson_id}")
     if ctx.current_resource_id:
+        # No emitimos el id del recurso (cmid): solo su tipo, en lenguaje humano.
         rtype = ctx.current_resource_type.value if ctx.current_resource_type else "desconocido"
         if ctx.resource_subtype:
-            lineas.append(
-                f"Recurso abierto: {ctx.current_resource_id} ({rtype} / {ctx.resource_subtype})"
-            )
+            lineas.append(f"Recurso abierto: {rtype} / {ctx.resource_subtype}")
         else:
-            lineas.append(f"Recurso abierto: {ctx.current_resource_id} ({rtype})")
+            lineas.append(f"Recurso abierto: {rtype}")
     if ctx.current_timestamp is not None:
-        lineas.append(f"Timestamp video: {ctx.current_timestamp:.1f}s")
+        lineas.append(f"Momento del video: {_fmt_mmss(ctx.current_timestamp)}")
     if ctx.current_page is not None:
         lineas.append(f"Pagina PDF: {ctx.current_page}")
     if ctx.current_section:
@@ -501,6 +530,8 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
 
     lineas.append("Usa este contexto para orientar tu respuesta. Para afirmaciones tecnicas del curso, "
                   "apoyate en EVIDENCIA RAG o en datos runtime explicitamente visibles en este bloque.")
+    lineas.append("No menciones identificadores internos (codigos de bloque, de leccion o de seccion) en tu "
+                  "respuesta; refierete a 'esta parte de la leccion', 'este momento del video' o al titulo del momento.")
     lineas.append("------------------------")
     return "\n".join(lineas)
 

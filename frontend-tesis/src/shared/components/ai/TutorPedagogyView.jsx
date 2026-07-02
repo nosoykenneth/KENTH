@@ -1,31 +1,38 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   getResourceLink, getLesson, getTranscript, getTranscriptStatus,
-  autoTranscribe, replaceTranscript, aiPrepare, aiPrepareAccept,
+  autoTranscribe, replaceTranscript, aiPrepare, aiPrepareAccept, updateMoments,
 } from '../../services/sectionsService';
 import { activityContextFromMoodleModule } from '../../services/activityContext';
 import { showNotification } from '../../utils/notify';
+import { fmtTime } from '../../utils/time';
+import { buildMoodleViewUrl, getMoodleToken } from '../../utils/moodleToken';
+import { useResourceVideoBridge } from '../../hooks/useResourceTimestamp';
+import BlockTimeline from './BlockTimeline';
 import TutorAssistCard from './TutorAssistCard';
 import LessonResourcesPanel from './LessonResourcesPanel';
 
 /**
  * TutorPedagogyView — asistente "Preparar tutor con IA" (Vista Profesor).
  *
- * Rediseñado como asistente de 3 pasos para que el profesor NO tenga que llenar
- * 20 campos a mano. La IA (Ollama local, vía backend) analiza la transcripción y
- * propone un BORRADOR pedagógico; el profesor lo revisa, edita y ACEPTA. Nada se
- * publica ni indexa automáticamente; el borrador queda aislado hasta aceptar.
+ * Asistente de 3 pasos para que el profesor NO tenga que llenar 20 campos a mano.
  *
- *   Paso 1 · Clase y recursos     -> transcripción (estado, transcribir, corregir) + recursos
- *   Paso 2 · Preparación con IA    -> calidad + generar borrador + resumen
- *   Paso 3 · Revisión y prueba     -> editar borrador, probar tutor, aceptar
+ *   Paso 1 · Clase y recursos  -> VIDEO + línea de tiempo + "Momentos de la clase"
+ *                                 (editables pedagógicamente) + transcripción + recursos
+ *   Paso 2 · Preparación con IA -> calidad + generar borrador + resumen
+ *   Paso 3 · Revisión y prueba  -> editar borrador (acordeones), probar tutor, aceptar
  *
- * Oculta todo lo técnico (block_id, timestamps, source_hash, Chroma, retrieval,
- * index_status, JSON crudo). El editor avanzado (LessonVideoEditor) sigue siendo
- * para admin de curso / técnico.
+ * TERMINOLOGÍA: el profesor ve "Momentos de la clase" (nunca la nomenclatura
+ * técnica de bloques); no ve identificadores internos, tiempos crudos, orden, JSON,
+ * metadata ni estado de indexación técnico. Guarda los momentos SOLO por
+ * `PUT /moments` (updateMoments): el backend preserva tiempos/estructura y rechaza
+ * altas/bajas (barrera server-side). Crear/borrar/reordenar momentos o mover tiempos
+ * es exclusivo del Editor avanzado (admin/técnico, vía reemplazo de bloques).
  *
  * Props: { resource, courseId, sectionContext, onClose(refresh), readOnly }
  */
+
+const IFRAME_NAME = 'kenth_prof_video';
 
 const TONE_OPTIONS = [
   { value: '', label: 'Automático (según el curso)' },
@@ -48,8 +55,7 @@ const QUALITY_OPTIONS = [
   { value: 'balanced', label: 'Equilibrado', hint: 'Recomendado.' },
   { value: 'max', label: 'Máximo', hint: 'Añade revisión de calidad (más lento).' },
 ];
-// Términos técnicos que el ASR suele transcribir mal (Fase 3): ayuda al profesor
-// a corregirlos. Es solo una guía visual del dominio de mezcla/masterización.
+// Términos técnicos que el ASR suele transcribir mal: ayuda al profesor a corregirlos.
 const GLOSARIO = ['headroom', 'gain staging', 'LUFS', 'threshold', 'sidechain', 'fase', 'compresión paralela', 'ecualización', 'masterización'];
 
 const linesToArr = (s) => (s || '').split('\n').map((x) => x.trim()).filter(Boolean);
@@ -59,16 +65,26 @@ const inputCls = 'w-full bg-kenth-surface/10 border border-kenth-border rounded-
 const labelCls = 'text-[10px] uppercase tracking-widest text-kenth-subtext font-bold';
 const cardCls = 'bg-kenth-card border border-kenth-border rounded-2xl p-5 flex flex-col gap-4';
 
+// Rango de minutos humano de un momento (nunca segundos crudos como "start_time = 0").
+const momentRange = (b) => {
+  const a = fmtTime(Number(b?.start_time) || 0);
+  const z = fmtTime(Number(b?.end_time) || 0);
+  return `${a}–${z}`;
+};
+
 // Deriva el formulario editable del borrador devuelto por la IA.
+// NOTA: key_concepts y probable_questions a NIVEL LECCIÓN se conservan como paso a paso
+// (no se editan en la UI del profesor: eran campos muertos / duplicados — ver auditoría),
+// pero se preservan en el round-trip para no perder lo que produjo la IA.
 function draftToForm(d = {}) {
   return {
     learning_goal: d.learning_goal || '',
     lesson_summary: d.lesson_summary || '',
     recommended_tone: d.recommended_tone || '',
     recommended_help_level: d.recommended_help_level || '',
-    key_concepts: arrToLines(d.key_concepts),
+    key_concepts: Array.isArray(d.key_concepts) ? d.key_concepts : [],           // pass-through (no UI)
     common_mistakes: arrToLines(d.common_mistakes),
-    probable_questions: arrToLines(d.probable_questions),
+    probable_questions: Array.isArray(d.probable_questions) ? d.probable_questions : [], // pass-through (no UI)
     tutor_focus: arrToLines(d.tutor_focus),
     tutor_must_not_do: arrToLines(d.tutor_must_not_do),
     lesson_rules: arrToLines(d.lesson_rules),
@@ -94,9 +110,9 @@ function formToDraft(f) {
     lesson_summary: f.lesson_summary,
     recommended_tone: f.recommended_tone,
     recommended_help_level: f.recommended_help_level,
-    key_concepts: linesToArr(f.key_concepts),
+    key_concepts: f.key_concepts || [],
     common_mistakes: linesToArr(f.common_mistakes),
-    probable_questions: linesToArr(f.probable_questions),
+    probable_questions: f.probable_questions || [],
     tutor_focus: linesToArr(f.tutor_focus),
     tutor_must_not_do: linesToArr(f.tutor_must_not_do),
     lesson_rules: linesToArr(f.lesson_rules),
@@ -121,6 +137,12 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
   const [lesson, setLesson] = useState(null);
   const [loading, setLoading] = useState(true);
 
+  // Momentos de la clase (== lesson_blocks; el profesor NO ve block_id ni tiempos crudos).
+  const [moments, setMoments] = useState([]);
+  const [selectedMoment, setSelectedMoment] = useState(-1);
+  const [editing, setEditing] = useState(null); // borrador de edición de UN momento
+  const [savingMoment, setSavingMoment] = useState(false);
+
   // Transcripción
   const [transcript, setTranscript] = useState([]);
   const [job, setJob] = useState(null);
@@ -131,16 +153,32 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
   const [quality, setQuality] = useState('balanced');
   const [aiBusy, setAiBusy] = useState(false);
   const [aiPhase, setAiPhase] = useState('');
-  const [aiResult, setAiResult] = useState(null); // { draft, review, models, confidence, ... }
+  const [aiResult, setAiResult] = useState(null);
   const [form, setForm] = useState(null);
   const [accepting, setAccepting] = useState(false);
   const [accepted, setAccepted] = useState(false);
   const [probando, setProbando] = useState(false);
+  const [testTimestamp, setTestTimestamp] = useState(null);
   const phaseTimer = useRef(null);
+
+  // Video H5P + puente de tiempo (reutiliza el mismo bridge del Editor avanzado).
+  const token = getMoodleToken();
+  const isH5P = resource?.modname === 'hvp' || resource?.modname === 'h5pactivity';
+  const [iframeLoading, setIframeLoading] = useState(true);
+  const [revealFallback, setRevealFallback] = useState(false);
+  const {
+    currentTimestamp, duration, seek, play, pause, muted, setMuted,
+    hideNativeControls, requestMeta, requestThumbnail,
+  } = useResourceVideoBridge({ enabled: isH5P, resourceId: resource?.id ?? null, iframeName: IFRAME_NAME });
+  const currentTime = currentTimestamp || 0;
 
   const meta = lesson?.metadata || {};
   const transcriptStatus = meta.transcript_status || (transcript.length ? 'generated' : 'missing');
   const hasTranscript = transcript.length > 0;
+
+  const videoSrc = useMemo(() => buildMoodleViewUrl({
+    token, cmid: resource?.id, modname: resource?.modname, extra: { hidefs: 1 },
+  }), [resource?.id, resource?.modname, token]);
 
   // --- Carga: vínculo del recurso -> lección -> detalle + transcripción ---
   const reload = useCallback(async () => {
@@ -150,15 +188,15 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
       const link = await getResourceLink(resource.id, courseId);
       const lId = link?.lesson_id || sectionContext?.lesson_id || '';
       setLessonId(lId);
-      if (!lId) { setLesson(null); setTranscript([]); return; }
+      if (!lId) { setLesson(null); setTranscript([]); setMoments([]); return; }
       const [data, tr] = await Promise.all([
         getLesson(lId, courseId),
         getTranscript(courseId, lId).catch(() => ({ segments: [], job: null })),
       ]);
       setLesson(data);
+      setMoments((data.blocks || []).map((b) => ({ ...b })));
       setTranscript(tr.segments || []);
       setJob(tr.job || null);
-      // Si ya hay un borrador guardado, precargarlo (permite volver al paso 3).
       const savedDraft = (data.metadata || {}).ai_prepare?.draft;
       if (savedDraft) {
         setForm(draftToForm(savedDraft));
@@ -204,6 +242,36 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
 
   useEffect(() => () => { if (phaseTimer.current) clearInterval(phaseTimer.current); }, []);
 
+  // --- Video: pedir metadatos hasta tener duración; revelar cuando esté listo ---
+  useEffect(() => {
+    if (!isH5P || duration) return undefined;
+    const iv = setInterval(() => requestMeta(), 1500);
+    return () => clearInterval(iv);
+  }, [isH5P, duration, requestMeta]);
+
+  useEffect(() => {
+    if (iframeLoading || duration) return undefined;
+    const t = setTimeout(() => setRevealFallback(true), 12000);
+    return () => clearTimeout(t);
+  }, [iframeLoading, duration]);
+  const videoReady = !iframeLoading && (Boolean(duration) || revealFallback);
+
+  useEffect(() => {
+    if (!isH5P || !videoReady) return undefined;
+    hideNativeControls();
+    const iv = setInterval(() => hideNativeControls(), 1500);
+    return () => clearInterval(iv);
+  }, [isH5P, videoReady, hideNativeControls]);
+
+  // Momento activo según el tiempo del video (para resaltar la card correspondiente).
+  const activeMoment = useMemo(() => {
+    for (let i = 0; i < moments.length; i += 1) {
+      const b = moments[i];
+      if (Number(b.start_time) <= currentTime && currentTime < Number(b.end_time)) return i;
+    }
+    return -1;
+  }, [moments, currentTime]);
+
   const startTranscribe = async () => {
     if (readOnly || !lessonId || !resource?.id) return;
     if (hasTranscript && !window.confirm('Esto reemplazará la transcripción actual al terminar. ¿Continuar?')) return;
@@ -234,13 +302,65 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
     }
   };
 
+  // --- Edición pedagógica de UN momento (guarda por /moments preservando tiempos) ---
+  const openEditMoment = (idx) => {
+    if (readOnly) return;
+    const b = moments[idx];
+    if (!b) return;
+    setEditing({
+      idx,
+      block_title: b.block_title || '',
+      summary: b.summary || '',
+      tutor_focus: b.tutor_focus || '',
+      concepts: arrToLines(b.concepts),
+      preguntas_probables: arrToLines(b.preguntas_probables),
+    });
+  };
+
+  const saveMoment = async () => {
+    if (readOnly || !editing || !lessonId) return;
+    setSavingMoment(true);
+    // Aplica la edición al momento seleccionado y reenvía TODO el conjunto: el backend
+    // exige que el conjunto de block_id coincida (rechaza altas/bajas encubiertas).
+    const next = moments.map((b, i) => (i === editing.idx ? {
+      ...b,
+      block_title: editing.block_title,
+      summary: editing.summary,
+      tutor_focus: editing.tutor_focus,
+      concepts: linesToArr(editing.concepts),
+      preguntas_probables: linesToArr(editing.preguntas_probables),
+    } : b));
+    // Payload = solo campos pedagógicos permitidos por MomentPayload (extra="forbid").
+    // NO se envían start_time/end_time/block_order: el profesor no toca tiempos/estructura.
+    const payload = next.map((b) => ({
+      block_id: b.block_id,
+      block_title: b.block_title || '',
+      summary: b.summary || '',
+      interaction_mode: b.interaction_mode || '',   // se preserva el existente
+      tutor_focus: b.tutor_focus || '',
+      concepts: Array.isArray(b.concepts) ? b.concepts : linesToArr(b.concepts),
+      preguntas_probables: Array.isArray(b.preguntas_probables) ? b.preguntas_probables : linesToArr(b.preguntas_probables),
+    }));
+    try {
+      await updateMoments(courseId, lessonId, payload);
+      setMoments(next);
+      setEditing(null);
+      showNotification('success', 'Momento actualizado.');
+      await reload();
+    } catch (e) {
+      showNotification('error', e.message);
+    } finally {
+      setSavingMoment(false);
+    }
+  };
+
   const runAiPrepare = async () => {
     if (readOnly || !lessonId) return;
     setAiBusy(true);
     setAiResult(null);
     const phases = quality === 'max'
-      ? ['Analizando la clase…', 'Detectando momentos…', 'Generando la guía del tutor…', 'Revisando calidad…']
-      : ['Analizando la clase…', 'Detectando momentos…', 'Generando la guía del tutor…'];
+      ? ['Transcribiendo…', 'Analizando la clase…', 'Detectando momentos…', 'Generando la guía del tutor…', 'Revisando calidad…']
+      : ['Transcribiendo…', 'Analizando la clase…', 'Detectando momentos…', 'Generando la guía del tutor…'];
     let i = 0;
     setAiPhase(phases[0]);
     phaseTimer.current = setInterval(() => { i = Math.min(i + 1, phases.length - 1); setAiPhase(phases[i]); }, 4000);
@@ -266,7 +386,6 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
   };
 
   const setF = (k, v) => { if (!readOnly) setForm((p) => ({ ...p, [k]: v })); };
-  const setMoment = (idx, k, v) => { if (!readOnly) setForm((p) => ({ ...p, moments: p.moments.map((m, i) => (i === idx ? { ...m, [k]: v } : m)) })); };
 
   const acceptDraft = async () => {
     if (readOnly || !lessonId || !form) return;
@@ -284,13 +403,24 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
     }
   };
 
-  const testCtx = useMemo(() => activityContextFromMoodleModule(resource, sectionContext?.section, {
+  const testCtxBase = useMemo(() => activityContextFromMoodleModule(resource, sectionContext?.section, {
     courseId,
     moodleSectionId: sectionContext?.moodle_section_id,
     sectionName: sectionContext?.current_section_name,
     sectionOrder: sectionContext?.current_section_order,
     lessonId: lessonId || sectionContext?.lesson_id,
   }), [resource, sectionContext, courseId, lessonId]);
+  // "Probar tutor desde aquí": inyecta el timestamp del momento elegido.
+  const testCtx = useMemo(() => (
+    testTimestamp != null ? { ...testCtxBase, current_timestamp: testTimestamp } : testCtxBase
+  ), [testCtxBase, testTimestamp]);
+
+  const probarDesdeMomento = (b) => {
+    const t = Math.round(Number(b?.start_time) || 0);
+    setTestTimestamp(t);
+    if (isH5P) seek(t);
+    setProbando(true);
+  };
 
   const handleClose = () => onClose?.(accepted);
 
@@ -360,16 +490,118 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
               </div>
             )}
 
-            {/* ============ PASO 1 ============ */}
+            {/* ============ PASO 1: CLASE Y RECURSOS ============ */}
             {step === 1 && (
               <>
+                {/* Video + línea de tiempo + momentos */}
                 <section className={cardCls}>
                   <div className="flex items-center justify-between flex-wrap gap-2">
-                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">1 · Transcripción de la clase</h4>
+                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">1 · La clase en video</h4>
+                    <span className="text-[11px] text-kenth-subtext">Mira la clase y revisa sus <b className="text-kenth-text">momentos</b>.</span>
+                  </div>
+
+                  {isH5P && videoSrc ? (
+                    <>
+                      <div className="relative w-full max-w-[820px] mx-auto rounded-xl overflow-hidden bg-black">
+                        <div style={{ paddingTop: '56.25%' }} />
+                        {!videoReady && (
+                          <div className="absolute inset-0 z-10 flex items-center justify-center bg-kenth-bg text-indigo-400 text-xs uppercase tracking-widest">
+                            Cargando video…
+                          </div>
+                        )}
+                        <iframe
+                          name={IFRAME_NAME}
+                          onLoad={() => setIframeLoading(false)}
+                          src={videoSrc}
+                          className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-500 ${videoReady ? 'opacity-100' : 'opacity-0'}`}
+                          style={{ height: 'calc(100% + 56px)' }}
+                          allow="autoplay *; encrypted-media *"
+                          scrolling="no"
+                          title="Video de la clase"
+                        />
+                      </div>
+
+                      {/* Transporte simple (sin controles técnicos) */}
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button onClick={() => play()} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/10 text-xs font-bold text-kenth-text hover:border-kenth-brightred/60">▶ Reproducir</button>
+                        <button onClick={() => pause()} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/10 text-xs font-bold text-kenth-text hover:border-kenth-brightred/60">⏸ Pausa</button>
+                        <button onClick={() => seek(Math.max(0, currentTime - 5))} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/5 text-[10px] font-black uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">-5s</button>
+                        <button onClick={() => seek(currentTime + 5)} className="px-3 py-1.5 rounded-lg border border-kenth-border bg-kenth-surface/5 text-[10px] font-black uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">+5s</button>
+                        <button onClick={() => setMuted(!muted)} className={`px-3 py-1.5 rounded-lg border text-[10px] font-black uppercase tracking-widest ${muted ? 'border-kenth-brightred/70 bg-kenth-brightred/15 text-kenth-brightred' : 'border-kenth-border bg-kenth-surface/5 text-kenth-subtext hover:text-kenth-text'}`}>{muted ? 'Activar sonido' : 'Silenciar'}</button>
+                      </div>
+
+                      {/* Línea de tiempo de momentos (solo lectura: el profesor no mueve tiempos) */}
+                      <BlockTimeline
+                        blocks={moments}
+                        duration={duration}
+                        currentTime={currentTime}
+                        selectedIndex={selectedMoment}
+                        onSelectBlock={(idx) => setSelectedMoment(idx)}
+                        onSeek={(s) => seek(s)}
+                        requestThumbnail={requestThumbnail}
+                        transcript={transcript}
+                        readOnly
+                        title="Momentos de la clase"
+                        unitLabel="momento"
+                        itemPrefix="M"
+                      />
+                    </>
+                  ) : isH5P ? (
+                    <p className="text-sm text-kenth-subtext">Sesión expirada. Vuelve a iniciar sesión para ver el video.</p>
+                  ) : (
+                    <p className="text-sm text-kenth-subtext">Esta actividad ({resource?.modname}) no es un video H5P; el timeline y los momentos requieren un video H5P.</p>
+                  )}
+                </section>
+
+                {/* Momentos de la clase (cards editables) */}
+                <section className={cardCls}>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Momentos de la clase ({moments.length})</h4>
+                  </div>
+                  {moments.length === 0 ? (
+                    <p className="text-[12px] text-kenth-subtext">
+                      Esta lección aún no tiene momentos marcados sobre el video. Los momentos (con sus minutos)
+                      se crean en el <b className="text-kenth-text">editor avanzado</b> (técnico); aquí podrás darles
+                      título, resumen e intención pedagógica.
+                    </p>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {moments.map((b, idx) => (
+                        <div
+                          key={b.block_id || idx}
+                          className={`border rounded-xl p-3 flex items-start gap-3 transition ${activeMoment === idx ? 'border-kenth-brightred/60 bg-kenth-brightred/5' : 'border-kenth-border/60 bg-kenth-surface/5'}`}
+                        >
+                          <div className="flex flex-col items-center gap-1 flex-shrink-0 pt-0.5">
+                            <span className="text-[10px] font-black text-kenth-brightred">M{idx + 1}</span>
+                            <button onClick={() => { setSelectedMoment(idx); if (isH5P) seek(Number(b.start_time) || 0); }}
+                              className="text-[10px] font-mono text-kenth-subtext hover:text-kenth-text" title="Ir a este momento">
+                              {momentRange(b)}
+                            </button>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-kenth-text truncate">{b.block_title || `Momento ${idx + 1}`}</p>
+                            {b.summary && <p className="text-[11px] text-kenth-subtext line-clamp-2">{b.summary}</p>}
+                          </div>
+                          <div className="flex flex-col gap-1 flex-shrink-0">
+                            {!readOnly && (
+                              <button onClick={() => openEditMoment(idx)} className="px-2.5 py-1 rounded-lg border border-kenth-border text-[10px] font-black uppercase tracking-widest text-kenth-text hover:border-kenth-brightred/60">Editar</button>
+                            )}
+                            <button onClick={() => probarDesdeMomento(b)} className="px-2.5 py-1 rounded-lg border border-kenth-border text-[10px] font-black uppercase tracking-widest text-kenth-subtext hover:text-kenth-text">Probar aquí</button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </section>
+
+                {/* Transcripción */}
+                <section className={cardCls}>
+                  <div className="flex items-center justify-between flex-wrap gap-2">
+                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Transcripción de la clase</h4>
                     <TranscriptChip status={transcriptStatus} count={transcript.length} />
                   </div>
                   <p className="text-[12px] text-kenth-subtext">
-                    La IA necesita la transcripción del video para analizar la clase. El modelo de IA no escucha audio: transcribimos primero y luego analiza el texto.
+                    La IA necesita la transcripción del video para analizar la clase. El modelo no escucha audio: transcribimos primero y luego analiza el texto.
                   </p>
                   {job?.status === 'running' && (
                     <div className="rounded-lg border border-indigo-500/30 bg-indigo-500/10 p-2">
@@ -415,10 +647,23 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                   )}
                 </section>
 
+                {/* Recursos (sin jerga técnica para el profesor) */}
                 <section className={cardCls}>
                   <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Recursos de la lección</h4>
-                  <LessonResourcesPanel courseId={courseId} lessonId={lessonId} />
+                  <LessonResourcesPanel courseId={courseId} lessonId={lessonId} technical={false} />
                 </section>
+
+                {/* Probar tutor (con el momento elegido, si se pulsó "Probar aquí") */}
+                {probando && (
+                  <section className={cardCls}>
+                    <div className="flex items-center justify-between">
+                      <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Probar tutor</h4>
+                      <button onClick={() => setProbando(false)} className="px-3 py-1.5 rounded-lg border border-kenth-border text-[10px] font-black uppercase tracking-widest text-kenth-text hover:border-kenth-brightred/60">Cerrar prueba</button>
+                    </div>
+                    <TutorAssistCard variant="lesson" titulo={`Prueba · ${resource?.name || ''}`} contexto={`Lección: ${resource?.name}.`}
+                      activityContext={testCtx} proactiveMessage={lesson?.proactive_message || ''} suggestedPrompts={lesson?.suggested_prompts || []} />
+                  </section>
+                )}
 
                 <div className="flex justify-end">
                   <button onClick={() => setStep(2)} disabled={!hasTranscript}
@@ -430,7 +675,7 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
               </>
             )}
 
-            {/* ============ PASO 2 ============ */}
+            {/* ============ PASO 2: PREPARACIÓN CON IA ============ */}
             {step === 2 && (
               <>
                 <section className={cardCls}>
@@ -468,13 +713,13 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                       <div className="flex items-center gap-2 flex-wrap">
                         <StatusChip tone="ok">Borrador listo</StatusChip>
                         <ConfidenceChip value={aiResult.draft.confidence} />
-                        {aiResult.models?.review_model && <StatusChip tone="info">Revisado · {aiResult.models.review_model}</StatusChip>}
+                        {aiResult.models?.review_model && <StatusChip tone="info">Revisado</StatusChip>}
                       </div>
                       <ResumeLine label="Objetivo" value={aiResult.draft.learning_goal} />
                       <ResumeLine label="Resumen" value={aiResult.draft.lesson_summary} />
-                      <ResumeLine label="Momentos" value={`${(aiResult.draft.moments || []).length}`} />
+                      <ResumeLine label="Momentos detectados" value={`${(aiResult.draft.moments || []).length}`} />
                       {(aiResult.draft.terms_to_review || []).length > 0 && (
-                        <ResumeLine label="Términos a revisar" value={(aiResult.draft.terms_to_review || []).join(', ')} tone="warn" />
+                        <ResumeLine label="Términos dudosos" value={(aiResult.draft.terms_to_review || []).join(', ')} tone="warn" />
                       )}
                       <button onClick={() => setStep(3)} className="self-start mt-1 px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs font-black uppercase tracking-widest hover:border-kenth-brightred/50">
                         Revisar y probar →
@@ -488,7 +733,7 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
               </>
             )}
 
-            {/* ============ PASO 3 ============ */}
+            {/* ============ PASO 3: REVISIÓN Y PRUEBA ============ */}
             {step === 3 && (
               !form ? (
                 <section className={cardCls}>
@@ -497,8 +742,7 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                 </section>
               ) : (
                 <>
-                  <section className={cardCls}>
-                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Objetivo y resumen</h4>
+                  <Accordion title="Lo esencial" defaultOpen>
                     <div>
                       <label className={labelCls}>Objetivo de aprendizaje</label>
                       <textarea rows={2} disabled={readOnly} className={inputCls} value={form.learning_goal} onChange={(e) => setF('learning_goal', e.target.value)} />
@@ -507,13 +751,9 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                       <label className={labelCls}>Resumen de la clase</label>
                       <textarea rows={3} disabled={readOnly} className={inputCls} value={form.lesson_summary} onChange={(e) => setF('lesson_summary', e.target.value)} />
                     </div>
-                  </section>
-
-                  <section className={cardCls}>
-                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Estilo del tutor</h4>
                     <div className="grid grid-cols-2 gap-3">
                       <div>
-                        <label className={labelCls}>Tono</label>
+                        <label className={labelCls}>Estilo del tutor (tono)</label>
                         <select disabled={readOnly} className={inputCls} value={form.recommended_tone} onChange={(e) => setF('recommended_tone', e.target.value)}>
                           {TONE_OPTIONS.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
                         </select>
@@ -525,21 +765,34 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                         </select>
                       </div>
                     </div>
-                    <div>
-                      <label className={labelCls}>Reglas importantes (una por línea)</label>
-                      <textarea rows={2} disabled={readOnly} className={inputCls} value={form.lesson_rules} onChange={(e) => setF('lesson_rules', e.target.value)} />
-                    </div>
-                  </section>
+                  </Accordion>
 
-                  <section className={cardCls}>
-                    <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Errores, preguntas y foco</h4>
+                  <Accordion title="Preguntas y errores">
                     <div>
                       <label className={labelCls}>Errores comunes a vigilar (uno por línea)</label>
                       <textarea rows={3} disabled={readOnly} className={inputCls} value={form.common_mistakes} onChange={(e) => setF('common_mistakes', e.target.value)} />
                     </div>
+                    {/* Las preguntas probables se editan POR MOMENTO (paso 1); aquí solo recap. */}
+                    {form.moments.some((m) => (m.probable_questions || '').trim()) && (
+                      <div>
+                        <label className={labelCls}>Preguntas probables por momento (resumen)</label>
+                        <ul className="mt-1 flex flex-col gap-1">
+                          {form.moments.map((m, i) => (m.probable_questions || '').trim() && (
+                            <li key={i} className="text-[12px] text-kenth-subtext">
+                              <span className="text-kenth-text font-bold">{m.title || `Momento ${i + 1}`}: </span>
+                              {(m.probable_questions || '').split('\n').filter(Boolean).join(' · ')}
+                            </li>
+                          ))}
+                        </ul>
+                        <p className="text-[10px] text-kenth-subtext mt-1">Para editarlas, ve al paso 1 y abre el momento.</p>
+                      </div>
+                    )}
+                  </Accordion>
+
+                  <Accordion title="Opciones del tutor">
                     <div>
-                      <label className={labelCls}>Preguntas probables (una por línea)</label>
-                      <textarea rows={3} disabled={readOnly} className={inputCls} value={form.probable_questions} onChange={(e) => setF('probable_questions', e.target.value)} />
+                      <label className={labelCls}>Reglas importantes (una por línea)</label>
+                      <textarea rows={2} disabled={readOnly} className={inputCls} value={form.lesson_rules} onChange={(e) => setF('lesson_rules', e.target.value)} />
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div>
@@ -551,26 +804,28 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                         <textarea rows={2} disabled={readOnly} className={inputCls} value={form.tutor_must_not_do} onChange={(e) => setF('tutor_must_not_do', e.target.value)} />
                       </div>
                     </div>
-                  </section>
+                  </Accordion>
 
                   {form.moments.length > 0 && (
-                    <section className={cardCls}>
-                      <h4 className="text-sm font-black uppercase italic text-kenth-text tracking-tight">Momentos de la clase ({form.moments.length})</h4>
-                      <div className="flex flex-col gap-3">
+                    <Accordion title={`Momentos de la clase (${form.moments.length})`}>
+                      <div className="flex flex-col gap-2">
                         {form.moments.map((m, idx) => (
-                          <div key={idx} className="border border-kenth-border/60 rounded-xl p-4 bg-kenth-surface/5 flex flex-col gap-2">
-                            <div className="flex items-center gap-2">
-                              <span className="text-[10px] font-black text-kenth-brightred">Momento {idx + 1}</span>
-                              {!m.existing_block_id && <span className="text-[10px] text-amber-300/80">nuevo (se creará en el editor avanzado)</span>}
-                            </div>
-                            <input disabled={readOnly} className={inputCls} value={m.title} onChange={(e) => setMoment(idx, 'title', e.target.value)} placeholder="Título del momento" />
-                            <textarea rows={2} disabled={readOnly} className={inputCls} value={m.summary} onChange={(e) => setMoment(idx, 'summary', e.target.value)} placeholder="Resumen del momento" />
-                            <input disabled={readOnly} className={inputCls} value={m.pedagogical_intent} onChange={(e) => setMoment(idx, 'pedagogical_intent', e.target.value)} placeholder="Intención pedagógica / foco del tutor" />
+                          <div key={idx} className="border border-kenth-border/60 rounded-xl p-3 bg-kenth-surface/5">
+                            <p className="text-sm font-bold text-kenth-text">{m.title || `Momento ${idx + 1}`}</p>
+                            {m.summary && <p className="text-[11px] text-kenth-subtext line-clamp-2">{m.summary}</p>}
+                            {m.pedagogical_intent && <p className="text-[11px] text-kenth-subtext mt-0.5"><span className={labelCls}>Intención: </span>{m.pedagogical_intent}</p>}
                           </div>
                         ))}
                       </div>
-                    </section>
+                      <p className="text-[10px] text-kenth-subtext">Edita título/resumen/intención de cada momento en el paso 1.</p>
+                    </Accordion>
                   )}
+
+                  <Accordion title="Transcripción">
+                    <p className="text-[12px] text-kenth-subtext">
+                      {hasTranscript ? `Transcripción con ${transcript.length} segmentos.` : 'Sin transcripción.'} Corrígela en el paso 1.
+                    </p>
+                  </Accordion>
 
                   <section className={cardCls}>
                     <div className="flex items-center justify-between">
@@ -581,7 +836,7 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                     </div>
                     <p className="text-[11px] text-kenth-subtext">Acepta el borrador para que el tutor use esta configuración; los cambios de comportamiento se aplican al instante (sin reindexar).</p>
                     {probando && (
-                      <TutorAssistCard variant="lesson" titulo={`Prueba · ${lessonId}`} contexto={`Lección: ${resource?.name}.`}
+                      <TutorAssistCard variant="lesson" titulo={`Prueba · ${resource?.name || ''}`} contexto={`Lección: ${resource?.name}.`}
                         activityContext={testCtx} proactiveMessage={lesson?.proactive_message || ''} suggestedPrompts={lesson?.suggested_prompts || []} />
                     )}
                   </section>
@@ -601,7 +856,58 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
           </div>
         )}
       </div>
+
+      {/* Modal de edición de UN momento (campos pedagógicos; nunca tiempos/estructura) */}
+      {editing && (
+        <div className="fixed inset-0 z-[210] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => !savingMoment && setEditing(null)}>
+          <div className="w-full max-w-lg bg-kenth-card border border-kenth-border rounded-2xl shadow-2xl p-5 flex flex-col gap-3 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <p className="text-[10px] uppercase font-black tracking-widest text-kenth-brightred">Editar momento · {momentRange(moments[editing.idx])}</p>
+              <button onClick={() => !savingMoment && setEditing(null)} className="text-kenth-subtext hover:text-kenth-text">✕</button>
+            </div>
+            <div>
+              <label className={labelCls}>Título</label>
+              <input className={inputCls} value={editing.block_title} onChange={(e) => setEditing((p) => ({ ...p, block_title: e.target.value }))} placeholder="Título del momento" />
+            </div>
+            <div>
+              <label className={labelCls}>Resumen (qué pasa en esta parte)</label>
+              <textarea rows={2} className={inputCls} value={editing.summary} onChange={(e) => setEditing((p) => ({ ...p, summary: e.target.value }))} />
+            </div>
+            <div>
+              <label className={labelCls}>Intención del tutor (qué reforzar aquí)</label>
+              <input className={inputCls} value={editing.tutor_focus} onChange={(e) => setEditing((p) => ({ ...p, tutor_focus: e.target.value }))} />
+            </div>
+            <div>
+              <label className={labelCls}>Conceptos clave (uno por línea)</label>
+              <textarea rows={2} className={inputCls} value={editing.concepts} onChange={(e) => setEditing((p) => ({ ...p, concepts: e.target.value }))} />
+            </div>
+            <div>
+              <label className={labelCls}>Preguntas probables (una por línea)</label>
+              <textarea rows={2} className={inputCls} value={editing.preguntas_probables} onChange={(e) => setEditing((p) => ({ ...p, preguntas_probables: e.target.value }))} />
+            </div>
+            <div className="flex justify-end gap-2 pt-1">
+              <button onClick={() => setEditing(null)} disabled={savingMoment} className="px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs font-bold uppercase tracking-widest disabled:opacity-40">Cancelar</button>
+              <button onClick={saveMoment} disabled={savingMoment} className="px-5 py-2 rounded-xl bg-kenth-brightred hover:bg-red-600 text-white text-xs font-black uppercase tracking-widest disabled:opacity-40">
+                {savingMoment ? 'Guardando…' : 'Guardar momento'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+  );
+}
+
+function Accordion({ title, defaultOpen = false, children }) {
+  const [open, setOpen] = useState(defaultOpen);
+  return (
+    <section className="bg-kenth-card border border-kenth-border rounded-2xl overflow-hidden">
+      <button onClick={() => setOpen((v) => !v)} className="w-full flex items-center justify-between px-5 py-3 text-left">
+        <span className="text-sm font-black uppercase italic text-kenth-text tracking-tight">{title}</span>
+        <span className={`text-kenth-subtext transition-transform ${open ? 'rotate-180' : ''}`}>▾</span>
+      </button>
+      {open && <div className="px-5 pb-5 flex flex-col gap-4 border-t border-kenth-border/50 pt-4">{children}</div>}
+    </section>
   );
 }
 

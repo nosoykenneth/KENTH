@@ -68,6 +68,13 @@ export default function BlockTimeline({
   onChangeBlockTime,
   requestThumbnail,
   transcript = [],
+  // Vista Profesor: sin edición de tiempos. Los bloques se pueden seleccionar
+  // (click -> seek) pero NO arrastrar; no se muestran los handles de borde.
+  readOnly = false,
+  // Etiquetas humanas (el profesor ve "Momentos de la clase", no "bloques").
+  title = 'Línea de tiempo',
+  unitLabel = 'bloque',
+  itemPrefix = 'B',
 }) {
   const trackRef = useRef(null);
   const scrubRef = useRef(null);
@@ -280,7 +287,7 @@ export default function BlockTimeline({
     <div className="w-full select-none">
       <div className="flex items-center justify-between mb-1.5">
         <span className="text-[10px] uppercase tracking-widest text-kenth-subtext font-bold">
-          Línea de tiempo · {blocks.length} bloque{blocks.length === 1 ? '' : 's'}
+          {title} · {blocks.length} {unitLabel}{blocks.length === 1 ? '' : 's'}
         </span>
         <span className="text-[10px] font-mono text-kenth-subtext">
           {fmtTime(displayTime)} {hasDuration ? `/ ${fmtTime(duration)}` : ''}
@@ -382,24 +389,30 @@ export default function BlockTimeline({
             return (
               <div
                 key={b.block_id || idx}
-                onMouseDown={(e) => { e.stopPropagation(); beginDrag(idx, 'move', e.clientX); }}
-                onClick={(e) => e.stopPropagation()}
-                title={b.block_title || `Bloque ${idx + 1}`}
-                className={`absolute top-0 h-full cursor-grab active:cursor-grabbing border-l border-r ${color} transition-colors ${selected ? 'ring-2 ring-inset ring-white/80 z-10' : 'hover:brightness-125'}`}
+                onMouseDown={readOnly ? undefined : (e) => { e.stopPropagation(); beginDrag(idx, 'move', e.clientX); }}
+                onClick={readOnly
+                  ? (e) => { e.stopPropagation(); onSelectBlock?.(idx); onSeek?.(start); }
+                  : (e) => e.stopPropagation()}
+                title={b.block_title || `${idx + 1}`}
+                className={`absolute top-0 h-full ${readOnly ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing'} border-l border-r ${color} transition-colors ${selected ? 'ring-2 ring-inset ring-white/80 z-10' : 'hover:brightness-125'}`}
                 style={{ left: `${left}%`, width: `${width}%` }}
               >
                 <span className="absolute left-1 top-0.5 text-[9px] font-bold text-white/90 truncate max-w-full pr-1 pointer-events-none">
-                  {b.block_title || `B${idx + 1}`}
+                  {b.block_title || `${itemPrefix}${idx + 1}`}
                 </span>
-                {/* Handles de borde */}
-                <div
-                  onMouseDown={(e) => { e.stopPropagation(); beginDrag(idx, 'start'); }}
-                  className="absolute left-0 top-0 h-full w-1.5 -ml-0.5 cursor-ew-resize bg-white/0 hover:bg-white/60"
-                />
-                <div
-                  onMouseDown={(e) => { e.stopPropagation(); beginDrag(idx, 'end'); }}
-                  className="absolute right-0 top-0 h-full w-1.5 -mr-0.5 cursor-ew-resize bg-white/0 hover:bg-white/60"
-                />
+                {/* Handles de borde (solo edición técnica; el profesor no ajusta tiempos) */}
+                {!readOnly && (
+                  <>
+                    <div
+                      onMouseDown={(e) => { e.stopPropagation(); beginDrag(idx, 'start'); }}
+                      className="absolute left-0 top-0 h-full w-1.5 -ml-0.5 cursor-ew-resize bg-white/0 hover:bg-white/60"
+                    />
+                    <div
+                      onMouseDown={(e) => { e.stopPropagation(); beginDrag(idx, 'end'); }}
+                      className="absolute right-0 top-0 h-full w-1.5 -mr-0.5 cursor-ew-resize bg-white/0 hover:bg-white/60"
+                    />
+                  </>
+                )}
               </div>
             );
           })}

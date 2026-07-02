@@ -153,6 +153,10 @@ def promote_draft(
     # 2) metadata.pedagogy (lo que ya consume render_context_block).
     meta = dict(lesson.get("metadata") or {})
     ped = dict(meta.get("pedagogy") or {})
+    # lesson_summary se inyecta como "Resumen de la leccion" (render_context_block);
+    # antes se editaba en la Vista Profesor pero no se promovía (campo muerto, hallazgo #1).
+    if draft.get("lesson_summary"):
+        ped["lesson_summary"] = draft["lesson_summary"]; changed.append("pedagogy.lesson_summary")
     if draft.get("recommended_tone"):
         ped["tutor_tone"] = draft["recommended_tone"]; changed.append("pedagogy.tutor_tone")
     if draft.get("recommended_help_level"):

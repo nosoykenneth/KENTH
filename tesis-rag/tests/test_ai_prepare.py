@@ -249,6 +249,8 @@ def test_accept_promueve_y_preserva_timestamps(monkeypatch):
     assert ped["tutor_tone"] == "practico"
     assert ped["help_level"] == "orientar"
     assert ped["common_mistakes"] == ["Saturar el bus máster"]
+    # lesson_summary ahora SÍ se promueve (antes era un campo muerto — auditoría #1).
+    assert ped["lesson_summary"] == VALID_DRAFT["lesson_summary"]
     # Estados de aceptación
     assert lesson["metadata"]["ai_prepare_status"] == "accepted"
     assert lesson["metadata"]["requires_review"] is False
