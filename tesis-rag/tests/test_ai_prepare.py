@@ -296,6 +296,12 @@ TIMED_DRAFT["moments"] = [
 def test_accept_crea_bloques_distribuidos_desde_momentos_con_tiempos(monkeypatch):
     _reset_sqlite(monkeypatch)
     _seed(monkeypatch, with_blocks=False)  # lección SIN bloques
+    # Transcripción que llega hasta 90s: los momentos 0-30 y 30-90 caben dentro de la
+    # duración real (la normalización recorta a la duración de la transcripción).
+    db_service.replace_transcript("L1", [
+        {"seq": 0, "start_time": 0, "end_time": 30, "text": "Primera parte de la clase.", "speaker": ""},
+        {"seq": 1, "start_time": 30, "end_time": 90, "text": "Segunda parte de la clase.", "speaker": ""},
+    ])
 
     def fake_invoke(task, s, u, **kw):
         return json.dumps(TIMED_DRAFT)
@@ -349,3 +355,95 @@ def test_ai_prepare_no_importa_ingest():
     src = inspect.getsource(ai_service)
     assert "import ingest" not in src
     assert "rebuild_all_documents" not in src
+
+
+# ---------------------------------------------------------------------------
+# Cobertura de la línea de tiempo (determinista): el modelo "apila" los momentos
+# al comienzo; el pipeline los teje hasta cubrir todo el video.
+# ---------------------------------------------------------------------------
+
+def _stacked_moments():
+    """3 momentos apilados al inicio (0..90) — el fallo real que reportó el profe."""
+    return [
+        {"existing_block_id": None, "title": "Intro", "summary": "s", "start_time": 0, "end_time": 30,
+         "interaction_mode": "teoria", "pedagogical_intent": "p", "key_concepts": [], "probable_questions": [], "common_mistakes": []},
+        {"existing_block_id": None, "title": "Demo", "summary": "s", "start_time": 30, "end_time": 60,
+         "interaction_mode": "practica", "pedagogical_intent": "p", "key_concepts": [], "probable_questions": [], "common_mistakes": []},
+        {"existing_block_id": None, "title": "Cierre", "summary": "s", "start_time": 60, "end_time": 90,
+         "interaction_mode": "teoria", "pedagogical_intent": "p", "key_concepts": [], "probable_questions": [], "common_mistakes": []},
+    ]
+
+
+def test_normalize_moment_timeline_cubre_hasta_el_final():
+    out, info = ai_service.normalize_moment_timeline(_stacked_moments(), duration=300)
+    assert info["applied"] is True
+    assert out[0]["start_time"] == 0            # el primero arranca en 0
+    assert out[-1]["end_time"] == 300           # el último llega al final del video
+    # consecutivos, sin huecos ni solapes
+    for a, b in zip(out, out[1:]):
+        assert a["end_time"] == b["start_time"]
+
+
+def test_normalize_recorta_tiempos_alucinados_a_la_duracion():
+    # El modelo alucina un momento que empieza MÁS ALLÁ del final real (300s):
+    # se descarta y NO se generan momentos de longitud 0 (bug real detectado en vivo).
+    moments = [
+        {"start_time": 0, "end_time": 60, "title": "a"},
+        {"start_time": 60, "end_time": 240, "title": "b"},
+        {"start_time": 330, "end_time": 330, "title": "fuera de rango"},  # start >= duración
+    ]
+    out, info = ai_service.normalize_moment_timeline(moments, duration=300)
+    assert len(out) == 2                         # el momento alucinado se descartó
+    assert out[-1]["end_time"] == 300            # el último llega EXACTO al final
+    for m in out:
+        assert m["end_time"] > m["start_time"]   # nunca longitud 0
+
+
+def test_normalize_ignora_momentos_sin_tiempos():
+    # Modo "refinar bloques existentes": momentos sin start -> intactos (bloques dueños).
+    moments = [{"existing_block_id": "L1-B1", "title": "x"}]
+    out, info = ai_service.normalize_moment_timeline(moments, duration=300)
+    assert info["applied"] is False
+    assert out == moments
+
+
+def test_analyze_coverage_detecta_insuficiencia():
+    corta = ai_service.analyze_coverage(_stacked_moments(), duration=300)  # 90/300 = 30%
+    assert corta["insufficient"] is True
+    assert corta["coverage_ratio"] < 0.85
+    completa = ai_service.analyze_coverage(
+        [{"start_time": 0, "end_time": 300}], duration=300
+    )
+    assert completa["insufficient"] is False
+    assert completa["coverage_ratio"] == 1.0
+
+
+def test_generate_draft_reintenta_y_teje_hasta_cubrir_todo():
+    """El modelo devuelve momentos apilados en AMBOS intentos; aun así el borrador
+    final cubre [0, duración] (reintento de cobertura + red determinista)."""
+    calls = {"n": 0}
+
+    def stacked_model(task, s, u, **kw):
+        calls["n"] += 1
+        d = dict(VALID_DRAFT)
+        d["moments"] = _stacked_moments()  # siempre apilados 0..90
+        return json.dumps(d)
+
+    import types
+    monkey = pytest.MonkeyPatch()
+    monkey.setattr(ai_models, "invoke_text", stacked_model)
+    try:
+        gen = ai_service.generate_draft(
+            lesson_title="L", section_name="", blocks=[],
+            transcript_text="[0:00] hola [5:00] fin",
+            domain_label="mezcla", duration_seconds=300,
+        )
+    finally:
+        monkey.undo()
+
+    assert gen["ok"] is True
+    assert gen["coverage_repaired"] is True     # 30% < 85% -> disparó el 2º intento
+    assert calls["n"] == 2                       # exactamente un reintento de cobertura
+    ms = gen["draft"]["moments"]
+    assert ms[-1]["end_time"] == 300             # cubre hasta el final pese al modelo terco
+    assert gen["coverage"]["coverage_ratio"] == 1.0

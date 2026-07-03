@@ -88,10 +88,13 @@ def _schema_reminder() -> str:
         "Reglas de los MOMENTOS (muy importante):\n"
         "  - Segmenta la clase en momentos CONSECUTIVOS que cubran la línea de tiempo "
         "del video, desde el inicio (0) hasta el final (la duración indicada). NO los "
-        "apiles todos al comienzo.\n"
+        "apiles todos al comienzo: el ÚLTIMO momento DEBE terminar en la duración total "
+        "del video (llega hasta el final, incluida la parte de cierre/resumen).\n"
         "  - `start_time` y `end_time` van en SEGUNDOS y deben salir de los tiempos "
         "[m:ss] de la transcripción; cada momento empieza donde termina el anterior "
         "(sin huecos ni solapes) y su end_time no supera la duración del video.\n"
+        "  - Un momento no debería durar más de ~90 s: si un tramo es más largo, "
+        "divídelo en varios momentos.\n"
         f"  - `interaction_mode`: elige el que mejor describa el momento entre estos:\n{_MODES_DESC}"
         "  - Si hay BLOQUES YA DEFINIDOS, usa su block_id en existing_block_id y respeta "
         "sus tiempos; si NO hay bloques, propón de 3 a 8 momentos con existing_block_id=null "
@@ -113,6 +116,7 @@ def user_prompt(
     transcript_text: str,
     extra_context: str = "",
     duration_seconds: float = 0,
+    coverage_note: str = "",
 ) -> str:
     parts: List[str] = []
     parts.append(f"CLASE: {lesson_title or '(sin título)'}")
@@ -123,6 +127,9 @@ def user_prompt(
             f"DURACIÓN DEL VIDEO: {int(duration_seconds)} segundos ({_fmt_mmss(duration_seconds)}). "
             "Los momentos deben cubrir desde 0 hasta esta duración."
         )
+    # Realimentación de cobertura (2º intento): la 1ª segmentación quedó corta.
+    if coverage_note:
+        parts.append("\n" + coverage_note)
     if existing_blocks:
         parts.append(
             "\nBLOQUES/MOMENTOS YA DEFINIDOS (usa estos block_id en existing_block_id; "

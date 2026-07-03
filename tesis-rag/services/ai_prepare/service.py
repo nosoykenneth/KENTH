@@ -126,6 +126,107 @@ def _reconcile_block_ids(draft: Dict[str, Any], blocks: List[Dict[str, Any]]) ->
     return draft
 
 
+# --- Cobertura de la línea de tiempo por los momentos (determinista) ----------
+#
+# El modelo tiende a segmentar solo el comienzo de la clase y "apilar" los momentos
+# al inicio, dejando la mayor parte del video sin momentos (defecto reproducible).
+# La integridad de la línea de tiempo es una invariante ESTRUCTURAL: no se delega a
+# un LLM pequeño, se ENFORZA de forma determinista aquí (regla de oro de la skill).
+
+COVERAGE_MIN_RATIO = 0.85  # por debajo de esto, el 2º intento de cobertura se dispara
+
+
+def _endof(m: Dict[str, Any]) -> float:
+    """Fin efectivo del momento (end si es coherente, si no su start)."""
+    s = schema._clean_time(m.get("start_time")) or 0.0
+    e = schema._clean_time(m.get("end_time"))
+    return e if (e is not None and e > s) else s
+
+
+def analyze_coverage(moments: List[Dict[str, Any]], duration: float) -> Dict[str, Any]:
+    """Diagnostica cuánto de la línea de tiempo cubren los momentos CON tiempos.
+
+    `coverage_ratio` = fin cubierto / duración efectiva (nunca >1). `insufficient`
+    marca que la segmentación se quedó corta y conviene reintentar.
+    """
+    timed = [m for m in (moments or []) if schema._clean_time(m.get("start_time")) is not None]
+    info: Dict[str, Any] = {
+        "duration_seconds": round(float(duration or 0), 3),
+        "moments": len(moments or []),
+        "timed": len(timed),
+    }
+    if not timed or not duration or duration <= 0:
+        info.update({"coverage_ratio": None, "covered_end": None, "insufficient": False})
+        return info
+    covered_end = max(_endof(m) for m in timed)
+    total = max(float(duration), covered_end)  # no "aplastar" un borrador más largo
+    ratio = round(covered_end / total, 4) if total else None
+    info.update({
+        "coverage_ratio": ratio,
+        "covered_end": round(covered_end, 3),
+        "insufficient": bool(ratio is not None and ratio < COVERAGE_MIN_RATIO),
+    })
+    return info
+
+
+def normalize_moment_timeline(
+    moments: List[Dict[str, Any]], duration: float
+) -> tuple[List[Dict[str, Any]], Dict[str, Any]]:
+    """Re-teja los momentos CON tiempos para que cubran [0, duración] sin huecos ni solapes.
+
+    - `total` = `duración` (fin real de la transcripción, autoridad de la línea de tiempo).
+      Se DESCARTAN los momentos que empiezan en/después del final (tiempos alucinados por
+      el modelo) y ningún `end_time` supera la duración -> nunca hay momentos de longitud 0.
+    - Usa los `start_time` del modelo como fronteras (su segmentación semántica); recalcula
+      los `end_time` encadenando y estira el último hasta `total`.
+    - Los momentos SIN start numérico se dejan intactos (modo "refinar bloques existentes",
+      donde los bloques del profesor son dueños de la línea de tiempo).
+    Devuelve (momentos, info).
+    """
+    src = [dict(m) for m in (moments or [])]
+    timed = [m for m in src if schema._clean_time(m.get("start_time")) is not None]
+    untimed = [m for m in src if schema._clean_time(m.get("start_time")) is None]
+    if not timed or not duration or duration <= 0:
+        return src, {"applied": False, "retiled": 0, "timed": len(timed)}
+
+    total = float(duration)  # la transcripción manda: el video no dura más que su fin real
+    timed.sort(key=lambda m: schema._clean_time(m.get("start_time")) or 0.0)
+
+    kept: List[Dict[str, Any]] = []
+    boundaries: List[float] = []
+    prev = -1.0
+    for m in timed:
+        s = max(0.0, schema._clean_time(m.get("start_time")) or 0.0)
+        if s >= total:
+            continue  # arranca en/después del final (tiempo alucinado) -> se descarta
+        if s <= prev:
+            continue  # start duplicado/no creciente -> se funde con el anterior (se descarta)
+        kept.append(m)
+        boundaries.append(s)
+        prev = s
+    if not kept:
+        # Todos los starts caían fuera de rango: conserva el primero como un único momento.
+        only = dict(timed[0])
+        only["start_time"] = 0.0
+        only["end_time"] = round(total, 3)
+        return [only] + untimed, {"applied": True, "retiled": 1, "dropped": len(timed) - 1, "timeline_end": round(total, 3)}
+
+    boundaries[0] = 0.0  # el primer momento SIEMPRE arranca en 0
+    for i, m in enumerate(kept):
+        start = boundaries[i]
+        end = boundaries[i + 1] if i + 1 < len(kept) else total  # el último llega al final
+        m["start_time"] = round(start, 3)
+        m["end_time"] = round(end, 3)
+
+    result = kept + untimed
+    return result, {
+        "applied": True,
+        "retiled": len(kept),
+        "dropped": len(timed) - len(kept),
+        "timeline_end": round(total, 3),
+    }
+
+
 def generate_draft(
     *,
     lesson_title: str,
@@ -165,7 +266,57 @@ def generate_draft(
 
     draft_dict = schema.draft_to_public(draft)
     draft_dict = _reconcile_block_ids(draft_dict, blocks)
-    return {"ok": True, "draft": draft_dict, "errors": [], "repaired": repaired}
+
+    # --- Cobertura de la línea de tiempo (determinista + 1 reintento dirigido) ---
+    coverage = analyze_coverage(draft_dict.get("moments"), duration_seconds)
+    coverage_repaired = False
+    if coverage.get("insufficient"):
+        coverage_repaired = True
+        note = (
+            "AVISO DE COBERTURA: tu segmentación anterior solo llegó hasta "
+            f"{prompts._fmt_mmss(coverage['covered_end'])} de "
+            f"{prompts._fmt_mmss(duration_seconds)} "
+            f"(~{int((coverage['coverage_ratio'] or 0) * 100)}% del video). La clase "
+            "CONTINÚA después de ese punto. Vuelve a segmentar TODA la línea de tiempo, "
+            "desde 0 hasta la duración final, distribuyendo los momentos por todo el "
+            "video (incluida la parte final de cierre/resumen). NO apiles los momentos "
+            "al comienzo."
+        )
+        usr2 = prompts.user_prompt(
+            lesson_title=lesson_title,
+            section_name=section_name,
+            existing_blocks=blocks,
+            transcript_text=transcript_text,
+            extra_context=extra_context,
+            duration_seconds=duration_seconds,
+            coverage_note=note,
+        )
+        raw2 = models.invoke_text(
+            models.TASK_DRAFT, sys, usr2, force_json=True, temperature=0.2
+        )
+        draft2, _ = schema.parse_and_validate(raw2)
+        if draft2 is not None:
+            cand = _reconcile_block_ids(schema.draft_to_public(draft2), blocks)
+            cov2 = analyze_coverage(cand.get("moments"), duration_seconds)
+            # nos quedamos con el intento que cubra MÁS de la línea de tiempo
+            if (cov2.get("coverage_ratio") or 0) >= (coverage.get("coverage_ratio") or 0):
+                draft_dict, coverage = cand, cov2
+
+    # Red de seguridad DETERMINISTA: teje los momentos hasta cubrir [0, duración].
+    draft_dict["moments"], norm_info = normalize_moment_timeline(
+        draft_dict.get("moments"), duration_seconds
+    )
+    coverage_final = analyze_coverage(draft_dict.get("moments"), duration_seconds)
+
+    return {
+        "ok": True,
+        "draft": draft_dict,
+        "errors": [],
+        "repaired": repaired,
+        "coverage_repaired": coverage_repaired,
+        "coverage": coverage_final,
+        "normalization": norm_info,
+    }
 
 
 def review_draft(
@@ -248,6 +399,8 @@ def run(
         "draft": draft,
         "review": review,
         "repaired": gen["repaired"],
+        "coverage": gen.get("coverage"),
+        "coverage_repaired": gen.get("coverage_repaired", False),
         "transcript_info": prep,
         "models": models.describe_selection(quality),
         "elapsed_seconds": round(time.time() - started, 2),
