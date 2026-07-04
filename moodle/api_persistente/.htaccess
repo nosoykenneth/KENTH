@@ -1,0 +1,13 @@
+# Protege datos sensibles del backend de pagos KENTH.
+# Los endpoints .php se siguen sirviendo con normalidad; aquí solo se bloquea
+# el acceso DIRECTO por URL a secretos, registros y metadata de transacciones.
+# (Las directivas .htaccess aplican también a subcarpetas como payments/.)
+<FilesMatch "\.(env|log|txt|json|bak|sql)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>

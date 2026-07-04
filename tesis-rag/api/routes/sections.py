@@ -52,20 +52,20 @@ async def _sections_or_error(course_id: str, client: MoodleWSClient):
 
 @router.get("/list")
 async def list_sections(
-    course_id: str = Query(...),
     _view: TeacherContext = Depends(require_course_view),
     client: MoodleWSClient = Depends(get_moodle_ws_client),
 ):
-    return {"sections": await _sections_or_error(_course(course_id), client)}
+    # El curso proviene del contexto validado (`require_course_view` acepta la
+    # cabecera X-Course-Id o el query course_id y ya validó `puede_ver_curso`).
+    return {"sections": await _sections_or_error(_view.course_id, client)}
 
 
 @router.get("/lessons/all")
 async def list_all_lessons(
-    course_id: str = Query(...),
     _view: TeacherContext = Depends(require_course_view),
     client: MoodleWSClient = Depends(get_moodle_ws_client),
 ):
-    course = _course(course_id)
+    course = _view.course_id
     await _sections_or_error(course, client)
     return {"lessons": await section_service.list_all_lessons(course, client)}
 
@@ -100,11 +100,10 @@ def get_lesson_block(
 
 @router.get("/links")
 async def list_links(
-    course_id: str = Query(...),
     _view: TeacherContext = Depends(require_course_view),
     client: MoodleWSClient = Depends(get_moodle_ws_client),
 ):
-    course = _course(course_id)
+    course = _view.course_id
     await _sections_or_error(course, client)
     links = []
     for link in db_service.list_resource_links(course):
@@ -168,11 +167,10 @@ def remove_link(resource_id: str, _ctx: TeacherContext = Depends(require_teacher
 @router.get("/{section_id}/lessons")
 async def get_section_lessons(
     section_id: str,
-    course_id: str = Query(...),
     _view: TeacherContext = Depends(require_course_view),
     client: MoodleWSClient = Depends(get_moodle_ws_client),
 ):
-    course = _course(course_id)
+    course = _view.course_id
     section = await section_service.get_moodle_section(course, section_id, client)
     if not section:
         raise HTTPException(status_code=404, detail="Section not found")
