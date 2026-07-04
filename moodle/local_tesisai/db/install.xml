@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/tesisai/db" VERSION="2026061100" COMMENT="Operational tables for local_tesisai tutor">
+  <TABLES>
+    <TABLE NAME="local_tesisai_lessons" COMMENT="Tutor lessons and pilot lesson manifests">
+      <FIELDS>
+        <FIELD NAME="lesson_id" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="axis_id" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="moodle_section_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="lesson_order" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="learning_goal" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="expected_action" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="is_pilot" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="learning_goals_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="resources_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="prerequisites_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="delegated_to_tutor_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="attribution_constraints_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="notes" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="metadata_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="lesson_id"/></KEYS>
+      <INDEXES>
+        <INDEX NAME="axis_ix" UNIQUE="false" FIELDS="axis_id"/>
+        <INDEX NAME="course_ix" UNIQUE="false" FIELDS="course_id"/>
+        <INDEX NAME="course_section_ix" UNIQUE="false" FIELDS="course_id, moodle_section_id"/>
+        <INDEX NAME="pilot_ix" UNIQUE="false" FIELDS="is_pilot"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_lesson_blocks" COMMENT="Tutor lesson blocks by timestamp">
+      <FIELDS>
+        <FIELD NAME="block_id" TYPE="char" LENGTH="96" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="lesson_id" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="block_order" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="start_time" TYPE="number" LENGTH="20" DECIMALS="6" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="end_time" TYPE="number" LENGTH="20" DECIMALS="6" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="block_title" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="summary" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="interaction_mode" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="tutor_focus" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="concepts_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="preguntas_probables_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="metadata_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="block_id"/></KEYS>
+      <INDEXES>
+        <INDEX NAME="lesson_order_uix" UNIQUE="true" FIELDS="lesson_id, block_order"/>
+        <INDEX NAME="lesson_time_ix" UNIQUE="false" FIELDS="lesson_id, start_time, end_time"/>
+        <INDEX NAME="block_course_lesson_ix" UNIQUE="false" FIELDS="course_id, lesson_id"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_course_resources" COMMENT="Tutor resource metadata linked to Moodle modules or seeds">
+      <FIELDS>
+        <FIELD NAME="resource_id" TYPE="char" LENGTH="96" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="axis_id" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="lesson_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="resource_type" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="lesson_note" SEQUENCE="false"/>
+        <FIELD NAME="resource_subtype" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="source_uri" TYPE="char" LENGTH="512" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="duration_seconds" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="page_count" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="language" TYPE="char" LENGTH="16" NOTNULL="true" DEFAULT="es" SEQUENCE="false"/>
+        <FIELD NAME="tags_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="metadata_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="resource_id"/></KEYS>
+      <INDEXES>
+        <INDEX NAME="resource_lesson_ix" UNIQUE="false" FIELDS="lesson_id"/>
+        <INDEX NAME="resource_course_ix" UNIQUE="false" FIELDS="course_id"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_resource_lesson_links" COMMENT="Moodle resource to tutor lesson links">
+      <FIELDS>
+        <FIELD NAME="resource_id" TYPE="char" LENGTH="96" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="lesson_id" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="axis_id" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="resource_type" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="resource_subtype" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="resource_id"/></KEYS>
+      <INDEXES>
+        <INDEX NAME="link_course_ix" UNIQUE="false" FIELDS="course_id"/>
+        <INDEX NAME="link_lesson_ix" UNIQUE="false" FIELDS="lesson_id"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_lesson_prompts" COMMENT="Tutor proactive and suggested prompts">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="lesson_id" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="prompt_type" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="prompt_order" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="prompt_text" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="id"/></KEYS>
+      <INDEXES>
+        <INDEX NAME="prompt_uix" UNIQUE="true" FIELDS="lesson_id, prompt_type, prompt_order"/>
+        <INDEX NAME="prompt_lesson_ix" UNIQUE="false" FIELDS="lesson_id"/>
+        <INDEX NAME="prompt_course_lesson_ix" UNIQUE="false" FIELDS="course_id, lesson_id"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_tutor_sessions" COMMENT="Tutor chat sessions">
+      <FIELDS>
+        <FIELD NAME="session_id" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="user_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="course_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="lesson_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="Nuevo chat" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="session_id"/></KEYS>
+      <INDEXES><INDEX NAME="session_user_ix" UNIQUE="false" FIELDS="user_id"/></INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_tutor_messages" COMMENT="Tutor chat messages">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="session_id" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="user_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="role" TYPE="char" LENGTH="32" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="content" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="id"/></KEYS>
+      <INDEXES><INDEX NAME="msg_session_ix" UNIQUE="false" FIELDS="session_id, id"/></INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_message_traces" COMMENT="Per-message tutor traces">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="session_id" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="message_id" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="trace_json" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="id"/></KEYS>
+      <INDEXES><INDEX NAME="trace_session_ix" UNIQUE="false" FIELDS="session_id"/></INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_interaction_traces" COMMENT="Tutor interaction traces">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="session_id" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="question" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="answer" TYPE="text" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="context_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="sources_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="id"/></KEYS>
+      <INDEXES><INDEX NAME="interaction_session_ix" UNIQUE="false" FIELDS="session_id"/></INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_session_context" COMMENT="Tutor session runtime context">
+      <FIELDS>
+        <FIELD NAME="session_id" TYPE="char" LENGTH="128" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="student_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="active_context_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="state_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="session_id"/></KEYS>
+    </TABLE>
+    <TABLE NAME="local_tesisai_axes" COMMENT="Course axes (estructura del curso del tutor) por curso">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="axis_id" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="axis_number" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="axis_slug" TYPE="char" LENGTH="128" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="pedagogical_role" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="doc_root" TYPE="char" LENGTH="512" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="axis_order" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="metadata_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="id"/></KEYS>
+      <INDEXES>
+        <INDEX NAME="axis_course_uix" UNIQUE="true" FIELDS="course_id, axis_id"/>
+        <INDEX NAME="axis_course_ix" UNIQUE="false" FIELDS="course_id"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_documents" COMMENT="Registro de documentos de conocimiento (RAG) por curso con politica de copyright">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="doc_id" TYPE="char" LENGTH="96" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="course_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="axis_id" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="title" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="doc_layer" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="canonico" SEQUENCE="false"/>
+        <FIELD NAME="doc_type" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="filename" TYPE="char" LENGTH="255" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="relpath" TYPE="char" LENGTH="512" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="lesson_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="attribution_required" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="allowed_for_indexing" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false"/>
+        <FIELD NAME="visible_to_student" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="media_type" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="resource_type" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="other" SEQUENCE="false"/>
+        <FIELD NAME="scope" TYPE="char" LENGTH="16" NOTNULL="true" DEFAULT="course" SEQUENCE="false"/>
+        <FIELD NAME="is_global" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="index_status" TYPE="char" LENGTH="16" NOTNULL="true" DEFAULT="pending" SEQUENCE="false"/>
+        <FIELD NAME="chunk_count" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="ownership" TYPE="char" LENGTH="128" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="source_uri" TYPE="char" LENGTH="512" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="status" TYPE="char" LENGTH="32" NOTNULL="true" DEFAULT="active" SEQUENCE="false"/>
+        <FIELD NAME="uploaded_by" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="notes" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="metadata_json" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="id"/></KEYS>
+      <INDEXES>
+        <INDEX NAME="doc_course_uix" UNIQUE="true" FIELDS="course_id, doc_id"/>
+        <INDEX NAME="doc_course_ix" UNIQUE="false" FIELDS="course_id"/>
+        <INDEX NAME="doc_status_ix" UNIQUE="false" FIELDS="status"/>
+        <INDEX NAME="doc_scope_ix" UNIQUE="false" FIELDS="scope"/>
+        <INDEX NAME="doc_lesson_ix" UNIQUE="false" FIELDS="lesson_id"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_tesisai_transcript_segments" COMMENT="Segmentos de transcripcion del video por leccion (Whisper/manual)">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="course_id" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="lesson_id" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="seq" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="start_time" TYPE="number" LENGTH="20" DECIMALS="6" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="end_time" TYPE="number" LENGTH="20" DECIMALS="6" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="text" TYPE="text" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="speaker" TYPE="char" LENGTH="64" NOTNULL="true" DEFAULT="" SEQUENCE="false"/>
+        <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+        <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS><KEY NAME="primary" TYPE="primary" FIELDS="id"/></KEYS>
+      <INDEXES>
+        <INDEX NAME="transcript_seq_uix" UNIQUE="true" FIELDS="lesson_id, seq"/>
+        <INDEX NAME="transcript_lesson_ix" UNIQUE="false" FIELDS="lesson_id"/>
+        <INDEX NAME="transcript_course_lesson_ix" UNIQUE="false" FIELDS="course_id, lesson_id"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>
