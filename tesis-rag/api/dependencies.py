@@ -1,4 +1,4 @@
-from fastapi import Header, HTTPException, Depends
+from fastapi import Header, HTTPException, Depends, Query
 from typing import Optional
 from services.db_service import (
     get_user_id_from_token,
@@ -79,17 +79,26 @@ def _capability(user_id: str, course_raw: str, flag: str, fallback) -> bool:
 def require_course_view(
     authorization: Optional[str] = Header(None),
     x_course_id: Optional[str] = Header(None, alias="X-Course-Id"),
+    course_id: Optional[str] = Query(default=None),
     x_dev_user_id: Optional[str] = Header(None, alias="X-User-Id"),
 ) -> TeacherContext:
     """Exige token válido + poder VER el curso (matrícula / course:view).
 
     Para lecturas de estructura y recursos del alumno: cierra el acceso anónimo
     sin frenar a estudiantes matriculados. En dev sin Moodle no bloquea.
+
+    El curso se toma de la cabecera `X-Course-Id` (preferente) o, como tolerancia
+    de integración, del parámetro de consulta `course_id`. La capability
+    `puede_ver_curso` se valida SIEMPRE sobre el curso resuelto: aceptar el query
+    NO debilita la autorización (un curso sin acceso sigue devolviendo 403).
     """
     user_id = get_current_user_id(authorization, x_dev_user_id)
-    course_raw = (x_course_id or "").strip()
+    course_raw = (x_course_id or course_id or "").strip()
     if not course_raw:
-        raise HTTPException(status_code=400, detail="Falta la cabecera X-Course-Id.")
+        raise HTTPException(
+            status_code=400,
+            detail="Falta el identificador del curso: envía la cabecera 'X-Course-Id' o el parámetro de consulta 'course_id'.",
+        )
 
     if using_moodle_db() and not _capability(user_id, course_raw, "puede_ver_curso", is_course_enrolled_or_visible):
         raise HTTPException(status_code=403, detail="No tienes acceso a este curso.")

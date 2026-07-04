@@ -97,12 +97,15 @@ class MoodleWSClient:
         payload = response.json()
 
         if isinstance(payload, dict) and payload.get("exception"):
+            # NOTA: la clave `message` esta RESERVADA por logging.LogRecord; pasarla en
+            # `extra` lanza KeyError("Attempt to overwrite 'message'") y convierte un
+            # error WS manejable en un 500 no controlado. Se renombra a `ws_message`.
             logger.error(
                 "moodle_ws_error",
                 extra={
-                    "function": function,
+                    "ws_function": function,
                     "errorcode": payload.get("errorcode"),
-                    "message": payload.get("message"),
+                    "ws_message": payload.get("message"),
                 },
             )
             raise MoodleWSError(
