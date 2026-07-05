@@ -1,0 +1,1026 @@
+{
+  "chroma_dir": "/app/bd_vectorial",
+  "collection": "langchain",
+  "collections": [
+    "langchain"
+  ],
+  "total_chunks": 233,
+  "unique_sources": 71,
+  "counts": {
+    "by_course_id": {
+      "2": 233
+    },
+    "by_section_number": {
+      "1": 233
+    },
+    "by_moodle_section_id": {
+      "2": 233
+    },
+    "by_lesson_id": {
+      "SEC2-R55": 38,
+      "SEC2-R56": 37,
+      "SEC2-R57": 36,
+      "<empty>": 13,
+      "SEC2-R58": 27,
+      "SEC2-R59": 27,
+      "SEC2-R60": 27,
+      "SEC2-R61": 28
+    },
+    "by_source_type": {
+      "transcript": 24,
+      "resource_file": 1,
+      "canonical_md": 208
+    },
+    "by_corpus_version": {
+      "<empty>": 233
+    },
+    "by_source_path": {
+      "transcription:SEC2-R55": 8,
+      "transcription:SEC2-R56": 7,
+      "transcription:SEC2-R57": 9,
+      "resource:sec2_r56_mix_template": 1,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/00_atribuciones_seccion.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/00_glosario_seccion.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/00_mapa_conceptual_seccion.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/00_seccion_overview.md": 4,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/01_contenido_canonico.md": 6,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/02_guia_tutor_ia.md": 4,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/03_momentos_clase.md": 4,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/04_glosario.md": 4,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/05_preguntas_frecuentes.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/06_actividad_practica.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/07_rubrica_actividad.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/08_recursos_manifest.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/09_atribuciones.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/01_contenido_canonico.md": 6,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/02_guia_tutor_ia.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/03_momentos_clase.md": 4,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/04_glosario.md": 4,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/05_preguntas_frecuentes.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/06_actividad_practica.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/07_rubrica_actividad.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/08_recursos_manifest.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/09_atribuciones.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/01_contenido_canonico.md": 5,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/02_guia_tutor_ia.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/03_momentos_clase.md": 4,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/04_glosario.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/05_preguntas_frecuentes.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/06_actividad_practica.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/07_rubrica_actividad.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/08_recursos_manifest.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/09_atribuciones.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/01_contenido_canonico.md": 6,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/02_guia_tutor_ia.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/03_momentos_clase.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/04_glosario.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/05_preguntas_frecuentes.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/06_actividad_practica.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/07_rubrica_actividad.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/08_recursos_manifest.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/09_atribuciones.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/01_contenido_canonico.md": 6,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/02_guia_tutor_ia.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/03_momentos_clase.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/04_glosario.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/05_preguntas_frecuentes.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/06_actividad_practica.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/07_rubrica_actividad.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/08_recursos_manifest.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/09_atribuciones.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/01_contenido_canonico.md": 6,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/02_guia_tutor_ia.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/03_momentos_clase.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/04_glosario.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/05_preguntas_frecuentes.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/06_actividad_practica.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/07_rubrica_actividad.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/08_recursos_manifest.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/09_atribuciones.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/01_contenido_canonico.md": 6,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/02_guia_tutor_ia.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/03_momentos_clase.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/04_glosario.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/05_preguntas_frecuentes.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/06_actividad_practica.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/07_rubrica_actividad.md": 2,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/08_recursos_manifest.md": 3,
+      "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/09_atribuciones.md": 2
+    }
+  },
+  "violations": {
+    "allowed_for_indexing_false": [],
+    "visible_to_student_false": [
+      {
+        "i": 25,
+        "id": "9d60d78b-26eb-4033-83f8-e7b75adff89b",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/00_atribuciones_seccion.md",
+        "source_type": "canonical_md",
+        "scope": "section",
+        "status": ""
+      },
+      {
+        "i": 26,
+        "id": "ee1e0e1c-7984-40b9-b82b-f55f06d3a4d5",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/00_atribuciones_seccion.md",
+        "source_type": "canonical_md",
+        "scope": "section",
+        "status": ""
+      },
+      {
+        "i": 27,
+        "id": "a6f6f7eb-f746-454f-929c-1b29c7df97f0",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/00_atribuciones_seccion.md",
+        "source_type": "canonical_md",
+        "scope": "section",
+        "status": ""
+      },
+      {
+        "i": 44,
+        "id": "d47d0f5e-857e-4311-865c-fae5095a8c7d",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 45,
+        "id": "f3f1a42e-e6fe-4f5a-8474-5f9753117e70",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 46,
+        "id": "27cacc04-fd13-4e3f-8d21-451ff3f80656",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 47,
+        "id": "9c8c3c79-7e36-4eb7-94d0-0012a01b7162",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 48,
+        "id": "47a7c921-2bbb-4e0c-bdfd-887f9d0d725a",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 49,
+        "id": "b9c6ecd7-935e-4108-aad5-64b39a634a29",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 50,
+        "id": "e1dbd564-ddd3-4924-bea6-6e377848f153",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 51,
+        "id": "00769a4c-17d3-4ddd-bc06-f7bca65de625",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 66,
+        "id": "05175c1d-918b-451c-b24e-8d1aaf214985",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/09_atribuciones.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 67,
+        "id": "ff007da4-e049-4c6c-88f9-2bbddc30db2f",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/09_atribuciones.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 74,
+        "id": "69205c3a-a93a-4e2b-b7ff-708dfbed9002",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 75,
+        "id": "d5cd5023-e22a-4f31-89db-900eb9350562",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 76,
+        "id": "e89bbf9f-ce3e-4ad3-a5f6-721a6a593337",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 77,
+        "id": "d6284fb8-879c-4e03-9fe2-d54f531376a5",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 78,
+        "id": "2304d608-6e55-4f6a-8292-cf2fb4f7acd7",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 79,
+        "id": "72771f78-e78a-46b3-906e-4e0bfcb18842",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 80,
+        "id": "126c9da5-98af-4a22-aa0a-eb7933107b1f",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 102,
+        "id": "9efad804-f71c-4a14-b6fc-ac9e9dbffa66",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 103,
+        "id": "ca7e2922-409e-48a6-9e8c-bf4c836fe2be",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 104,
+        "id": "1eef3c3e-881e-45e5-8ffd-41cc52a0fb3e",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 105,
+        "id": "2b5b3b6f-ccaf-4272-b644-f1fbdf0ee6e1",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 106,
+        "id": "d5d94944-8f1f-4cd1-8df4-90aaa3ea801c",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 107,
+        "id": "2d989906-8683-4a84-bf32-ae4c1d0dda31",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 108,
+        "id": "f9db0a24-e72a-48e7-a239-36b156cbf5f5",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 122,
+        "id": "a8ddd634-553a-416f-97f0-b3dda83daa05",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/09_atribuciones.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 123,
+        "id": "0ab0182a-8e4f-400f-9280-918311b32f42",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/09_atribuciones.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 130,
+        "id": "cbb918ec-de12-4ddd-b023-117771862954",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 131,
+        "id": "53890785-9d94-435a-8dab-ce5a04b231ec",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 132,
+        "id": "7102156b-a2dc-4bea-8dcc-0e17e26156ed",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 133,
+        "id": "01e176db-4fe7-47d7-b786-8baf2bd3c01c",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 134,
+        "id": "676eebda-91cb-4aab-8def-4583f1de53c2",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 135,
+        "id": "124050b5-de63-4553-a4bb-52e6a327c22f",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 149,
+        "id": "6e38f288-c1d1-4b52-bd18-cf8455b75ba2",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/09_atribuciones.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 150,
+        "id": "312aac0e-9538-4eb5-9318-ccde46237acf",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/09_atribuciones.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 157,
+        "id": "288e8c3e-c881-49d2-af0a-60e125d8bb99",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 158,
+        "id": "b7770599-285f-4802-a660-5831e3d6b33d",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 159,
+        "id": "1cf05c0d-3967-4a5f-b443-d80dd06aebad",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 160,
+        "id": "10ea8c02-e934-41df-8893-c8db45d39e48",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 161,
+        "id": "ff67446a-7b49-40af-b099-8ea1ca05c047",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 162,
+        "id": "734c44eb-c07e-4e9a-a4b1-922084c4e650",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 176,
+        "id": "cfdd24ed-048a-4a46-a3e9-c5619b29caf3",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/09_atribuciones.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 177,
+        "id": "bf2d13c5-58ae-4eb5-8021-78d659b8f6e2",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/09_atribuciones.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 184,
+        "id": "7f402f0a-63aa-4304-80a6-ce5616358e03",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 185,
+        "id": "db929aca-729c-49c6-896d-7bd321abf9d2",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 186,
+        "id": "e35c0037-bfcd-445e-bdf2-618fe3168d6a",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 187,
+        "id": "fe81b183-46f9-4185-8a5d-1ff00af0448a",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 188,
+        "id": "2603d7a8-56a2-427f-b85f-f810ed8f1cbc",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 189,
+        "id": "c3b21c53-dbd9-4167-a1ff-759bc695d4a2",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 211,
+        "id": "8bcd08e8-1f65-4060-8a5a-94ce8548cb26",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 212,
+        "id": "da93ec04-93c7-4e7e-89b5-8239d5551f62",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 213,
+        "id": "6bc8ea6a-f5e1-4f00-acc5-56e4255b71df",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/02_guia_tutor_ia.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 214,
+        "id": "659c84ed-0d15-4b26-bc4f-0c940ae9f5e2",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 215,
+        "id": "d1a33b19-7f8b-4ac6-925a-e62158b18d48",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 216,
+        "id": "ac885544-4ecd-463a-ad99-6c916d1b5d60",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/03_momentos_clase.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 231,
+        "id": "aa0b9b9b-a9fd-4218-a653-73f5e0d90046",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/09_atribuciones.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      },
+      {
+        "i": 232,
+        "id": "5b570016-951e-4e98-b41d-b8c8baed6c37",
+        "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/09_atribuciones.md",
+        "source_type": "canonical_md",
+        "scope": "lesson",
+        "status": ""
+      }
+    ],
+    "axis_id": [],
+    "scope_axis": [],
+    "evaluation_prompt": [],
+    "qa": [],
+    "operational_manifest": [],
+    "resource_manifest_chunks": [],
+    "report": [],
+    "external_resources_suggested": [],
+    "root_corpus": [],
+    "deleted_local_paths": [],
+    "excluded_paths": [],
+    "canonical_source_not_expected": [],
+    "pending_or_hold": []
+  },
+  "violation_counts": {
+    "allowed_for_indexing_false": 0,
+    "visible_to_student_false": 59,
+    "axis_id": 0,
+    "scope_axis": 0,
+    "evaluation_prompt": 0,
+    "qa": 0,
+    "operational_manifest": 0,
+    "resource_manifest_chunks": 0,
+    "report": 0,
+    "external_resources_suggested": 0,
+    "root_corpus": 0,
+    "deleted_local_paths": 0,
+    "excluded_paths": 0,
+    "canonical_source_not_expected": 0,
+    "pending_or_hold": 0
+  },
+  "missing_indexables": [],
+  "extra_canonical_sources": [],
+  "duplicate_hashes": {},
+  "metadata_mismatch": {},
+  "diff_table": [
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/00_atribuciones_seccion.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/00_glosario_seccion.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/00_mapa_conceptual_seccion.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/00_seccion_overview.md",
+      "expected": true,
+      "found_chunks": 4,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/01_contenido_canonico.md",
+      "expected": true,
+      "found_chunks": 6,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/02_guia_tutor_ia.md",
+      "expected": true,
+      "found_chunks": 4,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/03_momentos_clase.md",
+      "expected": true,
+      "found_chunks": 4,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/04_glosario.md",
+      "expected": true,
+      "found_chunks": 4,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/05_preguntas_frecuentes.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/06_actividad_practica.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/07_rubrica_actividad.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/08_recursos_manifest.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/09_atribuciones.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/01_contenido_canonico.md",
+      "expected": true,
+      "found_chunks": 6,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/02_guia_tutor_ia.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/03_momentos_clase.md",
+      "expected": true,
+      "found_chunks": 4,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/04_glosario.md",
+      "expected": true,
+      "found_chunks": 4,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/05_preguntas_frecuentes.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/06_actividad_practica.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/07_rubrica_actividad.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/08_recursos_manifest.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/09_atribuciones.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/01_contenido_canonico.md",
+      "expected": true,
+      "found_chunks": 5,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/02_guia_tutor_ia.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/03_momentos_clase.md",
+      "expected": true,
+      "found_chunks": 4,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/04_glosario.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/05_preguntas_frecuentes.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/06_actividad_practica.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/07_rubrica_actividad.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/08_recursos_manifest.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/09_atribuciones.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/01_contenido_canonico.md",
+      "expected": true,
+      "found_chunks": 6,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/02_guia_tutor_ia.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/03_momentos_clase.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/04_glosario.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/05_preguntas_frecuentes.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/06_actividad_practica.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/07_rubrica_actividad.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/08_recursos_manifest.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/09_atribuciones.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/01_contenido_canonico.md",
+      "expected": true,
+      "found_chunks": 6,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/02_guia_tutor_ia.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/03_momentos_clase.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/04_glosario.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/05_preguntas_frecuentes.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/06_actividad_practica.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/07_rubrica_actividad.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/08_recursos_manifest.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_5_gain_staging/09_atribuciones.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/01_contenido_canonico.md",
+      "expected": true,
+      "found_chunks": 6,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/02_guia_tutor_ia.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/03_momentos_clase.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/04_glosario.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/05_preguntas_frecuentes.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/06_actividad_practica.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/07_rubrica_actividad.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/08_recursos_manifest.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/09_atribuciones.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/01_contenido_canonico.md",
+      "expected": true,
+      "found_chunks": 6,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/02_guia_tutor_ia.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/03_momentos_clase.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/04_glosario.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/05_preguntas_frecuentes.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/06_actividad_practica.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/07_rubrica_actividad.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/08_recursos_manifest.md",
+      "expected": true,
+      "found_chunks": 3,
+      "status": "OK_INDEXED"
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/09_atribuciones.md",
+      "expected": true,
+      "found_chunks": 2,
+      "status": "OK_INDEXED"
+    }
+  ]
+}

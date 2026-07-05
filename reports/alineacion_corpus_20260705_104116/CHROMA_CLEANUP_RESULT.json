@@ -1,0 +1,58 @@
+{
+  "chroma_dir": "/app/bd_vectorial",
+  "collection": "langchain",
+  "before_total": 591,
+  "after_total": 233,
+  "removed_total_delta": 358,
+  "details": [
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_02_leer_la_senal/contenido_canonico.md",
+      "source_path_chunks_before": 36,
+      "legacy_source_chunks_before": 0,
+      "source_path_chunks_after": 0,
+      "legacy_source_chunks_after": 0
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_03_integridad_de_la_senal/contenido_canonico.md",
+      "source_path_chunks_before": 50,
+      "legacy_source_chunks_before": 0,
+      "source_path_chunks_after": 0,
+      "legacy_source_chunks_after": 0
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_04_identidad_espectral/contenido_canonico.md",
+      "source_path_chunks_before": 50,
+      "legacy_source_chunks_before": 0,
+      "source_path_chunks_after": 0,
+      "legacy_source_chunks_after": 0
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_05_energia_y_movimiento/contenido_canonico.md",
+      "source_path_chunks_before": 61,
+      "legacy_source_chunks_before": 0,
+      "source_path_chunks_after": 0,
+      "legacy_source_chunks_after": 0
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_06_dimension_espacial/contenido_canonico.md",
+      "source_path_chunks_before": 52,
+      "legacy_source_chunks_before": 0,
+      "source_path_chunks_after": 0,
+      "legacy_source_chunks_after": 0
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_07_integracion_global/contenido_canonico.md",
+      "source_path_chunks_before": 51,
+      "legacy_source_chunks_before": 0,
+      "source_path_chunks_after": 0,
+      "legacy_source_chunks_after": 0
+    },
+    {
+      "source_path": "documentos/oficial/curso_2/seccion_08_traduccion_y_entrega/contenido_canonico.md",
+      "source_path_chunks_before": 58,
+      "legacy_source_chunks_before": 0,
+      "source_path_chunks_after": 0,
+      "legacy_source_chunks_after": 0
+    }
+  ]
+}
