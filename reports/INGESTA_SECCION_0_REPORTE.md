@@ -2,7 +2,7 @@
 
 - **Fecha (local):** 2026-07-04 · **Servidor (UTC):** 2026-07-05T03:3x
 - **Commit local:** `1df18e3` · **Commit servidor:** `1df18e3` (rama `main`, sin drift antes de la operación)
-- **Corpus:** `D:\ESPE\MIC\ACTIVITIES\PROYECTO\corpus\seccion_00_sistema_decision`
+- **Corpus (autoría, consolidado 2026-07-05):** originalmente `corpus\seccion_00_sistema_decision` (raíz); **consolidado** al árbol canónico `tesis-rag/documentos/oficial/curso_2/seccion_00_sistema_decision` con frontmatter de sistema (ver `reports/cleanup_corpus_20260705_080723`). La carpeta `corpus/` de la raíz fue eliminada.
 - **Curso:** Mezcla y Masterización · `course_id=2`
 - **Sección destino real:** `moodle_section_id=2` · **`section_number=1`** · `section_title="SECCIÓN 0: El sistema de decisión"` · slug `el_sistema_de_decision`
 - **Batch:** `seccion0_20260704` · **corpus_version:** `seccion_0_v1`

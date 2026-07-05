@@ -9,7 +9,9 @@
       "moodle_section_id": "2",
       "section_number": 1,
       "section_title": "SECCIÓN 0: El sistema de decisión",
-      "bytes": 34937
+      "bytes": 34937,
+      "dest_status": "superseded_and_removed",
+      "superseded_by": "documentos/oficial/curso_2/seccion_00_sistema_decision (consolidacion corpus Seccion 0, 2026-07-05; ver reports/cleanup_corpus_20260705_080723)"
     },
     {
       "eje": "Eje 1",
