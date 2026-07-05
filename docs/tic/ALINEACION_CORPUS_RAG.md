@@ -10,10 +10,15 @@ Estado al 2026-07-05:
 - Backup servidor: `reports/alineacion_corpus_20260705_104116/chroma_backup`.
 - Seccion pedagogica 0 se mantiene mapeada internamente a Moodle `section_number=1` / `moodle_section_id=2`.
 
-Pendiente antes de declarar DoD completo:
+Cierres adicionales:
 
-- Resolver drift Git/filesystem local-main-servidor.
-- Ejecutar bateria de chat autenticada con token estudiante.
-- Desplegar desde rama revisada/mergeada para que el servidor no pueda reintroducir corpus viejo en futuros rebuilds.
+- Servidor normalizado en `chore/align-corpus-rag-index`; worktree limpio salvo artefactos ignorados/server-only.
+- Chat autenticado validado: 9/9 PASS con token real de estudiante, sin imprimir token.
+- Health OK, smoke OK, `validate_rag_index.py` OK.
+
+Pendiente:
+
+- Revisar y mergear el PR `chore/align-corpus-rag-index` -> `main`.
+- Tras merge, dejar el servidor nuevamente en `main` con pull/deploy limpio.
 
 Reporte completo: `reports/alineacion_corpus_20260705_104116/REPORTE_FINAL_ALINEACION_CORPUS.md`.

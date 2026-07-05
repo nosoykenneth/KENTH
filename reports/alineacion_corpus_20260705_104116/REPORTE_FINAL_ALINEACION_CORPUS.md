@@ -59,8 +59,8 @@
 - Nota: la Seccion pedagogica 0 esta mapeada a Moodle `section_number=1` / `moodle_section_id=2`; no se cambio a la fuerza.
 
 ## 12. Pruebas de chat
-- Bloqueadas parcialmente por falta de token estudiante utilizable. Ver `CHAT_VALIDATION.md`.
-- Validacion indirecta de fuentes internas: `npm run test:chat-sources` PASS.
+- Bateria autenticada por gateway real: PASS 9/9 con token Moodle de estudiante (`userid=39`), sin imprimir token. Ver `CHAT_VALIDATION.md`.
+- Validacion de fuentes internas: ninguna fuente visible trae `visible_to_student=false`; `npm run test:chat-sources` PASS.
 
 ## 13. Tests ejecutados
 - Backend pytest: 198 passed, 4 skipped.
@@ -68,18 +68,17 @@
 - Frontend `test:chat-sources`: PASS.
 - Frontend lint: PASS con 5 warnings.
 - Frontend build: PASS con warning de chunk grande.
-- Smoke produccion: 9 PASS, 0 FAIL; auth omitida.
+- Smoke produccion: 9 PASS, 0 FAIL.
+- Chat autenticado: 9 PASS, 0 FAIL.
 - `validate_rag_index.py`: OK.
 
 ## 14. Riesgos pendientes
-- No se puede decir `local/main/servidor alineados`: hay borrados locales sin commit y el servidor tiene worktree dirty con un conjunto distinto de borrados/untracked.
-- Si alguien ejecuta un rebuild antes de normalizar filesystem/branch, el servidor podria reintroducir archivos que aun existan fisicamente en su working tree.
-- Falta bateria de chat autenticada con token estudiante real.
+- Servidor normalizado en rama `chore/align-corpus-rag-index`; `git status -sb` limpio salvo artefactos ignorados/server-only (`.env`, `runtime/`, logs, backups Chroma).
+- `main` aun no debe mergearse hasta revisar el PR; el servidor esta deliberadamente en la rama de validacion.
 
 ## 15. Proximos pasos
-- Revisar y aprobar la rama `chore/align-corpus-rag-index` con los borrados locales y reportes.
-- Tras merge, hacer deploy/pull limpio en servidor y dejar el worktree sin drift.
-- Ejecutar bateria de chat con token estudiante y anexar resultados.
+- Abrir y revisar PR `chore/align-corpus-rag-index` -> `main`.
+- Tras merge, hacer deploy/pull limpio en servidor desde `main`.
 
 ## Veredicto
-Chroma quedo alineado con el corpus canonico local aprobado. No declaro el DoD completo del encargo porque local/main/servidor aun tienen drift documental y falta validacion de chat autenticada.
+Chroma queda alineado con el corpus canonico aprobado, chat autenticado queda validado y el servidor queda en rama de validacion con worktree limpio/ignorado. Pendiente solo revision y merge del PR.
