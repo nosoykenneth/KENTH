@@ -2,6 +2,7 @@
  * aiService.js
  * Servicio para gestionar la comunicación con Ollama a través de Moodle.
  */
+import { filterVisibleSources } from '../utils/sources';
 
 const API_BASE_URL = '/api/lms/webservice/rest/server.php';
 
@@ -134,6 +135,11 @@ export const askOllamaDirect = async (
     }
 
     const data = await response.json();
+    // Defensa en profundidad: no exponer al alumno fuentes internas
+    // (visible_to_student=false: guías del tutor, QA, manifiestos, evaluación).
+    if (data && Array.isArray(data.fuentes)) {
+      data.fuentes = filterVisibleSources(data.fuentes);
+    }
     return data;
   } catch (error) {
     console.error('Error en askOllamaDirect:', error);

@@ -112,6 +112,23 @@ def _recursos_desde_fuentes(fuentes, course_id, limite: int = 4):
     return recursos
 
 
+def _fuentes_visibles_al_alumno(fuentes):
+    """Filtra la lista de fuentes que se DEVUELVE al cliente para que la UI no
+    muestre como fuente citable el material interno (visible_to_student=false):
+    guías del tutor (02_guia_tutor_ia.md), QA, manifiestos, prompts de evaluación.
+    El tutor SÍ los usó como conocimiento (evidencias completas quedan en la traza
+    interna); aquí solo se oculta su exposición como fuente al estudiante.
+    Robusto ante bool o string ('false') vía _as_bool."""
+    from ingest import _as_bool
+    out = []
+    for f in fuentes or []:
+        if not isinstance(f, dict):
+            continue
+        if _as_bool(f.get("visible_to_student", True), default=True):
+            out.append(f)
+    return out
+
+
 @router.post("/chat")
 def chat_endpoint(
     consulta: Consulta,
@@ -239,6 +256,10 @@ def chat_endpoint(
     respuesta = resultado["respuesta_final"]
 
     fuentes = resultado.get("evidencias", [])
+    # Las fuentes que se DEVUELVEN al cliente excluyen material interno
+    # (visible_to_student=false). La lista completa `fuentes` se conserva para las
+    # trazas internas y para derivar imágenes/recursos (que ya filtran visibilidad).
+    fuentes_cliente = _fuentes_visibles_al_alumno(fuentes)
     imagenes = _imagenes_desde_fuentes(fuentes)
     recursos = _recursos_desde_fuentes(fuentes, scoped_course_id)
     evidence_level = resultado.get("evidence_level", "")
@@ -317,7 +338,7 @@ def chat_endpoint(
         "intent": intent,
         "course_module": course_module,
         "evaluation_category": evaluation_category,
-        "fuentes": fuentes,
+        "fuentes": fuentes_cliente,
         "evidence_level": evidence_level,
         "ruta": ruta,
         "warnings": warnings,
