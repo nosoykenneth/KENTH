@@ -117,6 +117,52 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+def _domain_label(course_id: str) -> str:
+    try:
+        from services.domain.domain_pack import get_domain_pack
+        return get_domain_pack(course_id).domain_label(default="")
+    except Exception:
+        return ""
+
+
+def run_ai_prepare_and_accept(lesson_id: str, course_id: str, lesson_title: str,
+                              quality: str, log: list) -> dict:
+    """Fase 8: genera el borrador con IA sobre la transcripción, lo valida, lo
+    PROMUEVE al perfil canónico (acepta) y publica el contexto aprobado. Resiliente:
+    si el modelo falla/está ausente, no rompe el run (devuelve ok=False con motivo).
+    """
+    from services import db_service
+    from services.ai_prepare import (service as ai_prepare_service,
+                                      schema as ai_prepare_schema,
+                                      persistence as ai_prepare_persistence)
+    segments = db_service.list_transcript(lesson_id)
+    if not segments:
+        return {"ok": False, "reason": "no_transcript"}
+    blocks = db_service.list_lesson_blocks(lesson_id)
+    try:
+        result = ai_prepare_service.run(
+            lesson_title=lesson_title, section_name="",
+            transcript_segments=segments, blocks=blocks, quality=quality,
+            domain_label=_domain_label(course_id), extra_context="", review_model=None,
+        )
+    except Exception as e:  # modelo ausente / Ollama caído / timeout
+        return {"ok": False, "reason": f"ai_prepare_exception: {e}"}
+    if not result.get("ok"):
+        return {"ok": False, "reason": result.get("error") or result.get("errors")}
+
+    draft_obj, errors = ai_prepare_schema.validate_dict(result["draft"])
+    if draft_obj is None:
+        return {"ok": False, "reason": f"invalid_draft: {errors}"}
+    draft_dict = ai_prepare_schema.draft_to_public(draft_obj)
+    summary = ai_prepare_persistence.promote_draft(
+        lesson_id, course_id, "teacher_flow_driver", draft_dict, apply_moments=True)
+    if not summary.get("ok"):
+        return {"ok": False, "reason": summary.get("error")}
+    return {"ok": True, "changed": summary.get("changed", []),
+            "moments_applied": summary.get("moments_applied", 0),
+            "elapsed_seconds": result.get("elapsed_seconds")}
+
+
 def _backup_chroma(log: list) -> str:
     import config
     src = config.CHROMA_DIR
@@ -150,7 +196,8 @@ def _chroma_audit(course_id: str, section_id: str) -> dict:
     }
 
 
-def run(apply: bool, backup: bool, supersede_canonical: bool, report_dir: str) -> dict:
+def run(apply: bool, backup: bool, supersede_canonical: bool, report_dir: str,
+        ai_prepare: bool = False, quality: str = "balanced") -> dict:
     from services import db_service, teacher_context
     import ingest
 
@@ -226,6 +273,15 @@ def run(apply: bool, backup: bool, supersede_canonical: bool, report_dir: str) -
             lesson_title=(db_title or spec["title"]),
         )
         entry["transcript_chunks"] = tr.get("chunks", 0)
+
+        # 2b) Fase 8 opcional: preparar tutor con IA + aceptar (poblar el perfil
+        # desde la transcripción). Resiliente: si el modelo no está, se sigue.
+        if ai_prepare:
+            aip = run_ai_prepare_and_accept(lid, COURSE_ID, (db_title or spec["title"]), quality, log)
+            entry["ai_prepare"] = aip
+            log.append(f"[{spec['num']} {lid}] ai_prepare ok={aip.get('ok')} "
+                       f"{'changed=' + str(aip.get('changed')) if aip.get('ok') else 'reason=' + str(aip.get('reason'))}")
+
         # 3) Contexto aprobado del editor + índice incremental.
         pub = teacher_context.publish_lesson_teacher_context(
             lid, COURSE_ID, user_id="teacher_flow_driver",
@@ -289,11 +345,16 @@ def main():
     ap.add_argument("--no-backup", action="store_true", help="no respaldar Chroma antes de aplicar")
     ap.add_argument("--supersede-canonical", action="store_true",
                     help="borra chunks canonical_md de la Sección 0 (reemplazados por el flujo docente)")
+    ap.add_argument("--ai-prepare", action="store_true",
+                    help="Fase 8: genera+acepta el perfil pedagógico con IA por lección (requiere Ollama)")
+    ap.add_argument("--quality", default="balanced", choices=["fast", "balanced", "max"],
+                    help="calidad del asistente IA (default balanced)")
     ap.add_argument("--report", default="", help="directorio donde escribir la auditoría JSON")
     args = ap.parse_args()
 
     summary = run(apply=args.apply, backup=not args.no_backup,
-                  supersede_canonical=args.supersede_canonical, report_dir=args.report)
+                  supersede_canonical=args.supersede_canonical, report_dir=args.report,
+                  ai_prepare=args.ai_prepare, quality=args.quality)
     print(json.dumps({k: summary[k] for k in ("apply", "pre_audit", "post_audit")},
                      ensure_ascii=False, indent=2))
     for line in summary["log"]:
