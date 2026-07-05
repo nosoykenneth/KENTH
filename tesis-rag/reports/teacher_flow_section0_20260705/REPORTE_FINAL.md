@@ -127,23 +127,32 @@ bash scripts/smoke_produccion.sh
 #    de indexar; el driver avisa si el .txt no autodeclara el número esperado.
 ```
 
-## Definition of Done — estado
+## Definition of Done — estado (COMPLETADO en servidor)
 
-| Criterio | Local | Servidor |
+Ver detalle en `SERVER_RESULTS.md` y evidencia en `server/*.json`.
+
+| Criterio | Local | Servidor (prod) |
 |---|---|---|
-| 7 lecciones mapeadas correctamente | ✅ (mapa verificado) | pendiente ejecutar |
-| Transcripciones cargadas y aprobadas | ✅ 0.1, 0.2 | pendiente 0.1–0.7 |
-| Transcripciones viejas reemplazadas | ✅ | pendiente |
-| Perfil generado/aceptado por lección | parcial (R55) | pendiente ai_prepare |
-| `teacher_approved_context` por lección | ✅ R55 | pendiente |
-| Indexado incremental | ✅ | pendiente |
-| Chroma sin stale/axis/QA/manifests | ✅ | pendiente |
-| Chat responde bien por lección | ✅ R55/R56 | pendiente |
+| 7 lecciones mapeadas correctamente | ✅ | ✅ (R55–R61) |
+| Transcripciones cargadas y aprobadas | ✅ 0.1, 0.2 | ✅ 0.1–0.7 |
+| Transcripciones viejas reemplazadas | ✅ | ✅ (delete-then-add) |
+| Títulos cruzados corregidos antes de indexar | n/a | ✅ R59 "Nativos"→"Gain Staging", R57 |
+| Perfil IA generado/aceptado por lección | parcial (R55/R56 smoke) | ✅ 0.1–0.7 (`ai_prepare ok` ×7, qwen3:14b) |
+| `teacher_approved_context` por lección | ✅ R55 | ✅ 7/7 (43 chunks) |
+| Indexado incremental (sin rebuild global) | ✅ | ✅ |
+| Chroma sin stale/axis | ✅ | ✅ (0 stale, 0 axis) |
+| Chat responde bien por lección | ✅ R55/R56 | ✅ 7/7 (0 issues serios, R59→Gain Staging) |
+| Fuera de dominio rechazado | ✅ | ✅ |
 | Profesor sin Markdown/YAML/Chroma | ✅ (flujo + UI) | ✅ (mismo código) |
 | Tests / build / lint | ✅ | n/a |
-| Servidor en `main` limpio | — | pendiente deploy |
+| Smoke de producción | n/a | ✅ 9 PASS / 0 FAIL |
+| Servidor en `main` limpio | — | ✅ `1dbe5cd`, árbol rastreado limpio, health ok |
 
-**No se declara "flujo docente RAG listo para Sección 0" en su totalidad**: el
-código + flujo + validación local están listos y probados, pero la población
-completa de las 7 lecciones y el deploy dependen del servidor (donde existen 0.3–0.7
-y el modelo `qwen2.5:14b-instruct`). Bloqueo declarado, no oculto.
+**Flujo docente RAG LISTO para Sección 0.** Las 7 lecciones tienen transcripción
+aprobada + perfil IA aceptado + `teacher_approved_context` indexado; el tutor
+responde grounded por lección sin cruces (R59 = Gain Staging, R60 = Nativos); 0
+chunks stale/axis; smoke 9/9; servidor en `main` limpio y sano.
+
+**Decisión Fase 7 (dueño):** se **mantiene** el corpus `canonical_md` (208 chunks)
+junto al flujo docente — flujo docente = fuente primaria, corpus canónico
+complementa. Reversible a índice puro-flujo con `--supersede-canonical`.

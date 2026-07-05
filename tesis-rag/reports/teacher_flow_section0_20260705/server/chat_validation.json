@@ -1,0 +1,950 @@
+{
+  "generated_at": "2026-07-05T19:57:38.444571+00:00",
+  "course_id": "2",
+  "lessons_tested": [
+    "SEC2-R55",
+    "SEC2-R56",
+    "SEC2-R57",
+    "SEC2-R58",
+    "SEC2-R59",
+    "SEC2-R60",
+    "SEC2-R61"
+  ],
+  "results": [
+    {
+      "respuesta": "La lección introduce el concepto de que mezclar implica decisiones conscientes, no solo aplicación de efectos. Se presenta un ciclo de cinco pasos (escuchar, diagnosticar, decidir, actuar, verificar) y se destacan errores comunes como confundir movimiento con progreso o omitir la verificación con volumen igualado.\n\nEste concepto es clave para entender que mezclar no es solo aplicar efectos, sino tomar decisiones conscientes basadas en un ciclo de trabajo estructurado. El ciclo de cinco pasos se describe en la lección como una forma de convertir gestos aleatorios en decisiones comprobables.\n\nEs importante destacar que la verificación honesta, con niveles igualados y una referencia, es lo que separa una mezcla que progresa de una que solo cambia.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R55",
+      "question": "¿De qué trata esta lección?",
+      "issues": []
+    },
+    {
+      "respuesta": "Según la evidencia del curso, en la lección \"Mezclar es decidir: el ciclo de trabajo\", se presentan los siguientes pasos del ciclo de trabajo para mezclar:\n\n1. Escuchar\n2. Diagnosticar\n3. Decidir\n4. Actuar\n5. Verificar\n\nEstos pasos son mencionados en la transcripción de la lección y también se repiten en el glosario de la lección. Es importante tener en cuenta que cada paso tiene una función específica en el proceso de mezcla, como se explica en la transcripción de la lección.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R55",
+      "question": "¿Cuáles son los pasos del ciclo de trabajo al mezclar?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "La verificación honesta es crucial en el ciclo de trabajo de la mezcla. Según la evidencia del curso, especialmente en [md]([enlace no verificado - consulta el material del curso]), se menciona que \"La verificación honesta, con el volumen igualado, es lo que hace que progreses de verdad\".\n\nAdemás, en [md]([enlace no verificado - consulta el material del curso]), se especifica el Criterio 4 — Decisión final e intervención mínima, donde se enfatiza la importancia de conservar/deshacer con criterio y intervención razonable.\n\nPara verificar honestamente si un cambio mejoró la mezcla, es importante igualar el volumen percibido entre la versión con y sin el efecto, como se menciona en [md]([enlace no verificado - consulta el material del curso]) en la pregunta 6. Esto te permitirá comparar de forma justa y tomar una decisión informada.\n\nRecuerda que el criterio se transfiere, va contigo, por lo que es importante desarrollarlo a través del ejercicio y la práctica.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R55",
+      "question": "¿Cómo verifico honestamente si un cambio mejoró la mezcla?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Según la evidencia, esta lección se llama \"Lección 2 — Tu oído miente: percepción y nivel de escucha\" y su objetivo es entender cómo la percepción auditiva humana afecta la toma de decisiones en mezcla y masterización.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R56",
+      "question": "¿De qué trata esta lección?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Excelente pregunta! Según la evidencia del curso, en la transcripción de la lección 2, se menciona que \"Ningún sistema por sí solo te dice toda la verdad. Déjame darte un ejemplo que seguro te ha pasado. Mezclas dos horas, de noche, fuerte, y quedas feliz. Bombo contundente, voz brillante, todo espectacular. Y al día siguiente, con el oído fresco, y a volumen moderado, lo escuchas, y suena estridente, y sin graves.\"\n\nEn este contexto, se puede inferir que el \"ojo\" (en lugar de \"oído\") miente porque la percepción del sonido cambia según el volumen y la fatiga auditiva. Cuando mezclamos a un volumen alto, podemos percibir más graves y agudos, pero al día siguiente, con el oído fresco, puede que suene diferente.\n\nEn resumen, se dice que el \"ojo\" miente porque nuestra percepción del sonido es influenciada por factores como el volumen y la fatiga auditiva, lo que puede llevar a decisiones de mezcla y mastering incorrectas.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R56",
+      "question": "¿Por qué se dice que el oído miente?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Según la evidencia del curso, se recomienda fijar un volumen de monitoreo cómodo, de conversación, y mezclar la mayor parte del tiempo a ese nivel. Solo sube el volumen para chequeos breves de graves o de energía, y vuelve a bajar. Esto ayuda a evitar la fatiga auditiva y tomar decisiones más objetivas.\n\nFuente: Procedimiento recomendado en \"SECCIÓN 0: El sistema de decisión · Tu oído miente: percepción y nivel de escucha\"",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R56",
+      "question": "¿Qué debería hacer con el nivel de escucha al mezclar?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Según la evidencia del curso, esta lección se centra en enseñar a los estudiantes a trabajar con el equipo que ya tienen, y no esperar a tener el mejor equipo posible. La idea es que cualquier sistema de monitoreo puede ser útil si se conoce su carácter.\n\nLa lección enfatiza la importancia de conocer las características del propio equipo, sea un monitor o auriculares, y cómo compensarlas para obtener una mezcla y masterización efectivas. Se destaca la necesidad de verificar en múltiples sistemas y en mono para asegurarse de que se está obteniendo una representación precisa de la música.\n\nEn resumen, el objetivo de esta lección es enseñar a los estudiantes a trabajar con lo que tienen, y no esperar a tener el equipo ideal.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R57",
+      "question": "¿De qué trata esta lección?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Excelente pregunta! Según el objetivo de esta lección y la evidencia proporcionada, la respuesta es que tanto monitores como auriculares pueden ser útiles para mezclar, siempre y cuando se conozcan sus características y se compensen adecuadamente.\n\nEn el \"Contenido Canonico\", se menciona que \"No mezclas con el equipo ideal; mezclas con el que tienes. La clave no es tener el mejor sistema, sino conocer cómo suena el tuyo: qué exagera, qué esconde y en qué no puedes confiar.\"\n\nAdemás, en las \"Preguntas Frecuentes\", se responde a la pregunta de si se puede mezclar bien solo con auriculares: \"Sí, si conoces su carácter y verificas en otros sistemas. Muchas mezclas profesionales se revisan en auriculares.\"\n\nPor lo tanto, la respuesta es que no hay una opción mejor entre monitores o auriculares; lo importante es conocer el carácter de tu sistema y compensarlo adecuadamente para tomar decisiones fiables.\n\n¿Quieres saber más sobre cómo identificar el carácter de tu sistema?",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R57",
+      "question": "¿Monitores o auriculares?",
+      "issues": []
+    },
+    {
+      "respuesta": "\"Trabajar con lo que tienes\" significa tres cosas:\n\n1. Aprender el carácter de tu sistema escuchando en él muchas canciones de referencia que ya conoces, para descubrir si tu sistema tiene \"de más\" o \"de menos\" en graves, medios o agudos.\n2. Compensar mentalmente ese carácter al decidir: si sabes que tus auriculares exageran los agudos, desconfías cuando quieras bajar brillo.\n3. Verificar en más de un sistema: lo que decides en tus monitores lo chequeas en auriculares, en el móvil o en el coche.\n\nNingún sistema por sí solo dice toda la verdad; el cruce entre varios sí se acerca.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R57",
+      "question": "¿Cómo trabajo con lo que tengo?",
+      "issues": []
+    },
+    {
+      "respuesta": "Según la evidencia, el objetivo de esta lección es entender la anatomía universal del mixer y el ruteo de señales para trabajar en cualquier DAW.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R58",
+      "question": "¿De qué trata esta lección?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "**Definición directa:** El ruteo en el mixer se refiere al camino que recorre la señal de audio dentro del mezclador, desde el canal hasta el master, pasando por buses, envíos y retornos\n\n**Nota práctica:** Entender la lógica de ruteo es fundamental para organizar una sesión y aplicar procesos en el punto correcto, sin importar el DAW utilizado.\n\n**Reforzando la lógica de ruteo (orientación del tutor):** Es importante recordar que cada decisión de ruteo también se diagnostica y verifica. Esto significa que debes considerar no solo dónde está enviando la señal, sino también por qué lo estás haciendo y cómo afecta el sonido final.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R58",
+      "question": "¿Qué es el ruteo en el mixer?",
+      "issues": []
+    },
+    {
+      "respuesta": "Necesito una precision minima para no inventar: a que parametro, herramienta o parte de la clase te refieres?",
+      "ruta": "teoria",
+      "retrieval_scope": "",
+      "evidence_level": "bajo",
+      "blocked_by": "",
+      "fuentes": [],
+      "lesson_id": "SEC2-R58",
+      "question": "¿Cómo aplico esto en cualquier DAW?",
+      "issues": []
+    },
+    {
+      "respuesta": "Según la evidencia del curso, esta lección se centra en el concepto de \"gain staging\" y su importancia para evitar distorsiones y optimizar el comportamiento de los plugins en la mezcla. El objetivo es entender cómo manejar los niveles de señal para lograr un sonido óptimo.\n\nEn particular, la evidencia menciona que el gain staging implica mantener un \"margen de seguridad\" (headroom) en cada etapa de la señal para evitar saturación y garantizar que los procesadores trabajen en su zona óptima. También se enfatiza la importancia de ajustar niveles con trims, no con faders, y vigilar el nivel en buses y master, no solo en pistas individuales.\n\nPor lo tanto, la respuesta a la pregunta del alumno es: esta lección trata sobre el concepto de gain staging y su aplicación práctica para lograr un sonido óptimo en la mezcla.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R59",
+      "question": "¿De qué trata esta lección?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Es importante evitar la saturación y hacer que cada procesador trabaje en su zona óptima.\n\nNota práctica: El gain staging es un concepto clave para asegurar que los plugins se comporten como esperas y evitar distorsiones en la mezcla.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R59",
+      "question": "¿Qué es el gain staging?",
+      "issues": []
+    },
+    {
+      "respuesta": "Según la evidencia del curso, especialmente en el \"Procedimiento recomendado\" de , se indica que antes de cada plugin, revisa que la entrada no esté saturando y ajusta con un control de ganancia previa si hace falta.\n\nEn otras palabras, para ajustar la ganancia de entrada, debes verificar que la señal de entrada no esté cerca del techo digital (0 dBFS) y ajustar la ganancia de entrada del plugin según sea necesario para evitar saturación.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R59",
+      "question": "¿Cómo ajusto la ganancia de entrada?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Esta lección se enfoca en la decisión entre plugins nativos y emulaciones analógicas, presentando una matriz de decisión para elegir herramientas según las necesidades técnicas y contextuales. La idea central es que ni lo nativo es siempre superior ni lo analógico emulado es mágico y mejor. Se busca desmontar mitos sobre la superioridad analógica y presentar una forma racional de elegir entre estas opciones.\n\nLa lección se centra en la importancia de considerar las necesidades específicas de cada pista y proyecto, más que en la elección basada en estética o prestigio. Se enfatiza la verificación con bypass y el uso racional de recursos.\n\nEn este contexto, es importante recordar que la decisión correcta parte siempre de la misma pregunta: ¿Qué necesito que haga este procesador, aquí, en esta pista? La herramienta se elige por su función, no por su prestigio ni por su interfaz vintage bonita.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R60",
+      "question": "¿De qué trata esta lección?",
+      "issues": []
+    },
+    {
+      "respuesta": "La decisión entre un procesador nativo y una emulación analógica depende de la función que necesitas en ese momento. Una matriz de decisión simple y repetible te ayudará a elegir la herramienta adecuada según tus necesidades técnicas y contextuales.\n\nSi lo que buscas es precisión y transparencia, un procesador nativo podría ser la mejor opción. Están programados para buscar exactitud en sus controles y son neutros, haciendo justo lo que se les pide sin añadir carácter. Son ideales cuando quieres corregir con cirugía o cuando la CPU es un recurso escaso.\n\nPor otro lado, si necesitas dar color y cohesión a tu mezcla, una emulación analógica podría ser más adecuada. Estas herramientas modelan el comportamiento de equipos de hardware reales, incluyendo sus no linealidades, lo que puede agregar un \"carácter\" interesante a tu sonido.\n\nRecuerda que la clave es preguntarte si en ese momento necesitas precisión o carácter. La matriz de decisión te ayudará a tomar esta decisión basada en tus necesidades técnicas y contextuales, no en el marketing o la estética de las herramientas.\n\n**Matriz de decisión:**\n\n- Necesidad × Restricciones\n\nEsta matriz te permitirá elegir entre un procesador nativo y una emulación analógica según lo que necesites hacer en ese momento. Recuerda igualar volumen al comparar y no inventar especificaciones, modelos emulados ni presets.\n\n**Pregúntate:**\n\n- ¿Qué necesito que haga aquí?\n- ¿Precisión o carácter?\n\nLa respuesta depende de tus necesidades específicas en ese momento.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R60",
+      "question": "¿Nativo o emulación analógica?",
+      "issues": []
+    },
+    {
+      "respuesta": "Necesito una precision minima para no inventar: a que parametro, herramienta o parte de la clase te refieres?",
+      "ruta": "teoria",
+      "retrieval_scope": "",
+      "evidence_level": "bajo",
+      "blocked_by": "",
+      "fuentes": [],
+      "lesson_id": "SEC2-R60",
+      "question": "¿Cuándo conviene cada uno?",
+      "issues": []
+    },
+    {
+      "respuesta": "Esta lección presenta un checklist de seis bloques para preparar una sesión de mezcla de manera efectiva. El objetivo es convertir principios en hábitos que garantizan una base sólida antes de comenzar la mezcla.\n\nLa evidencia del curso indica que el checklist incluye los siguientes bloques:\n\n1. Organización\n2. Ruteo\n3. Gain staging\n4. Escucha calibrada\n5. Referencia auditiva\n6. Intención de mezcla\n\nEl enfoque es convertir estos principios en hábitos para garantizar una base sólida antes de comenzar la mezcla.\nLección: Lección 7 — Checklist de sesión lista para mezclar\nSéptima y última lección de la sección cero. El checklist de sesión lista para mezclar...",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R61",
+      "question": "¿De qué trata esta lección?",
+      "issues": []
+    },
+    {
+      "respuesta": "Según la evidencia del curso, en esta lección se presenta un checklist de seis bloques para preparar una sesión de mezcla. El primer paso del checklist es la organización.\n\nLa evidencia menciona que \"Bloque uno, la organización. Importa el material, revisa que no falte nada, nombra y colorea todas las pistas.\"\n\nPor lo tanto, antes de mezclar, debes revisar la organización de tu sesión, asegurándote de que todo esté en orden y listo para comenzar.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R61",
+      "question": "¿Qué reviso antes de mezclar?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Según el checklist de sesión lista para mezclar, hay seis pasos clave para preparar una sesión de mezcla. Primero, debes asegurarte de que las pistas estén organizadas y etiquetadas correctamente (organización de sesión). Luego, verifica que el ruteo de señales esté correcto (ruteo). A continuación, ajusta los niveles de las pistas para evitar saturación (gain staging). Después, asegúrate de que la escucha esté calibrada y adecuada para la sesión (escucha). También es importante tener una referencia auditiva clara (referencia). Finalmente, define la intención de la mezcla para guiar tus decisiones (intención).\n\nRecuerda que el checklist es una rutina que debes seguir en orden secuencial. No te saltes pasos ni intentes agregar pasos innecesarios. La preparación adecuada garantizará una base sólida antes de comenzar a mezclar.\n\nSi tienes alguna duda o necesitas más orientación, no dudes en preguntar.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R61",
+      "question": "¿Cómo dejo la sesión lista?",
+      "issues": []
+    }
+  ],
+  "edge_cases": [
+    {
+      "respuesta": "Solo puedo ayudarte con mezcla, masterizacion, audio, DAWs, plugins y contenido del curso. Si tu duda esta relacionada con el curso, dime la seccion, clase o concepto que quieres revisar.",
+      "ruta": "bloqueo",
+      "retrieval_scope": "",
+      "evidence_level": "bajo",
+      "blocked_by": "out_of_domain:semantic",
+      "fuentes": [],
+      "case": "out_of_domain",
+      "question": "¿Cuál es la capital de Francia?",
+      "expected": "refuse",
+      "ruta_ok": true
+    }
+  ]
+}
