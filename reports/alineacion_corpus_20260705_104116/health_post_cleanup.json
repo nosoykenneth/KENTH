@@ -1,0 +1,1 @@
+{"status":"ok","fastapi":"ok","moodle_db":"ok","moodle_ws":"ok","chroma":"ok","ollama":"ok","models":{"chat":"llama3.1:8b","embedding":"nomic-embed-text"},"details":{"chroma_chunks":233,"ollama_models_present":{"chat":true,"embedding":true},"db_backend":"moodle"}}
