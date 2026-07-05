@@ -68,3 +68,12 @@ tesis-rag/scripts/*results.jsonl
 tesis-rag/scripts/_out/
 tesis-rag/test*.txt
 tesis-rag/scratch/
+# ---- Reportes operativos server-only ----
+# Backups/evidencia pesada generada en produccion. Los resumenes Markdown/JSON
+# curados si se versionan cuando forman parte de una auditoria.
+reports/**/chroma_backup/
+reports/ingesta_seccion_*/
+reports/ingesta_seccion0_lessons_*/
+reports/reconcile_untracked_*/
+reports/**/server_commit_before_cleanup.txt
+reports/**/server_git_status_before_cleanup.txt
