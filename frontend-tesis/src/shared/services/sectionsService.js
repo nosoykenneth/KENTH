@@ -310,3 +310,10 @@ export function aiPrepareAccept(courseId, lessonId, { draft = null, apply_moment
     apply_moments,
   });
 }
+
+// "Publicar cambios del tutor": (re)genera e indexa el contexto aprobado de la
+// lección desde el perfil vigente. Devuelve el estado que se muestra al profesor
+// (tutor_updated, transcript_status, index_status, indexed_at, requires_reindex).
+export function publishTutorChanges(courseId, lessonId) {
+  return writeJson('POST', `/authoring/lessons/${encodeURIComponent(lessonId)}/publish`, courseId, {});
+}

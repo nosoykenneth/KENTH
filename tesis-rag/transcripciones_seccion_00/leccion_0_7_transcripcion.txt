@@ -1,0 +1,59 @@
+[00:00.000 --> 00:06.977]  Séptima y última lección de la sección cero. El checklist de sesión lista para mezclar.
+[00:07.157 --> 00:12.273]  Esta lección es la síntesis de todo lo que hemos visto.
+[00:12.453 --> 00:17.569]  Aquí juntamos las seis lecciones anteriores en una rutina de arranque.
+[00:17.749 --> 00:23.796]  La idea central: una buena mezcla empieza antes de tocar el primer plugin.
+[00:23.976 --> 00:29.557]  Los minutos que dedicas a preparar la sesión se te devuelven multiplicados.
+[00:29.737 --> 00:32.993]  En decisiones más rápidas, y más fiables.
+[00:33.173 --> 00:38.289]  Y el checklist convierte los principios de la sección en hábitos.
+[00:38.469 --> 00:45.446]  Hábitos que no dependen de tu memoria, ni de tu estado de ánimo ese día.
+[00:45.626 --> 00:49.347]  Son seis bloques, en orden. Vamos con ellos.
+[00:49.527 --> 00:51.387]  Bloque uno, la organización.
+[00:51.567 --> 00:58.079]  Importa el material, revisa que no falte nada, nombra y colorea todas las pistas.
+[00:58.259 --> 01:03.375]  Y agrúpalas por familias en buses, aplicando el ruteo que vimos.
+[01:03.555 --> 01:08.207]  Una sesión ordenada es una sesión donde puedes pensar. Punto.
+[01:08.387 --> 01:10.247]  Bloque dos, el ruteo.
+[01:10.427 --> 01:16.473]  Confirma que cada pista llega a su bus, y cada bus al master.
+[01:16.653 --> 01:22.700]  Crea uno o dos retornos para tus efectos compartidos, la reverb, el delay.
+[01:22.880 --> 01:29.857]  Y verifica que no hay señales perdidas ni duplicadas. Este paso te evita sustos después.
+[01:30.037 --> 01:32.362]  Bloque tres, el gain staging.
+[01:32.542 --> 01:36.263]  Revisa que ninguna pista pica cerca de cero.
+[01:36.443 --> 01:42.490]  Que los buses no saturan al sumar. Y que el master conserva headroom.
+[01:42.670 --> 01:48.251]  Si el material vino caliente, lo bajas aquí, antes de procesar nada.
+[01:48.431 --> 01:50.292]  Bloque cuatro, la escucha.
+[01:50.472 --> 01:56.053]  Fija tu nivel de monitoreo, moderado y constante, tu volumen de trabajo.
+[01:56.233 --> 02:00.419]  Elige tu sistema principal, conociendo su carácter, como vimos.
+[02:00.599 --> 02:07.111]  Y ten a mano el segundo sistema y el modo mono, listos para verificar.
+[02:07.291 --> 02:09.151]  Bloque cinco, la referencia.
+[02:09.331 --> 02:14.913]  Carga una o dos canciones de referencia, del estilo al que apuntas.
+[02:15.093 --> 02:22.069]  A un nivel comparable al tuyo. Tenerla lista desde el principio evita mezclar a ciegas.
+[02:22.249 --> 02:24.575]  Y bloque seis, la intención.
+[02:24.755 --> 02:30.336]  Antes de empezar, escribe en una frase qué buscas en esta mezcla.
+[02:30.516 --> 02:34.702]  Qué debe destacar, qué sensación quieres, a dónde apunta.
+[02:34.882 --> 02:40.929]  Esta frase es tu brújula, ordena todas las decisiones que vas a tomar.
+[02:41.109 --> 02:46.225]  Con estos seis bloques listos, tu sesión está lista para mezclar.
+[02:46.405 --> 02:52.452]  Ordenada, con señal sana, con la escucha calibrada, y con un norte claro.
+[02:52.632 --> 02:59.608]  Y a partir de ahí, cada decisión pasa por el ciclo de la primera lección.
+[02:59.788 --> 03:04.440]  Escuchar, diagnosticar, decidir, actuar, verificar. Pero sobre una base sólida.
+[03:04.620 --> 03:10.666]  El checklist no mezcla por ti. Te pone en condiciones de mezclar bien.
+[03:10.846 --> 03:17.358]  Y quiero insistir en algo. Trátalo como una rutina de verdad, no como teoría.
+[03:17.538 --> 03:23.119]  Muchos problemas que parecen de mezcla, en realidad son problemas de arranque.
+[03:23.299 --> 03:30.276]  Una pista que satura, un panorama que se cae en mono, decisiones que no cuajan.
+[03:30.456 --> 03:32.781]  El checklist los habría evitado.
+[03:32.961 --> 03:37.147]  Te doy el ejemplo que veo todo el tiempo.
+[03:37.327 --> 03:42.909]  Un alumno abre una sesión desordenada, y empieza a ecualizar de inmediato.
+[03:43.089 --> 03:51.926]  A la media hora está perdido. No sabe qué pista es cuál, un bus satura, el panorama se cae.
+[03:52.106 --> 03:56.757]  Con el checklist, habría dedicado diez minutos a preparar todo.
+[03:56.937 --> 04:02.053]  Y esos diez minutos le habrían ahorrado una hora de confusión.
+[04:02.233 --> 04:05.954]  La diferencia no fue talento. Fue el arranque.
+[04:06.134 --> 04:11.251]  Un consejo de oro: guarda tu sesión preparada como una plantilla.
+[04:11.431 --> 04:16.547]  Con los buses, los retornos, tu escucha y tu referencia listos.
+[04:16.727 --> 04:22.308]  Y cada proyecto nuevo arranca ya casi listo. Te ahorra muchísimo tiempo.
+[04:22.488 --> 04:27.140]  Vamos cerrando, no solo la lección, sino la sección entera.
+[04:27.320 --> 04:32.436]  El checklist integra todo. Organiza, rutea, escala niveles, calibra la escucha,
+[04:32.616 --> 04:36.337]  ancla con una referencia, y fija una intención.
+[04:36.517 --> 04:43.959]  Hecho en orden, deja la sesión preparada para que cada decisión se apoye en algo firme.
+[04:44.139 --> 04:52.511]  Es el puente entre el sistema de decisión de esta sección, y el trabajo de mezcla que viene.
+[04:52.691 --> 04:56.412]  Repítelo en cada sesión, hasta que sea automático.
+[04:56.592 --> 05:04.033]  Es una de las inversiones de tiempo más rentables de todo el curso, te lo aseguro.
+[05:04.213 --> 05:11.655]  En el ejercicio vas a preparar una sesión real, aplicando los seis bloques, uno por uno.
+[05:11.835 --> 05:18.812]  Y con esto cerramos la sección cero. Nos vemos en la sección uno. Buen trabajo.

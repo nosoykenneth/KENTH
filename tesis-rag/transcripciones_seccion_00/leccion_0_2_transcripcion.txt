@@ -1,0 +1,87 @@
+[00:00.000 --> 00:04.186]  Bienvenidos a la segunda lección de la sección cero.
+[00:04.366 --> 00:10.413]  Y el título de esta lección es un poco provocador: tu oído miente.
+[00:10.593 --> 00:18.965]  Pero es verdad, y quiero que entiendas por qué, porque te va a cambiar la forma de trabajar.
+[00:19.145 --> 00:25.656]  La idea central es esta: tu oído no es un instrumento de medición neutral.
+[00:25.836 --> 00:30.487]  No es un micrófono de medición, no es un analizador.
+[00:30.667 --> 00:34.853]  Es un sistema que interpreta, y al interpretar, distorsiona.
+[00:35.033 --> 00:39.220]  Percibimos el sonido de forma distinta según tres cosas.
+[00:39.400 --> 00:44.516]  Según el volumen al que escuchamos, según cuánto tiempo llevamos escuchando,
+[00:44.696 --> 00:47.952]  y según a qué nos hemos acostumbrado.
+[00:48.132 --> 00:54.178]  Y si no controlamos estas tres variables, tomamos decisiones sobre una realidad deformada.
+[00:54.358 --> 00:59.474]  Vamos con la primera, que es la más importante: el volumen.
+[00:59.654 --> 01:05.701]  Fíjate en esto. El balance entre graves, medios y agudos que tú percibes,
+[01:05.881 --> 01:09.137]  cambia según a qué volumen estés escuchando.
+[01:09.317 --> 01:15.828]  A volumen bajo, percibes menos graves y menos agudos, en relación con los medios.
+[01:16.008 --> 01:22.055]  A volumen alto, los graves y los agudos parecen realzarse, salen para adelante.
+[01:22.235 --> 01:26.886]  Y esto no es un defecto de tus altavoces, ojo.
+[01:27.066 --> 01:32.647]  Esto es cómo funciona el oído humano, el tuyo y el mío.
+[01:32.827 --> 01:37.944]  Este fenómeno está descrito en las llamadas curvas de igual sonoridad.
+[01:38.124 --> 01:43.705]  Fueron formuladas originalmente por Fletcher y Munson, allá por los años treinta.
+[01:43.885 --> 01:49.001]  Y hoy están estandarizadas en la norma internacional ISO doscientos veintiséis.
+[01:49.181 --> 01:54.298]  No te quedes con los nombres, quédate con la consecuencia práctica.
+[01:54.478 --> 02:01.454]  Si tú mezclas muy fuerte, vas a tender a poner pocos graves y pocos agudos.
+[02:01.634 --> 02:06.751]  ¿Por qué? Porque a ese volumen ya los oyes de sobra.
+[02:06.931 --> 02:13.442]  Y luego bajas el volumen, y tu mezcla suena delgada, sin cuerpo, sin aire.
+[02:13.622 --> 02:20.599]  Y al revés. Si mezclas muy bajito, vas a exagerar los graves y los agudos.
+[02:20.779 --> 02:26.826]  Por eso el volumen al que escuchas es una decisión, no un accidente.
+[02:27.006 --> 02:29.796]  El segundo fenómeno es la adaptación.
+[02:29.976 --> 02:36.488]  El oído y el cerebro se acostumbran a lo que escuchan, y muy rápido.
+[02:36.668 --> 02:43.180]  Si pones un exceso de agudos, a los pocos minutos deja de parecerte excesivo.
+[02:43.360 --> 02:45.685]  Se vuelve tu nueva normalidad.
+[02:45.865 --> 02:51.912]  Y por eso, otra vez, un cambio recién hecho casi siempre parece mejor.
+[02:52.092 --> 02:57.673]  Es nuevo, no es mejor. Ya lo dijimos en la lección anterior.
+[02:57.853 --> 03:01.109]  El tercer fenómeno es la fatiga auditiva.
+[03:01.289 --> 03:06.870]  Escuchar mucho tiempo, y sobre todo muy fuerte, agota tu juicio crítico.
+[03:07.050 --> 03:13.097]  Las decisiones que tomas al final de una sesión larga suelen ser peores.
+[03:13.277 --> 03:16.533]  Aunque en el momento te parezcan geniales.
+[03:16.713 --> 03:22.294]  Y la fatiga es traicionera, porque no siempre se siente como cansancio.
+[03:22.474 --> 03:27.590]  A veces se manifiesta solo como decisiones cada vez más extremas.
+[03:27.770 --> 03:34.747]  Subes un poquito el brillo, y no es suficiente, subes más, y más, y más.
+[03:34.927 --> 03:39.113]  Cuando te descubras haciendo eso, para. Probablemente estás fatigado.
+[03:39.293 --> 03:44.409]  Bueno, y ahora la buena noticia, porque no todo es malo.
+[03:44.589 --> 03:50.171]  La respuesta a los tres fenómenos es la misma familia de hábitos.
+[03:50.351 --> 03:54.072]  Uno, escuchar a un nivel moderado y constante.
+[03:54.252 --> 03:55.647]  Dos, hacer descansos.
+[03:55.827 --> 03:57.687]  Tres, comparar con referencias.
+[03:57.867 --> 04:02.519]  Y cuatro, verificar con el volumen igualado, como ya vimos.
+[04:02.699 --> 04:07.350]  Hablemos del nivel de escucha, porque es el hábito central.
+[04:07.530 --> 04:11.716]  Un nivel moderado, ni muy alto ni muy bajo,
+[04:11.896 --> 04:16.547]  es donde tu percepción del balance tonal es más equilibrada.
+[04:16.727 --> 04:20.913]  Y además es donde tu oído se cansa menos.
+[04:21.093 --> 04:26.674]  ¿A cuántos decibelios exactamente? No te voy a dar un número mágico.
+[04:26.854 --> 04:31.040]  Porque depende de tu sala y de tu sistema.
+[04:31.220 --> 04:36.802]  Pero te doy una guía muy práctica: el volumen de una conversación.
+[04:36.982 --> 04:42.098]  Mezcla la mayor parte del tiempo a un volumen de conversación.
+[04:42.278 --> 04:46.464]  Y solo sube el volumen para chequeos breves, puntuales.
+[04:46.644 --> 04:53.156]  Para revisar los graves, para sentir la energía, subes, escuchas, y bajas otra vez.
+[04:53.336 --> 04:57.987]  Los descansos. Toma unos minutos cada veinte, treinta, cuarenta minutos.
+[04:58.167 --> 05:01.888]  Según tu punto de fatiga, que es personal.
+[05:02.068 --> 05:09.045]  Y usa un segundo sistema. Escucha en el móvil, en el coche, en otros auriculares.
+[05:09.225 --> 05:13.876]  Ningún sistema por sí solo te dice toda la verdad.
+[05:14.056 --> 05:18.242]  Déjame darte un ejemplo que seguro te ha pasado.
+[05:18.422 --> 05:22.608]  Mezclas dos horas, de noche, fuerte, y quedas feliz.
+[05:22.788 --> 05:25.579]  Bombo contundente, voz brillante, todo espectacular.
+[05:25.759 --> 05:32.270]  Y al día siguiente, con el oído fresco, y a volumen moderado, lo escuchas,
+[05:32.450 --> 05:36.171]  y suena estridente, y sin graves. ¿Qué pasó?
+[05:36.351 --> 05:43.328]  A volumen alto ya percibías graves y agudos de sobra, así que quitaste de más.
+[05:43.508 --> 05:49.089]  Y la fatiga te llevó a exagerar el brillo, más y más.
+[05:49.269 --> 05:55.316]  La solución no era otro plugin. La solución era el hábito de escucha.
+[05:55.496 --> 06:00.147]  Y ojo con una cosa que confunde a mucha gente.
+[06:00.327 --> 06:06.839]  El nivel de la señal, lo que miden los medidores del DAW, en dBFS,
+[06:07.019 --> 06:14.460]  no es lo mismo que el volumen de escucha, lo fuerte que suena en tus altavoces.
+[06:14.640 --> 06:20.687]  Puedes tener una pista a menos dieciocho dBFS y escucharla fuerte o bajo,
+[06:20.867 --> 06:25.518]  según el volumen de tu monitor. Son dos cosas distintas.
+[06:25.698 --> 06:34.070]  El dB SPL es el sonido en el aire. El dBFS es el nivel digital dentro del programa.
+[06:34.250 --> 06:35.646]  No los mezcles.
+[06:35.826 --> 06:40.477]  Vamos cerrando. Tu oído miente, pero miente de formas predecibles.
+[06:40.657 --> 06:47.168]  El balance depende del volumen, la percepción se adapta, y el juicio se fatiga.
+[06:47.348 --> 06:52.000]  No puedes eliminar estos efectos, son parte de ser humano.
+[06:52.180 --> 06:54.040]  Pero sí puedes controlarlos.
+[06:54.220 --> 06:59.336]  Nivel moderado y constante, descansos, referencias, y verificación con volumen igualado.
+[06:59.516 --> 07:04.167]  Y una última cosa, que enlaza con la siguiente lección.
+[07:04.347 --> 07:07.603]  Un mejor equipo no elimina el autoengaño.
+[07:07.783 --> 07:14.295]  Un mejor equipo te revela más cosas, sí, pero los hábitos siguen siendo imprescindibles.
+[07:14.475 --> 07:20.521]  En el ejercicio vas a comparar un mismo pasaje a tres volúmenes distintos.
+[07:20.701 --> 07:27.213]  Y vas a anotar cómo cambia tu percepción de los graves y los agudos.
+[07:27.393 --> 07:32.974]  Te vas a sorprender. Es la mejor forma de creerte todo esto.
+[07:33.154 --> 07:39.201]  Nos vemos en la próxima, donde vamos a hablar de monitores y auriculares.

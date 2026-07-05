@@ -16,7 +16,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, ConfigDict
 
 from api.dependencies import require_teacher, require_course_admin, TeacherContext
-from services import db_service, transcription_service, pedagogy_profile
+from services import db_service, transcription_service, pedagogy_profile, teacher_context
 from services.lesson_service import load_lesson
 from services.ai_prepare import service as ai_prepare_service, persistence as ai_prepare_persistence, schema as ai_prepare_schema
 
@@ -34,6 +34,7 @@ def _index_transcript_safe(course_id: str, lesson_id: str, segments) -> None:
             lesson_id,
             segments,
             moodle_section_id=lesson.get("moodle_section_id", ""),
+            lesson_title=(lesson.get("title") or lesson.get("lesson_title") or ""),
         )
     except Exception as exc:  # pragma: no cover
         print(f"[transcript-index] fallo indexando {lesson_id}: {exc}")
@@ -726,11 +727,37 @@ def ai_prepare_accept(lesson_id: str, payload: AiAcceptPayload, ctx: TeacherCont
     )
     if not summary.get("ok"):
         raise HTTPException(status_code=422, detail=summary.get("error") or "No se pudo aceptar el borrador.")
+
+    # Flujo docente (Fase 6): al aceptar, se materializa e INDEXA de forma
+    # incremental el "contexto aprobado de la lección" derivado del perfil (sin
+    # rebuild global). Los campos de comportamiento (tono/nivel/reglas privadas) NO
+    # se indexan: se inyectan. `publish` no debe tumbar la aceptación si el índice
+    # falla (se devuelve requires_reindex=true para reintentar con el botón Publicar).
+    publish = teacher_context.publish_lesson_teacher_context(lesson_id, ctx.course_id, ctx.user_id)
     return {
         "lesson_id": lesson_id,
         "ok": True,
         "changed": summary.get("changed", []),
         "moments_applied": summary.get("moments_applied", 0),
-        "requires_reindex": summary.get("requires_reindex", False),
+        "tutor_updated": publish.get("tutor_updated", False),
+        "transcript_status": publish.get("transcript_status", ""),
+        "index_status": publish.get("index_status", ""),
+        "indexed_at": publish.get("indexed_at", ""),
+        "teacher_context_chunks": publish.get("chunks", 0),
+        "requires_reindex": publish.get("requires_reindex", False),
         "lesson": load_lesson(lesson_id, ctx.course_id),
     }
+
+
+@router.post("/lessons/{lesson_id}/publish")
+def publish_tutor_changes(lesson_id: str, ctx: TeacherContext = Depends(require_teacher)):
+    """"Publicar cambios del tutor" (Fase 6/12).
+
+    (Re)genera e indexa de forma incremental el contexto aprobado de la lección
+    desde el perfil pedagógico canónico vigente. Idempotente (delete-then-add por
+    lección). No hace rebuild global. Devuelve el estado que el frontend muestra.
+    """
+    if not db_service.get_lesson(lesson_id, ctx.course_id):
+        raise HTTPException(status_code=404, detail="Lección no encontrada.")
+    status = teacher_context.publish_lesson_teacher_context(lesson_id, ctx.course_id, ctx.user_id)
+    return {"lesson_id": lesson_id, **status}

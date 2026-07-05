@@ -1,0 +1,64 @@
+[00:00.000 --> 00:04.651]  Sexta lección de la sección cero. Nativos contra emulaciones analógicas.
+[00:04.831 --> 00:09.947]  O como a mí me gusta llamarlo, la matriz de decisión.
+[00:10.127 --> 00:18.034]  Y esta lección va a desmontar un par de mitos que te están costando dinero y tiempo.
+[00:18.214 --> 00:22.866]  La idea central, y quiero que la tengas muy clara:
+[00:23.046 --> 00:30.487]  ni lo nativo es frío e inferior, ni lo analógico emulado es mágico y siempre mejor.
+[00:30.667 --> 00:33.923]  Son herramientas con perfiles distintos, nada más.
+[00:34.103 --> 00:38.754]  Y la decisión correcta parte siempre de la misma pregunta.
+[00:38.934 --> 00:43.586]  ¿Qué necesito que haga este procesador, aquí, en esta pista?
+[00:43.766 --> 00:51.673]  La herramienta se elige por su función, no por su prestigio, ni por su interfaz vintage bonita.
+[00:51.853 --> 00:56.039]  Vamos a definir los dos bandos. Primero, el nativo.
+[00:56.219 --> 00:59.940]  Un plugin nativo está programado como software puro.
+[01:00.120 --> 01:06.166]  Busca precisión y transparencia. Hace justo lo que le pides, sin añadir carácter.
+[01:06.346 --> 01:11.462]  Suele ser eficiente con la CPU, y sus controles son exactos.
+[01:11.642 --> 01:15.363]  ¿Cuándo es ideal? Cuando quieres corregir con cirugía.
+[01:15.543 --> 01:20.660]  Un corte de ecualización muy preciso, un control de dinámica transparente.
+[01:20.840 --> 01:25.956]  O cuando andas justo de CPU. El nativo es tu bisturí.
+[01:26.136 --> 01:27.996]  Ahora, la emulación analógica.
+[01:28.176 --> 01:32.827]  Una emulación modela el comportamiento de un equipo de hardware.
+[01:33.007 --> 01:37.659]  Y modela también sus imperfecciones, que muchas veces son útiles.
+[01:37.839 --> 01:43.420]  Una leve distorsión armónica, saturación, coloración, a veces hasta algo de ruido.
+[01:43.600 --> 01:48.251]  Ese carácter puede ser justo lo que una pista necesita.
+[01:48.431 --> 01:52.152]  Para sonar con cuerpo, con pegada, con calidez.
+[01:52.332 --> 01:58.379]  ¿El precio? Suele consumir más CPU, y sus controles pueden ser menos exactos.
+[01:58.559 --> 02:05.070]  Porque parte de su gracia es cómo reacciona, no solo el número que marcas.
+[02:05.250 --> 02:08.506]  Y aquí está la clave de todo.
+[02:08.686 --> 02:14.267]  Los dos hacen la misma función. Un ecualizador ecualiza, un compresor comprime.
+[02:14.447 --> 02:20.494]  La diferencia está en el cómo. En si quieres precisión, o quieres carácter.
+[02:20.674 --> 02:25.790]  Esa es la pregunta que ordena la decisión. Precisión o carácter.
+[02:25.970 --> 02:32.482]  Para un corte quirúrgico de una resonancia molesta, la precisión de un nativo gana.
+[02:32.662 --> 02:40.104]  Para dar color y cohesión a un bus, el carácter de una emulación suele encajar mejor.
+[02:40.284 --> 02:46.795]  Y muchas veces se combinan. Nativo para corregir, emulación para colorear. Las dos cosas.
+[02:46.975 --> 02:51.161]  Recuerda lo de la lección anterior, el gain staging.
+[02:51.341 --> 02:55.062]  Las emulaciones dependen mucho del nivel de entrada.
+[02:55.242 --> 02:59.428]  Porque modelan cómo el hardware reacciona a distintas señales.
+[02:59.608 --> 03:06.120]  Así que si usas una emulación, cuánto la golpeas es parte de la decisión.
+[03:06.300 --> 03:10.021]  Un nativo transparente es más indiferente al nivel.
+[03:10.201 --> 03:14.852]  Ahora, los mitos que te prometí desmontar. Mito número uno.
+[03:15.032 --> 03:17.823]  Lo analógico siempre suena mejor. Falso.
+[03:18.003 --> 03:25.910]  Un mal uso de una emulación carísima suena peor que un buen uso de un nativo simple.
+[03:26.090 --> 03:31.206]  Mito número dos. Necesito la emulación más famosa para sonar profesional.
+[03:31.386 --> 03:38.363]  También falso. El resultado depende de tu decisión y del contexto, no de la marca.
+[03:38.543 --> 03:43.659]  El prestigio de un plugin no sustituye a tu criterio. Nunca.
+[03:43.839 --> 03:48.025]  Y cuidado con el sesgo visual, que es real.
+[03:48.205 --> 03:52.391]  Esas interfaces con aspecto vintage, con las perillas desgastadas,
+[03:52.571 --> 03:58.153]  te predisponen a creer que suenan mejor. Y a lo mejor no.
+[03:58.333 --> 04:03.449]  Por eso, compara siempre con bypass, y con el volumen igualado.
+[04:03.629 --> 04:11.536]  Si la emulación no aporta algo audible y útil, quédate con el nativo, que además pesa menos.
+[04:11.716 --> 04:16.367]  Todo esto lo resumo en una matriz de decisión sencilla.
+[04:16.547 --> 04:20.268]  Cruzas dos ejes. Qué necesitas, precisión o carácter.
+[04:20.448 --> 04:27.890]  Y tus restricciones, cuánta CPU tienes, si el color ayuda o estorba, si necesitas control exacto.
+[04:28.070 --> 04:33.651]  Con esos dos ejes, elegir deja de ser una cuestión de fe,
+[04:33.831 --> 04:39.413]  y pasa a ser una decisión razonada, que puedes justificar y verificar.
+[04:39.593 --> 04:46.104]  Un ejemplo rápido. Una voz con una resonancia molesta, y además suena algo plana.
+[04:46.284 --> 04:51.866]  Primero, un ecualizador nativo, corte estrecho y preciso en la resonancia. Precisión.
+[04:52.046 --> 05:00.418]  Luego, si le falta cuerpo, una emulación que le dé un realce coloreado y algo de saturación. Carácter.
+[05:00.598 --> 05:05.714]  Dos herramientas, dos funciones, cada una elegida por lo que hace.
+[05:05.894 --> 05:11.010]  Vamos cerrando. Nativo y emulación no compiten por ser el mejor.
+[05:11.190 --> 05:14.446]  Cumplen la misma función con distinto carácter.
+[05:14.626 --> 05:20.207]  Decide por lo que necesitas, precisión o carácter, y por tus restricciones.
+[05:20.387 --> 05:24.573]  Verifica el aporte real con bypass y volumen igualado.
+[05:24.753 --> 05:28.474]  Y por favor, no colecciones plugins. Desarrolla criterio.
+[05:28.654 --> 05:36.561]  Vale más el criterio con pocas herramientas que un disco duro lleno de plugins que no dominas.
+[05:36.741 --> 05:43.718]  En el ejercicio vas a decidir en tres situaciones, usando la matriz, justificando cada elección.
+[05:43.898 --> 05:51.340]  Nos vemos en la última lección de la sección, el checklist de sesión lista para mezclar.

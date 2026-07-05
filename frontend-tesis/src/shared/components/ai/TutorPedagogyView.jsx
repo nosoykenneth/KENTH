@@ -3,7 +3,7 @@ import {
   getResourceLink, getLesson, getTranscript, getTranscriptStatus,
   autoTranscribe, replaceTranscript, aiPrepare,
   replaceLessonBlocks, mergeDraftMomentsIntoBlocks,
-  savePedagogy, toTutorProfile,
+  savePedagogy, toTutorProfile, publishTutorChanges,
 } from '../../services/sectionsService';
 import { activityContextFromMoodleModule } from '../../services/activityContext';
 import { showNotification } from '../../utils/notify';
@@ -155,6 +155,8 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
   const [editing, setEditing] = useState(null); // edición de UN momento (modal)
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishInfo, setPublishInfo] = useState(null); // {tutor_updated, index_status, indexed_at, transcript_status, requires_reindex}
 
   // Muta la lista de bloques y marca cambios sin guardar.
   const mutateBlocks = useCallback((fn) => {
@@ -406,7 +408,30 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
 
   const setP = (k, v) => { if (!readOnly) setProfile((p) => ({ ...p, [k]: v })); };
 
+  // Publicar cambios del tutor: materializa el contexto aprobado y lo pone a
+  // disposición del tutor. Lenguaje del profesor (nada de índice/fragmentos/técnico).
+  const publishChanges = async () => {
+    if (readOnly || !lessonId) return null;
+    setPublishing(true);
+    try {
+      const info = await publishTutorChanges(courseId, lessonId);
+      setPublishInfo(info);
+      if (info.tutor_updated) {
+        showNotification('success', 'Cambios del tutor publicados. El tutor ya usa este contenido.');
+      } else {
+        showNotification('info', 'Guardado. La publicación quedó pendiente; vuelve a pulsar “Publicar cambios del tutor”.');
+      }
+      return info;
+    } catch (e) {
+      showNotification('error', e.message);
+      return null;
+    } finally {
+      setPublishing(false);
+    }
+  };
+
   // Guardar TODO: perfil canónico (nivel lección) + momentos/bloques (tiempos + tipo).
+  // Al guardar se publica automáticamente el contexto aprobado (el tutor lo usa).
   const saveProfile = async () => {
     if (readOnly || !lessonId || !profile) return;
     setSaving(true);
@@ -419,7 +444,7 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
       }
       setSaved(true);
       setBlocksDirty(false);
-      showNotification('success', 'Tutor actualizado.');
+      await publishChanges();
       await reload();
     } catch (e) {
       showNotification('error', e.message);
@@ -854,12 +879,38 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                 {/* Barra de acciones a lo ancho de las dos columnas: Regenerar al borde
                     izquierdo (columna del video/transcripción), Guardar al borde derecho. */}
                 {!readOnly && (
-                  <div className="flex items-center justify-between gap-3 sticky bottom-0 bg-gradient-to-t from-black/85 via-black/60 to-transparent pt-4 pb-2 -mx-1 px-1">
-                    <button onClick={() => setStep(2)} className="px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-subtext text-xs font-black uppercase tracking-widest hover:text-kenth-text">← Regenerar</button>
-                    <button onClick={saveProfile} disabled={saving}
-                      className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-black uppercase tracking-widest disabled:opacity-40 transition">
-                      {saving ? 'Aplicando…' : 'Guardar y aplicar al tutor'}
-                    </button>
+                  <div className="sticky bottom-0 bg-gradient-to-t from-black/85 via-black/60 to-transparent pt-4 pb-2 -mx-1 px-1 flex flex-col gap-2">
+                    {/* Estado del tutor para el profesor (lenguaje humano, sin tecnicismos). */}
+                    <div className="flex items-center gap-2 flex-wrap">
+                      {(() => {
+                        const ts = publishInfo?.transcript_status || transcriptStatus;
+                        const approvedT = ts === 'approved' || ts === 'edited';
+                        const pendingT = ts === 'generated_pending_review' || ts === 'generated';
+                        return (
+                          <StatusChip tone={approvedT ? 'ok' : (pendingT ? 'warn' : 'info')}>
+                            {approvedT ? 'Transcripción aprobada' : (pendingT ? 'Transcripción pendiente de revisión' : 'Sin transcripción')}
+                          </StatusChip>
+                        );
+                      })()}
+                      {publishInfo && (
+                        publishInfo.tutor_updated
+                          ? <StatusChip tone="ok">Tutor actualizado</StatusChip>
+                          : <StatusChip tone="warn">Cambios pendientes de publicar</StatusChip>
+                      )}
+                    </div>
+                    <div className="flex items-center justify-between gap-3">
+                      <button onClick={() => setStep(2)} className="px-4 py-2 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-subtext text-xs font-black uppercase tracking-widest hover:text-kenth-text">← Regenerar</button>
+                      <div className="flex items-center gap-2">
+                        <button onClick={publishChanges} disabled={publishing || saving}
+                          className="px-4 py-3 rounded-xl bg-kenth-surface/10 border border-kenth-border text-kenth-text text-xs font-black uppercase tracking-widest disabled:opacity-40 hover:border-emerald-500/50">
+                          {publishing ? 'Publicando…' : 'Publicar cambios del tutor'}
+                        </button>
+                        <button onClick={saveProfile} disabled={saving}
+                          className="px-6 py-3 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-black uppercase tracking-widest disabled:opacity-40 transition">
+                          {saving ? 'Aplicando…' : 'Guardar y aplicar al tutor'}
+                        </button>
+                      </div>
+                    </div>
                   </div>
                 )}
               </div>
