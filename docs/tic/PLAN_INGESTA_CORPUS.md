@@ -24,6 +24,7 @@ Procedimiento reproducible para incorporar el corpus de una sección al índice 
 5. **MAPEAR** contra el sistema real: `db_service.list_lessons(course_id)` y la sección Moodle. Alinear la identidad de sección con un chunk existente si lo hay.
 6. **RESPALDAR:** `cp -r runtime/chroma` con timestamp + `pre_index_state.json` (total/by_source/by_section/by_lesson/fuentes) en `reports/ingesta_seccion_<N>_<ts>/`.
 7. **INGESTAR:** árbol server-ready (frontmatter de sistema) → host-repo → `docker cp` al contenedor → `ingest_seccionN.py` dry-run → `--commit`.
+   - **Promoción autoría→canónico (versionada):** `tesis-rag/scripts/promote_seccion_corpus.py --manifest <INGEST_MANIFEST_SECCION_N.json> [--dry-run|--commit]` transforma el árbol de autoría (frontmatter humano) al árbol canónico `documentos/oficial/curso_<id>/seccion_<slug>/` inyectando el frontmatter de sistema y aplicando los flags por `action` del manifest. Es el driver antes no-versionado. Sólo reescribe metadata; el cuerpo del markdown se copia verbatim. La Sección 0 se consolidó con él (2026-07-05).
 8. **CONSOLIDAR (durable):** `docker compose build fastapi && up -d fastapi` (Chroma persiste). Verificar health.
 9. **VALIDAR:** gates de Chroma (excluidos=0, otras secciones intactas, retenidas=0) + pruebas de chat con token estudiante (grounded/rechazo/ambigua/guía-interna).
 10. **REPORTAR:** `reports/INGESTA_SECCION_<N>_REPORTE.md` (+ copia en `docs/tic/`).
@@ -32,5 +33,5 @@ Procedimiento reproducible para incorporar el corpus de una sección al índice 
 `mdl_external_tokens` (lectura permitida por el contrato SOA). Verificar `external_services.enabled=1` y `validuntil` (0 = sin expiración; >0 = epoch límite — **cuidado con tokens expirados**). Usar `MYSQL_PWD` para no exponer la clave en `ps`.
 
 ## Deuda técnica detectada (aplicar cuando se pueda)
-- `ingest.es_documento_aprobado_para_indexar`: cambiar `allowed_flag is False` por `_as_bool(...) is False` (el markdown entrega string).
+- ~~`ingest.es_documento_aprobado_para_indexar`: cambiar `allowed_flag is False` por `_as_bool(...) is False`~~ **RESUELTO** (PR #10, `10c8b9f`): el gate ya normaliza el flag con `_as_bool` robusto; validado sobre el árbol consolidado de la Sección 0 (22 indexables, 0 fugas de eval/QA/manifest/HOLD).
 - Frontend: filtrar el array `fuentes` de `/chat` por `visible_to_student` para el alumno (las guías internas se usan como conocimiento pero no deben citarse).

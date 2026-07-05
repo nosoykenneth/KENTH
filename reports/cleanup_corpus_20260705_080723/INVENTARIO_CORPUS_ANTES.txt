@@ -1,0 +1,88 @@
+# INVENTARIO — corpus/ (ANTES de limpieza)
+# Generado: 20260705_080723  | ruta | bytes | git | frontmatter
+# NOTA: NINGUN codigo Python lee esta carpeta. Es fuente de AUTORIA (frontmatter humano).
+
+corpus/seccion_00_sistema_decision/00_QA_CORPUS_SECCION_0.md                                         6014 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/00_atribuciones_seccion.md                                        2784 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/00_glosario_seccion.md                                            2909 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/00_manifest_indexacion_seccion.md                                 2801 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/00_mapa_conceptual_seccion.md                                     2861 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/00_recursos_externos_sugeridos.md                                 3586 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/00_seccion_overview.md                                            4284 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/INGEST_MANIFEST_SECCION_0.csv                                    24500 B  tracked    no-fm
+corpus/seccion_00_sistema_decision/INGEST_MANIFEST_SECCION_0.json                                   63081 B  tracked    no-fm
+corpus/seccion_00_sistema_decision/PLAN_INGESTA_SECCION_0.md                                         3895 B  tracked    no-fm
+corpus/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/01_contenido_canonico.md           5934 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/02_guia_tutor_ia.md                4046 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/03_momentos_clase.md               4394 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/04_glosario.md                     3827 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/05_preguntas_frecuentes.md         3799 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/06_actividad_practica.md           3222 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/07_rubrica_actividad.md            2161 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/08_recursos_manifest.md            2767 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/09_atribuciones.md                 1727 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_1_mezclar_es_decidir/10_prompt_evaluacion.md            2854 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/01_contenido_canonico.md               5945 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/02_guia_tutor_ia.md                    3872 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/03_momentos_clase.md                   3699 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/04_glosario.md                         3909 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/05_preguntas_frecuentes.md             3769 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/06_actividad_practica.md               3046 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/07_rubrica_actividad.md                2015 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/08_recursos_manifest.md                2533 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/09_atribuciones.md                     2137 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_2_tu_oido_miente/10_prompt_evaluacion.md                2792 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/01_contenido_canonico.md      5825 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/02_guia_tutor_ia.md           3552 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/03_momentos_clase.md          3555 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/04_glosario.md                3518 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/05_preguntas_frecuentes.md      3691 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/06_actividad_practica.md      2889 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/07_rubrica_actividad.md       1776 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/08_recursos_manifest.md       2499 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/09_atribuciones.md            1818 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_3_monitores_y_auriculares/10_prompt_evaluacion.md       2707 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/01_contenido_canonico.md      6236 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/02_guia_tutor_ia.md      3487 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/03_momentos_clase.md      3678 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/04_glosario.md         3581 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/05_preguntas_frecuentes.md      3443 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/06_actividad_practica.md      2940 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/07_rubrica_actividad.md      1713 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/08_recursos_manifest.md      2289 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/09_atribuciones.md      1684 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_4_anatomia_universal_mixer_ruteo/10_prompt_evaluacion.md      2510 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_5_gain_staging/01_contenido_canonico.md                 6649 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_5_gain_staging/02_guia_tutor_ia.md                      3644 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_5_gain_staging/03_momentos_clase.md                     3611 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_5_gain_staging/04_glosario.md                           3258 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_5_gain_staging/05_preguntas_frecuentes.md               3650 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_5_gain_staging/06_actividad_practica.md                 2889 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_5_gain_staging/07_rubrica_actividad.md                  1754 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_5_gain_staging/08_recursos_manifest.md                  2259 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_5_gain_staging/09_atribuciones.md                       1695 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_5_gain_staging/10_prompt_evaluacion.md                  2647 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/01_contenido_canonico.md       6515 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/02_guia_tutor_ia.md            3690 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/03_momentos_clase.md           3599 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/04_glosario.md                 3407 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/05_preguntas_frecuentes.md      3505 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/06_actividad_practica.md       3008 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/07_rubrica_actividad.md        1766 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/08_recursos_manifest.md        2561 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/09_atribuciones.md             2227 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_6_nativos_vs_emulaciones/10_prompt_evaluacion.md        2640 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/01_contenido_canonico.md       6244 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/02_guia_tutor_ia.md            3485 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/03_momentos_clase.md           3475 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/04_glosario.md                 3277 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/05_preguntas_frecuentes.md      3322 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/06_actividad_practica.md       2898 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/07_rubrica_actividad.md        1769 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/08_recursos_manifest.md        2790 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/09_atribuciones.md             1718 B  tracked    frontmatter
+corpus/seccion_00_sistema_decision/leccion_0_7_checklist_sesion_lista/10_prompt_evaluacion.md        2658 B  tracked    frontmatter
+
+# Artefactos sueltos en RAIZ del repo (untracked):
+00_QA_CORPUS_SECCION_0.md                                                                            5935 B  untracked
+corpus_seccion_00.zip                                                                              130389 B  untracked
