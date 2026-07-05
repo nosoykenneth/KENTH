@@ -9,11 +9,11 @@
   "lesson_mapping": {
     "leccion_0_1_mezclar_es_decidir": "SEC2-R55",
     "leccion_0_2_tu_oido_miente": "SEC2-R56",
-    "leccion_0_3_monitores_y_auriculares": "",
-    "leccion_0_4_anatomia_universal_mixer_ruteo": "",
-    "leccion_0_5_gain_staging": "",
-    "leccion_0_6_nativos_vs_emulaciones": "",
-    "leccion_0_7_checklist_sesion_lista": ""
+    "leccion_0_3_monitores_y_auriculares": "SEC2-R57",
+    "leccion_0_4_anatomia_universal_mixer_ruteo": "SEC2-R58",
+    "leccion_0_5_gain_staging": "SEC2-R59",
+    "leccion_0_6_nativos_vs_emulaciones": "SEC2-R60",
+    "leccion_0_7_checklist_sesion_lista": "SEC2-R61"
   },
   "files": [
     {
@@ -571,10 +571,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R57",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_3_monitores_y_auriculares/02_guia_tutor_ia.md",
@@ -591,10 +591,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R57",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_3_monitores_y_auriculares/03_momentos_clase.md",
@@ -611,10 +611,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R57",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_3_monitores_y_auriculares/04_glosario.md",
@@ -631,10 +631,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R57",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_3_monitores_y_auriculares/05_preguntas_frecuentes.md",
@@ -651,10 +651,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R57",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_3_monitores_y_auriculares/06_actividad_practica.md",
@@ -671,10 +671,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R57",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_3_monitores_y_auriculares/07_rubrica_actividad.md",
@@ -691,10 +691,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R57",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_3_monitores_y_auriculares/08_recursos_manifest.md",
@@ -711,10 +711,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R57",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_3_monitores_y_auriculares/09_atribuciones.md",
@@ -731,10 +731,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R57",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_3_monitores_y_auriculares/10_prompt_evaluacion.md",
@@ -751,8 +751,8 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
+      "lesson_id_real": "SEC2-R57",
+      "mapped_state": "MAPPED",
       "action": "EXCLUDE_never_index",
       "notes": "No indexable (eval/QA/operativo/recursos_externos)."
     },
@@ -771,10 +771,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R58",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_4_anatomia_universal_mixer_ruteo/02_guia_tutor_ia.md",
@@ -791,10 +791,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R58",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_4_anatomia_universal_mixer_ruteo/03_momentos_clase.md",
@@ -811,10 +811,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R58",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_4_anatomia_universal_mixer_ruteo/04_glosario.md",
@@ -831,10 +831,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R58",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_4_anatomia_universal_mixer_ruteo/05_preguntas_frecuentes.md",
@@ -851,10 +851,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R58",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_4_anatomia_universal_mixer_ruteo/06_actividad_practica.md",
@@ -871,10 +871,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R58",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_4_anatomia_universal_mixer_ruteo/07_rubrica_actividad.md",
@@ -891,10 +891,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R58",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_4_anatomia_universal_mixer_ruteo/08_recursos_manifest.md",
@@ -911,10 +911,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R58",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_4_anatomia_universal_mixer_ruteo/09_atribuciones.md",
@@ -931,10 +931,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R58",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_4_anatomia_universal_mixer_ruteo/10_prompt_evaluacion.md",
@@ -951,8 +951,8 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
+      "lesson_id_real": "SEC2-R58",
+      "mapped_state": "MAPPED",
       "action": "EXCLUDE_never_index",
       "notes": "No indexable (eval/QA/operativo/recursos_externos)."
     },
@@ -971,10 +971,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R59",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_5_gain_staging/02_guia_tutor_ia.md",
@@ -991,10 +991,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R59",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_5_gain_staging/03_momentos_clase.md",
@@ -1011,10 +1011,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R59",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_5_gain_staging/04_glosario.md",
@@ -1031,10 +1031,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R59",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_5_gain_staging/05_preguntas_frecuentes.md",
@@ -1051,10 +1051,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R59",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_5_gain_staging/06_actividad_practica.md",
@@ -1071,10 +1071,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R59",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_5_gain_staging/07_rubrica_actividad.md",
@@ -1091,10 +1091,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R59",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_5_gain_staging/08_recursos_manifest.md",
@@ -1111,10 +1111,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R59",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_5_gain_staging/09_atribuciones.md",
@@ -1131,10 +1131,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R59",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_5_gain_staging/10_prompt_evaluacion.md",
@@ -1151,8 +1151,8 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
+      "lesson_id_real": "SEC2-R59",
+      "mapped_state": "MAPPED",
       "action": "EXCLUDE_never_index",
       "notes": "No indexable (eval/QA/operativo/recursos_externos)."
     },
@@ -1171,10 +1171,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R60",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_6_nativos_vs_emulaciones/02_guia_tutor_ia.md",
@@ -1191,10 +1191,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R60",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_6_nativos_vs_emulaciones/03_momentos_clase.md",
@@ -1211,10 +1211,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R60",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_6_nativos_vs_emulaciones/04_glosario.md",
@@ -1231,10 +1231,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R60",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_6_nativos_vs_emulaciones/05_preguntas_frecuentes.md",
@@ -1251,10 +1251,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R60",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_6_nativos_vs_emulaciones/06_actividad_practica.md",
@@ -1271,10 +1271,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R60",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_6_nativos_vs_emulaciones/07_rubrica_actividad.md",
@@ -1291,10 +1291,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R60",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_6_nativos_vs_emulaciones/08_recursos_manifest.md",
@@ -1311,10 +1311,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R60",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_6_nativos_vs_emulaciones/09_atribuciones.md",
@@ -1331,10 +1331,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R60",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_6_nativos_vs_emulaciones/10_prompt_evaluacion.md",
@@ -1351,8 +1351,8 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
+      "lesson_id_real": "SEC2-R60",
+      "mapped_state": "MAPPED",
       "action": "EXCLUDE_never_index",
       "notes": "No indexable (eval/QA/operativo/recursos_externos)."
     },
@@ -1371,10 +1371,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R61",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_7_checklist_sesion_lista/02_guia_tutor_ia.md",
@@ -1391,10 +1391,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R61",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_7_checklist_sesion_lista/03_momentos_clase.md",
@@ -1411,10 +1411,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R61",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_7_checklist_sesion_lista/04_glosario.md",
@@ -1431,10 +1431,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R61",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_7_checklist_sesion_lista/05_preguntas_frecuentes.md",
@@ -1451,10 +1451,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R61",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_7_checklist_sesion_lista/06_actividad_practica.md",
@@ -1471,10 +1471,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R61",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_7_checklist_sesion_lista/07_rubrica_actividad.md",
@@ -1491,10 +1491,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R61",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_7_checklist_sesion_lista/08_recursos_manifest.md",
@@ -1511,10 +1511,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R61",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_7_checklist_sesion_lista/09_atribuciones.md",
@@ -1531,10 +1531,10 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": true,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
-      "action": "HOLD_pending_lesson_mapping",
-      "notes": "Lección sin lección real en el sistema; retenida, no indexada."
+      "lesson_id_real": "SEC2-R61",
+      "mapped_state": "MAPPED",
+      "action": "INDEX_lesson",
+      "notes": "Leccion mapeada por nombres H5P; aprobada para indexacion."
     },
     {
       "relative_path": "leccion_0_7_checklist_sesion_lista/10_prompt_evaluacion.md",
@@ -1551,13 +1551,14 @@
       "suggested_endpoint": "n/a",
       "requires_reindex": false,
       "internal_context": false,
-      "lesson_id_real": "",
-      "mapped_state": "pending_lesson_mapping",
+      "lesson_id_real": "SEC2-R61",
+      "mapped_state": "MAPPED",
       "action": "EXCLUDE_never_index",
       "notes": "No indexable (eval/QA/operativo/recursos_externos)."
     }
   ],
   "allowed_for_indexing": false,
   "visible_to_student": false,
-  "status": "excluded_operational"
+  "status": "excluded_operational",
+  "mapping_verified": "2026-07-05 via mdl_hvp names (section seq 55-61); plugin titles stale"
 }

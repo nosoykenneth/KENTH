@@ -151,7 +151,8 @@ def _promote_manifest_json(src, dest, do_write):
 
 
 def _copy_verbatim(src, dest, do_write):
-    if do_write:
+    # Guard: re-correr in-place (src_dir == dest_dir) haría copyfile(src, src) -> SameFileError.
+    if do_write and os.path.abspath(src) != os.path.abspath(dest):
         shutil.copyfile(src, dest)
     return "COPY(non-safe-ext)"
 
