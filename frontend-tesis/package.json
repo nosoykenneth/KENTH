@@ -8,6 +8,7 @@
     "build": "vite build",
     "test:moodle-section": "node scripts/verify_moodle_section_contract.mjs",
     "test:professor-view": "node scripts/verify_professor_view_contract.mjs",
+    "test:chat-sources": "node scripts/verify_chat_source_visibility.mjs",
     "lint": "eslint .",
     "preview": "vite preview"
   },

@@ -348,8 +348,11 @@ def es_documento_aprobado_para_indexar(filepath: str, explicar: bool = False):
 
     nested_metadata = metadata.get("metadata", {}) if isinstance(metadata, dict) else {}
     allowed_flag = metadata.get("allowed_for_indexing", nested_metadata.get("allowed_for_indexing", None))
-    if allowed_flag is False:
-        razones.append("allowed_for_indexing=false")
+    # El frontmatter markdown entrega el flag como STRING ('false'), no como bool;
+    # comparar con `is False` dejaba pasar prompts de evaluación / QA / manifiestos.
+    # Se rechaza solo cuando el flag está PRESENTE y es falsy (según _as_bool robusto).
+    if allowed_flag is not None and not _as_bool(allowed_flag, default=True):
+        razones.append(f"allowed_for_indexing={allowed_flag!r} (interpretado como false)")
 
     aprobado = not razones
     if explicar:
@@ -392,15 +395,37 @@ def _valor_metadata(valor, fallback=""):
     return str(valor)
 
 
+_TRUTHY_STRINGS = ("1", "true", "yes", "si", "sí", "on", "t", "y")
+_FALSY_STRINGS = ("0", "false", "no", "off", "f", "n", "null", "none", "nil", "")
+
+
 def _as_bool(valor, default: bool = False) -> bool:
-    """Coacciona a bool valores que pueden venir como bool, int o string
-    (frontmatter md guarda 'True'/'False' como texto)."""
+    """Coacciona a bool cualquier flag que venga como bool, int/float, string o None.
+
+    Robusto e inequívoco:
+      - bool  -> tal cual
+      - None  -> default
+      - int/float -> bool(valor)  (1/0)
+      - str: 'true'/'false', '1'/'0', 'yes'/'no', 'on'/'off', 'null' (case-insensitive)
+        Un string desconocido cae al default (no adivina).
+
+    CRÍTICO: el frontmatter markdown (parser _leer_frontmatter_md) guarda TODO como
+    texto, así que `allowed_for_indexing: false` llega como el string 'false'. Por eso
+    NUNCA se debe comparar el flag crudo con `is False`/`== False`: hay que pasarlo por
+    esta función. Ver es_documento_aprobado_para_indexar."""
     if isinstance(valor, bool):
         return valor
+    if valor is None:
+        return default
     if isinstance(valor, (int, float)):
         return bool(valor)
     if isinstance(valor, str):
-        return valor.strip().lower() in ("1", "true", "yes", "si", "sí", "on")
+        s = valor.strip().lower()
+        if s in _TRUTHY_STRINGS:
+            return True
+        if s in _FALSY_STRINGS:
+            return False
+        return default
     return default
 
 
