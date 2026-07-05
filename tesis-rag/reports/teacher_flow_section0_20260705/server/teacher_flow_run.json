@@ -1,0 +1,315 @@
+{
+  "generated_at": "2026-07-05T19:54:55.464480+00:00",
+  "course_id": "2",
+  "section_moodle_id": "2",
+  "section_human": "Sección 0 — El sistema de decisión",
+  "apply": true,
+  "lessons": [
+    {
+      "num": "0.1",
+      "lesson_id": "SEC2-R55",
+      "cmid": 55,
+      "expected_title": "Mezclar es decidir: el ciclo de trabajo",
+      "db_title": "Lección 1 — Mezclar es decidir: el ciclo de trabajo",
+      "declares_ok": true,
+      "segments": 95,
+      "duration_s": 509.943,
+      "transcript_chunks": 9,
+      "ai_prepare": {
+        "ok": true,
+        "changed": [
+          "learning_goal",
+          "tutor_focus",
+          "tutor_must_not_do",
+          "lesson_summary",
+          "tutor_tone",
+          "help_level",
+          "lesson_rules",
+          "key_concepts",
+          "common_mistakes",
+          "probable_questions",
+          "prompts",
+          "moments(5)"
+        ],
+        "moments_applied": 5,
+        "elapsed_seconds": 29.95
+      },
+      "teacher_context_chunks": 6,
+      "teacher_context_index_status": "indexed",
+      "status": "applied"
+    },
+    {
+      "num": "0.2",
+      "lesson_id": "SEC2-R56",
+      "cmid": 56,
+      "expected_title": "Tu oído miente: percepción y nivel de escucha",
+      "db_title": "Lección 2 — Tu oído miente: percepción y nivel de escucha",
+      "declares_ok": true,
+      "segments": 87,
+      "duration_s": 459.201,
+      "transcript_chunks": 8,
+      "ai_prepare": {
+        "ok": true,
+        "changed": [
+          "learning_goal",
+          "tutor_focus",
+          "tutor_must_not_do",
+          "lesson_summary",
+          "tutor_tone",
+          "help_level",
+          "lesson_rules",
+          "key_concepts",
+          "common_mistakes",
+          "probable_questions",
+          "prompts",
+          "moments(6)"
+        ],
+        "moments_applied": 6,
+        "elapsed_seconds": 61.52
+      },
+      "teacher_context_chunks": 7,
+      "teacher_context_index_status": "indexed",
+      "status": "applied"
+    },
+    {
+      "num": "0.3",
+      "lesson_id": "SEC2-R57",
+      "cmid": 57,
+      "expected_title": "Monitores y auriculares: trabajar con lo que tienes",
+      "db_title": "Lección 3 — Monitores y auriculares: trabajar con lo que tienes",
+      "declares_ok": true,
+      "segments": 66,
+      "duration_s": 352.63,
+      "transcript_chunks": 6,
+      "ai_prepare": {
+        "ok": true,
+        "changed": [
+          "learning_goal",
+          "tutor_focus",
+          "tutor_must_not_do",
+          "lesson_summary",
+          "tutor_tone",
+          "help_level",
+          "lesson_rules",
+          "key_concepts",
+          "common_mistakes",
+          "probable_questions",
+          "prompts",
+          "moments(4)"
+        ],
+        "moments_applied": 4,
+        "elapsed_seconds": 30.09
+      },
+      "teacher_context_chunks": 6,
+      "teacher_context_index_status": "indexed",
+      "status": "applied"
+    },
+    {
+      "num": "0.4",
+      "lesson_id": "SEC2-R58",
+      "cmid": 58,
+      "expected_title": "Anatomía universal del mixer: ruteo",
+      "db_title": "Lección 4 — Anatomía universal del mixer: ruteo",
+      "declares_ok": true,
+      "segments": 68,
+      "duration_s": 372.99,
+      "transcript_chunks": 6,
+      "ai_prepare": {
+        "ok": true,
+        "changed": [
+          "learning_goal",
+          "tutor_focus",
+          "tutor_must_not_do",
+          "lesson_summary",
+          "tutor_tone",
+          "help_level",
+          "lesson_rules",
+          "key_concepts",
+          "common_mistakes",
+          "probable_questions",
+          "prompts",
+          "moments(5)"
+        ],
+        "moments_applied": 5,
+        "elapsed_seconds": 34.02
+      },
+      "teacher_context_chunks": 6,
+      "teacher_context_index_status": "indexed",
+      "status": "applied"
+    },
+    {
+      "num": "0.5",
+      "lesson_id": "SEC2-R59",
+      "cmid": 59,
+      "expected_title": "Gain Staging: el cimiento de toda la cadena",
+      "db_title": "Lección 5 — Gain Staging: el cimiento de toda la cadena",
+      "declares_ok": true,
+      "segments": 63,
+      "duration_s": 362.323,
+      "transcript_chunks": 6,
+      "ai_prepare": {
+        "ok": true,
+        "changed": [
+          "learning_goal",
+          "tutor_focus",
+          "tutor_must_not_do",
+          "lesson_summary",
+          "tutor_tone",
+          "help_level",
+          "lesson_rules",
+          "key_concepts",
+          "common_mistakes",
+          "probable_questions",
+          "prompts",
+          "moments(7)"
+        ],
+        "moments_applied": 7,
+        "elapsed_seconds": 35.86
+      },
+      "teacher_context_chunks": 6,
+      "teacher_context_index_status": "indexed",
+      "status": "applied"
+    },
+    {
+      "num": "0.6",
+      "lesson_id": "SEC2-R60",
+      "cmid": 60,
+      "expected_title": "Nativos vs emulaciones analógicas: la matriz de decisión",
+      "db_title": "Lección 6 — Nativos vs emulaciones analógicas: la matriz de decisión",
+      "declares_ok": true,
+      "segments": 64,
+      "duration_s": 351.34,
+      "transcript_chunks": 6,
+      "ai_prepare": {
+        "ok": true,
+        "changed": [
+          "learning_goal",
+          "tutor_focus",
+          "tutor_must_not_do",
+          "lesson_summary",
+          "tutor_tone",
+          "help_level",
+          "lesson_rules",
+          "key_concepts",
+          "common_mistakes",
+          "probable_questions",
+          "prompts",
+          "moments(5)"
+        ],
+        "moments_applied": 5,
+        "elapsed_seconds": 28.04
+      },
+      "teacher_context_chunks": 6,
+      "teacher_context_index_status": "indexed",
+      "status": "applied"
+    },
+    {
+      "num": "0.7",
+      "lesson_id": "SEC2-R61",
+      "cmid": 61,
+      "expected_title": "Checklist de sesión lista para mezclar",
+      "db_title": "Lección 7 — Checklist de sesión lista para mezclar",
+      "declares_ok": true,
+      "segments": 59,
+      "duration_s": 318.812,
+      "transcript_chunks": 6,
+      "ai_prepare": {
+        "ok": true,
+        "changed": [
+          "learning_goal",
+          "tutor_focus",
+          "tutor_must_not_do",
+          "lesson_summary",
+          "tutor_tone",
+          "help_level",
+          "lesson_rules",
+          "key_concepts",
+          "common_mistakes",
+          "probable_questions",
+          "prompts",
+          "moments(8)"
+        ],
+        "moments_applied": 8,
+        "elapsed_seconds": 38.38
+      },
+      "teacher_context_chunks": 6,
+      "teacher_context_index_status": "indexed",
+      "status": "applied"
+    }
+  ],
+  "pre_audit": {
+    "total_section_chunks": 233,
+    "by_source": {
+      "transcript": 24,
+      "resource_file": 1,
+      "canonical_md": 208
+    },
+    "by_lesson_id": {
+      "SEC2-R55": 38,
+      "SEC2-R56": 37,
+      "SEC2-R57": 36,
+      "": 13,
+      "SEC2-R58": 27,
+      "SEC2-R59": 27,
+      "SEC2-R60": 27,
+      "SEC2-R61": 28
+    },
+    "by_source_type": {
+      "": 233
+    },
+    "by_doc_type": {
+      "video_transcript": 24,
+      "flp": 1,
+      "markdown": 208
+    }
+  },
+  "post_audit": {
+    "total_section_chunks": 299,
+    "by_source": {
+      "resource_file": 1,
+      "canonical_md": 208,
+      "transcript": 47,
+      "authoring_profile": 43
+    },
+    "by_lesson_id": {
+      "SEC2-R56": 45,
+      "": 13,
+      "SEC2-R55": 45,
+      "SEC2-R57": 39,
+      "SEC2-R58": 39,
+      "SEC2-R59": 39,
+      "SEC2-R60": 39,
+      "SEC2-R61": 40
+    },
+    "by_source_type": {
+      "": 256,
+      "teacher_approved_context": 43
+    },
+    "by_doc_type": {
+      "flp": 1,
+      "markdown": 208,
+      "video_transcript": 47,
+      "teacher_approved_context": 43
+    }
+  },
+  "log": [
+    "apply=True backup=False supersede_canonical=False",
+    "course=2 section_moodle_id=2 (Sección 0 — El sistema de decisión)",
+    "[pre] Chroma Sección 0: 233 chunks lessons={'SEC2-R55': 38, 'SEC2-R56': 37, 'SEC2-R57': 36, '': 13, 'SEC2-R58': 27, 'SEC2-R59': 27, 'SEC2-R60': 27, 'SEC2-R61': 28}",
+    "[0.1 SEC2-R55] ai_prepare ok=True changed=['learning_goal', 'tutor_focus', 'tutor_must_not_do', 'lesson_summary', 'tutor_tone', 'help_level', 'lesson_rules', 'key_concepts', 'common_mistakes', 'probable_questions', 'prompts', 'moments(5)']",
+    "[0.1 SEC2-R55] APLICADO: transcript=9 teacher_context=6 (indexed).",
+    "[0.2 SEC2-R56] ai_prepare ok=True changed=['learning_goal', 'tutor_focus', 'tutor_must_not_do', 'lesson_summary', 'tutor_tone', 'help_level', 'lesson_rules', 'key_concepts', 'common_mistakes', 'probable_questions', 'prompts', 'moments(6)']",
+    "[0.2 SEC2-R56] APLICADO: transcript=8 teacher_context=7 (indexed).",
+    "[0.3 SEC2-R57] ai_prepare ok=True changed=['learning_goal', 'tutor_focus', 'tutor_must_not_do', 'lesson_summary', 'tutor_tone', 'help_level', 'lesson_rules', 'key_concepts', 'common_mistakes', 'probable_questions', 'prompts', 'moments(4)']",
+    "[0.3 SEC2-R57] APLICADO: transcript=6 teacher_context=6 (indexed).",
+    "[0.4 SEC2-R58] ai_prepare ok=True changed=['learning_goal', 'tutor_focus', 'tutor_must_not_do', 'lesson_summary', 'tutor_tone', 'help_level', 'lesson_rules', 'key_concepts', 'common_mistakes', 'probable_questions', 'prompts', 'moments(5)']",
+    "[0.4 SEC2-R58] APLICADO: transcript=6 teacher_context=6 (indexed).",
+    "[0.5 SEC2-R59] ai_prepare ok=True changed=['learning_goal', 'tutor_focus', 'tutor_must_not_do', 'lesson_summary', 'tutor_tone', 'help_level', 'lesson_rules', 'key_concepts', 'common_mistakes', 'probable_questions', 'prompts', 'moments(7)']",
+    "[0.5 SEC2-R59] APLICADO: transcript=6 teacher_context=6 (indexed).",
+    "[0.6 SEC2-R60] ai_prepare ok=True changed=['learning_goal', 'tutor_focus', 'tutor_must_not_do', 'lesson_summary', 'tutor_tone', 'help_level', 'lesson_rules', 'key_concepts', 'common_mistakes', 'probable_questions', 'prompts', 'moments(5)']",
+    "[0.6 SEC2-R60] APLICADO: transcript=6 teacher_context=6 (indexed).",
+    "[0.7 SEC2-R61] ai_prepare ok=True changed=['learning_goal', 'tutor_focus', 'tutor_must_not_do', 'lesson_summary', 'tutor_tone', 'help_level', 'lesson_rules', 'key_concepts', 'common_mistakes', 'probable_questions', 'prompts', 'moments(8)']",
+    "[0.7 SEC2-R61] APLICADO: transcript=6 teacher_context=6 (indexed).",
+    "[post] Chroma Sección 0: 299 chunks lessons={'SEC2-R56': 45, '': 13, 'SEC2-R55': 45, 'SEC2-R57': 39, 'SEC2-R58': 39, 'SEC2-R59': 39, 'SEC2-R60': 39, 'SEC2-R61': 40} types={'': 256, 'teacher_approved_context': 43}"
+  ]
+}
