@@ -144,21 +144,45 @@ def structured_course_documents(ctx: TeacherContext = Depends(require_teacher)):
     return {"course_id": ctx.course_id, "course": course_docs, "sections": sections, "global_docs": global_docs}
 
 
-def _classify_source(src: str, meta: dict):
-    """Devuelve (kind, label, doc_id|None) a partir del source del chunk."""
-    s = (src or "").replace("\\", "/")
-    if s.startswith("transcription:"):
-        return "transcripcion", (s.split(":", 1)[1] or "transcripción"), None
+def _source_key(meta: dict) -> str:
+    """Identificador granular de la fuente indexada.
+
+    En el indice actual `source` describe la familia (`transcript`,
+    `canonical_md`, `authoring_profile`) y `source_path` guarda la fuente real
+    por leccion (`transcription:SEC2-R55`, `teacher_context:SEC2-R55`, ruta md).
+    """
+    m = meta or {}
+    return str(m.get("source_path") or m.get("source") or "").replace("\\", "/")
+
+
+def _classify_source(meta: dict):
+    """Devuelve (kind, label, doc_id|None, source_key) a partir del metadata."""
+    m = meta or {}
+    s = _source_key(m)
+    source = str(m.get("source") or "")
+    source_type = str(m.get("source_type") or "")
+    doc_type = str(m.get("doc_type") or "")
+    resource_type = str(m.get("resource_type") or "")
+    lesson_id = str(m.get("lesson_id") or "")
+    lesson_title = str(m.get("lesson_title") or "")
+
+    if s.startswith("transcription:") or source == "transcript" or doc_type == "video_transcript" or resource_type == "transcript":
+        return "transcripcion", (lesson_title or lesson_id or "transcripcion"), None, s
+    if s.startswith("teacher_context:") or source == "authoring_profile" or source_type == "teacher_approved_context" or doc_type == "teacher_approved_context":
+        return "teacher_approved_context", (lesson_title or lesson_id or "contexto docente"), None, s
     if s.startswith("resource:"):
         doc_id = s.split(":", 1)[1]
-        kind = "imagen" if (meta or {}).get("media_type") == "image" else "doc"
-        return kind, ((meta or {}).get("title") or doc_id), doc_id
+        kind = "imagen" if m.get("media_type") == "image" else "resource_file"
+        return kind, (m.get("title") or doc_id), doc_id, s
+
     base = s.rstrip("/").split("/")[-1]
+    if source == "canonical_md" or source_type == "canonical_md" or doc_type == "markdown":
+        return "canonical_md", (m.get("title") or lesson_title or base), None, s
     if "/cursos/" in s or "/oficial/global/" in s:
         doc_id = os.path.splitext(base)[0]
-        kind = "imagen" if (meta or {}).get("media_type") == "image" else "doc"
-        return kind, (meta.get("title") or base), doc_id
-    return "teoria", base, None
+        kind = "imagen" if m.get("media_type") == "image" else "resource_file"
+        return kind, (m.get("title") or base), doc_id, s
+    return "teoria", (m.get("title") or base), None, s
 
 
 def _view_type(media_type: str, ext: str, source: str) -> str:
@@ -193,43 +217,95 @@ def _resolver_archivo_source(source: str, course: str):
     return os.path.normpath(path)
 
 
+_COUNT_KEYS = ("teoria", "transcripcion", "docs", "canonical_md", "teacher_approved_context", "resource_file", "imagen", "total")
+
+
+def _empty_knowledge_counts():
+    return {k: 0 for k in _COUNT_KEYS}
+
+
+def _count_bucket(kind: str) -> str:
+    if kind == "transcripcion":
+        return "transcripcion"
+    if kind == "teacher_approved_context":
+        return "teacher_approved_context"
+    if kind == "canonical_md":
+        return "canonical_md"
+    if kind == "imagen":
+        return "imagen"
+    if kind == "resource_file":
+        return "resource_file"
+    if kind in {"doc", "resource_file", "imagen"}:
+        return "docs"
+    return "teoria"
+
+
+def _add_count(row: dict, kind: str) -> None:
+    bucket = _count_bucket(kind)
+    row[bucket] = int(row.get(bucket, 0)) + 1
+    # Compatibilidad con la UI previa.
+    if bucket == "canonical_md":
+        row["teoria"] = int(row.get("teoria", 0)) + 1
+    elif bucket in {"resource_file", "imagen"}:
+        row["docs"] = int(row.get("docs", 0)) + 1
+    row["total"] = int(row.get("total", 0)) + 1
+
+
 @router.get("/knowledge/summary")
 def knowledge_summary(ctx: TeacherContext = Depends(require_teacher)):
-    """Resumen de lo INDEXADO (Chroma) del curso: por seccion, con la LISTA de fuentes
-    (teoría base, transcripciones, docs subidos) y conteos. Más el bloque global."""
+    """Resumen de lo INDEXADO (Chroma) del curso, agrupado por fuente real.
+
+    La fuente granular vive en `source_path`; `source` solo indica la familia
+    (`transcript`, `canonical_md`, `authoring_profile`).
+    """
     course = str(ctx.course_id or "")
     out = {
         "course_id": course,
         "total": 0,
-        "global": {"teoria": 0, "transcripcion": 0, "docs": 0, "total": 0},
+        "global": _empty_knowledge_counts(),
         "by_section": {},
     }
-    # agrupador: by_section[section]["_sources"][source] = {kind,label,doc_id,chunks}
     try:
         col = ingest.get_vector_store()._collection
         got = col.get(include=["metadatas"])
         for m in (got.get("metadatas") or []):
             m = m or {}
             cid = str(m.get("course_id", "") or "")
-            src = str(m.get("source", "") or "")
-            kind, label, doc_id = _classify_source(src, m)
-            bucket = "transcripcion" if kind == "transcripcion" else ("docs" if kind in ("doc", "imagen") else "teoria")
+            kind, label, doc_id, source_key = _classify_source(m)
+            lesson_id = str(m.get("lesson_id") or "")
+            lesson_title = str(m.get("lesson_title") or "")
             if cid == "":
-                g = out["global"]
-                g[bucket] += 1
-                g["total"] += 1
-            elif cid == course:
-                section = str(m.get("moodle_section_id") or m.get("axis_id") or m.get("axis") or "(sin seccion)")
-                a = out["by_section"].setdefault(section, {"teoria": 0, "transcripcion": 0, "docs": 0, "total": 0, "_sources": {}})
-                a[bucket] += 1
-                a["total"] += 1
-                out["total"] += 1
-                key = src or label
-                srow = a["_sources"].setdefault(key, {"kind": kind, "label": label, "doc_id": doc_id, "source": src, "chunks": 0})
-                srow["chunks"] += 1
-        # aplanar _sources -> items[]
-        for section, a in out["by_section"].items():
-            items = sorted(a.pop("_sources", {}).values(), key=lambda r: (r["kind"], -r["chunks"]))
+                _add_count(out["global"], kind)
+                continue
+            if cid != course:
+                continue
+
+            section = str(m.get("moodle_section_id") or m.get("section_id") or m.get("axis_id") or m.get("axis") or "(sin seccion)")
+            a = out["by_section"].setdefault(section, {**_empty_knowledge_counts(), "_sources": {}, "_lessons": {}})
+            _add_count(a, kind)
+            out["total"] += 1
+            if lesson_id:
+                a["_lessons"].setdefault(lesson_id, lesson_title or lesson_id)
+            key = source_key or label
+            srow = a["_sources"].setdefault(key, {
+                "kind": kind,
+                "label": label,
+                "doc_id": doc_id,
+                "source": key,
+                "source_family": str(m.get("source") or ""),
+                "source_path": source_key,
+                "lesson_id": lesson_id,
+                "lesson_title": lesson_title,
+                "visible_to_student": m.get("visible_to_student"),
+                "internal_context": m.get("internal_context"),
+                "chunks": 0,
+            })
+            srow["chunks"] += 1
+        for _section, a in out["by_section"].items():
+            lessons = a.pop("_lessons", {})
+            a["lesson_count"] = len(lessons)
+            a["lessons"] = [{"lesson_id": lid, "lesson_title": title} for lid, title in sorted(lessons.items())]
+            items = sorted(a.pop("_sources", {}).values(), key=lambda r: (r["kind"], r.get("lesson_id") or "", -r["chunks"]))
             a["items"] = items
     except Exception as exc:  # pragma: no cover
         out["error"] = str(exc)
@@ -237,15 +313,18 @@ def knowledge_summary(ctx: TeacherContext = Depends(require_teacher)):
 
 
 def _chunks_por_source(source: str, course: str):
-    """Devuelve [(texto, meta)] de los chunks indexados con ese source, scopeados al curso."""
+    """Devuelve [(texto, meta)] de los chunks indexados con esa fuente real."""
     col = ingest.get_vector_store()._collection
-    got = col.get(where={"source": source}, include=["documents", "metadatas"])
-    docs = got.get("documents") or []
-    metas = got.get("metadatas") or []
     pares = []
-    for d, m in zip(docs, metas):
-        if str((m or {}).get("course_id", "") or "") == course:
-            pares.append((d, m or {}))
+    for field in ("source_path", "source"):
+        got = col.get(where={field: source}, include=["documents", "metadatas"])
+        docs = got.get("documents") or []
+        metas = got.get("metadatas") or []
+        for d, m in zip(docs, metas):
+            if str((m or {}).get("course_id", "") or "") == course:
+                pares.append((d, m or {}))
+        if pares:
+            break
     return pares
 
 
@@ -321,6 +400,7 @@ def delete_knowledge_item(source: str, scope: str = "", ctx: TeacherContext = De
     course = "" if scope == "global" else str(ctx.course_id or "")
     col = ingest.get_vector_store()._collection
     try:
+        col.delete(where={"$and": [{"source_path": source}, {"course_id": course}]})
         col.delete(where={"$and": [{"source": source}, {"course_id": course}]})
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"No se pudo desindexar: {exc}")

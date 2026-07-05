@@ -18,13 +18,16 @@ import { showNotification } from '../../shared/utils/notify';
 
 const inputCls = 'w-full bg-kenth-surface/10 border border-kenth-border rounded-lg px-3 py-2 text-sm text-kenth-text focus:border-kenth-brightred focus:outline-none';
 const labelCls = 'text-[10px] uppercase tracking-widest text-kenth-subtext font-bold';
-const EMPTY_COUNTS = { teoria: 0, transcripcion: 0, docs: 0, total: 0 };
+const EMPTY_COUNTS = { teoria: 0, transcripcion: 0, docs: 0, canonical_md: 0, teacher_approved_context: 0, resource_file: 0, imagen: 0, total: 0, lesson_count: 0 };
 
 const KIND_META = {
-  teoria: { icon: '📖', label: 'Teoría base' },
-  transcripcion: { icon: '🎬', label: 'Transcripción' },
-  doc: { icon: '📄', label: 'Doc subido' },
-  imagen: { icon: '🖼️', label: 'Imagen' },
+  teoria: { icon: 'T', label: 'Teoria base' },
+  canonical_md: { icon: 'MD', label: 'Canonico MD' },
+  transcripcion: { icon: 'TR', label: 'Transcripcion' },
+  teacher_approved_context: { icon: 'CTX', label: 'Contexto docente' },
+  doc: { icon: 'DOC', label: 'Doc subido' },
+  resource_file: { icon: 'RES', label: 'Recurso' },
+  imagen: { icon: 'IMG', label: 'Imagen' },
 };
 
 const STATUS_META = {
@@ -75,11 +78,16 @@ function ResourceRow({ r, scopeLabel, onDelete }) {
 }
 
 function CountLine({ c = EMPTY_COUNTS }) {
+  const canonical = c.canonical_md ?? c.teoria ?? 0;
+  const transcript = c.transcripcion || 0;
+  const teacher = c.teacher_approved_context || 0;
+  const resources = ((c.resource_file || 0) + (c.imagen || 0)) || c.docs || 0;
   return (
     <span className="text-[11px] text-kenth-subtext">
-      teoría <span className="text-kenth-text font-bold">{c.teoria || 0}</span>
-      {' · '}transcripción <span className="text-kenth-text font-bold">{c.transcripcion || 0}</span>
-      {' · '}docs <span className="text-kenth-text font-bold">{c.docs || 0}</span>
+      canonical_md <span className="text-kenth-text font-bold">{canonical}</span>
+      {' | '}transcript <span className="text-kenth-text font-bold">{transcript}</span>
+      {' | '}teacher_context <span className="text-kenth-text font-bold">{teacher}</span>
+      {' | '}resources <span className="text-kenth-text font-bold">{resources}</span>
     </span>
   );
 }
@@ -412,8 +420,16 @@ export default function KnowledgeHub({ courseId, sections = [] }) {
   const curso = summary.by_section?.['(sin seccion)'];
   const cursoItems = curso?.items || [];
   const totalCounts = Object.values(summary.by_section || {}).reduce(
-    (a, b) => ({ teoria: a.teoria + (b.teoria || 0), transcripcion: a.transcripcion + (b.transcripcion || 0), docs: a.docs + (b.docs || 0) }),
-    { teoria: 0, transcripcion: 0, docs: 0 });
+    (a, b) => ({
+      teoria: a.teoria + (b.teoria || 0),
+      transcripcion: a.transcripcion + (b.transcripcion || 0),
+      docs: a.docs + (b.docs || 0),
+      canonical_md: a.canonical_md + (b.canonical_md || 0),
+      teacher_approved_context: a.teacher_approved_context + (b.teacher_approved_context || 0),
+      resource_file: a.resource_file + (b.resource_file || 0),
+      imagen: a.imagen + (b.imagen || 0),
+    }),
+    { teoria: 0, transcripcion: 0, docs: 0, canonical_md: 0, teacher_approved_context: 0, resource_file: 0, imagen: 0 });
 
   return (
     <div className="flex flex-col gap-4">
@@ -446,7 +462,8 @@ export default function KnowledgeHub({ courseId, sections = [] }) {
             const sectionResources = sx.section_resources || [];
             const lessonsMap = sx.lessons || {};
             const lessonKeys = Object.keys(lessonsMap);
-            const lessonCount = lessonKeys.reduce((a, k) => a + lessonsMap[k].length, 0);
+            const lessonResourceCount = lessonKeys.reduce((a, k) => a + lessonsMap[k].length, 0);
+            const lessonCount = counts.lesson_count ?? lessonKeys.length;
             return (
               <div key={ax.moodle_section_id} className="border border-kenth-border rounded-xl bg-kenth-card">
                 <div className="flex items-center gap-2 px-3 py-2">
@@ -455,7 +472,7 @@ export default function KnowledgeHub({ courseId, sections = [] }) {
                     <span className="text-kenth-subtext text-xs"> · {isWelcome ? 'bienvenida' : `sección ${sectionNumber}`}</span>
                     <div className="mt-0.5">
                       <CountLine c={counts} />
-                      <span className="text-[10px] text-kenth-subtext ml-2">· sección {sectionResources.length} · lecciones {lessonCount}</span>
+                      <span className="text-[10px] text-kenth-subtext ml-2">| seccion {sectionResources.length} | lecciones {lessonCount} | recursos leccion {lessonResourceCount}</span>
                     </div>
                   </button>
                 </div>
