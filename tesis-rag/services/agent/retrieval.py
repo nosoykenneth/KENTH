@@ -477,6 +477,101 @@ def _es_pregunta_comparativa_multiconcepto(pregunta: str):
     )
 
 
+def _es_pregunta_general_de_leccion(pregunta: str):
+    """Detecta pedidos de resumen/objetivo de la leccion activa.
+
+    Esta familia de preguntas no busca comparar conceptos ni conectar clases:
+    el alumno pregunta "que es esta leccion". En ese caso, si hay evidencia
+    suficiente de la leccion actual, no conviene mezclar chunks de lecciones
+    vecinas aunque esten en la misma seccion.
+    """
+    texto = _normalizar_texto(pregunta or "")
+    patrones = [
+        "de que trata esta leccion",
+        "de que trata la leccion",
+        "de que trata esta clase",
+        "de que trata la clase",
+        "resumeme esta leccion",
+        "resume esta leccion",
+        "resumeme esta clase",
+        "resume esta clase",
+        "que veremos aqui",
+        "que vamos a ver aqui",
+        "que veremos en esta leccion",
+        "que vamos a ver en esta leccion",
+        "cual es el objetivo de esta leccion",
+        "cual es el objetivo de la leccion",
+        "objetivo de esta leccion",
+        "objetivo de la leccion",
+    ]
+    return any(patron in texto for patron in patrones)
+
+
+def _pide_cruce_de_lecciones(pregunta: str):
+    texto = _normalizar_texto(pregunta or "")
+    marcadores = [
+        "relaciona",
+        "relacion entre",
+        "relacion con",
+        "como se relaciona",
+        "conecta",
+        "conexion",
+        "compara",
+        "comparacion",
+        "diferencia entre",
+        "versus",
+        " vs ",
+    ]
+    return any(marcador in f" {texto} " for marcador in marcadores)
+
+
+def _lesson_id_from_item(item: dict):
+    doc = item.get("document") if isinstance(item, dict) else None
+    meta = (getattr(doc, "metadata", None) or {}) if doc is not None else {}
+    return str(meta.get("lesson_id") or "").strip()
+
+
+def _evidencia_suficiente_leccion_actual(evidencias: list, state: dict = None, minimo: int = 3):
+    current = _current_lesson_id(state)
+    if not current:
+        return False
+    total = 0
+    for item in evidencias or []:
+        meta = item["document"].metadata or {}
+        if str(meta.get("lesson_id") or "").strip() != current:
+            continue
+        if float(item.get("final_score") or item.get("score") or 0) < MIN_RELEVANCE_SCORE:
+            continue
+        total += 1
+        if total >= minimo:
+            return True
+    return False
+
+
+def _limitar_a_leccion_actual_si_resumen(evidencias: list, pregunta: str, state: dict = None):
+    """Para preguntas generales de la leccion, evita ruido de lecciones vecinas.
+
+    Conserva chunks de current_lesson_id y chunks seccionales sin lesson_id.
+    Excluye chunks con otro lesson_id especifico. Solo se activa si hay
+    suficiente evidencia de la leccion actual; las preguntas transversales o
+    comparativas siguen usando el ranking normal.
+    """
+    current = _current_lesson_id(state)
+    if (
+        not current
+        or not _es_pregunta_general_de_leccion(pregunta)
+        or _pide_cruce_de_lecciones(pregunta)
+        or not _evidencia_suficiente_leccion_actual(evidencias, state, minimo=3)
+    ):
+        return evidencias
+
+    filtradas = []
+    for item in evidencias or []:
+        lesson_id = _lesson_id_from_item(item)
+        if not lesson_id or lesson_id == current:
+            filtradas.append(item)
+    return filtradas or evidencias
+
 def _prioridad_evidencia(item: dict, pregunta: str, state: dict = None):
     doc = item["document"]
     meta = doc.metadata or {}
@@ -580,6 +675,7 @@ def _concepto_definicion_directa(pregunta: str):
 
 def _ordenar_para_respuesta_directa(evidencias: list, pregunta: str, state: dict = None):
     pregunta_norm = _normalizar_texto(pregunta)
+    evidencias = _limitar_a_leccion_actual_si_resumen(evidencias, pregunta, state)
     if "bus" in pregunta_norm and "auxiliar" in pregunta_norm:
         def prioridad_bus_auxiliar(item):
             doc = item["document"]
