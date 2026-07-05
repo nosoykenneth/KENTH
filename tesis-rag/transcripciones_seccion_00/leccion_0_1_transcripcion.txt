@@ -1,0 +1,95 @@
+[00:00.000 --> 00:06.977]  Muy bien, bienvenidos a la primera lección de esta sección cero, el sistema de decisión.
+[00:07.157 --> 00:14.133]  Antes de tocar un solo plugin, quiero que nos pongamos de acuerdo en una idea.
+[00:14.313 --> 00:18.034]  Y la idea es esta: mezclar es decidir.
+[00:18.214 --> 00:23.331]  No es aplicar efectos, no es acumular procesos, es tomar decisiones.
+[00:23.511 --> 00:31.418]  Cada vez que subes una pista, cada vez que ecualizas, cada vez que comprimes, estás decidiendo algo.
+[00:31.598 --> 00:35.784]  Y una mezcla no mejora porque hagamos muchas cosas.
+[00:35.964 --> 00:41.080]  Una mezcla mejora porque tomamos buenas decisiones y descartamos las malas.
+[00:41.260 --> 00:46.841]  Fíjate bien en esa diferencia, porque va a gobernar todo el curso.
+[00:47.021 --> 00:52.603]  El trabajo de quien mezcla no es tener el plugin más caro.
+[00:52.783 --> 00:58.364]  Es decidir bien, y decidir de forma consistente, una y otra vez.
+[00:58.544 --> 01:05.056]  Todo lo demás, los atajos, los trucos, las herramientas, están al servicio de eso.
+[01:05.236 --> 01:09.422]  Ahora, déjame mostrarte qué pasa cuando mezclamos sin método.
+[01:09.602 --> 01:16.113]  Sin un método, la mezcla se convierte en una serie de gestos al azar.
+[01:16.293 --> 01:19.549]  Abrimos un ecualizador porque, bueno, toca ecualizar.
+[01:19.729 --> 01:22.520]  Comprimimos porque todo el mundo comprime.
+[01:22.700 --> 01:27.351]  Y al cabo de una hora la mezcla suena distinta.
+[01:27.531 --> 01:31.717]  Pero ojo, distinta no es lo mismo que mejor.
+[01:31.897 --> 01:37.479]  Este es uno de los errores más comunes, confundir movimiento con progreso.
+[01:37.659 --> 01:41.845]  Estás haciendo cosas, sí, pero no necesariamente estás avanzando.
+[01:42.025 --> 01:47.141]  Entonces, ¿cómo pasamos de gestos al azar a decisiones de verdad?
+[01:47.321 --> 01:52.437]  Con un ciclo de trabajo. Y este ciclo tiene cinco pasos.
+[01:52.617 --> 01:55.408]  Escuchar, diagnosticar, decidir, actuar y verificar.
+[01:55.588 --> 02:00.239]  Vamos uno por uno, porque cada paso tiene una función.
+[02:00.419 --> 02:05.535]  El primero es escuchar. Y parece obvio, pero no lo es.
+[02:05.715 --> 02:11.297]  Escuchar de verdad, prestando atención, sin adelantar la solución en tu cabeza.
+[02:11.477 --> 02:17.523]  Muchas veces ya estamos pensando qué plugin poner antes de haber escuchado bien.
+[02:17.703 --> 02:24.215]  El segundo paso es el que más se salta la gente, y es diagnosticar.
+[02:24.395 --> 02:27.186]  Diagnosticar es ponerle nombre al problema.
+[02:27.366 --> 02:36.668]  Te doy un ejemplo. Decir el bombo y el bajo se están peleando en los graves, eso es un diagnóstico.
+[02:36.848 --> 02:42.894]  Decir esto suena mal, eso no es un diagnóstico, eso es una queja.
+[02:43.074 --> 02:47.726]  Y aquí tengo una fórmula que quiero que te lleves.
+[02:47.906 --> 02:53.952]  Un buen diagnóstico tiene tres cosas: el elemento, el momento y la cualidad.
+[02:54.132 --> 02:57.853]  Qué elemento, la voz, el bombo, la guitarra.
+[02:58.033 --> 03:02.684]  En qué momento de la canción, el estribillo, la intro.
+[03:02.864 --> 03:06.120]  Y qué cualidad, áspero, turbio, débil, apagado.
+[03:06.300 --> 03:10.486]  Si tienes esas tres cosas, ya sabes qué atacar.
+[03:10.666 --> 03:14.852]  El tercer paso es decidir. Elegir una acción concreta.
+[03:15.032 --> 03:20.148]  Pero no cualquier acción, una que sepas por qué debería funcionar.
+[03:20.328 --> 03:24.514]  Y a mí me gusta formularlo como una hipótesis.
+[03:24.694 --> 03:34.927]  Algo así como: voy a bajar dos decibelios en la zona de doscientos, trescientos hertz del bombo, para que el bajo respire.
+[03:35.107 --> 03:39.293]  ¿Ves? Ahí hay una acción y hay un porqué.
+[03:39.473 --> 03:43.194]  El cuarto paso es actuar. Aplicar el cambio.
+[03:43.374 --> 03:48.490]  Y aquí un principio que vamos a repetir mucho: intervención mínima.
+[03:48.670 --> 03:53.321]  Cambia solo lo necesario, con una herramienta a la vez.
+[03:53.501 --> 03:58.153]  No abras tres plugins de golpe para un mismo problema.
+[03:58.333 --> 04:04.844]  Porque si algo mejora, no vas a saber cuál de los tres lo hizo.
+[04:05.024 --> 04:11.071]  Y el quinto paso, que es el más subestimado de todos, es verificar.
+[04:11.251 --> 04:14.972]  Verificar es comparar el antes y el después.
+[04:15.152 --> 04:20.268]  Y comprobar, honestamente, si tu decisión mejoró la mezcla o no.
+[04:20.448 --> 04:25.564]  Si mejoró, la conservas. Si no, la deshaces, y sin drama.
+[04:25.744 --> 04:29.930]  Ahora, ¿por qué digo que verificar es tan difícil?
+[04:30.110 --> 04:32.901]  Porque nuestro oído se adapta rapidísimo.
+[04:33.081 --> 04:38.662]  Cualquier cambio nuevo parece mejor durante unos segundos, aunque no lo sea.
+[04:38.842 --> 04:44.889]  Es nuevo, y lo nuevo llama la atención, pero nuevo no es mejor.
+[04:45.069 --> 04:49.720]  Y hay otra trampa todavía peor, y es el volumen.
+[04:49.900 --> 04:55.481]  Cuando comparas dos versiones, la más fuerte casi siempre parece la mejor.
+[04:55.661 --> 04:59.382]  Siempre. Aunque el cambio real no aporte nada.
+[04:59.562 --> 05:07.004]  Entonces, si comparas con y sin un ecualizador, y el ecualizador subió un poquito el nivel,
+[05:07.184 --> 05:13.696]  vas a jurar que suena mejor, y a lo mejor solo suena más fuerte.
+[05:13.876 --> 05:17.132]  Por eso, cuando verifiques, iguala el volumen.
+[05:17.312 --> 05:23.358]  Activa y desactiva el efecto, pero deja los dos al mismo nivel percibido.
+[05:23.538 --> 05:30.050]  Esto, que parece un detalle, es lo que separa una decisión de un autoengaño.
+[05:30.230 --> 05:34.881]  Déjame darte un ejemplo completo, pasando por todo el ciclo.
+[05:35.061 --> 05:39.247]  Tenemos una voz que suena áspera en el estribillo.
+[05:39.427 --> 05:47.334]  La forma mala de resolverlo: abro un de-esser, un ecualizador y un compresor, todo a la vez.
+[05:47.514 --> 05:53.560]  La voz cambia, sí, pero ahora suena apagada, y no sé por qué.
+[05:53.740 --> 05:56.996]  La forma buena: primero escucho, y diagnostico.
+[05:57.176 --> 06:05.083]  La aspereza vive por ahí, en las eses y las consonantes fuertes, entre tres y cinco kilohertz.
+[06:05.263 --> 06:10.845]  Decido: voy a atenuar suavemente esa zona, o pongo un de-esser suave.
+[06:11.025 --> 06:13.350]  Actúo con una sola herramienta.
+[06:13.530 --> 06:16.786]  Y verifico, con bypass, igualando el volumen.
+[06:16.966 --> 06:22.547]  Confirmo que la aspereza bajó, y que la voz no se apagó.
+[06:22.727 --> 06:27.379]  Una decisión, verificada, en lugar de tres gestos a ciegas.
+[06:27.559 --> 06:33.140]  Hay una herramienta más que quiero meter aquí, y es la referencia.
+[06:33.320 --> 06:38.901]  Una referencia es una canción comercial, bien mezclada, que usas para compararte.
+[06:39.081 --> 06:42.337]  ¿Para qué? Para no perder la perspectiva.
+[06:42.517 --> 06:48.564]  Porque después de una hora escuchando tu propia mezcla, dejas de tener criterio.
+[06:48.744 --> 06:52.465]  La referencia es tu ancla, es tu norte.
+[06:52.645 --> 07:00.087]  Elige una del estilo al que apuntas, y compárala siempre a un volumen parecido al tuyo.
+[07:00.267 --> 07:06.313]  No la pongas más fuerte, porque otra vez, lo más fuerte parece mejor.
+[07:06.493 --> 07:09.284]  Bien, vamos cerrando esta primera lección.
+[07:09.464 --> 07:14.115]  Quiero que te quedes con esto por encima de todo.
+[07:14.295 --> 07:19.876]  Mezclar es decidir. El ciclo es escuchar, diagnosticar, decidir, actuar y verificar.
+[07:20.056 --> 07:26.103]  El diagnóstico es el paso que más se olvida, no te lo saltes.
+[07:26.283 --> 07:33.260]  La verificación honesta, con el volumen igualado, es lo que hace que progreses de verdad.
+[07:33.440 --> 07:37.626]  Y una cosa más, muy importante para esta sección.
+[07:37.806 --> 07:41.061]  Este método no depende de tu equipo.
+[07:41.241 --> 07:46.358]  Funciona igual con unos auriculares baratos que con una sala tratada.
+[07:46.538 --> 07:49.793]  Porque el criterio se transfiere, va contigo.
+[07:49.973 --> 07:58.811]  El equipo lo vamos a ver en las próximas lecciones, pero la forma de decidir, esa, ya la tienes.
+[07:58.991 --> 08:04.572]  En el ejercicio de esta lección te voy a pedir tres cambios.
+[08:04.752 --> 08:10.333]  Tres cambios, cada uno con su diagnóstico, su acción y su verificación.
+[08:10.513 --> 08:14.700]  Nada más. Practica el ciclo, hazlo lento, hazlo consciente.
+[08:14.880 --> 08:21.856]  Con el tiempo se vuelve automático, y ahí es cuando empiezas a mezclar de verdad.
+[08:22.036 --> 08:29.943]  Nos vemos en la siguiente lección, donde vamos a hablar de por qué tu oído te miente.

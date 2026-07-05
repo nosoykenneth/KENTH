@@ -1,0 +1,68 @@
+[00:00.000 --> 00:06.047]  Cuarta lección de la sección cero. Vamos con la anatomía universal del mixer.
+[00:06.227 --> 00:12.738]  O lo que es lo mismo, el ruteo, el camino que recorre la señal.
+[00:12.918 --> 00:19.895]  Y te prometo una cosa: cuando entiendas esto, vas a poder trabajar en cualquier DAW.
+[00:20.075 --> 00:26.121]  Porque la idea central es que todos los mixers comparten la misma anatomía.
+[00:26.301 --> 00:31.418]  Sean de hardware o de software, la lógica es la misma.
+[00:31.598 --> 00:36.714]  Cambian los nombres, cambian los botones, pero la señal viaja igual.
+[00:36.894 --> 00:45.266]  El ruteo es el mapa. Y dominar el mapa es dejar de estar perdido dentro de tu sesión.
+[00:45.446 --> 00:49.167]  Empecemos por el principio del recorrido: el canal.
+[00:49.347 --> 00:57.254]  El canal, o pista de mezcla, es donde llega el audio de un instrumento o una voz.
+[00:57.434 --> 01:03.480]  Y dentro de ese canal, la señal pasa por varias cosas en orden.
+[01:03.660 --> 01:07.847]  Primero, los inserts. Los inserts son procesos en serie.
+[01:08.027 --> 01:11.282]  Un ecualizador, un compresor, puestos en línea.
+[01:11.462 --> 01:20.300]  Y en serie significa que toda la señal pasa por ahí, entra por uno y sale por el otro.
+[01:20.480 --> 01:23.270]  Luego están los envíos, los sends.
+[01:23.450 --> 01:28.567]  Un envío manda una copia de la señal a otro destino.
+[01:28.747 --> 01:33.863]  Ojo con esto: una copia. La señal original sigue su camino.
+[01:34.043 --> 01:40.554]  Después tenemos el paneo, que es la posición en el estéreo, izquierda o derecha.
+[01:40.734 --> 01:46.781]  Y por último el fader, que es el nivel de salida del canal.
+[01:46.961 --> 01:53.473]  Y esa señal del canal se dirige a un destino. ¿Cuál? Normalmente un bus.
+[01:53.653 --> 02:00.164]  Un bus, o grupo, es un canal que recibe la suma de varias pistas.
+[02:00.344 --> 02:04.065]  Para tratarlas juntas. Este es un concepto clave.
+[02:04.245 --> 02:07.036]  Imagina una batería de ocho pistas.
+[02:07.216 --> 02:11.867]  Si enrutas las ocho a un bus que llamas batería,
+[02:12.047 --> 02:16.233]  puedes comprimir todo el conjunto con un solo compresor.
+[02:16.413 --> 02:23.390]  Y controlar toda la batería con un solo fader. Eso es potencia y es orden.
+[02:23.570 --> 02:30.081]  Y los buses pueden ir a otros buses, formando una jerarquía. Ya lo veremos.
+[02:30.261 --> 02:34.913]  Ahora, la gran distinción de esta lección: serie contra paralelo.
+[02:35.093 --> 02:38.813]  Un insert procesa toda la señal, en serie.
+[02:38.993 --> 02:45.040]  Un envío crea una rama en paralelo, con una copia de la señal.
+[02:45.220 --> 02:50.336]  ¿Y para qué sirve el paralelo? Sobre todo para efectos compartidos.
+[02:50.516 --> 02:54.702]  El caso típico es la reverb, o el delay.
+[02:54.882 --> 03:00.929]  En lugar de poner una reverb en cada pista, que sería un desperdicio,
+[03:01.109 --> 03:06.690]  creas un canal de retorno, un return, y ahí vive la reverb.
+[03:06.870 --> 03:11.521]  Y desde cada pista, mandas un envío a ese retorno.
+[03:11.701 --> 03:16.353]  Así, varias pistas comparten la misma reverb, el mismo espacio.
+[03:16.533 --> 03:23.044]  Y controlas la cantidad de reverb con el fader del retorno. Elegante y eficiente.
+[03:23.224 --> 03:28.340]  Dentro de los envíos hay dos modos, y esto es importante.
+[03:28.520 --> 03:29.916]  Pre-fader y post-fader.
+[03:30.096 --> 03:36.142]  Pre-fader significa que la señal que envías no depende del fader del canal.
+[03:36.322 --> 03:39.578]  Post-fader significa que sí sigue al fader.
+[03:39.758 --> 03:42.549]  Para reverbs, casi siempre quieres post-fader.
+[03:42.729 --> 03:50.171]  ¿Por qué? Porque si bajas la pista, quieres que su reverb baje también, de forma natural.
+[03:50.351 --> 03:56.397]  Si te pasa que bajas una pista y la reverb sigue sonando igual,
+[03:56.577 --> 04:02.624]  casi seguro tienes ese envío en pre-fader sin querer. Ya sabes dónde mirar.
+[04:02.804 --> 04:08.850]  El pre-fader tiene sus usos, como mezclas de monitoreo, pero para reverb, post.
+[04:09.030 --> 04:14.612]  Y al final de todo, ¿a dónde va la señal? Al master.
+[04:14.792 --> 04:18.513]  El master, el bus principal, el stereo out.
+[04:18.693 --> 04:26.134]  Es el canal por donde sale toda tu mezcla, a los altavoces y al archivo final.
+[04:26.314 --> 04:33.291]  Y aquí una advertencia. Lo que pongas en el master afecta a la mezcla completa.
+[04:33.471 --> 04:40.913]  Así que se toca con mucho cuidado, y poco, y cuando la mezcla ya está equilibrada.
+[04:41.093 --> 04:45.279]  Déjame darte el ejemplo de la batería otra vez.
+[04:45.459 --> 04:48.715]  Una batería de ocho pistas suena descontrolada.
+[04:48.895 --> 04:54.476]  Sin ruteo, intentas comprimir cada pista por separado, y es un lío.
+[04:54.656 --> 04:58.842]  Con ruteo, enrutas las ocho a un bus batería,
+[04:59.022 --> 05:02.743]  aplicas una compresión suave de bus para pegarlas,
+[05:02.923 --> 05:11.295]  y controlas todo con un fader. Además, mandas la caja y los toms a un retorno de reverb.
+[05:11.475 --> 05:13.801]  Menos procesos, mucho más control.
+[05:13.981 --> 05:16.772]  Vamos cerrando. La anatomía es universal.
+[05:16.952 --> 05:20.673]  Canal, inserts o envíos, bus, retornos, y master.
+[05:20.853 --> 05:27.364]  Los inserts procesan en serie, los envíos crean ramas en paralelo para compartir efectos,
+[05:27.544 --> 05:32.195]  los buses agrupan, y el master es la salida final.
+[05:32.375 --> 05:36.561]  Entender este mapa te deja trabajar en cualquier programa.
+[05:36.741 --> 05:41.393]  Y convierte una sesión caótica en una ordenada y controlable.
+[05:41.573 --> 05:49.014]  Ah, y una cosa que parece tonta pero no lo es: nombra y colorea tus pistas.
+[05:49.194 --> 05:54.311]  Una sesión sin nombres es una sesión donde no puedes pensar.
+[05:54.491 --> 05:59.607]  En el ejercicio vas a construir un ruteo limpio desde cero.
+[05:59.787 --> 06:04.903]  Buses por familias, un retorno de reverb compartido, y todo nombrado.
+[06:05.083 --> 06:12.990]  Nos vemos en la próxima, donde vamos con el gain staging, el cimiento de toda la cadena.

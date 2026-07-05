@@ -4,6 +4,7 @@ import json
 import os
 import re
 import unicodedata
+from datetime import datetime, timezone
 
 import pdfplumber
 
@@ -1306,9 +1307,28 @@ def reindex_course_documents(course_id: str):
             segments,
             axis_id="",
             moodle_section_id=lesson.get("moodle_section_id", ""),
+            lesson_title=(lesson.get("title") or lesson.get("lesson_title") or ""),
         )
         if tr.get("success") and tr.get("chunks"):
             transcripts_indexed += 1
+
+        # Flujo docente: reindexa también el contexto aprobado de la lección (si el
+        # perfil pedagógico tiene contenido aprobado). delete-then-add por lección.
+        try:
+            from services import teacher_context
+            doc = teacher_context.build_teacher_approved_context_document(lid, course)
+            if doc and doc.get("has_content"):
+                index_teacher_approved_context(
+                    course, lid, doc["chunks"],
+                    lesson_title=doc["metadata"].get("lesson_title", ""),
+                    moodle_section_id=lesson.get("moodle_section_id", ""),
+                    updated_at=doc["metadata"].get("updated_at", ""),
+                    source_hash=doc["metadata"].get("source_hash", ""),
+                )
+            else:
+                delete_teacher_approved_context(lid)
+        except Exception as e:
+            print(f"[reindex] teacher_context de {lid} no reindexado: {e}")
 
     # 4) Persistir index_status/chunk_count por documento.
     for doc_id, (estado, n) in chunks_por_doc.items():
@@ -1330,13 +1350,17 @@ def reindex_course_documents(course_id: str):
     }
 
 
-def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource_id="", moodle_section_id=""):
+def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource_id="",
+                            moodle_section_id="", lesson_title=""):
     """Indexa (RAG) la transcripción de una lección como conocimiento canónico.
 
     Agrupa los segmentos en chunks (~700 chars) conservando el tiempo de inicio/fin
     para que el tutor pueda citar el minuto. Patrón delete-then-add por lección:
     borra los chunks previos con source="transcription:<lesson_id>" y re-inserta.
     Pensado para llamarse al guardar/auto-transcribir (datos en BD, sin archivo).
+
+    `lesson_title` (humano) se usa como etiqueta de fuente; si viene vacío se cae al
+    lesson_id (evita mostrar IDs técnicos tipo SEC2-R59 cuando hay título real).
     """
     course = str(course_id or "").strip()
     lid = str(lesson_id or "").strip()
@@ -1347,6 +1371,7 @@ def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource
     store = get_vector_store()
     sec_id = str(moodle_section_id or "").strip()
     sec_meta = _section_meta_for_id(course, sec_id) if sec_id else {}
+    human_title = str(lesson_title or "").strip() or lid
 
     # 1) Borrar chunks previos de esta transcripción.
     try:
@@ -1389,7 +1414,8 @@ def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource
             "section_title": str(sec_meta.get("section_title") or ""),
             "section_slug": str(sec_meta.get("section_slug") or ""),
             "lesson_id": lid,
-            "lesson_title": lid,
+            "lesson_title": human_title,
+            "title": human_title,
             "block_id": "",
             "block_title": "",
             "resource_id": str(resource_id or ""),
@@ -1422,6 +1448,112 @@ def index_lesson_transcript(course_id, lesson_id, segments, axis_id="", resource
         pass  # chromadb reciente persiste solo
 
     return {"success": True, "chunks": len(chunks), "course_id": course, "lesson_id": lid}
+
+
+def index_teacher_approved_context(course_id, lesson_id, chunks, *, lesson_title="",
+                                   moodle_section_id="", updated_at="", source_hash="",
+                                   axis_id=""):
+    """Indexa (RAG) el CONTEXTO APROBADO de la lección: la fuente textual derivada del
+    editor docente (perfil pedagógico aceptado). Flujo docente, Fase 5/6.
+
+    A diferencia de la transcripción (fiel al video), esto materializa lo que el
+    PROFESOR aprobó como conocimiento indexable: objetivo, resumen, conceptos,
+    errores comunes, preguntas probables, momentos y recursos aprobados. NO incluye
+    comportamiento del tutor (tono/nivel/reglas privadas/must_not_do): eso se INYECTA,
+    no se INDEXA. Patrón delete-then-add por lección: borra
+    source_path="teacher_context:<lesson_id>" y re-inserta un chunk por sección.
+
+    `chunks` es una lista de strings (una por sección del documento); cada uno se
+    indexa como un fragmento autocontenido (ya viene prefijado con el título humano).
+    """
+    course = str(course_id or "").strip()
+    lid = str(lesson_id or "").strip()
+    if not lid:
+        return {"success": False, "chunks": 0, "message": "lesson_id requerido"}
+
+    source_tag = f"teacher_context:{lid}"
+    store = get_vector_store()
+    sec_id = str(moodle_section_id or "").strip()
+    sec_meta = _section_meta_for_id(course, sec_id) if sec_id else {}
+    human_title = str(lesson_title or "").strip() or lid
+    updated = str(updated_at or "").strip() or datetime.now(timezone.utc).isoformat()
+    base_hash = str(source_hash or "").strip()
+
+    # 1) Borrar chunks previos de este contexto (delete-then-add por lección).
+    try:
+        store._collection.delete(where={"source_path": source_tag})
+        store._collection.delete(where={"$and": [{"source": "authoring_profile"}, {"lesson_id": lid}]})
+    except Exception as e:  # pragma: no cover
+        print(f"Nota al borrar teacher_context chunks de {lid}: {e}")
+
+    limpio = [str(c).strip() for c in (chunks or []) if str(c or "").strip()]
+    if not limpio:
+        return {"success": True, "chunks": 0, "message": "contexto vacío (solo se limpió el índice)"}
+
+    scope_val = _scope_chunk(course, lid, False, "lesson", sec_id, "")
+    texts, metadatas, ids = [], [], []
+    for i, ch in enumerate(limpio):
+        texts.append(ch)
+        metadatas.append({
+            "course_id": course,
+            "moodle_section_id": sec_id,
+            "section_id": sec_id,
+            "section_number": str(sec_meta.get("section_number") or ""),
+            "section_title": str(sec_meta.get("section_title") or ""),
+            "section_slug": str(sec_meta.get("section_slug") or ""),
+            "lesson_id": lid,
+            "lesson_title": human_title,
+            "title": human_title,
+            "block_id": "",
+            "block_title": "",
+            "resource_id": "",
+            "layer": "teacher_context",
+            "doc_type": "teacher_approved_context",
+            "content_type": "teacher_context",
+            # Contrato del flujo docente.
+            "source": "authoring_profile",
+            "source_type": "teacher_approved_context",
+            "source_path": source_tag,
+            "source_hash": (base_hash or hashlib.md5(f"{source_tag}:{i}".encode("utf-8")).hexdigest()),
+            "generated_from": "ai_prepare_acceptance",
+            "status": "teacher_approved",
+            "internal_context": False,
+            "corpus_version": "teacher_flow_v1",
+            "updated_at": updated,
+            "version": "",
+            "index_status": "indexed",
+            "chunk_index": i,
+            "chunk_id": f"{source_tag}:{i}",
+            "scope": scope_val,
+            "is_global": False,
+            "visible_to_student": True,
+            "allowed_for_indexing": True,
+            "resource_type": "teacher_context",
+        })
+        ids.append(f"{source_tag}:{i}")
+
+    store.add_texts(texts=texts, metadatas=metadatas, ids=ids)
+    try:
+        store.persist()
+    except Exception:
+        pass  # chromadb reciente persiste solo
+
+    return {"success": True, "chunks": len(limpio), "course_id": course, "lesson_id": lid,
+            "source_path": source_tag}
+
+
+def delete_teacher_approved_context(lesson_id):
+    """Borra del índice los chunks de contexto aprobado de una lección."""
+    lid = str(lesson_id or "").strip()
+    if not lid:
+        return {"success": False, "deleted": True}
+    try:
+        coll = get_vector_store()._collection
+        coll.delete(where={"source_path": f"teacher_context:{lid}"})
+        coll.delete(where={"$and": [{"source": "authoring_profile"}, {"lesson_id": lid}]})
+    except Exception as e:  # pragma: no cover
+        print(f"Nota al borrar teacher_context index {lid}: {e}")
+    return {"success": True, "lesson_id": lid}
 
 
 def index_resource_description(course_id, lesson_id, doc_id, title, description,

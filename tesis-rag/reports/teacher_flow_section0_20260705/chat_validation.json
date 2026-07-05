@@ -1,0 +1,316 @@
+{
+  "generated_at": "2026-07-05T19:30:33.836805+00:00",
+  "course_id": "2",
+  "lessons_tested": [
+    "SEC2-R55",
+    "SEC2-R56"
+  ],
+  "results": [
+    {
+      "respuesta": "Según la evidencia del curso, esta lección se llama \"1 — Mezclar es decidir: el ciclo de trabajo\" y se encuentra en la sección 0: El sistema de decisión.\n\nEn este momento de la clase, Kenneth desmonta la cultura de las recetas y planta la tesis del curso: mezclar es tomar decisiones verificables, no aplicar procesos. También anima a los alumnos a aprender el ciclo de decisión, que consiste en cinco pasos:\n\n1. Escuchar\n2. Diagnosticar\n3. Decidir\n4. Actuar\n5. Verificar\n\nKenneth demuestra cada paso con una demo en vivo utilizando su DAW, y explica que la verificación es crucial para asegurarse de que la decisión tomada sea justificable.\n\nEn resumen, esta lección se enfoca en enseñar al alumno a aplicar el ciclo de decisión para mezclar de manera efectiva y verificable.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R55",
+      "question": "¿De qué trata esta lección?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Según la evidencia del curso, los pasos del ciclo de trabajo al mezclar son:\n\n1. Escuchar\n2. Diagnosticar\n3. Decidir\n4. Actuar\n5. Verificar\n\nEstos pasos se definen con criterios de calidad específicos: el diagnóstico debe nombrar el problema con precisión accionable, la decisión es UNA acción justificable, y la verificación es A/B nivelado.\n\nLa evidencia del curso muestra cómo cada paso tiene una función importante en el proceso de mezclar. Por ejemplo, el paso \"escuchar\" implica escuchar la mezcla sin tocar nada, mientras que el paso \"diagnosticar\" implica identificar el problema con precisión accionable. El paso \"decidir\" implica tomar una acción justificable para solucionar el problema, y el paso \"actuar\" implica implementar esa acción. Finalmente, el paso \"verificar\" implica comparar la mezcla procesada con la original sin compensar, para asegurarse de que la mejora sea evidente.\n\nEs importante destacar que cada paso del ciclo de trabajo es fundamental para garantizar una mezcla justa y efectiva. La evidencia del curso destaca la importancia de seguir este proceso sistemáticamente para obtener resultados de alta calidad en la mezcla.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R55",
+      "question": "¿Cuáles son los pasos del ciclo de trabajo al mezclar?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Según la evidencia del curso, para verificar honestamente si un cambio mejoró la mezcla, se recomienda comparar las dos versiones con el volumen igualado. Esto se menciona en la transcripción de la lección 1 — Mezclar es decidir: el ciclo de trabajo, específicamente en el momento \"Verificar es comparar el antes y el después. Y comprobar, honestamente, si tu decisión mejoró la mezcla o no.\"\n\nAdemás, se sugiere utilizar una herramienta llamada \"referencia\" para ayudar a mantener la perspectiva y evitar perder criterio. La referencia es una canción comercial bien mezclada que se utiliza como punto de comparación.\n\nEn resumen, la evidencia del curso recomienda verificar honestamente si un cambio mejoró la mezcla comparando las dos versiones con el volumen igualado y utilizando una referencia para mantener la perspectiva.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R55",
+      "question": "¿Cómo verifico honestamente si un cambio mejoró la mezcla?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "En esta lección, se explora cómo el oído humano percibe y procesa la información sonora. Se discuten tres fenómenos clave:\n\n1. El volumen al que escuchamos influye en nuestra percepción del sonido. A un volumen bajo, percibimos menos graves y agudos en relación con los medios. A un volumen alto, estos sonidos parecen realzarse y salir para adelante.\n2. La adaptación es otro fenómeno importante. Nuestro oído y cerebro se acostumbran a lo que escuchamos, y muy rápido. Esto significa que si pones un exceso de agudos, a los pocos minutos deja de parecerte excesivo.\n3. La fatiga auditiva es el tercer fenómeno. Escuchar mucho tiempo, especialmente a niveles fuertes, agota nuestro juicio crítico y puede llevar a tomar decisiones de mezcla peores.\n\nLa respuesta práctica a estos fenómenos es la misma familia de hábitos:\n\n* Escuchar a un nivel moderado y constante.\n* Hacer descansos.\n* Comparar con referencias.\n* Verificar con el volumen igualado.\n\nEstas recomendaciones ayudan a controlar los tres fenómenos y mejorar nuestra percepción del sonido.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R56",
+      "question": "¿De qué trata esta lección?",
+      "issues": []
+    },
+    {
+      "respuesta": "Según la evidencia del curso, se dice que el oído \"miente\" porque no es un instrumento de medición neutral y distorsiona la percepción del sonido. El volumen al que escuchamos, el tiempo que llevamos escuchando y a qué nos hemos acostumbrado influyen en cómo percibimos el sonido.\n\nEn particular, se menciona que si mezclas muy fuerte, los graves y agudos parecen realzarse, salen para adelante. Esto se debe a la curva de igual sonoridad, descrita por Fletcher y Munson, que muestra cómo el oído humano percibe diferentes frecuencias en función del volumen.\n\nAdemás, se destaca que la fatiga auditiva agota el juicio crítico, lo que puede llevar a tomar decisiones sobre una realidad deformada. Por lo tanto, es importante controlar las variables de volumen, tiempo y hábito de escucha para evitar distorsiones en la percepción del sonido.\n\nEn resumen, el oído \"miente\" porque es un sistema que interpreta y distorsiona la información auditiva, y es importante ser consciente de estas limitaciones para producir mezclas precisas.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R56",
+      "question": "¿Por qué se dice que el oído miente?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    },
+    {
+      "respuesta": "Según la evidencia proporcionada en la lección, se recomienda que el nivel de escucha sea moderado y constante. Esto se debe a que un nivel muy alto o muy bajo puede afectar negativamente la percepción del balance tonal.\n\nEn particular, se sugiere que mezcles a un volumen de conversación, es decir, alrededor de 50-60 dB en una sala bien ventilada con un buen sistema de sonido. Esto permite que el oyente perciba un equilibrio tonal adecuado y reduce la fatiga auditiva.\n\nAdemás, se recomienda tomar descansos regulares para escuchar la mezcla en diferentes auriculares o dispositivos, lo que ayuda a identificar problemas de balance tonal y a ajustar la mezcla de manera efectiva.\n\nEn resumen, el nivel de escucha ideal es un volumen moderado y constante, similar al de una conversación normal, y se debe ajustar según las necesidades individuales del oyente.",
+      "ruta": "teoria",
+      "retrieval_scope": "lesson",
+      "evidence_level": "alto",
+      "blocked_by": "",
+      "fuentes": [
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        },
+        {
+          "lesson_id": null,
+          "source": null,
+          "source_type": null,
+          "title": null,
+          "visible": null
+        }
+      ],
+      "lesson_id": "SEC2-R56",
+      "question": "¿Qué debería hacer con el nivel de escucha al mezclar?",
+      "issues": [
+        "usa muletilla 'según la evidencia'"
+      ]
+    }
+  ],
+  "edge_cases": [
+    {
+      "respuesta": "Solo puedo ayudarte con mezcla, masterizacion, audio, DAWs, plugins y contenido del curso. Si tu duda esta relacionada con el curso, dime la seccion, clase o concepto que quieres revisar.",
+      "ruta": "bloqueo",
+      "retrieval_scope": "",
+      "evidence_level": "bajo",
+      "blocked_by": "out_of_domain:semantic",
+      "fuentes": [],
+      "case": "out_of_domain",
+      "question": "¿Cuál es la capital de Francia?",
+      "expected": "refuse",
+      "ruta_ok": true
+    }
+  ]
+}

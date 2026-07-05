@@ -1,0 +1,66 @@
+[00:00.000 --> 00:03.721]  Muy bien, tercera lección de la sección cero.
+[00:03.901 --> 00:09.947]  Monitores y auriculares, o dicho de otra forma, trabajar con lo que tienes.
+[00:10.127 --> 00:13.848]  Y quiero empezar quitándote una excusa de encima.
+[00:14.028 --> 00:20.075]  La excusa de: es que con mi equipo no se puede mezclar bien.
+[00:20.255 --> 00:24.906]  Porque no es verdad. Y te lo voy a demostrar.
+[00:25.086 --> 00:28.807]  La idea central de esta lección es simple.
+[00:28.987 --> 00:34.568]  Tú no mezclas con el equipo ideal. Mezclas con el que tienes.
+[00:34.748 --> 00:39.865]  Y la clave no es tener el mejor sistema del mundo.
+[00:40.045 --> 00:43.766]  La clave es conocer cómo suena el tuyo.
+[00:43.946 --> 00:49.062]  Saber qué exagera, qué esconde, y en qué no puedes confiar.
+[00:49.242 --> 00:56.219]  Un sistema modesto, pero que conoces bien, le gana a uno carísimo usado a ciegas.
+[00:56.399 --> 01:00.120]  Empecemos por los monitores, los altavoces de estudio.
+[01:00.300 --> 01:04.020]  Aquí hay algo que mucha gente no entiende.
+[01:04.200 --> 01:08.387]  Los monitores interactúan con la acústica de tu sala.
+[01:08.567 --> 01:15.078]  Las reflexiones de las paredes, las resonancias, el refuerzo de graves en las esquinas.
+[01:15.258 --> 01:20.840]  Todo eso hace que el mismo monitor suene distinto en cada cuarto.
+[01:21.020 --> 01:26.601]  Por eso tus monitores suenan diferente en casa que en la tienda.
+[01:26.781 --> 01:33.293]  No es que sean malos, es que el cuarto también forma parte del sistema.
+[01:33.473 --> 01:39.984]  Y a veces, una habitación sin tratar te engaña más que unos altavoces mediocres.
+[01:40.164 --> 01:46.211]  Ahora, los auriculares. Los auriculares esquivan la sala, y eso es una ventaja.
+[01:46.391 --> 01:50.112]  No hay reflexiones, no hay resonancias del cuarto.
+[01:50.292 --> 01:52.617]  Pero tienen sus propias trampas.
+[01:52.797 --> 01:57.448]  Exageran el detalle. Escuchas cosas que en altavoces ni notarías.
+[01:57.628 --> 02:00.884]  Y sobre todo, exageran la imagen estéreo.
+[02:01.064 --> 02:07.111]  Porque cada oído recibe solo un canal, sin esa mezcla natural entre oídos.
+[02:07.291 --> 02:11.012]  A eso se le llama falta de crossfeed.
+[02:11.192 --> 02:18.633]  Con altavoces, el sonido de la izquierda también llega a tu oído derecho, y al revés.
+[02:18.813 --> 02:25.325]  Con auriculares eso no pasa, y por eso el estéreo se siente exageradamente amplio.
+[02:25.505 --> 02:31.087]  Cuidado entonces con panoramizar de forma extrema fiándote solo de los auriculares.
+[02:31.267 --> 02:34.987]  Hay dos tipos de auriculares que debes conocer.
+[02:35.167 --> 02:40.749]  Los cerrados, que aíslan del exterior y evitan fugas, geniales para grabar.
+[02:40.929 --> 02:47.440]  Y los abiertos, que suenan más naturales y espaciosos, preferidos por muchos para mezclar.
+[02:47.620 --> 02:53.202]  Pero ninguno de los dos es neutro por defecto, que quede claro.
+[02:53.382 --> 02:58.033]  Entonces, ¿qué significa trabajar con lo que tienes? Tres cosas.
+[02:58.213 --> 03:01.469]  Primera, aprender el carácter de tu sistema.
+[03:01.649 --> 03:06.765]  ¿Cómo? Escuchando en él muchas canciones que ya conoces de memoria.
+[03:06.945 --> 03:10.201]  Referencias buenas, del estilo al que apuntas.
+[03:10.381 --> 03:18.288]  Y anotando: mi sistema tiene de más en agudos, tiene de menos en graves, lo que sea.
+[03:18.468 --> 03:21.724]  Segunda, compensar mentalmente ese carácter cuando decides.
+[03:21.904 --> 03:25.625]  Si sabes que tus auriculares exageran los agudos,
+[03:25.805 --> 03:29.991]  desconfía cuando te den ganas de bajar el brillo.
+[03:30.171 --> 03:33.427]  Tercera, verificar en más de un sistema.
+[03:33.607 --> 03:41.048]  Lo que decides en tus monitores, lo chequeas en auriculares, en el móvil, en el coche.
+[03:41.228 --> 03:49.135]  Ningún sistema por sí solo dice toda la verdad, pero el cruce entre varios sí se acerca.
+[03:49.315 --> 03:54.897]  Y hay una verificación que es barata y muy reveladora: el mono.
+[03:55.077 --> 03:57.402]  Revisa tu mezcla en mono.
+[03:57.582 --> 04:05.024]  Muchos sistemas del mundo real son mono o casi, el altavoz de un móvil, un bar.
+[04:05.204 --> 04:10.786]  Y al sumar los dos canales, se caen los problemas de fase.
+[04:10.966 --> 04:16.547]  Cosas que en estéreo sonaban bien, en mono desaparecen o se debilitan.
+[04:16.727 --> 04:21.378]  Si algo se cae en mono, arréglalo antes de seguir.
+[04:21.558 --> 04:27.605]  Te doy un ejemplo. Un alumno solo tiene auriculares que exageran los agudos.
+[04:27.785 --> 04:32.901]  En ellos la voz le parece brillante, entonces le baja presencia.
+[04:33.081 --> 04:38.662]  Luego escucha en el móvil, y la voz suena apagada, se pierde.
+[04:38.842 --> 04:45.819]  El problema no era la voz. El problema era no compensar el carácter del sistema.
+[04:45.999 --> 04:50.650]  Sabiendo que sus auriculares exageran agudos, no debió bajar tanto.
+[04:50.830 --> 04:55.947]  Y verificando en un segundo sistema, lo habría cazado a tiempo.
+[04:56.127 --> 05:01.243]  Vamos cerrando. No necesitas el mejor equipo, necesitas conocer el tuyo.
+[05:01.423 --> 05:05.144]  Aprende su carácter con referencias, compénsalo al decidir,
+[05:05.324 --> 05:09.045]  verifica en varios sistemas, y revisa en mono.
+[05:09.225 --> 05:14.806]  Así, unos auriculares básicos se convierten en una herramienta de decisión fiable.
+[05:14.986 --> 05:21.498]  Y antes de que me preguntes, sí, se puede mezclar profesionalmente solo con auriculares.
+[05:21.678 --> 05:28.189]  Se hace todo el tiempo. Lo que no se puede es hacerlo a ciegas.
+[05:28.369 --> 05:33.486]  En el ejercicio vas a crear un mapa de tu sistema.
+[05:33.666 --> 05:41.107]  Vas a escuchar cinco o seis referencias y anotar qué exagera y qué esconde tu equipo.
+[05:41.287 --> 05:45.008]  Ese mapa vale más que cualquier compra nueva.
+[05:45.188 --> 05:52.630]  Nos vemos en la próxima, donde vamos a ver la anatomía del mixer y el ruteo.

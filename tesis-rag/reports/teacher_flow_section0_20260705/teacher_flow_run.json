@@ -1,0 +1,127 @@
+{
+  "generated_at": "2026-07-05T19:21:23.109776+00:00",
+  "course_id": "2",
+  "section_moodle_id": "2",
+  "section_human": "Sección 0 — El sistema de decisión",
+  "apply": true,
+  "lessons": [
+    {
+      "num": "0.1",
+      "lesson_id": "SEC2-R55",
+      "cmid": 55,
+      "expected_title": "Mezclar es decidir: el ciclo de trabajo",
+      "db_title": "1 — Mezclar es decidir: el ciclo de trabajo",
+      "declares_ok": true,
+      "segments": 95,
+      "duration_s": 509.943,
+      "transcript_chunks": 9,
+      "teacher_context_chunks": 2,
+      "teacher_context_index_status": "indexed",
+      "status": "applied"
+    },
+    {
+      "num": "0.2",
+      "lesson_id": "SEC2-R56",
+      "cmid": 56,
+      "expected_title": "Tu oído miente: percepción y nivel de escucha",
+      "db_title": "Lección 2 — Tu oído miente: percepción y nivel de escucha",
+      "declares_ok": true,
+      "segments": 87,
+      "duration_s": 459.201,
+      "transcript_chunks": 8,
+      "teacher_context_chunks": 0,
+      "teacher_context_index_status": "indexed",
+      "status": "applied"
+    },
+    {
+      "num": "0.3",
+      "lesson_id": "SEC2-R57",
+      "cmid": 57,
+      "expected_title": "Monitores y auriculares: trabajar con lo que tienes",
+      "status": "missing_in_db",
+      "action": "SKIP (no existe localmente; poblar en el servidor)"
+    },
+    {
+      "num": "0.4",
+      "lesson_id": "SEC2-R58",
+      "cmid": 58,
+      "expected_title": "Anatomía universal del mixer: ruteo",
+      "status": "missing_in_db",
+      "action": "SKIP (no existe localmente; poblar en el servidor)"
+    },
+    {
+      "num": "0.5",
+      "lesson_id": "SEC2-R59",
+      "cmid": 59,
+      "expected_title": "Gain Staging: el cimiento de toda la cadena",
+      "status": "missing_in_db",
+      "action": "SKIP (no existe localmente; poblar en el servidor)"
+    },
+    {
+      "num": "0.6",
+      "lesson_id": "SEC2-R60",
+      "cmid": 60,
+      "expected_title": "Nativos vs emulaciones analógicas: la matriz de decisión",
+      "status": "missing_in_db",
+      "action": "SKIP (no existe localmente; poblar en el servidor)"
+    },
+    {
+      "num": "0.7",
+      "lesson_id": "SEC2-R61",
+      "cmid": 61,
+      "expected_title": "Checklist de sesión lista para mezclar",
+      "status": "missing_in_db",
+      "action": "SKIP (no existe localmente; poblar en el servidor)"
+    }
+  ],
+  "pre_audit": {
+    "total_section_chunks": 15,
+    "by_source": {
+      "transcription:SEC2-R55": 8,
+      "transcription:SEC2-R56": 7
+    },
+    "by_lesson_id": {
+      "SEC2-R55": 8,
+      "SEC2-R56": 7
+    },
+    "by_source_type": {
+      "": 15
+    },
+    "by_doc_type": {
+      "video_transcript": 15
+    }
+  },
+  "post_audit": {
+    "total_section_chunks": 19,
+    "by_source": {
+      "transcript": 17,
+      "authoring_profile": 2
+    },
+    "by_lesson_id": {
+      "SEC2-R55": 11,
+      "SEC2-R56": 8
+    },
+    "by_source_type": {
+      "": 17,
+      "teacher_approved_context": 2
+    },
+    "by_doc_type": {
+      "video_transcript": 17,
+      "teacher_approved_context": 2
+    }
+  },
+  "log": [
+    "apply=True backup=True supersede_canonical=False",
+    "course=2 section_moodle_id=2 (Sección 0 — El sistema de decisión)",
+    "[pre] Chroma Sección 0: 15 chunks lessons={'SEC2-R55': 8, 'SEC2-R56': 7}",
+    "[backup] Chroma respaldado en D:\\ESPE\\MIC\\ACTIVITIES\\PROYECTO\\tesis-rag\\./bd_vectorial_backup_teacherflow_20260705_142050",
+    "[0.1 SEC2-R55] APLICADO: transcript=9 teacher_context=2 (indexed).",
+    "[0.2 SEC2-R56] APLICADO: transcript=8 teacher_context=0 (indexed).",
+    "[0.3 SEC2-R57] AUSENTE en BD -> se omite (server-only).",
+    "[0.4 SEC2-R58] AUSENTE en BD -> se omite (server-only).",
+    "[0.5 SEC2-R59] AUSENTE en BD -> se omite (server-only).",
+    "[0.6 SEC2-R60] AUSENTE en BD -> se omite (server-only).",
+    "[0.7 SEC2-R61] AUSENTE en BD -> se omite (server-only).",
+    "[post] Chroma Sección 0: 19 chunks lessons={'SEC2-R55': 11, 'SEC2-R56': 8} types={'': 17, 'teacher_approved_context': 2}"
+  ]
+}

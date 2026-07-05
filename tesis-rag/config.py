@@ -38,6 +38,40 @@ AI_PREP_TRANSCRIPT_CHAR_LIMIT = int(os.getenv("AI_PREP_TRANSCRIPT_CHAR_LIMIT", "
 _CHROMA_DIR = os.getenv("CHROMA_DIR", "./bd_vectorial")
 CHROMA_DIR = _CHROMA_DIR if os.path.isabs(_CHROMA_DIR) else os.path.join(BASE_DIR, _CHROMA_DIR)
 
+
+def _as_flag(value: str, default: bool) -> bool:
+    v = str(value if value is not None else "").strip().lower()
+    if v in ("1", "true", "yes", "on", "si", "sí"):
+        return True
+    if v in ("0", "false", "no", "off"):
+        return False
+    return default
+
+
+# ==========================================
+# FLUJO DOCENTE (teacher-driven RAG). Fase 3.
+# La transcripción CRUDA de Whisper NO es evidencia final hasta que el profesor la
+# apruebe/edite. Con el flag activo (default seguro para PRODUCCIÓN) el job de
+# Whisper deja la transcripción en estado `generated_pending_review` y NO la indexa;
+# se indexa recién cuando el profesor la aprueba/edita (PUT transcript) o la importa.
+# En test/dev se puede poner en false para indexar de inmediato (compat histórica).
+# ==========================================
+INDEX_TRANSCRIPT_ONLY_AFTER_APPROVAL = _as_flag(
+    os.getenv("INDEX_TRANSCRIPT_ONLY_AFTER_APPROVAL"), True
+)
+
+# Estados de transcripción (contrato único del backend, evita strings mágicos).
+TRANSCRIPT_STATUS_PENDING = "generated_pending_review"  # Whisper crudo, sin revisar
+TRANSCRIPT_STATUS_APPROVED = "approved"                 # aprobada explícitamente
+TRANSCRIPT_STATUS_EDITED = "edited"                     # corregida por el profesor
+# Estados que cuentan como "aprobada" -> sí se indexa como evidencia.
+TRANSCRIPT_APPROVED_STATES = (TRANSCRIPT_STATUS_APPROVED, TRANSCRIPT_STATUS_EDITED)
+
+
+def transcript_is_approved(status: str) -> bool:
+    """True si un estado de transcripción cuenta como aprobado (indexable)."""
+    return str(status or "").strip().lower() in TRANSCRIPT_APPROVED_STATES
+
 # Moodle Web Services (sincronizacion FastAPI -> Moodle).
 # El token se emite en Moodle: Site administration -> Server -> Manage tokens.
 MOODLE_WS_BASE = os.getenv("MOODLE_WS_BASE", "http://moodle:8080/webservice/rest/server.php")

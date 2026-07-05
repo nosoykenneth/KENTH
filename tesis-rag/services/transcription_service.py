@@ -112,11 +112,18 @@ def _run(
 
         db_service.replace_transcript(lesson_id, collected)
 
-        # Estado de transcripción en metadata de la lección (Fase 3). Best-effort:
-        # no debe tumbar el job si falla el merge.
+        # Fase 3 (flujo docente): la salida CRUDA de Whisper queda pendiente de
+        # revisión del profesor. NO es evidencia final todavía. Best-effort: no debe
+        # tumbar el job si falla el merge.
         try:
+            import config
+            estado = (
+                config.TRANSCRIPT_STATUS_PENDING
+                if config.INDEX_TRANSCRIPT_ONLY_AFTER_APPROVAL
+                else config.TRANSCRIPT_STATUS_EDITED
+            )
             db_service.merge_lesson_metadata(lesson_id, course_id, {
-                "transcript_status": "generated",
+                "transcript_status": estado,
                 "transcript_model": f"whisper:{_MODEL_SIZE}",
                 "transcript_generated_at": datetime.now(timezone.utc).isoformat(),
                 "transcript_segments_count": len(collected),
@@ -124,16 +131,24 @@ def _run(
         except Exception as exc:  # pragma: no cover
             print(f"[transcript-status] no se pudo marcar estado en {lesson_id}: {exc}")
 
-        # Indexar en RAG (no debe tumbar el job si falla).
+        # Indexar en RAG SOLO si la política lo permite. Con
+        # INDEX_TRANSCRIPT_ONLY_AFTER_APPROVAL=true (producción) la transcripción
+        # cruda NO se indexa: se indexará cuando el profesor la apruebe/edite
+        # (PUT /transcript) o la importe. No debe tumbar el job si falla.
         try:
-            import ingest
-            ingest.index_lesson_transcript(
-                course_id,
-                lesson_id,
-                collected,
-                axis_id=axis_id,
-                moodle_section_id=moodle_section_id,
-            )
+            import config
+            if config.INDEX_TRANSCRIPT_ONLY_AFTER_APPROVAL:
+                print(f"[transcript-index] {lesson_id}: transcripción pendiente de "
+                      f"aprobación; no se indexa hasta que el profesor la revise.")
+            else:
+                import ingest
+                ingest.index_lesson_transcript(
+                    course_id,
+                    lesson_id,
+                    collected,
+                    axis_id=axis_id,
+                    moodle_section_id=moodle_section_id,
+                )
         except Exception as exc:  # pragma: no cover
             print(f"[transcript-index] fallo indexando {lesson_id}: {exc}")
 

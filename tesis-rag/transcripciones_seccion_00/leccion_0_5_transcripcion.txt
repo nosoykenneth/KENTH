@@ -1,0 +1,63 @@
+[00:00.000 --> 00:06.512]  Quinta lección de la sección cero. Gain staging, el cimiento de toda la cadena.
+[00:06.692 --> 00:11.808]  Y te aviso, esta es la lección menos glamurosa de todas.
+[00:11.988 --> 00:17.569]  No tiene nada de sexy, no hay un plugin brillante que enseñar.
+[00:17.749 --> 00:23.796]  Pero es el cimiento sobre el que se apoya absolutamente todo lo demás.
+[00:23.976 --> 00:27.232]  La ecualización, la compresión, las emulaciones, todo.
+[00:27.412 --> 00:35.319]  La idea central: el gain staging es dar a la señal el nivel correcto en cada etapa.
+[00:35.499 --> 00:42.940]  Ni tan alto que sature, ni tan bajo que se pierda. En cada punto del camino.
+[00:43.120 --> 00:48.237]  Con un buen gain staging, los plugins se comportan como esperas.
+[00:48.417 --> 00:56.324]  Con uno malo, todo suena peor, y encima no sabes por qué. Y eso es lo frustrante.
+[00:56.504 --> 01:00.225]  Vamos a lo técnico, pero tranquilo, es sencillo.
+[01:00.405 --> 01:06.451]  En el mundo digital, hay un techo absoluto, y se llama cero dBFS.
+[01:06.631 --> 01:10.817]  Cero decibelios de plena escala. Ese es el máximo.
+[01:10.997 --> 01:15.648]  Si te pasas de ahí, se produce recorte, clipping digital.
+[01:15.828 --> 01:20.945]  Y el clipping digital es una distorsión fea, áspera, nada agradable.
+[01:21.125 --> 01:27.171]  Por eso trabajamos por debajo de ese techo, dejando un margen de seguridad.
+[01:27.351 --> 01:31.537]  A ese margen lo llamamos headroom. Espacio de cabeza.
+[01:31.717 --> 01:35.903]  Ahora, seguramente has oído el número menos dieciocho dBFS.
+[01:36.083 --> 01:42.130]  Es una práctica común, apuntar a que los niveles medios anden por ahí,
+[01:42.310 --> 01:49.287]  entre menos dieciocho y menos doce dBFS, con los picos bien por debajo de cero.
+[01:49.467 --> 01:55.978]  Pero ojo, y esto es importante, ese número no es mágico ni es obligatorio.
+[01:56.158 --> 02:03.600]  Es una zona cómoda, que viene de la relación entre el mundo analógico y el digital.
+[02:03.780 --> 02:07.501]  Muchos procesadores fueron pensados para operar por ahí.
+[02:07.681 --> 02:11.402]  Lo importante no es clavar menos dieciocho exacto.
+[02:11.582 --> 02:16.698]  Lo importante es no acercarte peligrosamente a cero en cada etapa.
+[02:16.878 --> 02:21.529]  No te obsesiones con el número, obsesiónate con el margen.
+[02:21.709 --> 02:28.221]  Y digo en cada etapa porque el gain staging ocurre en varios puntos encadenados.
+[02:28.401 --> 02:38.168]  La señal entra a la pista, pasa por cada insert, llega al fader, se suma en los buses, y al master.
+[02:38.348 --> 02:43.000]  Y aquí hay un error clásico que quiero que evites.
+[02:43.180 --> 02:48.296]  La suma. Cada pista, por separado, suena perfecta, con su margen.
+[02:48.476 --> 02:54.057]  Pero juntas, en un bus, se suman, y el nivel se acumula.
+[02:54.237 --> 03:00.284]  Y de repente el bus está saturando, aunque ninguna pista lo hacía sola.
+[03:00.464 --> 03:07.440]  Por eso hay que vigilar el nivel en cada punto, no solo en las pistas.
+[03:07.620 --> 03:13.202]  Hay otra razón técnica muy importante, y conecta con la próxima lección.
+[03:13.382 --> 03:16.638]  Muchos plugins, sobre todo las emulaciones analógicas,
+[03:16.818 --> 03:21.934]  están calibrados para sonar bien a un nivel de entrada concreto.
+[03:22.114 --> 03:27.695]  Si les mandas una señal demasiado caliente, distorsionan o comprimen de más.
+[03:27.875 --> 03:32.992]  Y si les mandas una señal muy débil, casi ni reaccionan.
+[03:33.172 --> 03:40.613]  Así que ajustar el nivel con que golpeas a un plugin es parte del gain staging.
+[03:40.793 --> 03:44.980]  No es un detalle menor, es parte del trabajo.
+[03:45.160 --> 03:48.415]  Y cuidado con una confusión muy común.
+[03:48.595 --> 03:56.037]  El nivel de la señal, lo que miden los medidores, no es el volumen de escucha.
+[03:56.217 --> 04:02.264]  Puedes tener una pista a menos dieciocho dBFS y escucharla fuerte o bajo,
+[04:02.444 --> 04:06.165]  según cómo tengas el volumen de tu monitor.
+[04:06.345 --> 04:14.717]  El gain staging es del nivel de la señal, no del volumen de tus altavoces. No los confundas.
+[04:14.897 --> 04:19.548]  Te doy un ejemplo típico. Importas unos stems muy calientes.
+[04:19.728 --> 04:22.519]  Cada pista pica cerca de cero.
+[04:22.699 --> 04:26.885]  Los sumas, y el master clippea, y suena áspero.
+[04:27.065 --> 04:33.576]  ¿Cuál es la tentación? Poner un limitador en el master para tapar el problema.
+[04:33.756 --> 04:36.547]  Mal. Eso es tapar el síntoma.
+[04:36.727 --> 04:44.169]  Lo correcto es bajar el nivel de todas las pistas, para dejar los picos con margen.
+[04:44.349 --> 04:49.930]  Y de repente el clipping desaparece, los compresores empiezan a portarse bien,
+[04:50.110 --> 04:56.622]  y la mezcla suena más limpia. No cambiaste el balance, cambiaste el gain staging.
+[04:56.802 --> 05:03.313]  Un consejo práctico. Para ajustar el nivel, usa un trim, un utility de ganancia.
+[05:03.493 --> 05:09.075]  No uses el fader del canal para esto, porque descolocas tu balance.
+[05:09.255 --> 05:15.301]  Un trim es un control simple de volumen, sin color, antes del plugin.
+[05:15.481 --> 05:23.388]  Vamos cerrando. El gain staging es dar el nivel correcto en cada etapa, dejando headroom hasta cero.
+[05:23.568 --> 05:28.220]  No es perseguir un número mágico, es evitar la saturación,
+[05:28.400 --> 05:32.586]  y hacer que cada procesador trabaje en su zona.
+[05:32.766 --> 05:38.812]  Es el cimiento silencioso que hace que todo lo demás sea más fácil.
+[05:38.992 --> 05:45.504]  Y deja siempre headroom en el master, para que la masterización tenga dónde trabajar.
+[05:45.684 --> 05:50.800]  En el ejercicio vas a rescatar una sesión con pistas calientes,
+[05:50.980 --> 05:55.631]  ajustando el nivel etapa por etapa, sin tocar el balance.
+[05:55.811 --> 06:02.323]  Nos vemos en la próxima, donde vamos a hablar de nativos contra emulaciones analógicas.
