@@ -179,6 +179,14 @@
   "lexicon": {
     "concept_patterns": [
       [
+        "stems",
+        [
+          "stems",
+          "stem",
+          "multipista"
+        ]
+      ],
+      [
         "frecuencia",
         [
           "frecuencia"
