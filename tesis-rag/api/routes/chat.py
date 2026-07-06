@@ -15,6 +15,7 @@ from services.db_service import (
     get_document,
 )
 import json
+import logging
 import time
 import uuid
 from datetime import datetime
@@ -267,9 +268,36 @@ def chat_endpoint(
         "tutor_envelope": envelope,
     }
 
-    resultado = super_agente.invoke(estado_inicial)
+    try:
+        resultado = super_agente.invoke(estado_inicial)
+    except Exception as exc:
+        logging.getLogger("tesis_rag.chat").exception(
+            "chat_agent_failed",
+            extra={
+                "trace_id": trace_id,
+                "session_id": consulta.session_id,
+                "user_id": authenticated_user_id,
+                "course_id": scoped_course_id,
+                "lesson_id": envelope.activity_context.current_lesson_id,
+                "error": str(exc),
+            },
+        )
+        resultado = {
+            **estado_inicial,
+            "respuesta_final": "No pude generar la respuesta en este momento. Intenta de nuevo.",
+            "evidencias": [],
+            "evidence_level": "error",
+            "intent": "fallback_error",
+            "answer_type": "fallback",
+            "warnings": ["chat_agent_failed"],
+            "blocked_by": "agent_exception",
+            "applied_policies": [],
+            "retrieval_scope": "",
+            "retrieval_fallback": False,
+            "retrieved_chunks": [],
+        }
 
-    respuesta = resultado["respuesta_final"]
+    respuesta = resultado.get("respuesta_final") or "No pude generar la respuesta en este momento. Intenta de nuevo."
 
     fuentes = resultado.get("evidencias", [])
     # Las fuentes que se DEVUELVEN al cliente excluyen material interno

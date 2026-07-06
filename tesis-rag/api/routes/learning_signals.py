@@ -4,12 +4,13 @@ H5P, expuesto como señales pedagógicas.
 Ruta externa (vía gateway `/api/ai/*`):
   GET  /api/ai/learning-signals/lesson/{lesson_id}/me       (estudiante: sus señales)
   GET  /api/ai/learning-signals/lesson/{lesson_id}/summary  (profesor/admin: resumen)
-  POST /api/ai/learning-signals/sync/lesson/{lesson_id}     (profesor/admin: sincroniza)
+  POST /api/ai/learning-signals/sync/lesson/{lesson_id}     (usuario del curso: recalcula su snapshot)
 
 Permisos:
   - /me         -> token del alumno (get_current_user_id); solo devuelve SUS señales.
   - /summary    -> require_teacher (rol docente/gestor del curso).
-  - /sync       -> require_teacher; idempotente, no imprime datos sensibles.
+  - /sync       -> require_course_view; idempotente, devuelve solo snapshot del usuario.
+  - /guidance   -> require_course_view; mensaje listo para UI sin modelo ni Chroma.
 """
 from __future__ import annotations
 
@@ -17,7 +18,7 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, Header, Query
 
-from api.dependencies import get_current_user_id, require_teacher, TeacherContext
+from api.dependencies import get_current_user_id, require_teacher, require_course_view, TeacherContext
 from services import learning_signals
 from services.db_service import resolve_course_numeric
 
@@ -55,8 +56,20 @@ def lesson_signals_summary(
 @router.post("/sync/lesson/{lesson_id}")
 def lesson_signals_sync(
     lesson_id: str,
-    ctx: TeacherContext = Depends(require_teacher),
+    ctx: TeacherContext = Depends(require_course_view),
 ):
-    """Sincroniza (recalcula) señales desde Moodle/H5P. Idempotente; los datos ya
-    viven en Moodle, así que devuelve el snapshot actual sin escribir nada sensible."""
-    return learning_signals.sync_lesson(ctx.course_id, lesson_id)
+    """Recalcula señales desde Moodle/H5P para el usuario autenticado.
+
+    Los resultados ya viven en Moodle; esta operación no escribe en Chroma ni
+    expone agregados de otros estudiantes.
+    """
+    return learning_signals.sync_lesson_for_user(ctx.user_id, ctx.course_id, lesson_id)
+
+
+@router.post("/lesson/{lesson_id}/guidance")
+def lesson_signals_guidance(
+    lesson_id: str,
+    ctx: TeacherContext = Depends(require_course_view),
+):
+    """Devuelve orientación determinística basada en learning_signals del usuario."""
+    return learning_signals.guidance_for(ctx.user_id, lesson_id, ctx.course_id)

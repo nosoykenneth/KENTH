@@ -17,6 +17,7 @@ remediación (timestamp + recurso real + micro-práctica).
 from __future__ import annotations
 
 import json
+import hashlib
 import re
 import unicodedata
 from functools import lru_cache
@@ -183,6 +184,9 @@ def get_lesson_signals(user_id: str, lesson_id: str, course_id: str) -> Dict[str
         "h5p_content_id": None,
         "score": 0, "max_score": 0, "percentage": 0,
         "completion": False, "attempts": 0,
+        "attempt_id": "",
+        "updated_at": None,
+        "signal_hash": "",
         "level": None,
         "weak_concepts": [],
         "recommended_review": [],
@@ -234,6 +238,27 @@ def get_lesson_signals(user_id: str, lesson_id: str, course_id: str) -> Dict[str
 
     percentage = round((score / max_score) * 100) if max_score else 0
     completion = bool((grade and grade.get("finalgrade") is not None) or parent is not None)
+    updated_at = (grade or {}).get("timemodified")
+    max_row_id = max((_to_num(r.get("id")) for r in rows), default=0)
+    attempt_basis = {
+        "lesson_id": lesson_id,
+        "content_id": content_id,
+        "user_id": uid,
+        "updated_at": updated_at,
+        "max_row_id": max_row_id,
+        "score": round(score, 2),
+        "max_score": round(max_score, 2),
+        "percentage": percentage,
+        "completion": completion,
+    }
+    signal_hash = hashlib.sha256(
+        json.dumps(attempt_basis, sort_keys=True, ensure_ascii=False).encode("utf-8")
+    ).hexdigest()[:16]
+    attempt_id = (
+        f"hvp:{content_id}:u:{uid}:t:{updated_at}"
+        if updated_at
+        else f"hvp:{content_id}:u:{uid}:x:{int(max_row_id)}:{signal_hash}"
+    )
 
     # Conceptos a reforzar: aquellos con alguna interacción fallada.
     labels = plan.get("concept_labels", {})
@@ -268,11 +293,74 @@ def get_lesson_signals(user_id: str, lesson_id: str, course_id: str) -> Dict[str
         "percentage": percentage,
         "completion": completion,
         "attempts": 1 if rows else (1 if completion else 0),
+        "attempt_id": attempt_id,
+        "updated_at": updated_at,
+        "signal_hash": signal_hash,
         "level": _level(percentage),
         "weak_concepts": [{"concept": c, "label": labels.get(c, c)} for c in weak_ids],
         "recommended_review": review,
     })
     return base
+
+
+def build_guidance_message(signals: Dict[str, Any]) -> str:
+    """Mensaje deterministico para UI. No llama al modelo ni usa Chroma."""
+    status = signals.get("status")
+    if status == "not_attempted" or status != "available":
+        return ""
+
+    level = signals.get("level")
+    if level == LEVEL_READY:
+        return (
+            "Buen avance en esta actividad. Puedes pasar a la practica o pedirme "
+            "un reto aplicado para comprobarlo en una situacion real."
+        )
+
+    weak = signals.get("weak_concepts") or []
+    review = signals.get("recommended_review") or []
+    labels = [w.get("label") or w.get("concept") for w in weak[:2] if (w.get("label") or w.get("concept"))]
+    concepts = ", ".join(labels) if labels else "los puntos donde hubo mas duda"
+
+    first = review[0] if review else {}
+    timestamp = first.get("timestamp") or "la parte relacionada del video"
+    resource = first.get("resource") or "el recurso de apoyo de la leccion"
+    micro = first.get("micro_practice") or "explica el concepto con tus palabras y contrasta una decision correcta con una incorrecta"
+
+    return (
+        f"Revise tus respuestas del video interactivo. Conviene reforzar {concepts}. "
+        f"Te recomiendo volver al minuto {timestamp} y usar el recurso {resource}. "
+        f"Luego realiza esta micro-practica: {micro}. "
+        "Quieres que lo repasemos juntos?"
+    )
+
+
+def guidance_for(user_id: str, lesson_id: str, course_id: str) -> Dict[str, Any]:
+    """Guidance listo para UI, derivado solo de learning_signals del usuario."""
+    signals = get_lesson_signals(user_id, lesson_id, str(course_id))
+    status = signals.get("status")
+    level = signals.get("level")
+    weak = signals.get("weak_concepts") or []
+    should_notify = (
+        status == "available"
+        and level in {LEVEL_NEEDS, LEVEL_PARTIAL}
+        and bool(weak)
+    )
+    message = build_guidance_message(signals)
+    guidance_id = signals.get("attempt_id") or signals.get("signal_hash") or ""
+    return {
+        "lesson_id": lesson_id,
+        "course_id": str(course_id),
+        "attempt_id": signals.get("attempt_id") or "",
+        "signal_hash": signals.get("signal_hash") or "",
+        "guidance_id": guidance_id,
+        "should_notify": should_notify,
+        "level": level,
+        "status": status,
+        "message": message,
+        "weak_concepts": weak,
+        "recommended_review": signals.get("recommended_review") or [],
+        "signals": signals,
+    }
 
 
 # ------------------------------------------------------------------
@@ -436,4 +524,17 @@ def sync_lesson(course_id: str, lesson_id: str) -> Dict[str, Any]:
         "students_with_results": summary.get("students_with_results", 0),
         "status": summary.get("status"),
         "summary": summary,
+    }
+
+def sync_lesson_for_user(user_id: str, course_id: str, lesson_id: str) -> Dict[str, Any]:
+    """Recalculo idempotente para el estudiante autenticado."""
+    signals = get_lesson_signals(user_id, lesson_id, str(course_id))
+    return {
+        "lesson_id": lesson_id,
+        "course_id": str(course_id),
+        "synced": signals.get("status") in {"available", "not_attempted", "empty"},
+        "status": signals.get("status"),
+        "attempt_id": signals.get("attempt_id") or "",
+        "signal_hash": signals.get("signal_hash") or "",
+        "signals": signals,
     }

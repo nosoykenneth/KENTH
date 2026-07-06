@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { getCourseContents, getMyCourses } from '../../shared/services/courseService';
 import MoodleRenderer from '../../shared/components/ui/MoodleRenderer';
@@ -26,6 +26,7 @@ import {
 import { resolveLessonForResource as resolveLessonForModule } from '../../shared/services/lessonAutoAssignment';
 import { getMoodleToken, hasMoodleSession } from '../../shared/utils/moodleToken';
 import useResourceTimestamp from '../../shared/hooks/useResourceTimestamp';
+import { getLessonSignalGuidance, syncLessonSignals } from '../../shared/services/ragService';
 
 const FloatingAssistantIcon = () => (
   <div className="relative w-7 h-7">
@@ -117,6 +118,11 @@ export default function CourseContentView() {
   // Panel del tutor en el visor: oculto por defecto, se abre con FAB.
   const [tutorAbierto, setTutorAbierto] = useState(false);
   const [tutorMontado, setTutorMontado] = useState(false);
+  const [h5pSignal, setH5pSignal] = useState(null);
+  const [h5pRefreshKey, setH5pRefreshKey] = useState(0);
+  const [proactiveGuidance, setProactiveGuidance] = useState(null);
+  const [pendingTutorGuidance, setPendingTutorGuidance] = useState(null);
+  const [h5pSyncError, setH5pSyncError] = useState('');
   // Hook preparado para timestamp real del H5P/video. Hoy queda en null
   // hasta que un bridge (tesis_view.php) emita 'kenth:resource_time'.
   const { currentTimestamp } = useResourceTimestamp({
@@ -129,15 +135,20 @@ export default function CourseContentView() {
   // null cuando se trata de una edicion (no autoabrir).
   const idsCreacionRef = useRef(null);
   const tutorUnmountTimerRef = useRef(null);
+  const h5pPollTimerRef = useRef(null);
+  const h5pPollDeadlineRef = useRef(0);
+  const h5pPollInFlightRef = useRef(false);
+  const userInteractedRef = useRef(false);
+  const guidanceSoundPlayedRef = useRef(new Set());
 
-  const resolveLessonForResource = (resource, sectionsOverride = secciones, lessonsOverride = lessons) => (
+  const resolveLessonForResource = useCallback((resource, sectionsOverride = secciones, lessonsOverride = lessons) => (
     resolveLessonForModule({
       resource,
       secciones: sectionsOverride,
       lessons: lessonsOverride,
       resourceLinks,
     })
-  );
+  ), [lessons, resourceLinks, secciones]);
 
   const getSectionContextForResource = (resource, sectionsOverride = secciones, lessonsOverride = lessons) => {
     const resolved = resolveLessonForResource(resource, sectionsOverride, lessonsOverride);
@@ -151,6 +162,111 @@ export default function CourseContentView() {
       section: resolved.section,
     };
   };
+
+  const guidanceStorageKey = useCallback((lessonId) => (
+    lessonId ? `kenth:h5p-guidance:${id}:${lessonId}` : ''
+  ), [id]);
+
+  useEffect(() => {
+    const markInteraction = () => { userInteractedRef.current = true; };
+    window.addEventListener('pointerdown', markInteraction, { once: true, passive: true });
+    window.addEventListener('keydown', markInteraction, { once: true });
+    return () => {
+      window.removeEventListener('pointerdown', markInteraction);
+      window.removeEventListener('keydown', markInteraction);
+    };
+  }, []);
+
+  const playGuidanceSound = useCallback((guidanceId) => {
+    if (!guidanceId || guidanceSoundPlayedRef.current.has(guidanceId)) return;
+    if (!userInteractedRef.current) return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches) return;
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gain.gain.setValueAtTime(0.0001, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.08, ctx.currentTime + 0.01);
+      gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.12);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.14);
+      guidanceSoundPlayedRef.current.add(guidanceId);
+      window.setTimeout(() => ctx.close?.(), 250);
+    } catch {
+      // El navegador puede bloquear audio; la notificacion visual queda activa.
+    }
+  }, []);
+
+  const deliverGuidance = useCallback((guidance, lessonId) => {
+    const guidanceId = guidance?.guidance_id || guidance?.attempt_id || guidance?.signal_hash;
+    const message = guidance?.message || '';
+    if (!guidance?.should_notify || !guidanceId || !message) return;
+    const key = guidanceStorageKey(lessonId);
+    if (key && localStorage.getItem(key) === guidanceId) return;
+    if (key) localStorage.setItem(key, guidanceId);
+    const payload = { id: guidanceId, message };
+    if (tutorAbierto) {
+      setProactiveGuidance(payload);
+      setPendingTutorGuidance(null);
+      return;
+    }
+    setPendingTutorGuidance(payload);
+    playGuidanceSound(guidanceId);
+  }, [guidanceStorageKey, playGuidanceSound, tutorAbierto]);
+
+  const syncH5PLessonSignals = useCallback(async (lessonId, reason = 'h5p') => {
+    if (!lessonId || h5pPollInFlightRef.current) return false;
+    h5pPollInFlightRef.current = true;
+    try {
+      const [syncResult, guidance] = await Promise.all([
+        syncLessonSignals(id, lessonId),
+        getLessonSignalGuidance(id, lessonId),
+      ]);
+      const nextSignal = guidance?.signals || syncResult?.signals || null;
+      if (nextSignal) {
+        setH5pSignal(nextSignal);
+        setH5pRefreshKey((value) => value + 1);
+      }
+      if (guidance?.status === 'available') {
+        deliverGuidance(guidance, lessonId);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.warn('[H5P_GUIDANCE] No se pudo sincronizar learning_signals', { reason, error });
+      setH5pSyncError('No se pudo sincronizar el tutor en este momento.');
+      window.setTimeout(() => setH5pSyncError(''), 4000);
+      return false;
+    } finally {
+      h5pPollInFlightRef.current = false;
+    }
+  }, [deliverGuidance, id]);
+
+  const startH5PSignalPolling = useCallback((lessonId, reason = 'h5p_activity') => {
+    if (!lessonId) return;
+    h5pPollDeadlineRef.current = Date.now() + 30000;
+    if (h5pPollTimerRef.current) return;
+    const tick = async () => {
+      const available = await syncH5PLessonSignals(lessonId, reason);
+      if (available || Date.now() >= h5pPollDeadlineRef.current) {
+        window.clearInterval(h5pPollTimerRef.current);
+        h5pPollTimerRef.current = null;
+      }
+    };
+    tick();
+    h5pPollTimerRef.current = window.setInterval(tick, 3000);
+  }, [syncH5PLessonSignals]);
+
+  const handleStudentSignal = useCallback((signal) => {
+    setH5pSignal(signal);
+  }, []);
+
 
   const ensureLessonForResource = async (resource, sectionsOverride = secciones) => {
     // Solo los recursos interactivos (video H5P) se vuelven lecciones del tutor.
@@ -199,6 +315,10 @@ export default function CourseContentView() {
     }
     setTutorMontado(true);
     setTutorAbierto(true);
+    if (pendingTutorGuidance) {
+      setProactiveGuidance(pendingTutorGuidance);
+      setPendingTutorGuidance(null);
+    }
   };
 
   const cerrarTutor = () => {
@@ -225,12 +345,24 @@ export default function CourseContentView() {
     }
     setTutorAbierto(false);
     setTutorMontado(false);
+    setH5pSignal(null);
+    setProactiveGuidance(null);
+    setPendingTutorGuidance(null);
+    setH5pSyncError('');
     setVisorActivo(mod);
   };
 
   const cerrarVisorRecurso = () => {
     setTutorAbierto(false);
     setTutorMontado(false);
+    setH5pSignal(null);
+    setProactiveGuidance(null);
+    setPendingTutorGuidance(null);
+    setH5pSyncError('');
+    if (h5pPollTimerRef.current) {
+      window.clearInterval(h5pPollTimerRef.current);
+      h5pPollTimerRef.current = null;
+    }
     setVisorActivo(null);
   };
 
@@ -300,7 +432,7 @@ export default function CourseContentView() {
       .then((d) => { if (alive) setLinkedLessonDetail(d); })
       .catch(() => { if (alive) setLinkedLessonDetail(null); });
     return () => { alive = false; };
-  }, [visorActivo, resourceLinks, lessons, secciones, id]);
+  }, [visorActivo, resourceLinks, id, resolveLessonForResource]);
 
   const [editandoSeccionId, setEditandoSeccionId] = useState(null);
   const [nuevoNombreSeccion, setNuevoNombreSeccion] = useState('');
@@ -668,6 +800,34 @@ export default function CourseContentView() {
       fetchContenido();
     }
   };
+
+  const handleH5PActivity = useCallback((event = {}) => {
+    if (!visorActivo || !isH5PModule(visorActivo)) return;
+    const activeLesson = resolveLessonForResource(visorActivo);
+    const lessonId = activeLesson?.lesson_id || resourceLinks[String(visorActivo.id)]?.lesson_id || '';
+    if (!lessonId) return;
+    startH5PSignalPolling(lessonId, event.type || 'h5p_activity');
+  }, [resourceLinks, resolveLessonForResource, startH5PSignalPolling, visorActivo]);
+
+  useEffect(() => {
+    if (!visorActivo || !isH5PModule(visorActivo)) return undefined;
+    const onMessage = (event) => {
+      const data = event?.data;
+      if (!data || typeof data !== 'object') return;
+      const type = String(data.type || data.verb || data.event || '');
+      const relevant = type === 'kenth:h5p_completed'
+        || type === 'kenth:h5p_submitted'
+        || type === 'kenth:h5p_answered'
+        || type === 'kenth:resource_time'
+        || type.toLowerCase().includes('xapi')
+        || Boolean(data.statement);
+      if (!relevant) return;
+      if (data.resourceId != null && String(data.resourceId) !== String(visorActivo.id)) return;
+      handleH5PActivity({ type: type || 'h5p_message' });
+    };
+    window.addEventListener('message', onMessage);
+    return () => window.removeEventListener('message', onMessage);
+  }, [handleH5PActivity, visorActivo]);
 
   return (
     <PageContainer className="flex flex-col gap-6 relative">
@@ -1309,7 +1469,13 @@ export default function CourseContentView() {
                   const lessonId = activeLesson?.lesson_id || resourceLinks[String(visorActivo.id)]?.lesson_id || '';
                   return lessonId ? (
                     <>
-                      <H5PStudentSignal courseId={id} lessonId={lessonId} />
+                      <H5PStudentSignal
+                        courseId={id}
+                        lessonId={lessonId}
+                        signal={h5pSignal?.lesson_id === lessonId ? h5pSignal : null}
+                        refreshKey={h5pRefreshKey}
+                        onSignal={handleStudentSignal}
+                      />
                       <StudentLessonResources courseId={id} lessonId={lessonId} />
                     </>
                   ) : null;
@@ -1395,7 +1561,7 @@ export default function CourseContentView() {
                   {canUseTutor(perms) && !tutorAbierto && (
                     <button
                       onClick={abrirTutor}
-                      title={activeLessonId ? `Abrir tutor - ${activeLessonId}` : 'Abrir tutor'}
+                      title={pendingTutorGuidance ? 'Nueva recomendación del tutor' : (activeLessonId ? `Abrir tutor - ${activeLessonId}` : 'Abrir tutor')}
                       aria-label="Abrir tutor"
                       className="absolute top-[20%] right-0 z-40 group flex h-12 w-12 items-center justify-center rounded-l-2xl border border-r-0 border-white/10 bg-kenth-brightred text-white shadow-[-10px_10px_30px_rgba(195,7,63,0.3)] transition-all duration-300 translate-x-1 hover:translate-x-0 hover:bg-kenth-red focus:outline-none focus:ring-2 focus:ring-white/40"
                     >
@@ -1403,16 +1569,29 @@ export default function CourseContentView() {
                         <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" d="M8 10h.01M12 10h.01M16 10h.01M21 12c0 4.418-4.03 8-9 8a9.86 9.86 0 01-4-.8L3 20l1.2-3.6A7.96 7.96 0 013 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
                         </svg>
-                        {activeLessonId && (
+                        {pendingTutorGuidance ? (
+                          <span className="absolute -top-2 -right-2 min-w-5 h-5 rounded-full bg-amber-300 px-1 text-[10px] font-black leading-5 text-black ring-2 ring-kenth-brightred">1</span>
+                        ) : activeLessonId ? (
                           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-400 ring-2 ring-kenth-brightred animate-pulse"></span>
-                        )}
+                        ) : null}
                       </span>
+                      {pendingTutorGuidance && (
+                        <span className="pointer-events-none absolute right-14 top-1/2 hidden -translate-y-1/2 whitespace-nowrap rounded-lg border border-amber-300/30 bg-kenth-bg px-3 py-2 text-[10px] font-black uppercase tracking-widest text-amber-200 shadow-xl md:block">
+                          Abre el tutor para ver qué reforzar
+                          <span className="absolute -right-1 top-1/2 h-2 w-2 -translate-y-1/2 rotate-45 border-r border-t border-amber-300/30 bg-kenth-bg"></span>
+                        </span>
+                      )}
                     </button>
+                  )}
+                  {h5pSyncError && (
+                    <div className="absolute left-1/2 top-4 z-40 -translate-x-1/2 rounded-lg border border-amber-300/30 bg-kenth-bg/95 px-4 py-2 text-xs font-bold text-amber-200 shadow-xl">
+                      {h5pSyncError}
+                    </div>
                   )}
                   {/* Área de Contenido Principal (Video/H5P) */}
                   <div className="min-w-0 min-h-0 flex flex-col relative">
                     <div className={`flex-1 min-w-0 min-h-0 overflow-y-auto scrollbar-hide ${['h5pactivity', 'hvp'].includes(visorActivo?.modname) ? 'p-0' : 'p-4 md:p-10'}`}>
-                      <MoodleRenderer modulo={visorActivo} />
+                      <MoodleRenderer modulo={visorActivo} onH5PActivity={handleH5PActivity} />
                     </div>
 
                   </div>
@@ -1447,6 +1626,7 @@ export default function CourseContentView() {
                         proactiveMessage={proactiveMessage}
                         suggestedPrompts={suggested}
                         badge={badge}
+                        proactiveGuidance={proactiveGuidance}
                       />
                     </div>
                     </div>

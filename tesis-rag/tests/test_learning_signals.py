@@ -180,3 +180,44 @@ def test_sync_idempotente(monkeypatch):
     b = ls.sync_lesson("2", "SEC2-R55")
     assert a == b
     assert a["status"] == "no_results"
+
+
+
+def test_guidance_partial_notifica_con_attempt_id(monkeypatch):
+    _mock_db(monkeypatch, {"SEC2-R55-I03": 0, "SEC2-R55-I04": 0})
+    out = ls.guidance_for("40", "SEC2-R55", "2")
+    assert out["should_notify"] is True
+    assert out["attempt_id"]
+    assert out["guidance_id"] == out["attempt_id"]
+    assert "Conviene reforzar" in out["message"]
+    assert "minuto" in out["message"]
+    assert out["recommended_review"][0]["resource"] in out["message"]
+    assert "Chroma" not in out["message"]
+
+
+def test_guidance_not_attempted_no_notifica(monkeypatch):
+    monkeypatch.setattr(db_service, "using_moodle_db", lambda: True)
+    monkeypatch.setattr(db_service, "get_hvp_instance_id_by_cmid", lambda c: 21)
+    monkeypatch.setattr(db_service, "get_hvp_xapi_results", lambda c, u: [])
+    monkeypatch.setattr(db_service, "get_hvp_grade", lambda c, u, course=None: None)
+    out = ls.guidance_for("40", "SEC2-R55", "2")
+    assert out["status"] == "not_attempted"
+    assert out["should_notify"] is False
+    assert out["message"] == ""
+
+
+def test_guidance_ready_suave_no_intrusivo(monkeypatch):
+    _mock_db(monkeypatch, {})
+    out = ls.guidance_for("40", "SEC2-R55", "2")
+    assert out["level"] == ls.LEVEL_READY
+    assert out["should_notify"] is False
+    assert "Buen avance" in out["message"]
+
+
+def test_sync_lesson_for_user_idempotente(monkeypatch):
+    _mock_db(monkeypatch, {"SEC2-R55-I03": 0})
+    a = ls.sync_lesson_for_user("40", "2", "SEC2-R55")
+    b = ls.sync_lesson_for_user("40", "2", "SEC2-R55")
+    assert a == b
+    assert a["synced"] is True
+    assert a["attempt_id"]

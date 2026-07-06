@@ -19,6 +19,8 @@ export default function TutorAssistCard({
   suggestedPrompts = null,
   // Badge visual opcional para mostrar la leccion activa.
   badge = null,
+  // Guidance H5P nueva: { id, message }. Se agrega sin pisar el historial.
+  proactiveGuidance = null,
 }) {
   const [pregunta, setPregunta] = useState('');
   const [cargando, setCargando] = useState(false);
@@ -28,6 +30,7 @@ export default function TutorAssistCard({
       : []
   ));
   const chatEndRef = useRef(null);
+  const proactiveIdsRef = useRef(new Set());
 
   const accionesPorVariante = {
     module: [
@@ -61,6 +64,24 @@ export default function TutorAssistCard({
     });
   }, [proactiveMessage]);
 
+  useEffect(() => {
+    if (!proactiveGuidance?.message || !proactiveGuidance?.id) return;
+    if (proactiveIdsRef.current.has(proactiveGuidance.id)) return;
+    proactiveIdsRef.current.add(proactiveGuidance.id);
+    setHistorial((prev) => {
+      if (prev.some((msg) => msg.proactiveId === proactiveGuidance.id)) return prev;
+      return [
+        ...prev,
+        {
+          role: 'assistant',
+          content: proactiveGuidance.message,
+          proactive: true,
+          proactiveId: proactiveGuidance.id,
+        },
+      ];
+    });
+  }, [proactiveGuidance]);
+
   // Auto-scroll al final del historial
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -86,8 +107,11 @@ export default function TutorAssistCard({
         activityContext
       );
       setHistorial(prev => [...prev, { role: 'assistant', content: data.respuesta }]);
-    } catch {
-      setHistorial(prev => [...prev, { role: 'assistant', content: "Lo siento, no pude conectar con el servidor." }]);
+    } catch (error) {
+      setHistorial(prev => [...prev, {
+        role: 'assistant',
+        content: error?.message || "No pude generar la respuesta en este momento. Intenta de nuevo.",
+      }]);
     } finally {
       setCargando(false);
     }

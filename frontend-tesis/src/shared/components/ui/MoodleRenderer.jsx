@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { buildMoodleViewUrl, getMoodleToken } from '../../utils/moodleToken';
 
-export default function MoodleRenderer({ modulo }) {
+export default function MoodleRenderer({ modulo, onH5PActivity = null }) {
   const miToken = getMoodleToken();
   const moodleViewSrc = buildMoodleViewUrl({ token: miToken, cmid: modulo?.id, modname: modulo?.modname });
   const [htmlContent, setHtmlContent] = useState('');
@@ -43,14 +43,24 @@ export default function MoodleRenderer({ modulo }) {
     if (!['hvp', 'h5pactivity'].includes(modulo.modname)) return undefined;
     const onMsg = (e) => {
       const d = e?.data;
-      if (!d || typeof d !== 'object' || d.type !== 'kenth:resource_meta') return;
+      if (!d || typeof d !== 'object') return;
+      const type = String(d.type || d.verb || d.event || '');
+      const isRelevant = type === 'kenth:resource_meta'
+        || type === 'kenth:resource_time'
+        || type === 'kenth:h5p_completed'
+        || type === 'kenth:h5p_submitted'
+        || type === 'kenth:h5p_answered'
+        || type.toLowerCase().includes('xapi')
+        || Boolean(d.statement);
+      if (!isRelevant) return;
       if (d.resourceId != null && String(d.resourceId) !== String(modulo.id)) return;
-      if (Number.isFinite(d.duration) && d.duration > 0) setIframeCargando(false);
+      if (type === 'kenth:resource_meta' && Number.isFinite(d.duration) && d.duration > 0) setIframeCargando(false);
+      onH5PActivity?.({ type: type || 'h5p_message', payload: d });
     };
     window.addEventListener('message', onMsg);
     const fallback = setTimeout(() => setIframeCargando(false), 15000);
     return () => { window.removeEventListener('message', onMsg); clearTimeout(fallback); };
-  }, [modulo.id, modulo.modname]);
+  }, [modulo.id, modulo.modname, onH5PActivity]);
 
   const missingSessionView = (
     <div className="w-full min-h-[260px] flex items-center justify-center bg-kenth-bg p-8 text-center">
@@ -276,6 +286,7 @@ export default function MoodleRenderer({ modulo }) {
             <iframe
               name="moodle_view_iframe"
               src={moodleViewSrc}
+              onLoad={() => onH5PActivity?.({ type: 'iframe_load' })}
               className={`absolute top-0 left-0 w-full border-none bg-transparent transition-opacity duration-700 ${iframeCargando ? 'opacity-0' : 'opacity-100'}`}
               style={{ height: 'calc(100% + 50px)' }}
               allow="fullscreen *; microphone *; camera *"

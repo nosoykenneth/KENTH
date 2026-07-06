@@ -339,7 +339,7 @@ export const getLessonSignalsSummary = async (courseId, lessonId) => {
   return response.json().catch(() => ({ status: 'error' }));
 };
 
-// Profesor/admin: sincroniza (recalcula) señales desde Moodle/H5P. Idempotente.
+// Usuario autenticado: recalcula senales desde Moodle/H5P. Idempotente.
 export const syncLessonSignals = async (courseId, lessonId) => {
   const response = await fetch(
     `${LEARNING_SIGNALS_URL}/sync/lesson/${encodeURIComponent(lessonId)}`,
@@ -347,4 +347,14 @@ export const syncLessonSignals = async (courseId, lessonId) => {
   );
   if (!response.ok) return { synced: false, status: 'error' };
   return response.json().catch(() => ({ synced: false, status: 'error' }));
+};
+
+// Usuario autenticado: orientacion lista para la UI, sin modelo ni Chroma.
+export const getLessonSignalGuidance = async (courseId, lessonId) => {
+  const response = await fetch(
+    `${LEARNING_SIGNALS_URL}/lesson/${encodeURIComponent(lessonId)}/guidance`,
+    { method: 'POST', headers: authHeaders(courseId) },
+  );
+  if (!response.ok) return { status: 'error', should_notify: false };
+  return response.json().catch(() => ({ status: 'error', should_notify: false }));
 };

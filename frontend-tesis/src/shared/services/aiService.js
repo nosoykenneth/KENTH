@@ -5,6 +5,7 @@
 import { filterVisibleSources } from '../utils/sources';
 
 const API_BASE_URL = '/api/lms/webservice/rest/server.php';
+const CHAT_TIMEOUT_MS = 45000;
 
 /**
  * Envía un prompt a la IA local usando el plugin local_tesisai de Moodle
@@ -124,11 +125,19 @@ export const askOllamaDirect = async (
       payload.lesson_id = activityContext.current_lesson_id || '';
     }
 
-    const response = await fetch(`${RAG_API_URL}/chat`, {
-      method: 'POST',
-      headers: _authHeaders(),
-      body: JSON.stringify(payload)
-    });
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(() => controller.abort(), CHAT_TIMEOUT_MS);
+    let response;
+    try {
+      response = await fetch(`${RAG_API_URL}/chat`, {
+        method: 'POST',
+        headers: _authHeaders(),
+        body: JSON.stringify(payload),
+        signal: controller.signal
+      });
+    } finally {
+      window.clearTimeout(timeoutId);
+    }
 
     if (!response.ok) {
       throw new Error('Error al contactar con FastAPI directamente');
@@ -143,6 +152,9 @@ export const askOllamaDirect = async (
     return data;
   } catch (error) {
     console.error('Error en askOllamaDirect:', error);
+    if (error?.name === 'AbortError') {
+      throw new Error('El tutor tardó demasiado en responder. Intenta de nuevo.');
+    }
     throw error;
   }
 };
