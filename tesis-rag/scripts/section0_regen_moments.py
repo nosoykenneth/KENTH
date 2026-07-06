@@ -79,6 +79,8 @@ def main():
     ap.add_argument("--base-url", default="http://gateway")
     ap.add_argument("--quality", default="balanced")
     ap.add_argument("--report", default="")
+    ap.add_argument("--no-clear", action="store_true",
+                    help="NO vaciar los bloques antes de generar (por defecto sí se vacían)")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
     lessons = [x.strip() for x in args.lessons.split(",") if x.strip()]
@@ -100,6 +102,14 @@ def main():
             continue
         t0 = time.time()
         try:
+            # Reset de bloques ANTES de generar: el prompt de ai-prepare recibe los
+            # bloques existentes y el modelo REPRODUCE sus títulos. Si son de una
+            # grabación anterior (tema equivocado), la regeneración los repetiría. Al
+            # vaciarlos primero, el modelo propone momentos SOLO desde la transcripción
+            # actual. Es una reparación puntual de datos stale (documentada).
+            if not args.no_clear:
+                db_service.replace_lesson_blocks(lid, [])
+                rec["cleared_stale_blocks"] = True
             rp = requests.post(f"{args.base_url}/api/ai/authoring/lessons/{lid}/ai-prepare",
                                headers=headers, json={"mode": "draft", "quality": args.quality,
                                                       "include_resources": True}, timeout=600)
