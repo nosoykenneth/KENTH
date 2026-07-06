@@ -2421,3 +2421,97 @@ def get_session_context(session_id: str) -> Optional[Dict[str, Any]]:
         "state": _json_load(row.get("state_json"), {}),
         "updated_at": row.get("timemodified"),
     }
+
+
+# ==========================================
+# H5P (mod_hvp) — LECTURA DE DESEMPEÑO DEL ESTUDIANTE
+# ==========================================
+# Lecturas de solo lectura sobre tablas core de Moodle propias de mod_hvp y del
+# gradebook, para construir `learning_signals`. Siguen el MISMO patrón sancionado
+# que la validación de `mdl_external_tokens` (auth): son operacionales y acotadas.
+# NUNCA entran a Chroma ni a la query vectorial; el tutor las inyecta como estado
+# runtime del alumno. Si el backend está en SQLite (dev sin Moodle), devuelven
+# vacío de forma limpia (no hay H5P que leer).
+
+def get_hvp_instance_id_by_cmid(cmid: int) -> Optional[int]:
+    """cmid de un course_module 'hvp' -> id de instancia en mdl_hvp (content_id)."""
+    if not using_moodle_db():
+        return None
+    cm = _moodle_core_table("course_modules")
+    mo = _moodle_core_table("modules")
+    sql = (
+        f"SELECT cm.instance AS instance FROM {cm} cm "
+        f"JOIN {mo} m ON m.id=cm.module AND m.name='hvp' "
+        f"WHERE cm.id={_q()}"
+    )
+    with get_connection() as conn:
+        row = _fetchone(conn, sql, (int(cmid),))
+    _log_read("hvp_course_module", 1 if row else 0, filter=f"cmid:{cmid}")
+    return int(row["instance"]) if row and row.get("instance") is not None else None
+
+
+def get_hvp_xapi_results(content_id: int, user_id: int) -> List[Dict[str, Any]]:
+    """Filas xAPI (padre IV + hijos por interacción) de un intento del alumno."""
+    if not using_moodle_db():
+        return []
+    tbl = _moodle_core_table("hvp_xapi_results")
+    sql = (
+        f"SELECT id, content_id, user_id, parent_id, interaction_type, description, "
+        f"correct_responses_pattern, response, raw_score, max_score "
+        f"FROM {tbl} WHERE content_id={_q()} AND user_id={_q()} ORDER BY id ASC"
+    )
+    with get_connection() as conn:
+        rows = _fetchall(conn, sql, (int(content_id), int(user_id)))
+    _log_read("hvp_xapi_results", len(rows), filter=f"content:{content_id} user:{user_id}")
+    return rows
+
+
+def get_hvp_xapi_parents_all(content_id: int) -> List[Dict[str, Any]]:
+    """Filas padre (parent_id IS NULL) de TODOS los usuarios: total por alumno."""
+    if not using_moodle_db():
+        return []
+    tbl = _moodle_core_table("hvp_xapi_results")
+    sql = (
+        f"SELECT user_id, raw_score, max_score FROM {tbl} "
+        f"WHERE content_id={_q()} AND parent_id IS NULL"
+    )
+    with get_connection() as conn:
+        rows = _fetchall(conn, sql, (int(content_id),))
+    _log_read("hvp_xapi_results_all", len(rows), filter=f"content:{content_id}")
+    return rows
+
+
+def get_hvp_xapi_children_all(content_id: int) -> List[Dict[str, Any]]:
+    """Filas hijo (parent_id NO nulo) de todos los usuarios: agregado por concepto."""
+    if not using_moodle_db():
+        return []
+    tbl = _moodle_core_table("hvp_xapi_results")
+    sql = (
+        f"SELECT user_id, description, interaction_type, raw_score, max_score FROM {tbl} "
+        f"WHERE content_id={_q()} AND parent_id IS NOT NULL"
+    )
+    with get_connection() as conn:
+        rows = _fetchall(conn, sql, (int(content_id),))
+    _log_read("hvp_xapi_children_all", len(rows), filter=f"content:{content_id}")
+    return rows
+
+
+def get_hvp_grade(hvp_instance_id: int, user_id: int, course_id: Optional[str] = None) -> Optional[Dict[str, Any]]:
+    """Nota del gradebook para una instancia hvp y un alumno (completion/score)."""
+    if not using_moodle_db():
+        return None
+    gi = _moodle_core_table("grade_items")
+    gg = _moodle_core_table("grade_grades")
+    sql = (
+        f"SELECT g.finalgrade, g.rawgrade, gi.grademax, g.timemodified "
+        f"FROM {gi} gi JOIN {gg} g ON g.itemid=gi.id "
+        f"WHERE gi.itemmodule='hvp' AND gi.iteminstance={_q()} AND g.userid={_q()}"
+    )
+    params: List[Any] = [int(hvp_instance_id), int(user_id)]
+    if course_id:
+        sql += f" AND gi.courseid={_q()}"
+        params.append(int(course_id) if str(course_id).isdigit() else course_id)
+    with get_connection() as conn:
+        row = _fetchone(conn, sql, params)
+    _log_read("hvp_grade", 1 if row else 0, filter=f"hvp:{hvp_instance_id} user:{user_id}")
+    return row

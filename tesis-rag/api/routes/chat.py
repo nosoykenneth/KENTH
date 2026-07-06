@@ -4,6 +4,7 @@ from api.dependencies import get_current_user_id
 from models.schemas import Consulta
 from services.agent_service import super_agente
 from services.context_service import build_envelope, render_context_block
+from services import learning_signals
 from services.db_service import (
     get_chat_messages,
     add_message,
@@ -223,6 +224,21 @@ def chat_endpoint(
     # El contexto de leccion viaja separado para que el agente lo use como pista,
     # pero no contamine la query vectorial.
     scoped_course_id = resolve_course_numeric(consulta.course_id) or consulta.course_id
+
+    # Capa 3 — SEÑALES DE APRENDIZAJE (desempeño del alumno en la actividad H5P de
+    # la lección). Se INYECTAN como contexto runtime del tutor; NUNCA se indexan en
+    # Chroma ni se añaden a la query vectorial. Defensivo: si algo falla, no inyecta.
+    signals_block = learning_signals.signals_block_for(
+        authenticated_user_id,
+        envelope.activity_context.current_lesson_id,
+        scoped_course_id,
+    )
+    if signals_block:
+        activity_context_block = (
+            f"{activity_context_block}\n{signals_block}" if activity_context_block else signals_block
+        )
+        runtime_context_trace["has_learning_signals"] = True
+
     estado_inicial = {
         "pregunta": consulta.pregunta,
         "course_id": scoped_course_id,
