@@ -72,6 +72,42 @@ def transcript_is_approved(status: str) -> bool:
     """True si un estado de transcripción cuenta como aprobado (indexable)."""
     return str(status or "").strip().lower() in TRANSCRIPT_APPROVED_STATES
 
+
+# ==========================================
+# POLÍTICA DE FUENTE ACTIVA por sección (teacher-driven RAG). Fase 4.
+# Separa el corpus en dos naturalezas:
+#   - canonical_md  = SEMILLA/admin (markdown oculto en documentos/oficial/curso_*).
+#   - teacher_flow  = transcripción aprobada + teacher_approved_context +
+#                     resource_text + resource_description (todo alimentado por el
+#                     profesor DESDE LA INTERFAZ).
+# Para la Sección 0 del curso piloto la fuente ACTIVA es el flujo docente: el
+# markdown canónico deja de indexarse como evidencia y queda SOLO como semilla en
+# disco (no se borra el archivo). Valores del modo:
+#   - hybrid         -> canonical_md complementa al flujo docente (comportamiento
+#                       previo con ambos activos).
+#   - teacher_flow   -> canonical_md NO es fuente activa (default de PRODUCCIÓN).
+#   - canonical_only -> comportamiento antiguo/admin (solo canonical_md).
+# Generalizable por configuración SIN arriesgar otras secciones: solo la (course,
+# section) declarada abajo cambia de modo; el resto conserva su comportamiento.
+# ==========================================
+RAG_SECTION0_SOURCE_MODE = os.getenv("RAG_SECTION0_SOURCE_MODE", "teacher_flow").strip().lower()
+TEACHER_FLOW_COURSE_ID = os.getenv("RAG_TEACHER_FLOW_COURSE_ID", "2").strip()
+TEACHER_FLOW_SECTION_ID = os.getenv("RAG_TEACHER_FLOW_SECTION_ID", "2").strip()
+
+
+def canonical_md_is_active_source(course_id, moodle_section_id) -> bool:
+    """¿El markdown canónico de esta (curso, sección) es fuente ACTIVA (indexable)?
+
+    False cuando la sección está en modo `teacher_flow`: su canonical_md es semilla y
+    NO debe (re)indexarse como evidencia. True para `hybrid`/`canonical_only` y para
+    cualquier otra sección (no se arriesga el comportamiento de otras secciones).
+    """
+    c = str(course_id or "").strip()
+    s = str(moodle_section_id or "").strip()
+    if (c, s) != (TEACHER_FLOW_COURSE_ID, TEACHER_FLOW_SECTION_ID):
+        return True
+    return RAG_SECTION0_SOURCE_MODE != "teacher_flow"
+
 # Moodle Web Services (sincronizacion FastAPI -> Moodle).
 # El token se emite en Moodle: Site administration -> Server -> Manage tokens.
 MOODLE_WS_BASE = os.getenv("MOODLE_WS_BASE", "http://moodle:8080/webservice/rest/server.php")

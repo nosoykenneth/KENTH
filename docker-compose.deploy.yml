@@ -135,6 +135,10 @@ services:
       KENTH_EMBED_MODEL: ${KENTH_EMBED_MODEL}
       AI_PREP_MODEL: ${AI_PREP_MODEL:-qwen3:14b}
       AI_PREP_LONG_CONTEXT_MODEL: ${AI_PREP_LONG_CONTEXT_MODEL:-qwen3:14b}
+      # Fase 4: política de fuente activa de la Sección 0 (teacher-driven RAG).
+      # teacher_flow (default) = el markdown canónico deja de ser fuente activa; el
+      # corpus lo alimenta el profesor (transcripción + contexto aprobado + recursos).
+      RAG_SECTION0_SOURCE_MODE: ${RAG_SECTION0_SOURCE_MODE:-teacher_flow}
       CHROMA_DIR: ${CHROMA_DIR}
       MOODLE_BASE_URL: ${MOODLE_BASE_URL}
       MOODLE_DBTYPE: mariadb
@@ -158,6 +162,10 @@ services:
     volumes:
       - ./runtime/chroma:/app/bd_vectorial
       - ./runtime/fastapi-chat:/app/bd_chat
+      # Fase 3: recursos que el PROFESOR sube (documentos/oficial/cursos/<id>/...).
+      # Persistente para que las subidas del flujo docente sobrevivan a un rebuild de
+      # la imagen (antes vivían en la capa de imagen y se perdían al reconstruir).
+      - ./runtime/course-uploads:/app/documentos/oficial/cursos
       # moodledata de Moodle (mismo host dir que el contenedor moodle), solo lectura:
       # FastAPI lee los videos subidos para transcribirlos con faster-whisper.
       - ./runtime/moodledata:/var/moodledata:ro

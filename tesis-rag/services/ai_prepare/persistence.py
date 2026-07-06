@@ -109,12 +109,17 @@ def promote_draft(
     draft: Dict[str, Any],
     *,
     apply_moments: bool = True,
+    replace_blocks: bool = False,
 ) -> Dict[str, Any]:
     """Promueve un borrador (ya validado) al PERFIL CANÓNICO vivo del tutor.
 
     Reusa el MISMO escritor que los editores (`pedagogy_profile.apply_profile`),
     en modo "merge" (los campos vacíos del borrador NO borran lo previo). Así la IA
     y la edición manual rellenan el mismo modelo. Luego marca el estado de aceptación.
+
+    replace_blocks=True: regenera la línea de tiempo desde cero (descarta bloques de
+    una grabación anterior). Úsalo al re-preparar una lección cuyo video/transcripción
+    cambió, para que los momentos NO queden mezclados con los del tema viejo.
     """
     lesson = db_service.get_lesson(lesson_id, course_id)
     if not lesson:
@@ -122,7 +127,7 @@ def promote_draft(
 
     summary = pedagogy_profile.apply_profile(
         lesson_id, course_id, user_id, _draft_to_profile(draft),
-        mode="merge", apply_moments=apply_moments,
+        mode="merge", apply_moments=apply_moments, replace_blocks=replace_blocks,
     )
     if not summary.get("ok"):
         return summary
