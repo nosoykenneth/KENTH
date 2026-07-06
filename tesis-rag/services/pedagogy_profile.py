@@ -116,6 +116,7 @@ def fuse_moments(
     existing_blocks: List[Dict[str, Any]],
     moments: List[Dict[str, Any]],
     lesson_id: str = "",
+    replace_blocks: bool = False,
 ) -> List[Dict[str, Any]]:
     """Funde los campos pedagógicos de los momentos en los bloques EXISTENTES y, si
     algún momento trae TIEMPOS válidos y no mapea a un bloque, CREA ese bloque.
@@ -129,7 +130,19 @@ def fuse_moments(
     Acepta el shape del borrador IA (`existing_block_id`, `pedagogical_intent`,
     `key_concepts`, `probable_questions`, `start_time`, `end_time`, `interaction_mode`)
     y el canónico (`block_id`, …).
+
+    replace_blocks=True: REGENERACIÓN LIMPIA. Ignora los bloques previos (útil cuando
+    la grabación/transcripción cambió y los bloques viejos son de otro tema) y arma la
+    línea de tiempo SOLO desde los momentos entrantes con tiempos válidos. Evita que
+    momentos de una grabación anterior sobrevivan a un re-`ai_prepare`.
     """
+    if replace_blocks:
+        existing_blocks = []
+        moments = [
+            {k: v for k, v in (m or {}).items() if k not in ("block_id", "existing_block_id")}
+            for m in (moments or [])
+        ]
+
     by_id: Dict[str, Dict[str, Any]] = {}
     for m in moments or []:
         bid = str(_moment_field(m, "block_id", "existing_block_id") or "").strip()
@@ -217,6 +230,7 @@ def apply_profile(
     *,
     mode: str = "replace",
     apply_moments: bool = False,
+    replace_blocks: bool = False,
 ) -> Dict[str, Any]:
     """Escribe el perfil canónico al almacenamiento (lección + pedagogy + prompts).
 
@@ -322,10 +336,12 @@ def apply_profile(
     if apply_moments and profile.get("moments"):
         existing_blocks = db_service.list_lesson_blocks(lesson_id)
         existing_ids = {str(b.get("block_id")) for b in existing_blocks}
-        merged = fuse_moments(existing_blocks, profile["moments"], lesson_id=lesson_id)
-        # Solo escribimos si hay algo (evita crear bloques de la nada sin tiempos:
-        # con lección sin bloques y momentos sin tiempos, merged==[] y no se toca).
-        if merged or existing_blocks:
+        merged = fuse_moments(existing_blocks, profile["moments"], lesson_id=lesson_id,
+                              replace_blocks=replace_blocks)
+        # En regeneración limpia solo pisamos si hay bloques nuevos (no borra a ciegas).
+        # Normal: escribimos si hay algo (evita crear bloques de la nada sin tiempos).
+        write = bool(merged) if replace_blocks else bool(merged or existing_blocks)
+        if write:
             db_service.replace_lesson_blocks(lesson_id, merged)
             for m in profile["moments"]:
                 mid = str(_moment_field(m, "block_id", "existing_block_id") or "")

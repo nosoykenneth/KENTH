@@ -222,6 +222,10 @@ class AiAcceptPayload(BaseModel):
     model_config = ConfigDict(extra="ignore")
     draft: Optional[Dict[str, Any]] = None
     apply_moments: bool = True
+    # Regenera la línea de tiempo desde cero (descarta bloques de una grabación
+    # anterior). Úsalo al re-preparar una lección cuyo video/transcripción cambió,
+    # para que los momentos no queden mezclados con los del tema viejo.
+    regenerate_moments: bool = False
 
 
 # ==========================================
@@ -723,7 +727,8 @@ def ai_prepare_accept(lesson_id: str, payload: AiAcceptPayload, ctx: TeacherCont
 
     draft_dict = ai_prepare_schema.draft_to_public(draft_obj)
     summary = ai_prepare_persistence.promote_draft(
-        lesson_id, ctx.course_id, ctx.user_id, draft_dict, apply_moments=payload.apply_moments
+        lesson_id, ctx.course_id, ctx.user_id, draft_dict,
+        apply_moments=payload.apply_moments, replace_blocks=payload.regenerate_moments,
     )
     if not summary.get("ok"):
         raise HTTPException(status_code=422, detail=summary.get("error") or "No se pudo aceptar el borrador.")

@@ -252,6 +252,66 @@ async def upload_lesson_resource(
     )
 
 
+@router.post("/authoring/lessons/{lesson_id}/resources/description")
+def upload_lesson_resource_description(
+    lesson_id: str,
+    title: str = Form(...),
+    description: str = Form(...),
+    concepts: str = Form(""),
+    media_type: str = Form("file"),
+    resource_type: str = Form(""),
+    visible_to_student: bool = Form(False),
+    ctx: TeacherContext = Depends(require_teacher),
+):
+    """Registra un recurso DESCRITO sin subir binario (Fase 3, minimal endpoint).
+
+    Para material pesado o distribuido aparte —paquete de stems, audio largo, sesión
+    de DAW voluminosa— que NO se embebe ni se sirve, pero cuya DESCRIPCIÓN es
+    conocimiento indexable (`resource_description`). El tutor puede hablar de él; no
+    hay archivo servible, por eso el default es `visible_to_student=false` (evita un
+    enlace de descarga roto). Respeta el contrato inject-vs-index: el binario nunca
+    se indexa; lo buscable es la descripción del profesor.
+    """
+    lesson = db_service.get_lesson(lesson_id, ctx.course_id)
+    if not lesson:
+        raise HTTPException(status_code=404, detail="La lección no existe en este curso.")
+    desc = (description or "").strip()
+    if not desc:
+        raise HTTPException(status_code=400, detail="La descripción es obligatoria para indexar el recurso.")
+    section_id = lesson.get("moodle_section_id", "") or ""
+    mt = (media_type or "file").strip().lower()
+    if mt not in ("image", "audio", "template", "file", "document"):
+        mt = "file"
+    eff_rt = (resource_type or "").strip().lower() or db_service.default_resource_type(mt, "")
+    if eff_rt not in db_service.RESOURCE_TYPES:
+        eff_rt = db_service.default_resource_type(mt, "")
+    doc_id = _slug(f"{lesson_id}_{title}")[:80]
+    concepts_list = [c.strip() for c in (concepts or "").split(",") if c.strip()]
+
+    r = ingest.index_resource_description(
+        course_id=ctx.course_id, lesson_id=lesson_id, doc_id=doc_id,
+        title=(title or "").strip() or doc_id, description=desc, concepts=concepts_list,
+        axis_id="", moodle_section_id=section_id, media_type=mt, media_path="",
+        doc_type=mt, visible_to_student=bool(visible_to_student), allowed_for_indexing=True,
+        scope="lesson", is_global=False, resource_type=eff_rt,
+    )
+    chunks = r.get("chunks", 0)
+    index_status = "indexed" if chunks > 0 else "failed"
+    db_service.upsert_document(
+        doc_id=doc_id, course_id=ctx.course_id, axis_id="", moodle_section_id=section_id,
+        lesson_id=lesson_id, title=(title or "").strip() or doc_id, doc_layer="canonico",
+        doc_type=mt, filename="", relpath="", allowed_for_indexing=True,
+        visible_to_student=bool(visible_to_student), media_type=mt, resource_type=eff_rt,
+        scope="lesson", is_global=False, index_status=index_status, chunk_count=chunks,
+        ownership="kenth_academy", status="active", uploaded_by=ctx.user_id, notes=desc,
+        metadata={"chunks": chunks, "media_type": mt, "description": desc,
+                  "concepts": concepts_list, "fileless": True,
+                  "source_kind": "teacher_description_only"},
+    )
+    doc = db_service.get_document(doc_id, ctx.course_id)
+    return {"success": True, "chunks": chunks, "resource": _resource_to_public(doc or {})}
+
+
 @router.get("/authoring/lessons/{lesson_id}/resources")
 def list_lesson_resources(
     lesson_id: str,

@@ -1120,6 +1120,24 @@ def add_single_document(filepath: str):
             "reasons": razones,
         }
 
+    # Fase 4: política de fuente activa. En modo teacher_flow, el markdown canónico
+    # de la sección gobernada es SEMILLA (no evidencia): no se (re)indexa, aunque el
+    # archivo siga en disco. Esto hace la supersesión (Fase 5) DURABLE ante un rebuild.
+    if filepath.lower().endswith(".md") and _en_curso_canonico(filepath):
+        _dm = obtener_metadata_documental(filepath)
+        if str(_dm.get("source") or "").strip().lower() == "canonical_md":
+            from config import canonical_md_is_active_source
+            _c = _dm.get("course_id") or _inferir_course_id(filepath)
+            _s = _dm.get("moodle_section_id") or _dm.get("section_id") or ""
+            if not canonical_md_is_active_source(_c, _s):
+                _log_ingest_decision("SKIP", filepath, ["canonical_md inactivo (modo teacher_flow) para esta seccion"])
+                return {
+                    "success": False,
+                    "skipped": True,
+                    "message": "canonical_md inactivo en modo teacher_flow para esta seccion (semilla, no evidencia).",
+                    "reasons": ["source_mode=teacher_flow"],
+                }
+
     print(f"Leyendo el documento: {filepath}...")
 
     filename = os.path.basename(filepath)
@@ -1646,6 +1664,48 @@ def delete_resource_index(doc_id):
         coll.delete(where={"source": f"resource:{did}"})  # compat índice viejo
     except Exception as e:  # pragma: no cover
         print(f"Nota al borrar resource index {did}: {e}")
+
+
+def count_section_canonical(course_id: str, moodle_section_id: str) -> int:
+    """Cuántos chunks canonical_md hay indexados para una (curso, sección)."""
+    c, s = str(course_id or ""), str(moodle_section_id or "")
+    try:
+        coll = get_vector_store()._collection
+        r = coll.get(where={"$and": [
+            {"course_id": c}, {"moodle_section_id": s}, {"source": "canonical_md"},
+        ]})
+        return len(r.get("ids") or [])
+    except Exception as e:  # pragma: no cover
+        print(f"[supersede] no se pudo contar canonical_md de {c}/{s}: {e}")
+        return -1
+
+
+def supersede_section_canonical(course_id: str, moodle_section_id: str) -> dict:
+    """Fase 5: retira del ÍNDICE los chunks canonical_md de una sección (superseded
+    por el flujo docente). NO borra los archivos .md del repo (siguen como semilla).
+    Devuelve conteos antes/después para auditar. Delete acotado por metadata exacta:
+    course_id + moodle_section_id + source='canonical_md' (no toca transcript,
+    teacher_context, resource_file ni otras secciones)."""
+    c, s = str(course_id or ""), str(moodle_section_id or "")
+    if not c or not s:
+        return {"success": False, "message": "course_id y moodle_section_id requeridos"}
+    before = count_section_canonical(c, s)
+    try:
+        coll = get_vector_store()._collection
+        coll.delete(where={"$and": [
+            {"course_id": c}, {"moodle_section_id": s}, {"source": "canonical_md"},
+        ]})
+        try:
+            get_vector_store().persist()
+        except Exception:
+            pass
+    except Exception as e:
+        return {"success": False, "message": f"error borrando canonical_md: {e}", "before": before}
+    after = count_section_canonical(c, s)
+    removed = (before - after) if (before >= 0 and after >= 0) else None
+    return {"success": True, "course_id": c, "moodle_section_id": s,
+            "before": before, "after": after, "removed": removed,
+            "reason": "superseded_by_teacher_flow"}
 
 
 def get_indexed_documents():
