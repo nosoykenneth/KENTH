@@ -151,7 +151,11 @@ async def _store_resource(
     chunks = 0
     index_error = ""
     if index_to_tutor:
-        if media_type in ("document", "image"):
+        # Solo los DOCUMENTOS de texto (pdf/txt/md) se embeben por contenido (pasan la
+        # política de ingesta segura por extensión). Las IMÁGENES, como el audio y las
+        # plantillas, NO se embeben: su binario no es texto -> se indexa su DESCRIPCIÓN
+        # (resource_description) con un puntero (media_path) para poder mostrarlas.
+        if media_type == "document":
             result = ingest.add_single_document(dest)
             if not result.get("success"):
                 for p in (dest, os.path.splitext(dest)[0] + ".json"):

@@ -81,6 +81,9 @@ def main():
     ap.add_argument("--staging", required=True, help="dir con los binarios (subdirs por lesson_id)")
     ap.add_argument("--base-url", default="http://gateway")
     ap.add_argument("--report", default="", help="dir donde escribir RESULTS.json")
+    # El gateway limita /api/ai a 20 req/min por token; con muchas subidas hay que
+    # espaciarlas o devuelve 503. 3.5 s deja margen bajo el límite sostenido.
+    ap.add_argument("--sleep", type=float, default=3.5, help="segundos entre peticiones (evita rate-limit del gateway)")
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
@@ -153,6 +156,8 @@ def main():
         except Exception as exc:
             rec.update({"status": "EXCEPTION", "error": str(exc)})
         out["results"].append(rec)
+        if args.sleep > 0:
+            time.sleep(args.sleep)
 
     ok = sum(1 for x in out["results"] if x.get("status") == "OK")
     out["summary"] = {"total": len(out["results"]), "ok": ok,
