@@ -312,3 +312,39 @@ export const getStudentLessonResources = async (courseId, lessonId) => {
   const data = await response.json().catch(() => ({}));
   return data.resources || [];
 };
+
+// ==========================================
+// LEARNING SIGNALS — desempeño H5P del estudiante (NO es RAG)
+// ==========================================
+const LEARNING_SIGNALS_URL = '/api/ai/learning-signals';
+
+// Estudiante autenticado: sus señales para una lección.
+export const getMyLessonSignals = async (courseId, lessonId) => {
+  const qs = courseId ? `?course_id=${encodeURIComponent(courseId)}` : '';
+  const response = await fetch(
+    `${LEARNING_SIGNALS_URL}/lesson/${encodeURIComponent(lessonId)}/me${qs}`,
+    { headers: authHeaders(courseId) },
+  );
+  if (!response.ok) return { status: 'error' };
+  return response.json().catch(() => ({ status: 'error' }));
+};
+
+// Profesor/admin: resumen agregado de la lección.
+export const getLessonSignalsSummary = async (courseId, lessonId) => {
+  const response = await fetch(
+    `${LEARNING_SIGNALS_URL}/lesson/${encodeURIComponent(lessonId)}/summary`,
+    { headers: authHeaders(courseId) },
+  );
+  if (!response.ok) return { status: 'error' };
+  return response.json().catch(() => ({ status: 'error' }));
+};
+
+// Profesor/admin: sincroniza (recalcula) señales desde Moodle/H5P. Idempotente.
+export const syncLessonSignals = async (courseId, lessonId) => {
+  const response = await fetch(
+    `${LEARNING_SIGNALS_URL}/sync/lesson/${encodeURIComponent(lessonId)}`,
+    { method: 'POST', headers: authHeaders(courseId) },
+  );
+  if (!response.ok) return { synced: false, status: 'error' };
+  return response.json().catch(() => ({ synced: false, status: 'error' }));
+};

@@ -34,7 +34,7 @@ try:
 except ImportError:
     logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
-from api.routes import chat, documents, chat_sessions, moodle, authoring, course_documents, lesson_resources, sections, health
+from api.routes import chat, documents, chat_sessions, moodle, authoring, course_documents, lesson_resources, sections, health, learning_signals
 from services.db_service import init_db
 
 # Inicializar base de datos
@@ -95,6 +95,7 @@ app.include_router(moodle.router)
 app.include_router(authoring.router)
 app.include_router(course_documents.router)
 app.include_router(lesson_resources.router)
+app.include_router(learning_signals.router)
 
 if __name__ == "__main__":
     import uvicorn

@@ -13,6 +13,7 @@ import { useResourceVideoBridge } from '../../hooks/useResourceTimestamp';
 import BlockTimeline from './BlockTimeline';
 import TutorAssistCard from './TutorAssistCard';
 import LessonResourcesPanel from './LessonResourcesPanel';
+import H5PSignalsPanel from './H5PSignalsPanel';
 
 /**
  * TutorPedagogyView — asistente "Preparar tutor con IA" (Vista Profesor).
@@ -858,6 +859,12 @@ export default function TutorPedagogyView({ resource, courseId, sectionContext =
                     </div>
                   )}
                 </section>
+
+                {isH5P && lessonId && (
+                  <div className="mt-1">
+                    <H5PSignalsPanel courseId={courseId} lessonId={lessonId} cmid={resource?.id} />
+                  </div>
+                )}
 
                 <section className={cardCls}>
                   <div className="flex items-center justify-between">

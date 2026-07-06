@@ -4,6 +4,7 @@ import { getCourseContents, getMyCourses } from '../../shared/services/courseSer
 import MoodleRenderer from '../../shared/components/ui/MoodleRenderer';
 import PageContainer from '../../shared/components/layout/PageContainer';
 import TutorAssistCard from '../../shared/components/ai/TutorAssistCard';
+import H5PStudentSignal from '../../shared/components/ai/H5PStudentSignal';
 import TutorView from './TutorView';
 import {
   activityContextFromMoodleModule,
@@ -1306,7 +1307,12 @@ export default function CourseContentView() {
                 {(() => {
                   const activeLesson = resolveLessonForResource(visorActivo);
                   const lessonId = activeLesson?.lesson_id || resourceLinks[String(visorActivo.id)]?.lesson_id || '';
-                  return lessonId ? <StudentLessonResources courseId={id} lessonId={lessonId} /> : null;
+                  return lessonId ? (
+                    <>
+                      <H5PStudentSignal courseId={id} lessonId={lessonId} />
+                      <StudentLessonResources courseId={id} lessonId={lessonId} />
+                    </>
+                  ) : null;
                 })()}
                 <button
                   onClick={cerrarVisorRecurso}

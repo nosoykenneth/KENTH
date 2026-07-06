@@ -1,0 +1,472 @@
+{
+  "manifest_version": "1.0",
+  "course_id": "2",
+  "moodle_section_id": "2",
+  "section_number": "1",
+  "section_name": "Sección 0 — El sistema de decisión",
+  "generated_for": "H5P mod_hvp InteractiveVideo + learning_signals",
+  "notes": "Fuente única: alimenta (a) el generador H5P (interacciones dentro del video) y (b) el mapeo resultados->conceptos del tutor. Timestamps anclados a los momentos reales de cada lección; 'resource' referencia títulos reales de documents SEC2-R*. Los feedbacks NO etiquetan de forma punitiva.",
+  "levels": {"needs_reinforcement": "<60", "partial": "60-79", "ready": ">=80"},
+  "lessons": [
+    {
+      "lesson_id": "SEC2-R55",
+      "cmid": 55,
+      "hvp_content_id": 21,
+      "title": "0.1 Mezclar es decidir: el ciclo de trabajo",
+      "duration_seconds": 510,
+      "concept_labels": {
+        "mezcla_decision": "entender la mezcla como decisiones justificadas, no recetas",
+        "ciclo_decision": "el ciclo escuchar → diagnosticar → decidir → actuar → verificar",
+        "diagnostico": "formular un diagnóstico útil (elemento, momento y cualidad)",
+        "verificacion_ab": "verificar con A/B a volumen igualado",
+        "referencia": "usar una referencia para no perder perspectiva"
+      },
+      "interactions": [
+        {
+          "interaction_id": "SEC2-R55-I01", "order": 1, "at": 62, "pause": true,
+          "type": "multiple_choice", "concept": "mezcla_decision", "graded": true, "max_score": 1,
+          "question": "En este curso, mezclar es sobre todo…",
+          "options": [
+            {"text": "Aplicar una receta fija de plugins que sirve para toda canción", "correct": false, "feedback": "Las recetas fijas ignoran el contexto de cada mezcla."},
+            {"text": "Tomar decisiones justificadas a partir de lo que escuchas", "correct": true, "feedback": "Exacto: cada movimiento responde a un problema que oíste."},
+            {"text": "Mover muchos controles para que 'se note' el trabajo", "correct": false, "feedback": "Mover por moverse no es decidir; puede empeorar la mezcla."}
+          ],
+          "feedback_correct": "Correcto: la mezcla es una cadena de decisiones justificadas.",
+          "feedback_incorrect": "Repasa por qué mezclar es decidir, no aplicar recetas.",
+          "recommended_review": {"timestamp": "0:00", "timestamp_seconds": 0, "resource": "Diagrama del ciclo de decisión", "micro_practice": "Escribe en una frase el problema que quieres resolver antes de tocar nada.", "message": "Conviene afianzar la idea de mezcla como decisión."}
+        },
+        {
+          "interaction_id": "SEC2-R55-I02", "order": 2, "at": 180, "pause": true,
+          "type": "multiple_choice", "concept": "ciclo_decision", "graded": true, "max_score": 1,
+          "question": "¿Cuál es el orden correcto del ciclo de trabajo de la mezcla?",
+          "options": [
+            {"text": "Escuchar → diagnosticar → decidir → actuar → verificar", "correct": true, "feedback": "Ese es el ciclo: cierras verificando lo que decidiste."},
+            {"text": "Actuar → escuchar → decidir → verificar → diagnosticar", "correct": false, "feedback": "Actuar antes de diagnosticar lleva a mover a ciegas."},
+            {"text": "Decidir → actuar → escuchar → diagnosticar → verificar", "correct": false, "feedback": "La decisión llega después de escuchar y diagnosticar."}
+          ],
+          "feedback_correct": "Correcto: escuchar → diagnosticar → decidir → actuar → verificar.",
+          "feedback_incorrect": "El ciclo empieza escuchando y termina verificando.",
+          "recommended_review": {"timestamp": "1:10", "timestamp_seconds": 70, "resource": "Diagrama del ciclo de decisión", "micro_practice": "Recorre una decisión tuya y nombra en qué paso del ciclo estás.", "message": "Vale la pena repasar el orden del ciclo de trabajo."}
+        },
+        {
+          "interaction_id": "SEC2-R55-I03", "order": 3, "at": 250, "pause": true,
+          "type": "multiple_choice", "concept": "diagnostico", "graded": true, "max_score": 1,
+          "question": "Un diagnóstico útil de un problema de mezcla describe…",
+          "options": [
+            {"text": "Solo que 'algo suena mal' en general", "correct": false, "feedback": "Demasiado vago: no dice dónde ni qué corregir."},
+            {"text": "El elemento, el momento y la cualidad (p. ej. 'la voz suena áspera en los agudos en el estribillo')", "correct": true, "feedback": "Exacto: elemento + momento + cualidad guían la decisión."},
+            {"text": "El plugin que vas a usar antes de escuchar", "correct": false, "feedback": "El plugin viene después del diagnóstico, no antes."}
+          ],
+          "feedback_correct": "Correcto: elemento, momento y cualidad.",
+          "feedback_incorrect": "Un buen diagnóstico nombra elemento, momento y cualidad.",
+          "recommended_review": {"timestamp": "2:30", "timestamp_seconds": 150, "resource": "Bitácora de decisiones de mezcla", "micro_practice": "Diagnostica una voz áspera nombrando elemento, momento y cualidad, y anótalo en la bitácora.", "message": "Conviene reforzar cómo formular el diagnóstico."}
+        },
+        {
+          "interaction_id": "SEC2-R55-I04", "order": 4, "at": 455, "pause": true,
+          "type": "true_false", "concept": "verificacion_ab", "graded": true, "max_score": 1,
+          "question": "Para comparar de forma justa el 'antes' y el 'después' de un cambio, hay que igualar el volumen entre A y B.",
+          "correct": true,
+          "feedback_correct": "Correcto: sin igualar volumen, lo más fuerte parece 'mejor' y te engaña.",
+          "feedback_incorrect": "Si no igualas el volumen, la comparación A/B te engaña: lo más fuerte parece mejor.",
+          "recommended_review": {"timestamp": "4:50", "timestamp_seconds": 290, "resource": "Apuntes del profesor — Mezclar es decidir: el ciclo de trabajo", "micro_practice": "Haz un bypass igualando volumen y decide si el cambio realmente ayuda.", "message": "Conviene afianzar la verificación A/B con volumen igualado."}
+        },
+        {
+          "interaction_id": "SEC2-R55-I05", "order": 5, "at": 500, "pause": true,
+          "type": "summary", "concept": "aplicacion", "graded": true, "max_score": 1,
+          "question": "Cierre — elige la afirmación correcta sobre el ciclo de decisión:",
+          "summaries": [
+            {"text": "Ante una voz áspera: diagnostico, decido un cambio mínimo y lo verifico con A/B a volumen igualado.", "correct": true},
+            {"text": "Ante una voz áspera: aplico la misma cadena de plugins de la última canción.", "correct": false},
+            {"text": "Ante una voz áspera: subo el volumen hasta que suene mejor.", "correct": false}
+          ],
+          "feedback_correct": "Correcto: diagnosticar, intervenir mínimo y verificar.",
+          "feedback_incorrect": "Recuerda: diagnosticar, intervención mínima y verificar A/B.",
+          "recommended_review": {"timestamp": "7:50", "timestamp_seconds": 470, "resource": "Bitácora de decisiones de mezcla", "micro_practice": "Resuelve el caso de la voz áspera aplicando el ciclo completo y regístralo en la bitácora.", "message": "Repasa cómo se encadena todo el ciclo en un caso real."}
+        }
+      ]
+    },
+    {
+      "lesson_id": "SEC2-R56",
+      "cmid": 56,
+      "hvp_content_id": 22,
+      "title": "0.2 Tu oído miente: percepción y nivel de escucha",
+      "duration_seconds": 459,
+      "concept_labels": {
+        "percepcion_volumen": "cómo el volumen cambia lo que percibes (igual sonoridad)",
+        "adaptacion_auditiva": "la adaptación del oído tras escuchar un rato",
+        "fatiga_auditiva": "la fatiga auditiva y sus decisiones extremas",
+        "escucha_moderada": "trabajar a nivel de escucha moderado y con descansos"
+      },
+      "interactions": [
+        {
+          "interaction_id": "SEC2-R56-I01", "order": 1, "at": 55, "pause": true,
+          "type": "true_false", "concept": "percepcion_volumen", "graded": true, "max_score": 1,
+          "question": "Tu percepción de una mezcla es neutral: no cambia aunque subas o bajes el volumen de escucha.",
+          "correct": false,
+          "feedback_correct": "Correcto: el oído NO es neutral; el volumen cambia lo que percibes.",
+          "feedback_incorrect": "En realidad el volumen sí cambia la percepción (curvas de igual sonoridad).",
+          "recommended_review": {"timestamp": "1:00", "timestamp_seconds": 60, "resource": "Diagrama de percepción del volumen", "micro_practice": "Escucha una mezcla a dos volúmenes y anota qué percibes distinto.", "message": "Conviene reforzar por qué el oído no es neutral."}
+        },
+        {
+          "interaction_id": "SEC2-R56-I02", "order": 2, "at": 115, "pause": true,
+          "type": "multiple_choice", "concept": "percepcion_volumen", "graded": true, "max_score": 1,
+          "question": "Al subir mucho el volumen de escucha, ¿qué tiende a pasar con tu percepción?",
+          "options": [
+            {"text": "Percibes más graves y más agudos (parece 'más completo')", "correct": true, "feedback": "Sí: a más volumen, graves y agudos se realzan en la percepción."},
+            {"text": "Percibes exactamente lo mismo que a bajo volumen", "correct": false, "feedback": "No: la sensibilidad del oído cambia con el nivel."},
+            {"text": "Percibes solo los medios y desaparecen los extremos", "correct": false, "feedback": "Es al revés: los extremos se realzan al subir volumen."}
+          ],
+          "feedback_correct": "Correcto: a más volumen, más graves y agudos percibidos.",
+          "feedback_incorrect": "A más volumen, el oído realza graves y agudos.",
+          "recommended_review": {"timestamp": "1:00", "timestamp_seconds": 60, "resource": "Nota sobre las curvas de igual sonoridad", "micro_practice": "Compara graves y agudos del mismo tema a volumen bajo y alto.", "message": "Conviene afianzar el efecto del volumen sobre graves y agudos."}
+        },
+        {
+          "interaction_id": "SEC2-R56-I03", "order": 3, "at": 235, "pause": true,
+          "type": "multiple_choice", "concept": "fatiga_auditiva", "graded": true, "max_score": 1,
+          "question": "Tras muchas horas mezclando fuerte, la fatiga auditiva te lleva a…",
+          "options": [
+            {"text": "Tomar decisiones extremas (subir de más, ecualizar de más)", "correct": true, "feedback": "Sí: fatigado tiendes a exagerar los ajustes."},
+            {"text": "Escuchar con más precisión que al principio", "correct": false, "feedback": "La fatiga reduce precisión, no la aumenta."},
+            {"text": "Percibir el estéreo más estrecho", "correct": false, "feedback": "El síntoma clave de la fatiga son las decisiones extremas."}
+          ],
+          "feedback_correct": "Correcto: la fatiga empuja a decisiones extremas.",
+          "feedback_incorrect": "La fatiga te hace exagerar los ajustes; por eso conviene descansar.",
+          "recommended_review": {"timestamp": "3:00", "timestamp_seconds": 180, "resource": "Apuntes del profesor — Tu oído miente: percepción y nivel de escucha", "micro_practice": "Programa un descanso de 5 min por cada 30 min de mezcla.", "message": "Conviene reconocer los efectos de la fatiga auditiva."}
+        },
+        {
+          "interaction_id": "SEC2-R56-I04", "order": 4, "at": 320, "pause": true,
+          "type": "multiple_choice", "concept": "escucha_moderada", "graded": true, "max_score": 1,
+          "question": "¿Cuál es un buen hábito para decidir con más fiabilidad?",
+          "options": [
+            {"text": "Trabajar a un nivel de escucha moderado y hacer descansos", "correct": true, "feedback": "Sí: nivel moderado + descansos = decisiones más estables."},
+            {"text": "Subir el volumen cada vez más para 'oír todo'", "correct": false, "feedback": "Subir de más acelera la fatiga y engaña la percepción."},
+            {"text": "No hacer descansos para no perder el hilo", "correct": false, "feedback": "Sin descansos, la fatiga arruina tus decisiones."}
+          ],
+          "feedback_correct": "Correcto: nivel moderado y descansos.",
+          "feedback_incorrect": "Nivel moderado y descansos hacen tus decisiones más fiables.",
+          "recommended_review": {"timestamp": "4:00", "timestamp_seconds": 240, "resource": "Fragmento de audio de 60 s (comparación a igual sonoridad)", "micro_practice": "Repite una escucha clave a volumen moderado y compara tu decisión.", "message": "Conviene reforzar el hábito de escucha moderada."}
+        }
+      ]
+    },
+    {
+      "lesson_id": "SEC2-R57",
+      "cmid": 57,
+      "hvp_content_id": 23,
+      "title": "0.3 Monitores y auriculares: trabajar con lo que tienes",
+      "duration_seconds": 353,
+      "concept_labels": {
+        "conocer_sistema": "conocer tu sistema de escucha más que buscar el 'ideal'",
+        "monitores_vs_auriculares": "diferencias entre monitores y auriculares (crossfeed)",
+        "reflexiones_sala": "el efecto de las reflexiones de la sala",
+        "mono_fase": "verificar en mono y detectar problemas de fase",
+        "multiples_sistemas": "referenciar en varios sistemas"
+      },
+      "interactions": [
+        {
+          "interaction_id": "SEC2-R57-I01", "order": 1, "at": 42, "pause": true,
+          "type": "multiple_choice", "concept": "conocer_sistema", "graded": true, "max_score": 1,
+          "question": "Para mezclar bien, lo más determinante es…",
+          "options": [
+            {"text": "Tener el equipo más caro posible", "correct": false, "feedback": "El equipo caro no garantiza buenas decisiones."},
+            {"text": "Conocer a fondo el sistema de escucha que ya tienes", "correct": true, "feedback": "Exacto: conocer tu sistema te permite compensar sus defectos."},
+            {"text": "Cambiar de monitores cada pocos meses", "correct": false, "feedback": "Cambiar constantemente impide aprender tu sistema."}
+          ],
+          "feedback_correct": "Correcto: conocer tu sistema vence al equipo ideal.",
+          "feedback_incorrect": "Conocer tu sistema importa más que tener el equipo ideal.",
+          "recommended_review": {"timestamp": "0:00", "timestamp_seconds": 0, "resource": "Guía de monitores y auriculares", "micro_practice": "Escribe 3 rarezas conocidas de tu sistema (p. ej. 'infla los graves').", "message": "Conviene afianzar la idea de conocer tu sistema."}
+        },
+        {
+          "interaction_id": "SEC2-R57-I02", "order": 2, "at": 130, "pause": true,
+          "type": "multiple_choice", "concept": "monitores_vs_auriculares", "graded": true, "max_score": 1,
+          "question": "Una diferencia clave entre auriculares y monitores es que en auriculares…",
+          "options": [
+            {"text": "No hay crossfeed: cada oído escucha solo su canal, exagerando el estéreo", "correct": true, "feedback": "Sí: la falta de crossfeed exagera la imagen estéreo."},
+            {"text": "La sala afecta más que en monitores", "correct": false, "feedback": "Al revés: los auriculares evitan la sala."},
+            {"text": "Los graves son siempre más precisos", "correct": false, "feedback": "La diferencia clave es el crossfeed, no la precisión de graves."}
+          ],
+          "feedback_correct": "Correcto: sin crossfeed, el estéreo se exagera en auriculares.",
+          "feedback_incorrect": "En auriculares no hay crossfeed y el estéreo se exagera.",
+          "recommended_review": {"timestamp": "1:30", "timestamp_seconds": 90, "resource": "Diagrama de colocación de monitores", "micro_practice": "Compara la anchura estéreo de un tema en monitores y en auriculares.", "message": "Conviene reforzar monitores vs auriculares (crossfeed)."}
+        },
+        {
+          "interaction_id": "SEC2-R57-I03", "order": 3, "at": 240, "pause": true,
+          "type": "true_false", "concept": "mono_fase", "graded": true, "max_score": 1,
+          "question": "Escuchar la mezcla en mono ayuda a detectar problemas de fase y de compatibilidad.",
+          "correct": true,
+          "feedback_correct": "Correcto: en mono, lo que estaba en fase opuesta se cancela y lo notas.",
+          "feedback_incorrect": "Sí ayuda: en mono los problemas de fase se hacen evidentes.",
+          "recommended_review": {"timestamp": "3:00", "timestamp_seconds": 180, "resource": "Proyecto mono y fase (FL Studio)", "micro_practice": "Pon tu mezcla en mono y revisa si algún elemento pierde nivel.", "message": "Conviene afianzar la verificación en mono y la fase."}
+        },
+        {
+          "interaction_id": "SEC2-R57-I04", "order": 4, "at": 300, "pause": true,
+          "type": "multiple_choice", "concept": "multiples_sistemas", "graded": true, "max_score": 1,
+          "question": "¿Por qué conviene revisar la mezcla en varios sistemas (monitores, auriculares, teléfono)?",
+          "options": [
+            {"text": "Porque ningún sistema es perfecto; lo que se traslada bien a varios es más fiable", "correct": true, "feedback": "Exacto: buscas decisiones que aguanten en cualquier sistema."},
+            {"text": "Porque así la mezcla suena fuerte en todos", "correct": false, "feedback": "No es cuestión de volumen sino de traslado."},
+            {"text": "Porque solo importa cómo suena en tu sistema", "correct": false, "feedback": "Confiar en un solo sistema arrastra sus defectos."}
+          ],
+          "feedback_correct": "Correcto: verificar en varios sistemas da decisiones más fiables.",
+          "feedback_incorrect": "Ningún sistema es perfecto; verifica en varios.",
+          "recommended_review": {"timestamp": "3:00", "timestamp_seconds": 180, "resource": "Diagrama de reflexiones de la sala", "micro_practice": "Escucha tu mezcla en 3 sistemas distintos y anota qué cambia.", "message": "Conviene reforzar el uso de varias referencias de sistema."}
+        }
+      ]
+    },
+    {
+      "lesson_id": "SEC2-R58",
+      "cmid": 58,
+      "hvp_content_id": 24,
+      "title": "0.4 Anatomía universal del mixer: ruteo",
+      "duration_seconds": 373,
+      "concept_labels": {
+        "canal_insert": "canal, insert y su orden",
+        "send_return": "envío/send y retorno/aux",
+        "bus_grupo": "bus/grupo para control colectivo",
+        "flujo_senal": "el flujo de señal pista → bus → master",
+        "serie_paralelo": "procesar en serie vs en paralelo"
+      },
+      "interactions": [
+        {
+          "interaction_id": "SEC2-R58-I01", "order": 1, "at": 120, "pause": true,
+          "type": "multiple_choice", "concept": "canal_insert", "graded": true, "max_score": 1,
+          "question": "Un procesador puesto como INSERT en un canal…",
+          "options": [
+            {"text": "Procesa toda la señal de ese canal, en serie", "correct": true, "feedback": "Sí: el insert va en serie sobre la señal completa del canal."},
+            {"text": "Crea una copia paralela de la señal", "correct": false, "feedback": "Eso es un envío, no un insert."},
+            {"text": "Solo afecta al máster", "correct": false, "feedback": "El insert afecta a ese canal, no al máster."}
+          ],
+          "feedback_correct": "Correcto: el insert procesa en serie toda la señal del canal.",
+          "feedback_incorrect": "Un insert va en serie sobre la señal completa del canal.",
+          "recommended_review": {"timestamp": "0:45", "timestamp_seconds": 45, "resource": "Diagrama de flujo de señal", "micro_practice": "Identifica en tu DAW un insert y descríbelo con tus palabras.", "message": "Conviene reforzar qué hace un insert."}
+        },
+        {
+          "interaction_id": "SEC2-R58-I02", "order": 2, "at": 175, "pause": true,
+          "type": "multiple_choice", "concept": "send_return", "graded": true, "max_score": 1,
+          "question": "Para aplicar una MISMA reverb a varias pistas de forma eficiente, lo natural es usar…",
+          "options": [
+            {"text": "Un envío (send) a un canal de retorno/aux con la reverb", "correct": true, "feedback": "Exacto: envías varias pistas a un aux con la reverb."},
+            {"text": "Un insert de reverb distinto en cada pista", "correct": false, "feedback": "Eso multiplica CPU y descohesiona el espacio."},
+            {"text": "Subir el máster", "correct": false, "feedback": "El máster no aplica reverb a pistas concretas."}
+          ],
+          "feedback_correct": "Correcto: send a un aux/retorno compartido.",
+          "feedback_incorrect": "Usa un envío a un retorno/aux con la reverb compartida.",
+          "recommended_review": {"timestamp": "2:26", "timestamp_seconds": 146, "resource": "Tabla de equivalencias entre DAWs", "micro_practice": "Crea un aux de reverb y enruta dos pistas con envíos.", "message": "Conviene afianzar envíos y retornos (aux)."}
+        },
+        {
+          "interaction_id": "SEC2-R58-I03", "order": 3, "at": 210, "pause": true,
+          "type": "multiple_choice", "concept": "flujo_senal", "graded": true, "max_score": 1,
+          "question": "¿Cuál es el flujo de señal típico?",
+          "options": [
+            {"text": "Pista/canal → bus/grupo → máster", "correct": true, "feedback": "Sí: las pistas suman en buses y estos en el máster."},
+            {"text": "Máster → pista → bus", "correct": false, "feedback": "El máster es el final, no el inicio."},
+            {"text": "Bus → máster → pista", "correct": false, "feedback": "La pista es el origen de la señal."}
+          ],
+          "feedback_correct": "Correcto: pista → bus → máster.",
+          "feedback_incorrect": "El flujo va de la pista al bus y del bus al máster.",
+          "recommended_review": {"timestamp": "0:45", "timestamp_seconds": 45, "resource": "Diagrama de flujo de señal", "micro_practice": "Dibuja el recorrido de una pista hasta el máster en tu proyecto.", "message": "Conviene reforzar el flujo de señal."}
+        },
+        {
+          "interaction_id": "SEC2-R58-I04", "order": 4, "at": 300, "pause": true,
+          "type": "true_false", "concept": "serie_paralelo", "graded": true, "max_score": 1,
+          "question": "En procesamiento PARALELO mezclas la señal procesada con la original, en vez de reemplazarla.",
+          "correct": true,
+          "feedback_correct": "Correcto: en paralelo sumas efecto + señal seca; en serie la reemplazas.",
+          "feedback_incorrect": "En paralelo se suma el efecto a la señal seca (no la reemplaza).",
+          "recommended_review": {"timestamp": "3:43", "timestamp_seconds": 223, "resource": "Diagrama serie vs paralelo", "micro_practice": "Compara una compresión en serie vs en paralelo en una pista.", "message": "Conviene afianzar serie vs paralelo."}
+        }
+      ]
+    },
+    {
+      "lesson_id": "SEC2-R59",
+      "cmid": 59,
+      "hvp_content_id": 25,
+      "title": "0.5 Gain Staging: el cimiento de toda la cadena",
+      "duration_seconds": 362,
+      "concept_labels": {
+        "dbfs_headroom": "0 dBFS, clipping digital y headroom",
+        "pista_caliente": "reconocer y corregir pistas demasiado calientes",
+        "clip_gain_vs_fader": "usar clip/trim de ganancia antes que el fader",
+        "calibracion_plugins": "el nivel de entrada correcto a los plugins",
+        "master_sin_clip": "buses y máster sin clipping"
+      },
+      "interactions": [
+        {
+          "interaction_id": "SEC2-R59-I01", "order": 1, "at": 70, "pause": true,
+          "type": "true_false", "concept": "dbfs_headroom", "graded": true, "max_score": 1,
+          "question": "En digital, pasar de 0 dBFS produce clipping (recorte).",
+          "correct": true,
+          "feedback_correct": "Correcto: 0 dBFS es el techo; por encima hay recorte digital.",
+          "feedback_incorrect": "Sí: 0 dBFS es el máximo; superarlo produce clipping.",
+          "recommended_review": {"timestamp": "0:45", "timestamp_seconds": 45, "resource": "Diagrama de etapas del gain staging", "micro_practice": "Mira tus medidores y localiza cuánto headroom te queda al máster.", "message": "Conviene reforzar 0 dBFS y headroom."}
+        },
+        {
+          "interaction_id": "SEC2-R59-I02", "order": 2, "at": 120, "pause": true,
+          "type": "multiple_choice", "concept": "clip_gain_vs_fader", "graded": true, "max_score": 1,
+          "question": "Ves una pista demasiado 'caliente' (muy alta) antes de procesar. ¿Primera acción?",
+          "options": [
+            {"text": "Bajar la ganancia de entrada (clip gain/trim) antes de los plugins", "correct": true, "feedback": "Exacto: corriges el nivel en origen, antes de la cadena."},
+            {"text": "Bajar solo el fader al final de la cadena", "correct": false, "feedback": "El fader no arregla el nivel que entra a los plugins."},
+            {"text": "Añadir un limitador para que no pase nada", "correct": false, "feedback": "Tapar el síntoma no arregla el gain staging."}
+          ],
+          "feedback_correct": "Correcto: clip gain/trim en origen, antes de los plugins.",
+          "feedback_incorrect": "Primero baja la ganancia de entrada (clip gain), no solo el fader.",
+          "recommended_review": {"timestamp": "3:45", "timestamp_seconds": 225, "resource": "Proyecto gain staging 'hot' (FL Studio)", "micro_practice": "Abre el proyecto 'hot' y corrige una pista caliente con clip gain.", "message": "Conviene afianzar clip gain vs fader ante una pista caliente."}
+        },
+        {
+          "interaction_id": "SEC2-R59-I03", "order": 3, "at": 160, "pause": true,
+          "type": "true_false", "concept": "calibracion_plugins", "graded": true, "max_score": 1,
+          "question": "Muchos plugins (sobre todo emulaciones) suenan y se comportan mejor con un nivel de entrada adecuado, no saturado.",
+          "correct": true,
+          "feedback_correct": "Correcto: el nivel de entrada calibra cómo responde el plugin.",
+          "feedback_incorrect": "Sí: el nivel de entrada correcto hace que el plugin responda bien.",
+          "recommended_review": {"timestamp": "2:15", "timestamp_seconds": 135, "resource": "Guía de objetivos de nivel para gain staging", "micro_practice": "Ajusta la entrada de un plugin a un nivel sano y compara.", "message": "Conviene reforzar la calibración de entrada a los plugins."}
+        },
+        {
+          "interaction_id": "SEC2-R59-I04", "order": 4, "at": 300, "pause": true,
+          "type": "multiple_choice", "concept": "master_sin_clip", "graded": true, "max_score": 1,
+          "question": "Buen gain staging significa que…",
+          "options": [
+            {"text": "Ni las pistas, ni los buses, ni el máster clippean, y queda headroom", "correct": true, "feedback": "Exacto: nivel sano en toda la cadena, con margen."},
+            {"text": "El máster llega justo a 0 dBFS todo el tiempo", "correct": false, "feedback": "Rozar 0 dBFS constante no deja headroom."},
+            {"text": "Cada pista está lo más fuerte posible", "correct": false, "feedback": "Maximizar cada pista destruye el headroom."}
+          ],
+          "feedback_correct": "Correcto: cadena sin clipping y con headroom.",
+          "feedback_incorrect": "Buen gain staging = sin clipping en toda la cadena y con headroom.",
+          "recommended_review": {"timestamp": "1:30", "timestamp_seconds": 90, "resource": "Diagrama de etapas del gain staging", "micro_practice": "Revisa que ningún bus ni el máster clippeen en tu proyecto.", "message": "Conviene afianzar un máster sin clipping y con headroom."}
+        }
+      ]
+    },
+    {
+      "lesson_id": "SEC2-R60",
+      "cmid": 60,
+      "hvp_content_id": 26,
+      "title": "0.6 Nativos vs emulaciones analógicas: la matriz de decisión",
+      "duration_seconds": 351,
+      "concept_labels": {
+        "precision_vs_caracter": "precisión (nativo) vs carácter (emulación)",
+        "cpu_control": "coste de CPU y control de cada opción",
+        "matriz_decision": "usar la matriz de decisión según el caso",
+        "nivel_emulaciones": "el nivel de entrada en emulaciones"
+      },
+      "interactions": [
+        {
+          "interaction_id": "SEC2-R60-I01", "order": 1, "at": 90, "pause": true,
+          "type": "multiple_choice", "concept": "precision_vs_caracter", "graded": true, "max_score": 1,
+          "question": "En general, un plugin NATIVO/transparente aporta sobre todo…",
+          "options": [
+            {"text": "Precisión y transparencia (hace el trabajo sin 'colorear')", "correct": true, "feedback": "Sí: el nativo prioriza precisión y limpieza."},
+            {"text": "Color y carácter analógico marcado", "correct": false, "feedback": "Eso lo aporta una emulación, no un nativo transparente."},
+            {"text": "Siempre menos CPU y más carácter a la vez", "correct": false, "feedback": "Precisión y carácter son ejes distintos."}
+          ],
+          "feedback_correct": "Correcto: el nativo aporta precisión y transparencia.",
+          "feedback_incorrect": "El nativo aporta precisión; el carácter lo dan las emulaciones.",
+          "recommended_review": {"timestamp": "1:00", "timestamp_seconds": 60, "resource": "Diagrama nativo vs emulación", "micro_practice": "Clasifica 3 de tus plugins como 'precisión' o 'carácter'.", "message": "Conviene reforzar precisión vs carácter."}
+        },
+        {
+          "interaction_id": "SEC2-R60-I02", "order": 2, "at": 200, "pause": true,
+          "type": "multiple_choice", "concept": "matriz_decision", "graded": true, "max_score": 1,
+          "question": "Necesitas una corrección quirúrgica y limpia de una resonancia molesta. ¿Qué eliges?",
+          "options": [
+            {"text": "Un EQ nativo/transparente (precisión)", "correct": true, "feedback": "Exacto: para cirugía limpia, precisión antes que color."},
+            {"text": "Una emulación analógica por su color", "correct": false, "feedback": "El color no es lo que necesita una corrección quirúrgica."},
+            {"text": "El plugin que más CPU consuma", "correct": false, "feedback": "El consumo no decide la idoneidad."}
+          ],
+          "feedback_correct": "Correcto: cirugía limpia → nativo/preciso.",
+          "feedback_incorrect": "Para una corrección quirúrgica elige precisión (nativo).",
+          "recommended_review": {"timestamp": "2:30", "timestamp_seconds": 150, "resource": "Matriz de decisión de plugins", "micro_practice": "Usa la matriz para elegir plugin en dos casos: cirugía y color.", "message": "Conviene afianzar cómo decidir con la matriz."}
+        },
+        {
+          "interaction_id": "SEC2-R60-I03", "order": 3, "at": 260, "pause": true,
+          "type": "true_false", "concept": "nivel_emulaciones", "graded": true, "max_score": 1,
+          "question": "En muchas emulaciones analógicas, el nivel de entrada cambia cuánta saturación/color aportan.",
+          "correct": true,
+          "feedback_correct": "Correcto: más nivel de entrada suele dar más saturación/color.",
+          "feedback_incorrect": "Sí: el nivel de entrada regula el color en muchas emulaciones.",
+          "recommended_review": {"timestamp": "1:00", "timestamp_seconds": 60, "resource": "Proyecto nativos vs emulaciones (FL Studio)", "micro_practice": "Sube y baja la entrada de una emulación y escucha el cambio de color.", "message": "Conviene reforzar el papel del nivel de entrada en emulaciones."}
+        },
+        {
+          "interaction_id": "SEC2-R60-I04", "order": 4, "at": 330, "pause": true,
+          "type": "multiple_choice", "concept": "matriz_decision", "graded": true, "max_score": 1,
+          "question": "La mejor forma de elegir entre nativo y emulación es…",
+          "options": [
+            {"text": "Según el objetivo del caso (precisión, color, CPU, control), con criterio auditivo", "correct": true, "feedback": "Exacto: decides por el caso, no por moda."},
+            {"text": "Usar siempre emulaciones porque 'suenan analógicas'", "correct": false, "feedback": "Ese es justo el mito que la lección desmonta."},
+            {"text": "Usar siempre nativos porque 'son mejores'", "correct": false, "feedback": "No hay opción 'siempre mejor'; depende del caso."}
+          ],
+          "feedback_correct": "Correcto: eliges por objetivo del caso y con el oído.",
+          "feedback_incorrect": "No hay opción 'siempre mejor': decides por el caso.",
+          "recommended_review": {"timestamp": "0:00", "timestamp_seconds": 0, "resource": "Diagrama de la matriz de decisión", "micro_practice": "Justifica una elección nativo/emulación por su objetivo, no por moda.", "message": "Conviene afianzar el criterio de decisión (no el mito)."}
+        }
+      ]
+    },
+    {
+      "lesson_id": "SEC2-R61",
+      "cmid": 61,
+      "hvp_content_id": 27,
+      "title": "0.7 Checklist de sesión lista para mezclar",
+      "duration_seconds": 319,
+      "concept_labels": {
+        "organizacion": "organizar y etiquetar la sesión",
+        "ruteo_listo": "tener el ruteo resuelto (buses)",
+        "gain_staging_listo": "gain staging hecho antes de mezclar",
+        "escucha_referencia": "escucha calibrada y referencia lista",
+        "intencion": "tener clara la intención de la mezcla",
+        "checklist_completo": "recorrer el checklist completo antes de empezar"
+      },
+      "interactions": [
+        {
+          "interaction_id": "SEC2-R61-I01", "order": 1, "at": 60, "pause": true,
+          "type": "multiple_choice", "concept": "organizacion", "graded": true, "max_score": 1,
+          "question": "El primer bloque para dejar una sesión lista suele ser…",
+          "options": [
+            {"text": "Organizar: nombrar, ordenar y colorear pistas", "correct": true, "feedback": "Sí: una sesión ordenada acelera cada decisión."},
+            {"text": "Poner reverb en todo antes de escuchar", "correct": false, "feedback": "Los efectos vienen después de organizar y rutear."},
+            {"text": "Exportar la mezcla", "correct": false, "feedback": "Exportar es el final, no el inicio."}
+          ],
+          "feedback_correct": "Correcto: empezar por organizar la sesión.",
+          "feedback_incorrect": "Se empieza organizando: nombrar, ordenar, colorear.",
+          "recommended_review": {"timestamp": "0:00", "timestamp_seconds": 0, "resource": "Diagrama del checklist en 6 bloques", "micro_practice": "Nombra y colorea todas las pistas de un proyecto.", "message": "Conviene reforzar la organización inicial de la sesión."}
+        },
+        {
+          "interaction_id": "SEC2-R61-I02", "order": 2, "at": 140, "pause": true,
+          "type": "multiple_choice", "concept": "checklist_completo", "graded": true, "max_score": 1,
+          "question": "¿Cuál es un orden razonable del checklist antes de mezclar?",
+          "options": [
+            {"text": "Organizar → rutear (buses) → gain staging → escucha/referencia → intención", "correct": true, "feedback": "Sí: preparas el terreno antes de decidir mezcla."},
+            {"text": "Intención → exportar → organizar → rutear", "correct": false, "feedback": "No puedes exportar antes de preparar la sesión."},
+            {"text": "Gain staging → organizar → rutear al azar", "correct": false, "feedback": "El gain staging necesita el ruteo ya resuelto."}
+          ],
+          "feedback_correct": "Correcto: organizar, rutear, gain staging, escucha, intención.",
+          "feedback_incorrect": "Primero preparas: organizar, rutear, gain staging, escucha, intención.",
+          "recommended_review": {"timestamp": "0:00", "timestamp_seconds": 0, "resource": "Checklist de sesión lista para mezclar", "micro_practice": "Recorre el checklist de 6 bloques en un proyecto real.", "message": "Conviene afianzar el orden del checklist."}
+        },
+        {
+          "interaction_id": "SEC2-R61-I03", "order": 3, "at": 220, "pause": true,
+          "type": "multiple_choice", "concept": "gain_staging_listo", "graded": true, "max_score": 1,
+          "question": "Abres una sesión desordenada, sin buses y con pistas clippeando. ¿Qué falta antes de mezclar?",
+          "options": [
+            {"text": "Organizar, rutear buses y hacer gain staging", "correct": true, "feedback": "Exacto: eso es dejar la sesión 'lista para mezclar'."},
+            {"text": "Nada: puedes mezclar así directamente", "correct": false, "feedback": "Sin base, cada decisión parte de un terreno inestable."},
+            {"text": "Solo subir el máster", "correct": false, "feedback": "Subir el máster no arregla ni ruteo ni niveles."}
+          ],
+          "feedback_correct": "Correcto: organizar, rutear y gain staging primero.",
+          "feedback_incorrect": "Falta organizar, rutear y gain staging antes de mezclar.",
+          "recommended_review": {"timestamp": "0:00", "timestamp_seconds": 0, "resource": "Esquema de sesión ordenada", "micro_practice": "Convierte el 'Proyecto de sesión desordenada' en uno listo para mezclar.", "message": "Conviene reforzar qué hace a una sesión 'lista'."}
+        },
+        {
+          "interaction_id": "SEC2-R61-I04", "order": 4, "at": 300, "pause": true,
+          "type": "summary", "concept": "checklist_completo", "graded": true, "max_score": 1,
+          "question": "Cierre — elige la afirmación correcta sobre una sesión lista:",
+          "summaries": [
+            {"text": "Una sesión lista está organizada, ruteada, con gain staging, escucha calibrada e intención clara.", "correct": true},
+            {"text": "Una sesión lista es la que tiene más plugins cargados.", "correct": false},
+            {"text": "Una sesión lista es cualquiera, la preparación no importa.", "correct": false}
+          ],
+          "feedback_correct": "Correcto: preparación completa antes de decidir la mezcla.",
+          "feedback_incorrect": "Una sesión lista está organizada, ruteada, nivelada, con escucha e intención.",
+          "recommended_review": {"timestamp": "0:00", "timestamp_seconds": 0, "resource": "Proyecto de sesión modelo (FL Studio)", "micro_practice": "Compara tu sesión con el 'Proyecto de sesión modelo' y anota diferencias.", "message": "Repasa el checklist completo con la sesión modelo."}
+        }
+      ]
+    }
+  ]
+}
