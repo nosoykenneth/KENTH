@@ -268,34 +268,61 @@ def chat_endpoint(
         "tutor_envelope": envelope,
     }
 
-    try:
-        resultado = super_agente.invoke(estado_inicial)
-    except Exception as exc:
-        logging.getLogger("tesis_rag.chat").exception(
-            "chat_agent_failed",
-            extra={
-                "trace_id": trace_id,
-                "session_id": consulta.session_id,
-                "user_id": authenticated_user_id,
-                "course_id": scoped_course_id,
-                "lesson_id": envelope.activity_context.current_lesson_id,
-                "error": str(exc),
-            },
-        )
+    # Chat GENERAL (sin lección activa): si el alumno pide retroalimentación
+    # personal ("qué debo reforzar", "cómo me fue"), NO hay learning_signals que
+    # usar — se responde determinístico y neutral en vez de dejar que el agente
+    # invente desempeño. En chat de lección este guard NO aplica (ahí las señales
+    # reales se inyectan más arriba). El flujo sigue el camino normal de trazas.
+    resultado = None
+    if (
+        not envelope.activity_context.current_lesson_id
+        and learning_signals.is_personal_progress_question(consulta.pregunta)
+    ):
         resultado = {
             **estado_inicial,
-            "respuesta_final": "No pude generar la respuesta en este momento. Intenta de nuevo.",
+            "respuesta_final": learning_signals.GENERAL_PROGRESS_NO_LESSON_MESSAGE,
             "evidencias": [],
-            "evidence_level": "error",
-            "intent": "fallback_error",
-            "answer_type": "fallback",
-            "warnings": ["chat_agent_failed"],
-            "blocked_by": "agent_exception",
-            "applied_policies": [],
+            "evidence_level": "none",
+            "intent": "personal_progress_no_lesson",
+            "answer_type": "deterministic_orientation",
+            "requires_course_evidence": False,
+            "warnings": [],
+            "blocked_by": "",
+            "applied_policies": ["general_chat_no_signals"],
             "retrieval_scope": "",
             "retrieval_fallback": False,
             "retrieved_chunks": [],
         }
+
+    if resultado is None:
+        try:
+            resultado = super_agente.invoke(estado_inicial)
+        except Exception as exc:
+            logging.getLogger("tesis_rag.chat").exception(
+                "chat_agent_failed",
+                extra={
+                    "trace_id": trace_id,
+                    "session_id": consulta.session_id,
+                    "user_id": authenticated_user_id,
+                    "course_id": scoped_course_id,
+                    "lesson_id": envelope.activity_context.current_lesson_id,
+                    "error": str(exc),
+                },
+            )
+            resultado = {
+                **estado_inicial,
+                "respuesta_final": "No pude generar la respuesta en este momento. Intenta de nuevo.",
+                "evidencias": [],
+                "evidence_level": "error",
+                "intent": "fallback_error",
+                "answer_type": "fallback",
+                "warnings": ["chat_agent_failed"],
+                "blocked_by": "agent_exception",
+                "applied_policies": [],
+                "retrieval_scope": "",
+                "retrieval_fallback": False,
+                "retrieved_chunks": [],
+            }
 
     respuesta = resultado.get("respuesta_final") or "No pude generar la respuesta en este momento. Intenta de nuevo."
 

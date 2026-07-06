@@ -260,32 +260,42 @@ def get_lesson_signals(user_id: str, lesson_id: str, course_id: str) -> Dict[str
         else f"hvp:{content_id}:u:{uid}:x:{int(max_row_id)}:{signal_hash}"
     )
 
-    # Conceptos a reforzar: aquellos con alguna interacción fallada.
+    # Conceptos a reforzar: aquellos con alguna interacción fallada, PRIORIZADOS.
+    # Prioridad: menor porcentaje de acierto en el concepto primero; a igualdad,
+    # el orden pedagógico del manifest (aparición en el video).
     labels = plan.get("concept_labels", {})
-    weak_ids: List[str] = []
+    concept_stats: Dict[str, Dict[str, float]] = {}
+    manifest_order: Dict[str, int] = {}
+    for idx, it in enumerate(sorted(graded, key=lambda i: i.get("order", 0))):
+        manifest_order.setdefault(it.get("concept"), idx)
     for m in mapped:
-        if not m["correct"] and m["concept"] not in weak_ids:
-            weak_ids.append(m["concept"])
+        st = concept_stats.setdefault(m["concept"], {"raw": 0.0, "max": 0.0})
+        st["raw"] += m["raw"]
+        st["max"] += m["max"]
+    weak_ids = [c for c, st in concept_stats.items() if st["max"] and st["raw"] < st["max"]]
+    weak_ids.sort(key=lambda c: (
+        concept_stats[c]["raw"] / concept_stats[c]["max"] if concept_stats[c]["max"] else 0.0,
+        manifest_order.get(c, 999),
+    ))
 
-    # Remediación: primera interacción por concepto débil, en orden pedagógico, tope 3.
+    # Remediación: primera interacción (orden pedagógico) de cada concepto débil,
+    # recorriendo los conceptos en orden de PRIORIDAD, tope 3.
     review: List[Dict[str, Any]] = []
-    seen = set()
-    for it in sorted(graded, key=lambda i: i.get("order", 0)):
-        c = it.get("concept")
-        if c in weak_ids and c not in seen:
-            seen.add(c)
-            rr = it.get("recommended_review", {}) or {}
-            review.append({
-                "concept": c,
-                "concept_label": labels.get(c, c),
-                "timestamp": rr.get("timestamp", ""),
-                "timestamp_seconds": rr.get("timestamp_seconds"),
-                "resource": rr.get("resource", ""),
-                "micro_practice": rr.get("micro_practice", ""),
-                "message": rr.get("message", ""),
-            })
-        if len(review) >= 3:
-            break
+    ordered_graded = sorted(graded, key=lambda i: i.get("order", 0))
+    for c in weak_ids[:3]:
+        it = next((i for i in ordered_graded if i.get("concept") == c), None)
+        if it is None:
+            continue
+        rr = it.get("recommended_review", {}) or {}
+        review.append({
+            "concept": c,
+            "concept_label": labels.get(c, c),
+            "timestamp": rr.get("timestamp", ""),
+            "timestamp_seconds": rr.get("timestamp_seconds"),
+            "resource": rr.get("resource", ""),
+            "micro_practice": rr.get("micro_practice", ""),
+            "message": rr.get("message", ""),
+        })
 
     base.update({
         "status": "available",
@@ -297,41 +307,150 @@ def get_lesson_signals(user_id: str, lesson_id: str, course_id: str) -> Dict[str
         "updated_at": updated_at,
         "signal_hash": signal_hash,
         "level": _level(percentage),
-        "weak_concepts": [{"concept": c, "label": labels.get(c, c)} for c in weak_ids],
+        "weak_concepts": [
+            {
+                "concept": c,
+                "label": labels.get(c, c),
+                "score": round(concept_stats[c]["raw"], 2),
+                "max_score": round(concept_stats[c]["max"], 2),
+            }
+            for c in weak_ids
+        ],
         "recommended_review": review,
     })
     return base
 
 
-def build_guidance_message(signals: Dict[str, Any]) -> str:
-    """Mensaje deterministico para UI. No llama al modelo ni usa Chroma."""
+# Cierres del mensaje de guía según el nivel de ayuda configurado por el profesor
+# para la lección (metadata.pedagogy.help_level). El nivel de ayuda regula CÓMO se
+# invita a continuar, nunca elimina el minuto/recurso/micro-práctica.
+_HELP_LEVEL_CLOSERS = {
+    "orientar": "¿Quieres que repasemos el primer punto juntos?",
+    "explicar": "Si quieres, te explico el primer punto con más detalle.",
+    "corregir": "Si me cuentas cómo razonaste tu respuesta, te señalo exactamente dónde estuvo el error.",
+    "preguntar": "Antes de volver al video, intenta responder: ¿qué decidirías distinto ahora? Escríbemelo y lo revisamos.",
+    "ejemplo_guiado": "¿Quieres que resolvamos el primer punto juntos con un ejemplo guiado paso a paso?",
+}
+
+
+def _review_line(r: Dict[str, Any], include_micro: bool = True) -> str:
+    ts = r.get("timestamp") or ""
+    res = r.get("resource") or ""
+    micro = r.get("micro_practice") or ""
+    parts = []
+    parts.append(f"vuelve al minuto {ts} del video" if ts else "revisa la parte relacionada del video")
+    if res:
+        parts.append(f"usa el recurso “{res}”")
+    line = ". ".join(p[0].upper() + p[1:] for p in parts) + "."
+    if include_micro and micro:
+        line += f" Practica: {micro}"
+        if not line.endswith("."):
+            line += "."
+    return line
+
+
+def build_guidance_message(signals: Dict[str, Any], help_level: str = "") -> str:
+    """Mensaje determinístico para UI. No llama al modelo ni usa Chroma.
+
+    Cobertura por cantidad de conceptos débiles (FASE guía multi-concepto):
+    - 1 débil : concepto + minuto + recurso + micro-práctica.
+    - 2 débiles: ambos, numerados, con orden recomendado de repaso.
+    - 3+      : máximo 3 con "Prioridad 1/2/3" (los de menor acierto primero,
+                ya vienen priorizados en recommended_review) + ruta corta.
+    El nivel (needs_reinforcement/partial/ready) ajusta el tono; el help_level de
+    la lección ajusta el cierre. Nunca menciona internos (xAPI/Chroma/chunks).
+    """
     status = signals.get("status")
-    if status == "not_attempted" or status != "available":
+    if status != "available":
         return ""
 
     level = signals.get("level")
-    if level == LEVEL_READY:
-        return (
-            "Buen avance en esta actividad. Puedes pasar a la practica o pedirme "
-            "un reto aplicado para comprobarlo en una situacion real."
-        )
-
     weak = signals.get("weak_concepts") or []
     review = signals.get("recommended_review") or []
-    labels = [w.get("label") or w.get("concept") for w in weak[:2] if (w.get("label") or w.get("concept"))]
-    concepts = ", ".join(labels) if labels else "los puntos donde hubo mas duda"
 
-    first = review[0] if review else {}
-    timestamp = first.get("timestamp") or "la parte relacionada del video"
-    resource = first.get("resource") or "el recurso de apoyo de la leccion"
-    micro = first.get("micro_practice") or "explica el concepto con tus palabras y contrasta una decision correcta con una incorrecta"
+    if level == LEVEL_READY:
+        if not weak or not review:
+            return (
+                "Buen avance en esta actividad. Puedes pasar a la practica o pedirme "
+                "un reto aplicado para comprobarlo en una situacion real."
+            )
+        # ready con un fallo puntual: sugerencia suave, sin alerta de refuerzo.
+        r = review[0]
+        label = r.get("concept_label") or r.get("concept") or "ese punto"
+        return (
+            f"Buen avance en esta actividad. Solo te sugiero repasar {label}: "
+            f"{_review_line(r, include_micro=False)} "
+            "Cuando quieras, pídeme un reto aplicado para consolidarlo."
+        )
 
-    return (
-        f"Revise tus respuestas del video interactivo. Conviene reforzar {concepts}. "
-        f"Te recomiendo volver al minuto {timestamp} y usar el recurso {resource}. "
-        f"Luego realiza esta micro-practica: {micro}. "
-        "Quieres que lo repasemos juntos?"
+    closer = _HELP_LEVEL_CLOSERS.get(
+        str(help_level or "").strip().lower(),
+        _HELP_LEVEL_CLOSERS["orientar"],
     )
+
+    if len(review) == 1:
+        r = review[0]
+        label = r.get("concept_label") or r.get("concept") or "el punto donde hubo más duda"
+        lines = [f"Revisé tus respuestas del video interactivo. Conviene reforzar {label}."]
+        if level == LEVEL_NEEDS:
+            lines.append("Vamos con calma, paso a paso:")
+        lines.append(_review_line(r))
+        lines.append(closer)
+        return "\n".join(lines)
+
+    if len(review) == 2:
+        l1 = review[0].get("concept_label") or review[0].get("concept")
+        l2 = review[1].get("concept_label") or review[1].get("concept")
+        lines = ["Revisé tus respuestas del video interactivo. Conviene reforzar estos puntos:", ""]
+        lines.append(f"1. {l1}\n   {_review_line(review[0])}")
+        lines.append(f"2. {l2}\n   {_review_line(review[1])}")
+        lines.append("")
+        if level == LEVEL_PARTIAL:
+            lines.append(
+                f"Estos dos puntos se conectan en la práctica: primero revisa {l1}, "
+                f"luego aplica {l2} en el proyecto de práctica."
+            )
+        else:
+            lines.append(f"Orden recomendado: primero revisa {l1}, luego practica {l2}.")
+        lines.append(closer)
+        return "\n".join(lines)
+
+    if review:  # 3 o más conceptos débiles -> priorizar máximo 3, sin saturar
+        lines = [
+            "Revisé tus respuestas del video interactivo. Hay varios puntos que conviene "
+            "reforzar; para no saturarte, vamos por prioridades:",
+            "",
+        ]
+        route = []
+        for idx, r in enumerate(review[:3], start=1):
+            label = r.get("concept_label") or r.get("concept")
+            route.append(label)
+            lines.append(f"Prioridad {idx} — {label}\n   {_review_line(r, include_micro=(idx == 1))}")
+        lines.append("")
+        lines.append(
+            "Ruta corta de repaso: " + " → ".join(route) +
+            ". Empieza por la prioridad 1 y avanza una a una; no intentes cubrir todo de golpe."
+        )
+        lines.append(closer)
+        return "\n".join(lines)
+
+    # available pero sin remediación mapeable: orientación genérica no punitiva.
+    return (
+        "Revisé tus respuestas del video interactivo. Conviene repasar los puntos donde "
+        "hubo más duda: vuelve a la parte relacionada del video y apóyate en los recursos "
+        f"de la lección. {closer}"
+    )
+
+
+def _lesson_help_level(lesson_id: str, course_id: str) -> str:
+    """help_level configurado por el profesor para la lección (metadata.pedagogy).
+    Defensivo: si la BD no está o la lección no existe, cadena vacía (default)."""
+    try:
+        lesson = db_service.get_lesson(lesson_id, str(course_id)) or {}
+        ped = (lesson.get("metadata") or {}).get("pedagogy") or {}
+        return str(ped.get("help_level") or "").strip().lower()
+    except Exception:
+        return ""
 
 
 def guidance_for(user_id: str, lesson_id: str, course_id: str) -> Dict[str, Any]:
@@ -345,7 +464,8 @@ def guidance_for(user_id: str, lesson_id: str, course_id: str) -> Dict[str, Any]
         and level in {LEVEL_NEEDS, LEVEL_PARTIAL}
         and bool(weak)
     )
-    message = build_guidance_message(signals)
+    help_level = _lesson_help_level(lesson_id, str(course_id))
+    message = build_guidance_message(signals, help_level=help_level)
     guidance_id = signals.get("attempt_id") or signals.get("signal_hash") or ""
     return {
         "lesson_id": lesson_id,
@@ -401,7 +521,13 @@ def render_signals_block(signals: Dict[str, Any]) -> str:
             "para cada uno, el minuto exacto del video al que volver Y el nombre del recurso de la "
             "lección que debe usar. Cierra con una micro-práctica concreta."
         )
-        for r in review:
+        if len(review) >= 2:
+            lines.append(
+                "Los conceptos ya vienen PRIORIZADOS (Prioridad 1 = el más débil). Cúbrelos en ese "
+                "orden y cierra recomendando esa misma ruta de repaso. No agregues más de 3 conceptos "
+                "ni satures la respuesta: una recomendación clara por concepto."
+            )
+        for idx, r in enumerate(review, start=1):
             ts = r.get("timestamp") or ""
             res = r.get("resource") or ""
             micro = r.get("micro_practice", "")
@@ -413,7 +539,8 @@ def render_signals_block(signals: Dict[str, Any]) -> str:
                 frase += f" y apóyate en el recurso “{res}”"
             frase += "»."
             tail = f" Micro-práctica: {micro}" if micro else ""
-            lines.append(f"  - {r['concept_label']}: {frase}{tail}")
+            prefijo = f"Prioridad {idx} — " if len(review) >= 2 else ""
+            lines.append(f"  - {prefijo}{r['concept_label']}: {frase}{tail}")
 
     level = signals.get("level")
     if level == LEVEL_NEEDS:
@@ -525,6 +652,43 @@ def sync_lesson(course_id: str, lesson_id: str) -> Dict[str, Any]:
         "status": summary.get("status"),
         "summary": summary,
     }
+
+# ------------------------------------------------------------------
+# Chat general (sin lección activa): NO hay learning_signals que inyectar.
+# Si el alumno pide retroalimentación personal, se responde de forma
+# determinística y neutral en vez de inventar señales (FASE chat general).
+# ------------------------------------------------------------------
+GENERAL_PROGRESS_NO_LESSON_MESSAGE = (
+    "Puedo orientarte sobre el curso completo. Para darte una recomendación "
+    "personalizada sobre qué reforzar, necesito que abras una lección específica "
+    "o completes su video interactivo: así puedo usar tus señales de aprendizaje "
+    "de esa lección. Mientras tanto, dime qué tema del curso te interesa y te oriento."
+)
+
+_PROGRESS_PERSONAL_MARKERS = (
+    " mi ", " mis ", "debo", "deberia", "tengo que", "necesito",
+    "me fue", "me falta", "me recomiendas", "me conviene",
+    "falle", "me equivoque",
+)
+_PROGRESS_TOPIC_MARKERS = (
+    "reforzar", "repasar", "progreso", "resultados", "desempeno",
+    "avance", "falle", "fallado", "errores", "senales de aprendizaje",
+    "retroalimentacion", "me fue",
+)
+
+
+def is_personal_progress_question(text: str) -> bool:
+    """True si la pregunta pide retroalimentación PERSONAL de desempeño
+    (p.ej. 'qué debo reforzar', 'cómo me fue', 'mis resultados'). Se usa SOLO
+    cuando no hay lección activa, para responder neutral sin inventar señales.
+    Deliberadamente estrecho: exige marcador personal + tema de progreso."""
+    t = f" {_norm(text)} "
+    if not t.strip():
+        return False
+    personal = any(m in t for m in _PROGRESS_PERSONAL_MARKERS)
+    topic = any(m in t for m in _PROGRESS_TOPIC_MARKERS)
+    return personal and topic
+
 
 def sync_lesson_for_user(user_id: str, course_id: str, lesson_id: str) -> Dict[str, Any]:
     """Recalculo idempotente para el estudiante autenticado."""

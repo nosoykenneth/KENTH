@@ -34,6 +34,7 @@ from models.context import (
     TutorContextEnvelope,
 )
 from services import db_service
+from services import pedagogy_profile
 from services.lesson_service import (
     is_known_lesson,
     load_lesson as load_axis_lesson,
@@ -476,11 +477,22 @@ def render_context_block(envelope: TutorContextEnvelope) -> str:
             lineas.append(f"Resumen de la leccion (para orientar, no es evidencia): {pedagogia['lesson_summary']}")
         if pedagogia.get("tutor_tone"):
             lineas.append(f"Tono del tutor solicitado por el profesor: {pedagogia['tutor_tone']}")
+            directiva_tono = pedagogy_profile.tone_directive(pedagogia["tutor_tone"])
+            if directiva_tono:
+                lineas.append(f"COMO APLICAR EL TONO (obligatorio en esta leccion): {directiva_tono}")
         if pedagogia.get("help_level"):
             lineas.append(
                 f"Nivel de ayuda esperado en esta leccion: {pedagogia['help_level']} "
                 "(ajusta cuanto guias vs cuanto resuelves)."
             )
+            directiva_ayuda = pedagogy_profile.help_directive(pedagogia["help_level"])
+            if directiva_ayuda:
+                lineas.append(f"COMO APLICAR EL NIVEL DE AYUDA: {directiva_ayuda}")
+                lineas.append(
+                    "El tono y el nivel de ayuda regulan COMO respondes, nunca la verdad del "
+                    "contenido: no omitas el minuto del video ni el recurso recomendado cuando "
+                    "existan senales de aprendizaje del estudiante."
+                )
         reglas = pedagogia.get("lesson_rules")
         if isinstance(reglas, (list, tuple)):
             reglas = "; ".join(str(r) for r in reglas if str(r).strip())

@@ -31,6 +31,9 @@ export default function TutorAssistCard({
   ));
   const chatEndRef = useRef(null);
   const proactiveIdsRef = useRef(new Set());
+  // Refs por mensaje de guía (proactiveId) para poder ENFOCAR una guía ya
+  // insertada cuando el estudiante la recupera desde el badge (sin duplicar).
+  const guidanceRefs = useRef({});
 
   const accionesPorVariante = {
     module: [
@@ -66,7 +69,17 @@ export default function TutorAssistCard({
 
   useEffect(() => {
     if (!proactiveGuidance?.message || !proactiveGuidance?.id) return;
-    if (proactiveIdsRef.current.has(proactiveGuidance.id)) return;
+    if (proactiveIdsRef.current.has(proactiveGuidance.id)) {
+      // Ya está en el historial: el estudiante la pidió de nuevo (badge
+      // "Ver guía del tutor") => scroll hasta el mensaje, sin duplicarlo.
+      const el = guidanceRefs.current[proactiveGuidance.id];
+      if (el) {
+        window.setTimeout(() => {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 60);
+      }
+      return;
+    }
     proactiveIdsRef.current.add(proactiveGuidance.id);
     setHistorial((prev) => {
       if (prev.some((msg) => msg.proactiveId === proactiveGuidance.id)) return prev;
@@ -153,7 +166,11 @@ export default function TutorAssistCard({
       {historial.length > 0 && (
         <div className="max-h-[300px] overflow-y-auto flex flex-col gap-3 pr-2 scrollbar-thin scrollbar-thumb-kenth-border">
           {historial.map((msg, idx) => (
-            <div key={idx} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+            <div
+              key={idx}
+              ref={msg.proactiveId ? (el) => { guidanceRefs.current[msg.proactiveId] = el; } : undefined}
+              className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
               <div className={`max-w-[90%] p-3 text-[11px] leading-relaxed rounded-2xl ${
                 msg.role === 'user'
                   ? 'bg-kenth-brightred text-white rounded-tr-none'

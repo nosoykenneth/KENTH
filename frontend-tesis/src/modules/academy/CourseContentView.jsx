@@ -27,6 +27,15 @@ import { resolveLessonForResource as resolveLessonForModule } from '../../shared
 import { getMoodleToken, hasMoodleSession } from '../../shared/utils/moodleToken';
 import useResourceTimestamp from '../../shared/hooks/useResourceTimestamp';
 import { getLessonSignalGuidance, syncLessonSignals } from '../../shared/services/ragService';
+import {
+  readStoredGuidance,
+  writeStoredGuidance,
+  registerGuidance,
+  markNotified,
+  markSeen,
+  recoverableGuidance,
+  pendingGuidance as pendingFromStore,
+} from '../../shared/utils/guidanceStore';
 
 const FloatingAssistantIcon = () => (
   <div className="relative w-7 h-7">
@@ -163,9 +172,14 @@ export default function CourseContentView() {
     };
   };
 
-  const guidanceStorageKey = useCallback((lessonId) => (
-    lessonId ? `kenth:h5p-guidance:${id}:${lessonId}` : ''
+  // Persistencia de la guía del tutor por curso+lección (guidanceStore):
+  // el mensaje sobrevive recargas y puede recuperarse desde el badge.
+  const readGuidance = useCallback((lessonId) => (
+    readStoredGuidance(window.localStorage, id, lessonId)
   ), [id]);
+  const writeGuidance = useCallback((lessonId, entry) => {
+    writeStoredGuidance(window.localStorage, id, lessonId, entry);
+  }, [id]);
 
   useEffect(() => {
     const markInteraction = () => { userInteractedRef.current = true; };
@@ -207,18 +221,25 @@ export default function CourseContentView() {
     const guidanceId = guidance?.guidance_id || guidance?.attempt_id || guidance?.signal_hash;
     const message = guidance?.message || '';
     if (!guidance?.should_notify || !guidanceId || !message) return;
-    const key = guidanceStorageKey(lessonId);
-    if (key && localStorage.getItem(key) === guidanceId) return;
-    if (key) localStorage.setItem(key, guidanceId);
-    const payload = { id: guidanceId, message };
+
+    const stored = readGuidance(lessonId);
+    const { entry, action } = registerGuidance(stored, { id: guidanceId, message });
+    if (action === 'skip' || action === 'skip_seen') return;
+
+    const payload = { id: entry.id, message: entry.message };
     if (tutorAbierto) {
+      // Chat abierto: se inserta ya => cuenta como visto.
+      writeGuidance(lessonId, markSeen(markNotified(entry)));
       setProactiveGuidance(payload);
       setPendingTutorGuidance(null);
       return;
     }
+    // Chat cerrado: badge/flecha; el sonido solo suena la PRIMERA vez que se
+    // notifica este intento ('notify'); tras recarga ('renotify') no se repite.
+    writeGuidance(lessonId, markNotified(entry));
     setPendingTutorGuidance(payload);
-    playGuidanceSound(guidanceId);
-  }, [guidanceStorageKey, playGuidanceSound, tutorAbierto]);
+    if (action === 'notify') playGuidanceSound(entry.id);
+  }, [playGuidanceSound, readGuidance, tutorAbierto, writeGuidance]);
 
   const syncH5PLessonSignals = useCallback(async (lessonId, reason = 'h5p') => {
     if (!lessonId || h5pPollInFlightRef.current) return false;
@@ -308,6 +329,13 @@ export default function CourseContentView() {
     return { ...resolved, link };
   };
 
+  // Lección del tutor asociada al recurso abierto (para guidance por lección).
+  const activeGuidanceLessonId = useCallback(() => {
+    if (!visorActivo) return '';
+    const resolved = resolveLessonForResource(visorActivo);
+    return resolved?.lesson_id || resourceLinks[String(visorActivo.id)]?.lesson_id || '';
+  }, [resolveLessonForResource, resourceLinks, visorActivo]);
+
   const abrirTutor = () => {
     if (tutorUnmountTimerRef.current) {
       window.clearTimeout(tutorUnmountTimerRef.current);
@@ -318,8 +346,33 @@ export default function CourseContentView() {
     if (pendingTutorGuidance) {
       setProactiveGuidance(pendingTutorGuidance);
       setPendingTutorGuidance(null);
+      // El estudiante lo tiene delante: se marca como visto (deja de re-notificar).
+      const lessonId = activeGuidanceLessonId();
+      const stored = lessonId ? readGuidance(lessonId) : null;
+      if (lessonId && stored) writeGuidance(lessonId, markSeen(markNotified(stored)));
     }
   };
+
+  // Acción explícita "Ver guía del tutor" (badge superior / estado H5P):
+  // abre el chat y REINSERTA la guía desde el almacenamiento si ya no está
+  // (o hace scroll hasta ella si ya está insertada; nunca duplica).
+  const verGuiaDelTutor = useCallback(() => {
+    if (tutorUnmountTimerRef.current) {
+      window.clearTimeout(tutorUnmountTimerRef.current);
+      tutorUnmountTimerRef.current = null;
+    }
+    setTutorMontado(true);
+    setTutorAbierto(true);
+    const lessonId = activeGuidanceLessonId();
+    const stored = lessonId ? readGuidance(lessonId) : null;
+    const rec = pendingTutorGuidance || recoverableGuidance(stored);
+    if (!rec) return;
+    // Referencia nueva a propósito: TutorAssistCard reacciona aunque sea el
+    // mismo id (inserta si falta o enfoca el mensaje existente).
+    setProactiveGuidance({ ...rec });
+    setPendingTutorGuidance(null);
+    if (lessonId && stored) writeGuidance(lessonId, markSeen(markNotified(stored)));
+  }, [activeGuidanceLessonId, pendingTutorGuidance, readGuidance, writeGuidance]);
 
   const cerrarTutor = () => {
     setTutorAbierto(false);
@@ -808,6 +861,17 @@ export default function CourseContentView() {
     if (!lessonId) return;
     startH5PSignalPolling(lessonId, event.type || 'h5p_activity');
   }, [resourceLinks, resolveLessonForResource, startH5PSignalPolling, visorActivo]);
+
+  // Al abrir un recurso H5P (o tras recargar la página): si quedó una guía
+  // reciente SIN VER para esta lección, se restaura el badge/flecha (sin sonido).
+  // La clave de almacenamiento es por curso+lección: no cruza lecciones.
+  useEffect(() => {
+    if (!visorActivo || !isH5PModule(visorActivo)) return;
+    const lessonId = activeGuidanceLessonId();
+    if (!lessonId) return;
+    const pending = pendingFromStore(readGuidance(lessonId));
+    if (pending) setPendingTutorGuidance((prev) => prev?.id === pending.id ? prev : pending);
+  }, [activeGuidanceLessonId, readGuidance, visorActivo]);
 
   useEffect(() => {
     if (!visorActivo || !isH5PModule(visorActivo)) return undefined;
@@ -1467,6 +1531,7 @@ export default function CourseContentView() {
                 {(() => {
                   const activeLesson = resolveLessonForResource(visorActivo);
                   const lessonId = activeLesson?.lesson_id || resourceLinks[String(visorActivo.id)]?.lesson_id || '';
+                  const storedGuidance = lessonId ? recoverableGuidance(readGuidance(lessonId)) : null;
                   return lessonId ? (
                     <>
                       <H5PStudentSignal
@@ -1475,6 +1540,8 @@ export default function CourseContentView() {
                         signal={h5pSignal?.lesson_id === lessonId ? h5pSignal : null}
                         refreshKey={h5pRefreshKey}
                         onSignal={handleStudentSignal}
+                        hasGuidance={Boolean(pendingTutorGuidance || storedGuidance)}
+                        onOpenGuidance={verGuiaDelTutor}
                       />
                       <StudentLessonResources courseId={id} lessonId={lessonId} />
                     </>
