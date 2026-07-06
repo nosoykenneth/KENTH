@@ -39,6 +39,77 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
+# ---------------------------------------------------------------------------
+# Directivas OPERATIVAS de tono y nivel de ayuda.
+#
+# El profesor elige un valor en la UI (TutorPedagogyView: TONE_OPTIONS /
+# HELP_OPTIONS); guardar solo la palabra ("practico") apenas influye en un
+# modelo pequeño. Estas directivas traducen cada valor a instrucciones de
+# COMPORTAMIENTO que context_service inyecta junto al valor. Son pedagogía
+# genérica (no vocabulario del dominio): por eso viven aquí y no en el pack.
+# ---------------------------------------------------------------------------
+TONE_DIRECTIVES: Dict[str, str] = {
+    "directo": (
+        "Sé directo: respuestas concretas y al grano. Di primero la acción o la "
+        "respuesta y después la razón en una línea; evita rodeos y relleno."
+    ),
+    "paciente": (
+        "Sé paciente: explica con calma y en pasos pequeños, sin asumir conocimientos "
+        "previos; valida la duda del alumno antes de corregir y ofrece re-explicar."
+    ),
+    "exigente": (
+        "Sé exigente sin ser punitivo: pide precisión, señala imprecisiones en lo que "
+        "dice el alumno, sube el nivel de detalle y propón una comprobación para "
+        "verificar que realmente entendió."
+    ),
+    "socratico": (
+        "Sé socrático: guía con preguntas; no des la respuesta completa de inmediato; "
+        "invita al alumno a razonar el siguiente paso y confirma o corrige su "
+        "razonamiento antes de avanzar."
+    ),
+    "practico": (
+        "Sé práctico: respuestas aplicadas con pasos accionables y ejemplos del "
+        "proyecto o del DAW; poca teoría innecesaria; cierra con una acción concreta "
+        "que el alumno pueda ejecutar ahora mismo."
+    ),
+}
+
+HELP_DIRECTIVES: Dict[str, str] = {
+    "orientar": (
+        "Nivel 'orientar': da pistas y el camino (minuto del video, recurso, criterio) "
+        "pero deja que el alumno llegue a la respuesta por sí mismo; termina con una "
+        "tarea breve, no con la solución completa."
+    ),
+    "explicar": (
+        "Nivel 'explicar': desarrolla el concepto completo con claridad y un ejemplo; "
+        "después comprueba comprensión con una pregunta corta."
+    ),
+    "corregir": (
+        "Nivel 'corregir': identifica explícitamente el error del alumno, explica por "
+        "qué está mal y da la corrección; cierra con cómo evitarlo la próxima vez."
+    ),
+    "preguntar": (
+        "Nivel 'hacer preguntas': antes de dar la solución, plantea 1–2 preguntas que "
+        "hagan razonar al alumno (diagnóstico); si el alumno responde, retroalimenta "
+        "sobre SU razonamiento."
+    ),
+    "ejemplo_guiado": (
+        "Nivel 'ejemplo guiado': resuelve un caso paso a paso como demostración y "
+        "luego pide al alumno replicarlo con una variante."
+    ),
+}
+
+
+def tone_directive(tone: Any) -> str:
+    """Directiva operativa para el tono configurado ('' si no hay o es desconocido)."""
+    return TONE_DIRECTIVES.get(str(tone or "").strip().lower(), "")
+
+
+def help_directive(level: Any) -> str:
+    """Directiva operativa para el nivel de ayuda ('' si no hay o es desconocido)."""
+    return HELP_DIRECTIVES.get(str(level or "").strip().lower(), "")
+
+
 def _as_list(value: Any) -> List[str]:
     """Normaliza a lista de strings, tolerando string con saltos de línea."""
     if value is None:

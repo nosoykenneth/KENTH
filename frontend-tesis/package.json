@@ -10,7 +10,8 @@
     "test:professor-view": "node scripts/verify_professor_view_contract.mjs",
     "test:chat-sources": "node scripts/verify_chat_source_visibility.mjs",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test:guidance": "node scripts/verify_guidance_recovery_contract.mjs"
   },
   "dependencies": {
     "@paypal/react-paypal-js": "^9.2.0",
